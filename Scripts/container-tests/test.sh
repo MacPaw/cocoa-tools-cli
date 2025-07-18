@@ -1,0 +1,48 @@
+#!/usr/bin/env sh
+
+set -Eeo
+
+# Running test on a package copy to avoid modifying files in the original package folder (.build, .swiftpm, etc.).
+
+echo "Removing copy..."
+rm -rf /package-copy
+
+mkdir -p /package-copy/.build
+
+echo "Trusting Swift Package Macros and Plugins..."
+./.github/workflows/scripts/spm-trust/spm-trust.sh
+
+echo "Copying sources with Plugins..."
+cp -r Plugins Sources Tests Package.swift Package.resolved .version /package-copy
+
+echo "Copying resolved packages..."
+# Not copying .build/prebuilts because they are platform-specific.
+cp -r .build/checkouts .build/repositories .build/plugins .build/workspace-state.json /package-copy/.build || true
+
+echo "Copying necessary scripts..."
+mkdir -p /package-copy/Scripts/tools/swift
+cp -r Scripts/tools/swift/swift.sh /package-copy/Scripts/tools/swift/swift.sh
+
+echo "Changing directory..."
+cd /package-copy
+
+echo "Current directory:"
+pwd
+
+echo "Removing previous build..."
+rm -rf .build/*-linux-* || true
+
+# echo "Cleaning..."
+# /usr/bin/swift package clean
+
+# echo "Resolving packages..."
+# /usr/bin/swift package resolve
+
+echo "Building..."
+./Scripts/tools/swift/swift.sh --action=build
+
+echo "Testing..."
+./Scripts/tools/swift/swift.sh --action=test
+
+echo "Removing copy..."
+rm -rf /package-copy

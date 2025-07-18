@@ -1,0 +1,19 @@
+[tools.1password]
+version = "2.30.3"
+backend = "aqua:1password/cli"
+
+[tools.container]
+version = "0.3.0"
+backend = "aqua:apple/container"
+
+[tools.shellcheck]
+version = "0.11.0"
+backend = "ubi:koalaman/shellcheck"
+
+[tools.shfmt]
+version = "3.12.0"
+backend = "aqua:mvdan/sh"
+
+[tools."ubi:securevale/swift-confidential"]
+version = "0.4.1"
+backend = "ubi:securevale/swift-confidential"

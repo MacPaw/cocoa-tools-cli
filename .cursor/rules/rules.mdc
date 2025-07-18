@@ -1,0 +1,286 @@
+---
+alwaysApply: true
+---
+
+# Cursor Rules for mpct Swift Project
+
+## Project Overview
+This is a Swift CLI project targeting macOS 15+ with modular architecture including different modules that aim to help engineers with scripts boilerplate locally and on the CI.
+
+## Language & Platform
+- Swift 6.1 with strict concurrency enabled
+- macOS 15+ target
+- Use modern Swift language features and syntax
+
+## Code Style & Formatting
+- Use .editorconfig and follow swift-format configuration in .swift-format for editor consistency
+- Use 2-space indentation (never tabs)
+- Line length limit: 120 characters
+- Use triple-slash comments (///) for documentation
+- Prefer single-line property getters when possible
+- Use early exits sparingly **guard** (follow existing patterns)
+- No semicolons except where required
+- No force unwrapping in production code (use sparingly in tests)
+
+## Architecture & Design Patterns
+- Follow the existing modular structure: ENV, CI, Logs, mpct
+- Use dependency injection where appropriate
+- Prefer composition over inheritance
+- Keep modules loosely coupled
+- Use protocols for abstraction (like CIInterface)
+
+## Concurrency & Threading
+- All types must be Sendable where appropriate
+- Use async/await for asynchronous operations
+- Prefer structured concurrency over callbacks
+- Use actors for mutable shared state
+- Follow strict concurrency guidelines
+
+## Error Handling
+- Use Result types for operations that can fail
+- Prefer throwing functions for recoverable errors
+- Use proper error types, not generic Error
+- Handle errors gracefully in CLI context
+
+## Testing
+- Use the new Testing framework
+- Write unit tests for all modules
+- Test both success and failure scenarios
+- Mock external dependencies where needed
+- Follow existing test structure in Tests/ directory
+- Add **GIVEN**/**WHEN**/**THEN** comments. Add short comments on what's heppening in each GIVEN/WHEN/THEN block.
+- Name the system under test as **sut**.
+- Group tests in **@Suite**.
+- Use mixed case when naming test methods **test_function/property_testExplanation**.
+- For @Test use the following **@Test("#function/property test explanation")**.
+- For unit tests stick to testing outputs not the behaviour.
+
+## Dependencies
+- Use ArgumentParser for CLI argument parsing
+- Use Swift Log for logging (via Logs module)
+- Use Yams for YAML parsing
+- Use Swift Crypto for cryptographic operations
+- Keep external dependencies minimal and justified
+
+## Documentation
+- Document all public APIs with triple-slash comments
+- Include parameter and return value descriptions
+- Use proper Swift documentation formatting
+- Keep documentation concise but comprehensive
+
+## File Organization
+- One main type per file
+- Group related functionality in extensions
+- Use file-scoped private access level where appropriate
+- Follow existing directory structure
+- Keep main.swift minimal (entry point only)
+
+## Environment Variables
+- Use ENV module for all environment variable access
+- Use dynamic member lookup for clean syntax
+- Handle missing environment variables gracefully
+
+## Performance
+- Prefer value types over reference types
+- Use lazy evaluation for expensive computations
+- Minimize allocations in hot paths
+- Profile performance-critical code
+
+## Security
+- Validate all external inputs
+- Use secure defaults
+- Don't log sensitive information
+- Use Swift Crypto for cryptographic operations
+
+## Code Quality
+- Prefer explicit over implicit
+- Use descriptive variable and function names
+- Keep functions small and focused
+- Avoid deep nesting. If needed use 3 levels maximum
+- Use guard statements for early validation
+
+## Swift-Specific Best Practices
+- Use optionals correctly and safely
+- Prefer let over var
+- Use property wrappers where appropriate
+- Leverage Swift's type system for safety
+- Use enums with associated values for complex states
+- Follow naming conventions (camelCase for variables, PascalCase for types)
+
+## Package Management
+- Keep Package.swift up to date
+- Use semantic versioning for dependencies
+- Prefer official Apple packages when available
+- Document dependency choices in comments
+
+## Build & Development
+- Use mise.toml for tool version management
+- Support swift-format for code formatting
+- Maintain clean build warnings
+
+## CLI Best Practices
+- Provide helpful error messages
+- Support --help for all commands
+- Use proper exit codes
+- Handle interruption gracefully
+- Provide verbose/quiet modes where appropriate
+
+## Anti-Patterns to Avoid
+- Don't use force unwrapping in production code
+- Don't use implicitly unwrapped optionals unnecessarily
+- Don't use singletons unless absolutely necessary
+- Don't hardcode strings that should be configurable
+- Don't mix synchronous and asynchronous code patterns
+- Don't use global state
+- Don't ignore compiler warnings
+
+## Review Checklist
+Before submitting code:
+- [ ] All tests pass
+- [ ] Code follows formatting rules. Use `mise tasks run format` command to format code
+- [ ] Documentation is complete
+- [ ] Error handling is appropriate
+- [ ] Concurrency safety is maintained
+- [ ] Performance implications considered
+- [ ] Security best practices followed
+# Cursor Rules for mpct Swift Project
+
+## Project Overview
+This is a Swift CLI project targeting macOS 15+ with modular architecture including different modules that aim to help engineers with scripts boilerplate locally and on the CI.
+
+## Language & Platform
+- Swift 6.1 with strict concurrency enabled
+- macOS 15+ target
+- Use modern Swift language features and syntax
+
+## Code Style & Formatting
+- Use .editorconfig and follow swift-format configuration in .swift-format for editor consistency
+- Use 2-space indentation (never tabs)
+- Line length limit: 120 characters
+- Use triple-slash comments (///) for documentation
+- Prefer single-line property getters when possible
+- Use early exits sparingly **guard** (follow existing patterns)
+- No semicolons except where required
+- No force unwrapping in production code (use sparingly in tests)
+
+## Architecture & Design Patterns
+- Follow the existing modular structure: ENV, CI, Logs, mpct
+- Use dependency injection where appropriate
+- Prefer composition over inheritance
+- Keep modules loosely coupled
+- Use protocols for abstraction (like CIInterface)
+
+## Concurrency & Threading
+- All types must be Sendable where appropriate
+- Use async/await for asynchronous operations
+- Prefer structured concurrency over callbacks
+- Use actors for mutable shared state
+- Follow strict concurrency guidelines
+
+## Error Handling
+- Use Result types for operations that can fail
+- Prefer throwing functions for recoverable errors
+- Use proper error types, not generic Error
+- Handle errors gracefully in CLI context
+
+## Testing
+- Use the new Testing framework
+- Write unit tests for all modules
+- Test both success and failure scenarios
+- Mock external dependencies where needed
+- Follow existing test structure in Tests/ directory
+- Add **GIVEN**/**WHEN**/**THEN** comments. Add short comments on what's heppening in each GIVEN/WHEN/THEN block.
+- Name the system under test as **sut**.
+- Group tests in **@Suite**.
+- Use mixed case when naming test methods **test_function/property_testExplanation**.
+- For @Test use the following **@Test("#function/property test explanation")**.
+- For unit tests stick to testing outputs not the behaviour.
+
+## Dependencies
+- Use ArgumentParser for CLI argument parsing
+- Use Swift Log for logging (via Logs module)
+- Use Yams for YAML parsing
+- Use Swift Crypto for cryptographic operations
+- Keep external dependencies minimal and justified
+
+## Documentation
+- Document all public APIs with triple-slash comments
+- Include parameter and return value descriptions
+- Use proper Swift documentation formatting
+- Keep documentation concise but comprehensive
+
+## File Organization
+- One main type per file
+- Group related functionality in extensions
+- Use file-scoped private access level where appropriate
+- Follow existing directory structure
+- Keep main.swift minimal (entry point only)
+
+## Environment Variables
+- Use ENV module for all environment variable access
+- Use dynamic member lookup for clean syntax
+- Handle missing environment variables gracefully
+
+## Performance
+- Prefer value types over reference types
+- Use lazy evaluation for expensive computations
+- Minimize allocations in hot paths
+- Profile performance-critical code
+
+## Security
+- Validate all external inputs
+- Use secure defaults
+- Don't log sensitive information
+- Use Swift Crypto for cryptographic operations
+
+## Code Quality
+- Prefer explicit over implicit
+- Use descriptive variable and function names
+- Keep functions small and focused
+- Avoid deep nesting. If needed use 3 levels maximum
+- Use guard statements for early validation
+
+## Swift-Specific Best Practices
+- Use optionals correctly and safely
+- Prefer let over var
+- Use property wrappers where appropriate
+- Leverage Swift's type system for safety
+- Use enums with associated values for complex states
+- Follow naming conventions (camelCase for variables, PascalCase for types)
+
+## Package Management
+- Keep Package.swift up to date
+- Use semantic versioning for dependencies
+- Prefer official Apple packages when available
+- Document dependency choices in comments
+
+## Build & Development
+- Use mise.toml for tool version management
+- Support swift-format for code formatting
+- Maintain clean build warnings
+
+## CLI Best Practices
+- Provide helpful error messages
+- Support --help for all commands
+- Use proper exit codes
+- Handle interruption gracefully
+- Provide verbose/quiet modes where appropriate
+
+## Anti-Patterns to Avoid
+- Don't use force unwrapping in production code
+- Don't use implicitly unwrapped optionals unnecessarily
+- Don't use singletons unless absolutely necessary
+- Don't hardcode strings that should be configurable
+- Don't mix synchronous and asynchronous code patterns
+- Don't use global state
+- Don't ignore compiler warnings
+
+## Review Checklist
+Before submitting code:
+- [ ] All tests pass
+- [ ] Documentation is complete
+- [ ] Error handling is appropriate
+- [ ] Concurrency safety is maintained
+- [ ] Performance implications considered
+- [ ] Security best practices followed
+- [ ] Code follows formatting rules. Use `mise tasks run format` command to format code

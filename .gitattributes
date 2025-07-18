@@ -1,0 +1,6 @@
+# Language detection options for GitHub.
+# More: https://github.com/github-linguist/linguist/blob/main/docs/overrides.md#using-gitattributes
+mise.lock linguist-generated=true linguist-language=TOML
+mise.*.lock linguist-generated=true linguist-language=TOML
+Package.resolved linguist-generated=true linguist-language=JSON
+.swift-format linguist-language=JSON

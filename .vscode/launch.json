@@ -1,0 +1,85 @@
+{
+  "configurations": [
+    {
+      "type": "swift",
+      "request": "launch",
+      "args": [],
+      "cwd": "${workspaceFolder:mpct}",
+      "name": "Debug",
+      "program": "${workspaceFolder:mpct}/.build/debug/mpct",
+      "preLaunchTask": "swift: Build Debug"
+    },
+    {
+      "type": "swift",
+      "request": "launch",
+      "args": [],
+      "cwd": "${workspaceFolder:mpct}",
+      "name": "Release",
+      "program": "${workspaceFolder:mpct}/.build/release/mpct",
+      "preLaunchTask": "swift: Build Release"
+    },
+    {
+      "type": "swift",
+      "request": "launch",
+      "args": [],
+      "cwd": "${workspaceFolder:mpct}",
+      "name": "Run Debug",
+      "program": "${workspaceFolder:mpct}/.build/debug/mpct",
+      "preLaunchTask": "swift: Run Debug"
+    },
+    {
+      "type": "swift",
+      "request": "launch",
+      "args": [],
+      "cwd": "${workspaceFolder:mpct}",
+      "name": "Debug mpct",
+      "program": "${workspaceFolder:mpct}/.build/debug/mpct",
+      "preLaunchTask": "swift: Build Debug mpct"
+    },
+    {
+      "type": "swift",
+      "request": "launch",
+      "args": [],
+      "cwd": "${workspaceFolder:mpct}",
+      "name": "Release mpct",
+      "program": "${workspaceFolder:mpct}/.build/release/mpct",
+      "preLaunchTask": "swift: Build Release mpct"
+    },
+    {
+      "type": "swift",
+      "request": "launch",
+      "args": [],
+      "cwd": "${workspaceFolder:mpct}",
+      "name": "Debug mpccli",
+      "program": "${workspaceFolder:mpct}/.build/debug/mpccli",
+      "preLaunchTask": "swift: Build Debug mpccli"
+    },
+    {
+      "type": "swift",
+      "request": "launch",
+      "args": [],
+      "cwd": "${workspaceFolder:mpct}",
+      "name": "Release mpccli",
+      "program": "${workspaceFolder:mpct}/.build/release/mpccli",
+      "preLaunchTask": "swift: Build Release mpccli"
+    },
+    {
+      "type": "swift",
+      "request": "launch",
+      "args": [],
+      "cwd": "${workspaceFolder:mpct}",
+      "name": "Debug SemanticVersionGenerator",
+      "program": "${workspaceFolder:mpct}/.build/debug/SemanticVersionGenerator",
+      "preLaunchTask": "swift: Build Debug SemanticVersionGenerator"
+    },
+    {
+      "type": "swift",
+      "request": "launch",
+      "args": [],
+      "cwd": "${workspaceFolder:mpct}",
+      "name": "Release SemanticVersionGenerator",
+      "program": "${workspaceFolder:mpct}/.build/release/SemanticVersionGenerator",
+      "preLaunchTask": "swift: Build Release SemanticVersionGenerator"
+    }
+  ]
+}

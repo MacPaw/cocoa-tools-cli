@@ -1,0 +1,17 @@
+[
+  {
+    "key": "cmd+b",
+    "command": "workbench.action.tasks.runTask",
+    "args": "swift: Build Debug"
+  },
+  {
+    "key": "cmd+u",
+    "command": "workbench.action.tasks.runTask",
+    "args": "swift: Test"
+  },
+  {
+    "key": "cmd+r",
+    "command": "workbench.action.tasks.runTask",
+    "args": "swift: Run Debug"
+  }
+]

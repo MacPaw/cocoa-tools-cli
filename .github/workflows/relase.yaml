@@ -1,0 +1,154 @@
+name: Release
+
+permissions:
+  contents: write
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      # Run release workflow if .version file is updated
+      - .version
+      # Run release workflow if related workflow files are updated
+      # So we don't need to manually trigger the release workflow
+      # or update the .version fileonce again.
+      - .github/workflows/release.yaml
+      - .github/workflows/load-env.yaml
+      - .github/workflows/scripts/*
+      - .github/workflows/templates/*
+
+jobs:
+  load-env:
+    uses: ./.github/workflows/load-env.yaml
+
+  check-tag-and-release:
+    needs:
+      - load-env
+    runs-on: ubuntu-latest
+    outputs:
+      tag_name: ${{ needs.load-env.outputs.version }}
+      should_proceed: ${{ steps.check.outputs.should_proceed }}
+      tag_exists: ${{ steps.check.outputs.tag_exists }}
+      release_exists: ${{ steps.check.outputs.release_exists }}
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v5
+      with:
+        fetch-depth: 0
+    - name: Check if tag and release exist
+      id: check
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        VERSION: ${{ needs.load-env.outputs.version }}
+      run: node ./.github/workflows/scripts/release/check-tag-and-release.js
+
+  build-binary:
+    needs:
+      - load-env
+      - check-tag-and-release
+    if: needs.check-tag-and-release.outputs.should_proceed == 'true'
+    strategy:
+      matrix:
+        include:
+          - os: ${{ needs.load-env.outputs.macOS-runner-os }}
+            arch: universal
+            xcode-version: ${{ needs.load-env.outputs.xcode-version }}
+            swift-version: ${{ needs.load-env.outputs.swift-version }}
+          - os: ${{ needs.load-env.outputs.macOS-runner-os }}
+            arch: arm64
+            xcode-version: ${{ needs.load-env.outputs.xcode-version }}
+            swift-version: ${{ needs.load-env.outputs.swift-version }}
+          - os: ${{ needs.load-env.outputs.macOS-runner-os }}
+            arch: x86_64
+            xcode-version: ${{ needs.load-env.outputs.xcode-version }}
+            swift-version: ${{ needs.load-env.outputs.swift-version }}
+          - os: ubuntu-latest
+            arch: x86_64
+            swift-version: ${{ needs.load-env.outputs.swift-version }}
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Map architecture
+        id: map-architecture
+        env:
+          ARCH: ${{ matrix.arch }}
+        run: |
+          echo "Mapping ${ARCH} architecture to GitHub Actions runner.arch"
+          NEW_ARCH="${ARCH}"
+          if [[ "${ARCH}" == "universal" ]]; then
+            NEW_ARCH="UNIVERSAL"
+          elif [[ "${ARCH}" == "arm64" ]]; then
+            NEW_ARCH="ARM64"
+          elif [[ "${ARCH}" == "x86_64" ]]; then
+            NEW_ARCH="X64"
+          else
+            NEW_ARCH="${ARCH}"
+          fi
+          echo "NEW_ARCH=${NEW_ARCH}"
+
+          echo "architecture=${NEW_ARCH}" >> "${GITHUB_OUTPUT}"
+
+      - name: Prepare Swift
+        uses: ./.github/workflows/templates/prepare-swift/
+        with:
+          xcode-version: ${{ matrix.xcode-version }}
+          swift-version: ${{ matrix.swift-version }}
+          build-system: swift
+          configuration: release
+          architecture: ${{ steps.map-architecture.outputs.architecture }}
+
+      - name: Build binary
+        id: build
+        env:
+          VERSION: ${{ needs.load-env.outputs.version }}
+          ARCH: ${{ matrix.arch }}
+          BINARY_NAME: ${{ needs.load-env.outputs.binary-name }}
+        run: ./.github/workflows/scripts/release/build-binary.sh
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.build.outputs.asset_name }}
+          path: ${{ steps.build.outputs.asset_path }}
+          retention-days: 1
+
+  release:
+    needs:
+      - load-env
+      - check-tag-and-release
+      - build-binary
+    if: needs.check-tag-and-release.outputs.should_proceed == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v5
+        with:
+          path: artifacts
+
+      - name: Create tag and release
+        id: create-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ needs.load-env.outputs.version }}
+          IS_PRERELEASE: ${{ needs.load-env.outputs.is_prerelease }}
+        run: node ./.github/workflows/scripts/release/create-release.js
+
+      - name: Upload assets to release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_ID: ${{ steps.create-release.outputs.release_id }}
+          ARTIFACTS_PATH: artifacts
+        run: node ./.github/workflows/scripts/release/upload-assets.js

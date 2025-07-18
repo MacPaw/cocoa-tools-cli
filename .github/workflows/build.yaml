@@ -1,0 +1,54 @@
+name: Build
+
+permissions:
+  contents: read
+
+on:
+  pull_request:
+    branches:
+      - main
+  merge_group:
+    types:
+      - checks_requested
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  load-env:
+    uses: ./.github/workflows/load-env.yaml
+
+  build-release-binary:
+    name: Build release binary
+    needs:
+      - load-env
+    strategy:
+      matrix:
+        include:
+          - os: ${{ needs.load-env.outputs.macOS-runner-os }}
+            swift-version: ${{ needs.load-env.outputs.swift-version }}
+            xcode-version: ${{ needs.load-env.outputs.xcode-version }}
+          - os: ubuntu-latest
+            swift-version: ${{ needs.load-env.outputs.swift-version }}
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Prepare Swift
+        uses: ./.github/workflows/templates/prepare-swift/
+        with:
+          xcode-version: ${{ matrix.xcode-version }}
+          swift-version: ${{ matrix.swift-version }}
+          build-system: swift
+          configuration: release
+
+      - name: Build release binary
+        id: build
+        run: ./.github/workflows/scripts/release/build-binary.sh
+        env:
+          BINARY_NAME: ${{ needs.load-env.outputs.binary-name }}

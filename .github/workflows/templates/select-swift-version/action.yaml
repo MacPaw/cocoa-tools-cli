@@ -1,0 +1,31 @@
+name: 'Select Swift Version'
+description: 'Select Xcode version for Swift compilation'
+inputs:
+  xcode-version:
+    description: 'Xcode version to select'
+    required: true
+  swift-version:
+    description: 'Swift version to select'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup Xcode
+      # Select Xcode for swift and xcodebuild.
+      # We need 6.1 swift and setup-swift@v2 is broken.
+      if: ${{ inputs.xcode-version != '' && runner.os == 'macOS' }}
+      shell: bash
+      run: |
+        sudo xcode-select -s "/Applications/Xcode_${XCODE_VERSION}.app"
+
+        defaults write com.apple.dt.Xcode IDEPackageEnablePrebuilts YES
+      env:
+        XCODE_VERSION: ${{ inputs.xcode-version }}
+
+    # Issues: https://github.com/swift-actions/setup-swift/issues/694, https://github.com/swift-actions/setup-swift/issues/739
+    # Author is focused on new action version: https://github.com/swift-actions/setup-swift/pull/710
+    # - name: Setup Swift (Linux)
+    #   if: ${{ inputs.swift-version != '' && runner.os == 'Linux' }}
+    #   uses: swift-actions/setup-swift@v2
+    #   with:
+    #     swift-version: ${{ matrix.swift-version }}

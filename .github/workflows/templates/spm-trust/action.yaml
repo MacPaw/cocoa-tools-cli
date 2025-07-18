@@ -1,0 +1,9 @@
+name: 'Trust Swift Package Macros and Plugins'
+description: 'Trust Swift Package Macros and Plugins'
+runs:
+  using: 'composite'
+  steps:
+    - name: Trust Swift Package Macros and Plugins
+      id: spm-trust
+      shell: bash
+      run: ./.github/workflows/scripts/spm-trust/spm-trust.sh
