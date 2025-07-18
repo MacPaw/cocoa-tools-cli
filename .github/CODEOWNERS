@@ -1,0 +1,6 @@
+# Code owners are automatically requested for review when someone opens a pull
+# request that modifies code that they own.
+#
+# More: https://docs.github.com/en/free-pro-team@latest/github/creating-cloning-and-archiving-repositories/about-code-owners
+
+@nekrich

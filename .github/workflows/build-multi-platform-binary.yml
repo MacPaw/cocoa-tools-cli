@@ -1,0 +1,112 @@
+name: Build Multi-Platform Binary
+
+permissions:
+  contents: write
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .version
+      - .github/workflows/build-multi-platform-binary.yml
+      - .github/workflows/scripts/build-multi-platform-binary/*
+
+jobs:
+  load-env:
+    uses: ./.github/workflows/load-env.yaml
+
+  create-release:
+    needs:
+      - load-env
+    runs-on: ubuntu-latest
+    outputs:
+      tag_name: ${{ needs.load-env.outputs.version }}
+      release_id: ${{ steps.check-release.outputs.release_id }}
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v5
+      with:
+        fetch-depth: 0
+    - name: Check or create release
+      id: check-release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        TAG_NAME: ${{ needs.load-env.outputs.version }}
+        IS_PRERELEASE: ${{ needs.load-env.outputs.is_prerelease }}
+      run: node ./.github/workflows/scripts/build-multi-platform-binary/check-release.js
+
+  build-binary:
+    needs:
+      - load-env
+      - create-release
+    env:
+      package_name: ${{ needs.load-env.outputs.package-name }}
+    strategy:
+      matrix:
+        include:
+          - os: ${{ needs.load-env.outputs.macOS-runner-os }}
+            arch: universal
+            xcode-version: ${{ needs.load-env.outputs.xcode-version }}
+            swift-version: ${{ needs.load-env.outputs.swift-version }}
+          - os: ${{ needs.load-env.outputs.macOS-runner-os }}
+            arch: arm64
+            xcode-version: ${{ needs.load-env.outputs.xcode-version }}
+            swift-version: ${{ needs.load-env.outputs.swift-version }}
+          - os: ${{ needs.load-env.outputs.macOS-runner-os }}
+            arch: x86_64
+            xcode-version: ${{ needs.load-env.outputs.xcode-version }}
+            swift-version: ${{ needs.load-env.outputs.swift-version }}
+          - os: ubuntu-latest
+            arch: x86_64
+            swift-version: ${{ needs.load-env.outputs.swift-version }}
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Prepare Swift
+        uses: ./.github/workflows/templates/prepare-swift/
+        with:
+          xcode-version: ${{ matrix.xcode-version }}
+          swift-version: ${{ matrix.swift-version }}
+          package-name: ${{ env.package_name }}
+          build-system: swift
+          configuration: release
+
+      - name: Get platform name
+        id: get-platform-name
+        run: echo "platform=$(uname -s)" >> "${GITHUB_OUTPUT}"
+
+      - name: Check if asset already exists
+        id: check-asset
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_ID: ${{ needs.create-release.outputs.release_id }}
+          TAG_NAME: ${{ needs.create-release.outputs.tag_name }}
+          PLATFORM: ${{ steps.get-platform-name.outputs.platform }}
+          ARCH: ${{ matrix.arch }}
+          BINARY_NAME: ${{ needs.load-env.outputs.package-name }}
+        run: node ./.github/workflows/scripts/build-multi-platform-binary/check-asset.js
+
+      - name: Build binary
+        id: build
+        if: steps.check-asset.outputs.asset_exists == 'false'
+        env:
+          TAG_NAME: ${{ needs.create-release.outputs.tag_name }}
+          ARCH: ${{ matrix.arch }}
+          BINARY_NAME: ${{ needs.load-env.outputs.package-name }}
+        run: ./.github/workflows/scripts/build-multi-platform-binary/build-binary.sh
+
+      - name: Upload asset to release
+        if: steps.build.conclusion == 'success'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_ID: ${{ needs.create-release.outputs.release_id }}
+          ASSET_PATH: ${{ steps.build.outputs.asset_path }}
+          ASSET_NAME: ${{ steps.build.outputs.asset_name }}
+        run: node ./.github/workflows/scripts/build-multi-platform-binary/upload-asset.js

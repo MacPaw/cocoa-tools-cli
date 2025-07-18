@@ -1,0 +1,101 @@
+name: Test
+
+permissions:
+  contents: read
+
+on:
+  pull_request:
+    branches:
+      - main
+  merge_group:
+    types:
+      - checks_requested
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  load-env:
+    uses: ./.github/workflows/load-env.yaml
+
+  test:
+    needs:
+      - load-env
+    env:
+      package_name: ${{ needs.load-env.outputs.package-name }}
+
+    strategy:
+      matrix:
+        include:
+          - os: ${{ needs.load-env.outputs.macOS-runner-os }}
+            build-system: swift
+            swift-version: ${{ needs.load-env.outputs.swift-version }}
+            xcode-version: ${{ needs.load-env.outputs.xcode-version }}
+          - os: ubuntu-latest
+            build-system: swift
+            swift-version: ${{ needs.load-env.outputs.swift-version }}
+          - os: ${{ needs.load-env.outputs.macOS-runner-os }}
+            build-system: xcodebuild
+            xcode-version: ${{ needs.load-env.outputs.xcode-version }}
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Prepare Swift
+        uses: ./.github/workflows/templates/prepare-swift/
+        with:
+          xcode-version: ${{ matrix.xcode-version }}
+          swift-version: ${{ matrix.swift-version }}
+          package-name: ${{ env.package_name }}
+          build-system: ${{ matrix.build-system }}
+          configuration: debug
+
+      - name: Build with Swift Package Manager
+        if: matrix.build-system == 'swift'
+        run: swift build --disable-automatic-resolution --enable-experimental-prebuilts
+
+      - name: Install mise tools
+        uses: jdx/mise-action@5ac50f778e26fac95da98d50503682459e86d566
+        with:
+          mise_toml: |
+            [tools]
+            "ubi:securevale/swift-confidential" = "0.4.1"
+
+      - name: Test with Swift Package Manager
+        if: matrix.build-system == 'swift'
+        run: swift test --disable-automatic-resolution --enable-experimental-prebuilts
+
+      - name: Build with Xcodebuild
+        if: matrix.build-system == 'xcodebuild'
+        run: |
+          xcodebuild \
+            -scheme "${{ env.package_name }}-Package" \
+            -destination 'platform=macOS' \
+            -derivedDataPath DerivedData \
+            -collect-test-diagnostics never \
+            -skipMacroValidation \
+            -disableAutomaticPackageResolution \
+            RUN_CLANG_STATIC_ANALYZER=NO \
+            COMPILER_INDEX_STORE_ENABLE=NO \
+            build-for-testing
+
+      - name: Test with Xcodebuild
+        if: matrix.build-system == 'xcodebuild'
+        run: |
+          xcodebuild \
+            -scheme "${{ env.package_name }}-Package" \
+            -destination 'platform=macOS' \
+            -derivedDataPath DerivedData \
+            -collect-test-diagnostics never \
+            -skipMacroValidation \
+            -disableAutomaticPackageResolution \
+            RUN_CLANG_STATIC_ANALYZER=NO \
+            COMPILER_INDEX_STORE_ENABLE=NO \
+            test-without-building

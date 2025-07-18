@@ -1,0 +1,45 @@
+#:schema ./schema/mise.json
+
+# Minimum required mise version.
+min_version = "2025.8.6"
+
+[tools]
+gh = "latest"
+1password = "latest"
+container = "0.3.0"
+"ubi:securevale/swift-confidential" = "0.4.1"
+yq = "latest"
+
+[settings]
+# Enables experimental features.
+# Used for lockfile support.
+experimental = true
+
+# Use the .lock file for mise.
+# This allows to lock tool versions and have flexibility in updating them,
+# by not locking the exact version in the mise.toml file.
+lockfile = true
+
+# Use the idiomatic version files.
+# Used for .ruby-version, .nvmrc, etc.
+idiomatic_version_file = true
+
+# A list of tools to install if there is an idiomatic version file.
+# Don't put "swift" there, as it is managed by Xcode.
+# Unless you want to use a custom version of Swift.
+idiomatic_version_file_enable_tools = []
+
+[tasks.format]
+description = "Format source code"
+run = "swift package plugin --allow-writing-to-package-directory format-source-code"
+alias = "fmt"
+
+[tasks.test-linux]
+description = "Test on Linux"
+# container fails to run tests on macOS with M2 chip.
+# run = "Scripts/tools/container/container.sh --test"
+run = "Scripts/tools/docker/docker.sh --test"
+
+[tasks.test-op]
+description = "Integration test on macOS with 1Password"
+run = "Scripts/tools/op/op.sh --test"

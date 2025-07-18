@@ -1,0 +1,39 @@
+# EditorConfig is awesome: https://editorconfig.org
+
+# It's a top-most EditorConfig file
+root = true
+
+# All files
+[*]
+# Ident with 2 spaces
+indent_style = space
+indent_size = 2
+# Unix-style newlines
+end_of_line = lf
+# UTF-8
+charset = utf-8
+# Remove any whitespace characters at the end of the line
+trim_trailing_whitespace = true
+# Newline ending every file
+insert_final_newline = true
+
+# Obcjective-C, Obcjective-C++, Python
+[*.{h,m,mm,py}]
+# Ident with 4 spaces
+indent_style = space
+indent_size = 4
+
+# Markdown
+[*.{md,markdown}]
+# Markdown files can have trailing whitespaces.
+trim_trailing_whitespace = false
+
+# Makefile
+[Makefile]
+# Ident with tab
+indent_style = tab
+indent_size = 4
+
+[.gitconfig]
+indent_style = tab
+indent_size = 4

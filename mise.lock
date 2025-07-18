@@ -1,0 +1,24 @@
+[tools.1password]
+version = "2.30.3"
+backend = "aqua:1password/cli"
+
+[tools.container]
+version = "0.3.0"
+backend = "aqua:apple/container"
+
+[tools.gh]
+version = "2.78.0"
+backend = "aqua:cli/cli"
+
+[tools.gh.platforms.macos-arm64]
+checksum = "sha256:62290b0dbc9965ebbc20d2b481fe83aa167fadc28e0d81a5d93eec6efc9d3b72"
+size = 17396485
+url = "https://github.com/cli/cli/releases/download/v2.78.0/gh_2.78.0_macOS_arm64.zip"
+
+[tools."ubi:securevale/swift-confidential"]
+version = "0.4.1"
+backend = "ubi:securevale/swift-confidential"
+
+[tools.yq]
+version = "4.47.1"
+backend = "asdf:yq"

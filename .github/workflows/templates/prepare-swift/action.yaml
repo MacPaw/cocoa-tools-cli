@@ -1,0 +1,40 @@
+name: 'Prepare Swift'
+description: 'Prepare Swift for compilation'
+inputs:
+  xcode-version:
+    description: 'Xcode version to select'
+    required: true
+  swift-version:
+    description: 'Swift version to select'
+    required: true
+  package-name:
+    description: 'Package name to cache'
+    required: true
+  build-system:
+    description: 'Build system to use'
+    required: true
+    default: 'swift'
+  configuration:
+    description: 'Configuration to use'
+    required: true
+    default: 'debug'
+runs:
+  using: 'composite'
+  steps:
+    - name: Select Swift Version
+      uses: ./.github/workflows/templates/select-swift-version/
+      with:
+        xcode-version: ${{ inputs.xcode-version }}
+        swift-version: ${{ inputs.swift-version }}
+
+    - name: Cache Swift Packages and Build Intermediate Files
+      uses: ./.github/workflows/templates/swift-cache/
+      with:
+        package-name: ${{ inputs.package-name }}
+        build-system: ${{ inputs.build-system }}
+        swift-version: ${{ inputs.swift-version }}
+        configuration: ${{ inputs.configuration }}
+        xcode-version: ${{ inputs.xcode-version }}
+
+    - name: Trust Swift Package Macros and Plugins
+      uses: ./.github/workflows/templates/spm-trust/

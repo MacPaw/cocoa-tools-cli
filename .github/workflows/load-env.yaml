@@ -1,0 +1,92 @@
+name: Load Environment
+
+permissions:
+  contents: read
+
+on:
+  workflow_call:
+    inputs:
+      package-name:
+        description: 'Swift package name'
+        type: string
+        required: false
+        default: 'mpct'
+      swift-version:
+        description: 'Swift version'
+        type: string
+        required: false
+      xcode-version:
+        description: 'Xcode version'
+        type: string
+        required: false
+        default: '16.4'
+      macOS-runner-os:
+        description: 'macOS runner OS (macos-15, macos-latest)'
+        type: string
+        required: false
+        default: 'macos-15'
+    outputs:
+      package-name:
+        description: 'Swift package name'
+        value: ${{ jobs.load-env.outputs.package-name }}
+      swift-version:
+        description: 'Swift version'
+        value: ${{ jobs.load-env.outputs.swift-version }}
+      xcode-version:
+        description: 'Xcode version'
+        value: ${{ jobs.load-env.outputs.xcode-version }}
+      macOS-runner-os:
+        description: 'macOS runner OS'
+        value: ${{ jobs.load-env.outputs.macOS-runner-os }}
+      version:
+        description: 'Version'
+        value: ${{ jobs.load-env.outputs.version }}
+      is_prerelease:
+        description: 'Is prerelease'
+        value: ${{ jobs.load-env.outputs.is_prerelease }}
+
+jobs:
+  load-env:
+    runs-on: ubuntu-latest
+    outputs:
+      package-name: ${{ steps.common-env.outputs.package-name }}
+      swift-version: ${{ steps.common-env.outputs.swift-version }}
+      xcode-version: ${{ steps.common-env.outputs.xcode-version }}
+      macOS-runner-os: ${{ steps.common-env.outputs.macOS-runner-os }}
+      version: ${{ steps.common-env.outputs.version }}
+      is_prerelease: ${{ steps.common-env.outputs.is_prerelease }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          sparse-checkout: |
+            .version
+            .swift-version
+          sparse-checkout-cone-mode: false
+
+      - name: Setup Common Environment
+        id: common-env
+        shell: bash
+        run: |
+          echo "package-name=${{ inputs.package-name }}" >> $GITHUB_OUTPUT
+
+          SWIFT_VERSION="${{ inputs.swift-version }}"
+          SWIFT_VERSION="${SWIFT_VERSION:-"$(cat .swift-version | tr -d '[:space:]')"}"
+          SWIFT_VERSION="${SWIFT_VERSION:-"6.1.2"}"
+          echo "SWIFT_VERSION=${SWIFT_VERSION}"
+
+          echo "swift-version=${SWIFT_VERSION}" >> $GITHUB_OUTPUT
+          echo "xcode-version=${{ inputs.xcode-version }}" >> $GITHUB_OUTPUT
+          echo "macOS-runner-os=${{ inputs.macOS-runner-os }}" >> $GITHUB_OUTPUT
+
+          VERSION="$(cat .version | tr -d '[:space:]')"
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
+          if [[ "$VERSION" == *"-"* ]]; then
+            echo "is_prerelease=true" >>"$GITHUB_OUTPUT"
+            echo "Version contains dash, marking as pre-release"
+          else
+            echo "is_prerelease=false" >>"$GITHUB_OUTPUT"
+            echo "Version is stable release"
+          fi

@@ -1,0 +1,24 @@
+---
+alwaysApply: true
+---
+
+# Cursor Rules for mpct Swift Project Tests
+
+
+## Testing
+- Locate tests in the **Tests/[ModuleName]Tests** folder
+- Use the new Testing framework
+- Write unit tests for all modules
+- Test both success and failure scenarios
+- Mock external dependencies where needed
+- Follow existing test structure in Tests/ directory
+- Add **GIVEN**/**WHEN**/**THEN** comments. Add short comments on what's heppening in each GIVEN/WHEN/THEN block
+- Name the system under test as **sut**
+- Group tests in **@Suite**
+- Use mixed case when naming test methods **test_function/property_testExplanation**
+- For @Test use the following **@Test("#function/property test explanation")**
+- For unit tests stick to testing outputs not the behaviour
+- Use **try #require** when getting optional values that must not be optional
+- Use **try #require(try?** when getting values from throwing functions
+- If test setups are complex - create private **build_sut** sut builder function to setup system under test and don't repeate setup code in each test
+- Do not overcomplicate tests, keep test suites simple and avoid creating unnecessary tests that mostly duplicate the logic

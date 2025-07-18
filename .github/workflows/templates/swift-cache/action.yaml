@@ -1,0 +1,48 @@
+name: 'Cache Swift Packages'
+description: 'Cache Swift Package Manager dependencies and build artifacts'
+inputs:
+  package-name:
+    description: 'Name of the Swift package'
+    required: true
+  build-system:
+    description: 'Build system being used (swift or xcodebuild)'
+    required: true
+  swift-version:
+    description: 'Swift version being used'
+    required: true
+  configuration:
+    description: 'Configuration to use'
+    required: true
+  xcode-version:
+    description: 'Xcode version being used'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Cache Swift packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          ./.build/artifacts
+          ./.build/checkouts
+          ./.build/repositories
+          ./.build/workspace-state.json
+          ./DerivedData/SourcePackages
+          ~/Library/Caches/org.swift.swiftpm/
+          ~/.cache/org.swift.swiftpm/
+        key: spm-v3-${{ hashFiles('**/Package.resolved') }}-${{ runner.os }}-${{ inputs.build-system }}
+        restore-keys: |
+          spm-v3-${{ hashFiles('**/Package.resolved') }}-${{ runner.os }}-${{ inputs.build-system }}
+
+    - name: Cache Swift Build Intermediate Files
+      uses: actions/cache@v4
+      with:
+        path: |
+          ./.build
+          !./.build/artifacts/*
+          !./.build/checkouts/*
+          !./.build/repositories/*
+          !./.build/workspace-state.json
+          ./DerivedData
+          !./DerivedData/SourcePackages/*
+        key: build-${{ inputs.configuration }}-swift-${{ inputs.swift-version }}-xcode-${{ inputs.xcode-version }}-${{ runner.os }}-${{ runner.arch }}-${{ inputs.build-system }}

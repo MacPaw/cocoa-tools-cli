@@ -1,0 +1,125 @@
+# For most projects, this workflow file will not need changing; you simply need
+# to commit it to your repository.
+#
+# You may wish to alter this file to override the set of languages analyzed,
+# or to provide custom queries or build logic.
+#
+# ******** NOTE ********
+# We have attempted to detect the languages in your repository. Please check
+# the `language` matrix defined below to confirm you have the correct set of
+# supported CodeQL languages.
+#
+name: "CodeQL Advanced"
+
+permissions:
+  contents: read
+
+on:
+  pull_request:
+    branches:
+      - main
+  merge_group:
+    types:
+      - checks_requested
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  load-env:
+    uses: ./.github/workflows/load-env.yaml
+
+  analyze:
+    needs:
+      - load-env
+    env:
+      package_name: ${{ needs.load-env.outputs.package-name }}
+      swift_version: ${{ needs.load-env.outputs.swift-version }}
+      xcode_version: ${{ needs.load-env.outputs.xcode-version }}
+
+    name: Analyze (${{ matrix.language }})
+    # Runner size impacts CodeQL analysis time. To learn more, please see:
+    #   - https://gh.io/recommended-hardware-resources-for-running-codeql
+    #   - https://gh.io/supported-runners-and-hardware-resources
+    #   - https://gh.io/using-larger-runners (GitHub.com only)
+    # Consider using larger runners or machines with greater resources for possible analysis time improvements.
+    runs-on: ${{ (matrix.language == 'swift' && format('{0}-large', needs.load-env.outputs.macOS-runner-os)) || 'ubuntu-latest' }}
+    permissions:
+      # required for all workflows
+      security-events: write
+
+      # required to fetch internal or private CodeQL packs
+      packages: read
+
+      # only required for workflows in private repositories
+      actions: read
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: actions
+            build-mode: none
+          - language: swift
+            build-mode: manual
+          # CodeQL supports the following values keywords for 'language': 'actions', 'c-cpp', 'csharp', 'go', 'java-kotlin', 'javascript-typescript', 'python', 'ruby', 'rust', 'swift'
+          # Use `c-cpp` to analyze code written in C, C++ or both
+          # Use 'java-kotlin' to analyze code written in Java, Kotlin or both
+          # Use 'javascript-typescript' to analyze code written in JavaScript, TypeScript or both
+          # To learn more about changing the languages that are analyzed or customizing the build mode for your analysis,
+          # see https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/customizing-your-advanced-setup-for-code-scanning.
+          # If you are analyzing a compiled language, you can modify the 'build-mode' for that language to customize how
+          # your codebase is analyzed, see https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/codeql-code-scanning-for-compiled-languages
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      # Add any setup steps before running the `github/codeql-action/init` action.
+      # This includes steps like installing compilers or runtimes (`actions/setup-node`
+      # or others). This is typically only required for manual builds.
+      # - name: Setup runtime (example)
+      #   uses: actions/setup-example@v1
+      - name: Prepare Swift
+        if: matrix.language == 'swift'
+        uses: ./.github/workflows/templates/prepare-swift/
+        with:
+          xcode-version: ${{ env.xcode_version }}
+          swift-version: ${{ env.swift_version }}
+          package-name: ${{ env.package_name }}
+          build-system: xcodebuild
+          configuration: debug
+
+      # Initializes the CodeQL tools for scanning.
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+          # If you wish to specify custom queries, you can do so here or in a config file.
+          # By default, queries listed here will override any specified in a config file.
+          # Prefix the list here with "+" to use these queries and those in the config file.
+
+          # For more details on CodeQL's query packs, refer to: https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/configuring-code-scanning#using-queries-in-ql-packs
+          # queries: security-extended,security-and-quality
+
+      - name: Build
+        if: matrix.language == 'swift' && matrix.build-mode == 'manual'
+        run: |
+          xcodebuild \
+            -scheme "${{ env.package_name }}-Package" \
+            -destination 'platform=macOS' \
+            -derivedDataPath DerivedData \
+            -collect-test-diagnostics never \
+            -skipMacroValidation \
+            -disableAutomaticPackageResolution \
+            RUN_CLANG_STATIC_ANALYZER=NO \
+            COMPILER_INDEX_STORE_ENABLE=NO \
+            build-for-testing
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{matrix.language}}"

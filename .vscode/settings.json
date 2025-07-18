@@ -1,0 +1,20 @@
+{
+  "swift.buildPath": "./.build",
+  "swift.diagnosticsStyle": "swift",
+  "swift.autoGenerateLaunchConfigurations": true,
+  "files.watcherExclude": {
+    "**/.build/**": true,
+    "**/DerivedData/**": true,
+    "**/.swiftpm/**": true
+  },
+  "files.exclude": {
+    "**/.build": true,
+    "**/DerivedData": true,
+    "**/.swiftpm": true
+  },
+  "search.exclude": {
+    "**/.build": true,
+    "**/DerivedData": true,
+    "**/.swiftpm": true
+  }
+}
