@@ -48,6 +48,7 @@ jobs:
     outputs:
       swift-changed: ${{ steps.changes.outputs.swift }}
       workflows-changed: ${{ steps.changes.outputs.workflows }}
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
@@ -67,10 +68,26 @@ jobs:
               - '.github/**/*.yaml'
               - '.github/**/*.yml'
 
+      - name: Set matrix
+        id: set-matrix
+        run: |
+          matrix_include="[]"
+
+          if [[ "${{ steps.changes.outputs.workflows }}" == "true" ]]; then
+            matrix_include=$(echo "$matrix_include" | jq '. += [{"language": "actions", "build-mode": "none"}]')
+          fi
+
+          if [[ "${{ steps.changes.outputs.swift }}" == "true" ]]; then
+            matrix_include=$(echo "$matrix_include" | jq '. += [{"language": "swift", "build-mode": "manual"}]')
+          fi
+
+          echo "matrix={\"include\":$matrix_include}" >> $GITHUB_OUTPUT
+
   analyze:
     needs:
       - load-env
       - detect-changes
+    if: needs.detect-changes.outputs.matrix != '{"include":[]}'
     env:
       package_name: ${{ needs.load-env.outputs.package-name }}
       swift_version: ${{ needs.load-env.outputs.swift-version }}
@@ -96,14 +113,7 @@ jobs:
 
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - language: actions
-            build-mode: none
-            condition: ${{ needs.detect-changes.outputs.workflows-changed == 'true' }}
-          - language: swift
-            build-mode: manual
-            condition: ${{ needs.detect-changes.outputs.swift-changed == 'true' }}
+      matrix: ${{ fromJSON(needs.detect-changes.outputs.matrix) }}
           # CodeQL supports the following values keywords for 'language': 'actions', 'c-cpp', 'csharp', 'go', 'java-kotlin', 'javascript-typescript', 'python', 'ruby', 'rust', 'swift'
           # Use `c-cpp` to analyze code written in C, C++ or both
           # Use 'java-kotlin' to analyze code written in Java, Kotlin or both
@@ -112,7 +122,6 @@ jobs:
           # see https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/customizing-your-advanced-setup-for-code-scanning.
           # If you are analyzing a compiled language, you can modify the 'build-mode' for that language to customize how
           # your codebase is analyzed, see https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/codeql-code-scanning-for-compiled-languages
-    if: ${{ matrix.condition }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
