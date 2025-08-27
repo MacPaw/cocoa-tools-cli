@@ -16,31 +16,33 @@ jobs:
   load-env:
     uses: ./.github/workflows/load-env.yaml
 
-  create-release:
+  check-tag-and-release:
     needs:
       - load-env
     runs-on: ubuntu-latest
     outputs:
       tag_name: ${{ needs.load-env.outputs.version }}
-      release_id: ${{ steps.check-release.outputs.release_id }}
+      should_proceed: ${{ steps.check.outputs.should_proceed }}
+      tag_exists: ${{ steps.check.outputs.tag_exists }}
+      release_exists: ${{ steps.check.outputs.release_exists }}
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v5
       with:
         fetch-depth: 0
-    - name: Check or create release
-      id: check-release
+    - name: Check if tag and release exist
+      id: check
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         TAG_NAME: ${{ needs.load-env.outputs.version }}
-        IS_PRERELEASE: ${{ needs.load-env.outputs.is_prerelease }}
-      run: node ./.github/workflows/scripts/build-multi-platform-binary/check-release.js
+      run: node ./.github/workflows/scripts/build-multi-platform-binary/check-tag-and-release.js
 
   build-binary:
     needs:
       - load-env
-      - create-release
+      - check-tag-and-release
+    if: needs.check-tag-and-release.outputs.should_proceed == 'true'
     env:
       package_name: ${{ needs.load-env.outputs.package-name }}
     strategy:
@@ -78,35 +80,74 @@ jobs:
           build-system: swift
           configuration: release
 
-      - name: Get platform name
-        id: get-platform-name
-        run: echo "platform=$(uname -s)" >> "${GITHUB_OUTPUT}"
-
-      - name: Check if asset already exists
-        id: check-asset
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_ID: ${{ needs.create-release.outputs.release_id }}
-          TAG_NAME: ${{ needs.create-release.outputs.tag_name }}
-          PLATFORM: ${{ steps.get-platform-name.outputs.platform }}
-          ARCH: ${{ matrix.arch }}
-          BINARY_NAME: ${{ needs.load-env.outputs.package-name }}
-        run: node ./.github/workflows/scripts/build-multi-platform-binary/check-asset.js
-
       - name: Build binary
         id: build
-        if: steps.check-asset.outputs.asset_exists == 'false'
         env:
-          TAG_NAME: ${{ needs.create-release.outputs.tag_name }}
+          VERSION: ${{ needs.load-env.outputs.version }}
           ARCH: ${{ matrix.arch }}
           BINARY_NAME: ${{ needs.load-env.outputs.package-name }}
         run: ./.github/workflows/scripts/build-multi-platform-binary/build-binary.sh
 
-      - name: Upload asset to release
-        if: steps.build.conclusion == 'success'
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.build.outputs.asset_name }}
+          path: ${{ steps.build.outputs.asset_path }}
+          retention-days: 1
+
+  release:
+    needs:
+      - load-env
+      - check-tag-and-release
+      - build-binary
+    if: needs.check-tag-and-release.outputs.should_proceed == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v5
+        with:
+          path: artifacts
+
+      - name: Create tag and release
+        id: create-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_ID: ${{ needs.create-release.outputs.release_id }}
-          ASSET_PATH: ${{ steps.build.outputs.asset_path }}
-          ASSET_NAME: ${{ steps.build.outputs.asset_name }}
-        run: node ./.github/workflows/scripts/build-multi-platform-binary/upload-asset.js
+          VERSION: ${{ needs.load-env.outputs.version }}
+          IS_PRERELEASE: ${{ needs.load-env.outputs.is_prerelease }}
+        run: node ./.github/workflows/scripts/build-multi-platform-binary/create-release.js
+
+      - name: Upload assets to release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_ID: ${{ steps.create-release.outputs.release_id }}
+        run: |
+          for artifact_dir in artifacts/*/; do
+            if [ -d "$artifact_dir" ]; then
+              for asset_file in "$artifact_dir"*.zip; do
+                if [ -f "$asset_file" ]; then
+                  asset_name=$(basename "$asset_file")
+                  echo "Uploading $asset_name..."
+
+                  # Get repository info
+                  REPO_URL=$(git remote get-url origin)
+                  REPO_PATH=$(echo "$REPO_URL" | sed -E 's|.*github\.com[:/]([^/]+/[^/.]+).*|\1|')
+
+                  # Upload asset using GitHub API
+                  curl -L \
+                    -X POST \
+                    -H "Accept: application/vnd.github+json" \
+                    -H "Authorization: Bearer $GITHUB_TOKEN" \
+                    -H "X-GitHub-Api-Version: 2022-11-28" \
+                    -H "Content-Type: application/zip" \
+                    "https://uploads.github.com/repos/$REPO_PATH/releases/$RELEASE_ID/assets?name=$asset_name" \
+                    --data-binary "@$asset_file"
+                fi
+              done
+            fi
+          done
