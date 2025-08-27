@@ -21,11 +21,7 @@
     ]
   },
   "prioritizeKeepingFunctionOutputTogether" : false,
-  "reflowMultilineStringLiterals" : {
-    "never" : {
-
-    }
-  },
+  "reflowMultilineStringLiterals" : "never",
   "respectsExistingLineBreaks" : false,
   "rules" : {
     "AllPublicDeclarationsHaveDocumentation" : true,
@@ -64,7 +60,7 @@
     "TypeNamesShouldBeCapitalized" : true,
     "UseEarlyExits" : true,
     "UseExplicitNilCheckInConditions" : true,
-    "UseLetInEveryBoundCaseVariable" : false,
+    "UseLetInEveryBoundCaseVariable" : true,
     "UseShorthandTypeNames" : true,
     "UseSingleLinePropertyGetter" : true,
     "UseSynthesizedInitializer" : true,
