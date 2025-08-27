@@ -72,7 +72,8 @@ mise tasks run test-op
 ## Continuous Integration
 
 ### CodeQL Security Analysis
-We do manual CodeQL checks, because default CodeQL runners don't support Swift 6.1.
+We use manual CodeQL configuration because default CodeQL runners don't support Swift 6.1.
+
 CodeQL runs conditionally based on file changes:
 - **Swift analysis** - triggered by changes to `**/*.swift`, `Package.swift`, or `Package.resolved`
 - **Actions analysis** - triggered by changes to `.github/**/*.yaml` or `.github/**/*.yml`
