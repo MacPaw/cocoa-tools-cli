@@ -135,13 +135,13 @@ For a target named `MyTarget`, the plugin generates:
 import SemanticVersion
 
 extension TargetVersions {
-  public static let myTarget: SemanticVersion = #semanticVersion("1.2.3")
+  public static let myTarget: SemanticVersion = .init(1, 2, 3, prereleaseIdentifiers: [], buildMetadataIdentifiers: [])
 }
 ```
 
 ## Integration Examples
 
-### Package.swift Configuration
+#### Package.swift Configuration
 
 ```swift
 let package = Package(
@@ -163,7 +163,7 @@ let package = Package(
 )
 ```
 
-### Version Management
+#### Version Management
 
 ```swift
 import SemanticVersion
@@ -171,6 +171,7 @@ import SemanticVersion
 struct AppVersion {
   static let current = TargetVersions.core
   
+  /// Custom version display string.
   static var displayString: String {
     var result = "\(current.major).\(current.minor).\(current.patch)"
     
@@ -185,53 +186,4 @@ struct AppVersion {
     return result
   }
 }
-```
-
-### CI/CD Integration
-
-```bash
-#!/bin/bash
-# Update version in CI pipeline
-echo "1.2.3-beta.1+build.${BUILD_NUMBER}" > .version
-swift build
-```
-
-## API Reference
-
-### SemanticVersion Properties
-
-- `major: Int` - Major version number
-- `minor: Int` - Minor version number  
-- `patch: Int` - Patch version number
-- `prereleaseIdentifiers: [String]` - Prerelease identifiers
-- `buildMetadataIdentifiers: [String]` - Build metadata identifiers
-- `isPrerelease: Bool` - Whether this is a prerelease version
-- `isRelease: Bool` - Whether this is a release version
-- `buildVersion: String?` - Build version from metadata (custom extension)
-
-## Requirements
-
-- Swift 6.1+
-- macOS 15+ / iOS 18+ / tvOS 18+ / watchOS 11+
-- Xcode 16+ (for macro support)
-
-## Error Handling
-
-### Parse Errors
-
-```swift
-do {
-  let version = try SemanticVersion.build("invalid")
-} catch let error as SemanticVersion.ParseError {
-  print(error.errorDescription)
-}
-```
-
-### Macro Errors
-
-Compile-time errors for invalid versions:
-
-```swift
-// Error: Invalid semantic version string '1b2'
-let invalid = #semanticVersion("1b2")
 ```
