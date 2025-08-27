@@ -21,6 +21,7 @@ extension ObfuscateSecretsCommand {
     @Flag(name: [.customLong("overwrite-existing")], help: "Overwriting existing ENV values with fetched secrets")
     var overwriteExistingEnv: Bool = false
 
+    /// Creates a new ImportSecretsOptions instance with default values.
     public init() {}
   }
 }

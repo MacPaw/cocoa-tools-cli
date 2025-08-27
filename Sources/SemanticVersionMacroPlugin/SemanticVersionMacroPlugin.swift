@@ -11,7 +11,17 @@ import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxMacros
 
+/// Macro for generating SemanticVersion instances at compile time.
+///
+/// This macro parses version strings, integers, or floats and generates SemanticVersion initialization code.
 public struct SemanticVersionMacro: ExpressionMacro {
+  /// Expands the semantic version macro into Swift syntax.
+  ///
+  /// - Parameters:
+  ///   - node: The macro expansion node from the syntax tree.
+  ///   - context: The macro expansion context.
+  /// - Returns: The expanded Swift expression syntax.
+  /// - Throws: Macro expansion errors if the version cannot be parsed.
   public static func expansion(of node: some FreestandingMacroExpansionSyntax, in context: some MacroExpansionContext)
     throws -> ExprSyntax
   {
@@ -59,6 +69,10 @@ public struct SemanticVersionMacro: ExpressionMacro {
     return expand(version: version)
   }
 
+  /// Generates Swift syntax for creating a SemanticVersion instance.
+  ///
+  /// - Parameter version: The semantic version to generate code for.
+  /// - Returns: Swift expression syntax for initializing the semantic version.
   public static func expand(version: SemanticVersion) -> ExprSyntax {
     let argumentList: LabeledExprListSyntax = LabeledExprListSyntax {
       LabeledExprSyntax(expression: IntegerLiteralExprSyntax(version.major))
@@ -108,6 +122,7 @@ public struct SemanticVersionMacro: ExpressionMacro {
 struct SemanticVersionMacroPlugin: CompilerPlugin { var providingMacros: [Macro.Type] = [SemanticVersionMacro.self] }
 
 extension SemanticVersionMacro {
+  /// Error type for semantic version macro expansion failures.
   public struct MacroError: DiagnosticMessage {
     enum MessageTopic {
       case invalidMacroArgument
@@ -121,8 +136,11 @@ extension SemanticVersionMacro {
       }
     }
 
+    /// Unique identifier for the diagnostic message.
     public var diagnosticID: MessageID { MessageID(domain: "SemanticVersionMacro", id: topic.description) }
+    /// The diagnostic message text.
     public var message: String
+    /// The severity level of the diagnostic.
     public var severity: DiagnosticSeverity
 
     private var topic: MessageTopic

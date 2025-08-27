@@ -113,6 +113,7 @@ extension SemanticVersion: Comparable {
   /// - Parameters:
   ///   - lhs: A value to compare.
   ///   - rhs: Another value to compare.
+  /// - Returns: `true` if `lhs` is less than `rhs`, `false` otherwise.
   public static func < (lhs: Self, rhs: Self) -> Bool {
     let lhsComparators = [lhs.major, lhs.minor, lhs.patch]
     let rhsComparators = [rhs.major, rhs.minor, rhs.patch]
@@ -214,6 +215,7 @@ extension SemanticVersion: LosslessStringConvertible {
     self = version
   }
 
+  /// Errors that can occur when parsing a semantic version string.
   public enum ParseError: Swift.Error {
     case invalidStringVersionFormat(invalidCharacters: String)
     case invalidMajorVersion(String)
@@ -222,6 +224,7 @@ extension SemanticVersion: LosslessStringConvertible {
     case invalidPrereleaseIdentifiers([String])
     case invalidBuildIdentifiers([String])
 
+    /// A localized description of the error.
     public var errorDescription: String {
       switch self {
       case .invalidStringVersionFormat(let invalidCharacters):
@@ -241,7 +244,10 @@ extension SemanticVersion: LosslessStringConvertible {
   }
 
   /// Initializes a version struct with the provided version string.
+  ///
   /// - Parameter versionString: A version string to use for creating a new version struct.
+  /// - Returns: A parsed SemanticVersion instance.
+  /// - Throws: ParseError if the version string is invalid or malformed.
   public static func build(_ versionString: String) throws(ParseError) -> Self {
     // SemVer 2.0.0 allows only ASCII alphanumerical characters and "-" in the version string, except for "." and "+" as delimiters. ("-" is used as a delimiter between the version core and pre-release identifiers, but it's allowed within pre-release and metadata identifiers as well.)
     // Alphanumerics check will come later, after each identifier is split out (i.e. after the delimiters are removed).
@@ -322,14 +328,24 @@ extension SemanticVersion: LosslessStringConvertible {
 }
 
 extension SemanticVersion: ExpressibleByIntegerLiteral {
+  /// Creates a semantic version from an integer literal (major version only).
+  ///
+  /// - Parameter value: The major version number.
   public init(integerLiteral value: Int) { self.init(value, 0, 0) }
 }
 
 extension SemanticVersion: ExpressibleByFloatLiteral {
+  /// Creates a semantic version from a float literal (major and minor versions only).
+  ///
+  /// - Parameter value: The float value to convert to a version string.
   public init(floatLiteral value: Double) { self.init(stringLiteral: String(value)) }
 }
 
 extension SemanticVersion: Decodable {
+  /// Creates a semantic version by decoding from the given decoder.
+  ///
+  /// - Parameter decoder: The decoder to read data from.
+  /// - Throws: DecodingError if the version cannot be decoded.
   public init(from decoder: any Decoder) throws {
     let container = try decoder.singleValueContainer()
     let versionString: String
@@ -361,6 +377,10 @@ extension SemanticVersion: Decodable {
 }
 
 extension SemanticVersion: Encodable {
+  /// Encodes the semantic version to the given encoder.
+  ///
+  /// - Parameter encoder: The encoder to write data to.
+  /// - Throws: EncodingError if the version cannot be encoded.
   public func encode(to encoder: any Encoder) throws {
     var container = encoder.singleValueContainer()
     try container.encode(description)
@@ -368,6 +388,9 @@ extension SemanticVersion: Encodable {
 }
 
 extension SemanticVersion {
+  /// Extracts the version string from build metadata if present.
+  ///
+  /// - Returns: The version string if found in build metadata, nil otherwise.
   public var version: String? {
     guard let buildIndex = buildMetadataIdentifiers.firstIndex(of: "build"),
       buildIndex < buildMetadataIdentifiers.endIndex

@@ -8,6 +8,7 @@ import Foundation
 /// substitute environment variables in text files or stdin using shell-style variable expansion.
 /// Supports various substitution patterns including default values, alternate values, and error handling.
 public struct EnvSubstCommand: ParsableCommand {
+  /// Configuration for the ArgumentParser command.
   public static let configuration = CommandConfiguration(
     commandName: "envsubst",
     abstract: "Environment variables substitution",
@@ -29,11 +30,15 @@ public struct EnvSubstCommand: ParsableCommand {
       """
   )
 
-  /// Input file path. If not specified, reads from stdin.
+  /// Input file path.
+  ///
+  /// If not specified, reads from stdin.
   @Option(name: [.short, .long], help: "Input file (default: stdin)")
   var input: String?
 
-  /// Output file path. If not specified, writes to stdout.
+  /// Output file path.
+  ///
+  /// If not specified, writes to stdout.
   @Option(name: [.short, .long], help: "Output file (default: stdout)")
   var output: String?
 

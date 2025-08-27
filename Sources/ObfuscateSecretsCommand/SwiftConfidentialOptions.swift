@@ -11,6 +11,7 @@ extension ObfuscateSecretsCommand {
     )
     var configurationURL: URL
 
+    /// Creates a new SwiftConfidentialOptions instance with default values.
     public init() {}
   }
 }

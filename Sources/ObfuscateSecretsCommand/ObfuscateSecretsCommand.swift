@@ -8,7 +8,12 @@ import Foundation
 #if canImport(ObfuscateSecrets)
   import ObfuscateSecrets
 
+  /// Command-line interface for obfuscating secret literals using swift-confidential.
+  ///
+  /// This command integrates secret fetching with code obfuscation to generate Swift code
+  /// that provides secure access to secrets at runtime.
   public struct ObfuscateSecretsCommand: AsyncParsableCommand {
+    /// Configuration for the ArgumentParser command.
     public static let configuration = CommandConfiguration(
       commandName: "obfuscate",
       abstract: "Obfuscate secret literals with swift-confidential.",
@@ -37,14 +42,24 @@ import Foundation
     )
     var outputURL: URL
 
+    /// Creates a new ObfuscateSecretsCommand instance.
     public init() {}
 
+    /// Validates all command options before execution.
+    ///
+    /// - Throws: Validation errors if any options are invalid.
     public mutating func validate() throws {
       try confidentialOptions.validate()
       try importSecretsOptions.validate()
       try envSusbstOptions.validate()
     }
 
+    /// Executes the obfuscation process.
+    ///
+    /// Fetches secrets from configured sources and generates obfuscated Swift code
+    /// using swift-confidential for secure runtime access.
+    ///
+    /// - Throws: Execution errors if the obfuscation process fails.
     public mutating func run() async throws {
       var environment: [String: String] = ProcessInfo.processInfo.environment
 
@@ -77,5 +92,6 @@ import Foundation
     }
   }
 #else
+  /// Placeholder for ObfuscateSecretsCommand when ObfuscateSecrets is not available.
   public enum ObfuscateSecretsCommand {}
 #endif
