@@ -22,7 +22,7 @@ import Foundation
         grouped into namespaces as defined in configuration file. \
         The accessor allows for retrieving a deobfuscated literal at \
         runtime.
-        """
+        """,
     )
 
     @OptionGroup(title: "swift-confidential options")
@@ -38,7 +38,7 @@ import Foundation
     @Option(
       name: [.short, .customLong("output")],
       help: "The path to an output source file where the generated Swift code is to be written",
-      transform: URL.init(fileURLWithPath:)
+      transform: URL.init(fileURLWithPath:),
     )
     var outputURL: URL
 
@@ -69,7 +69,7 @@ import Foundation
         let secrets = try await ImportSecrets.getSecrets(
           configurationURL: importSecretsConfigurationURL,
           sourceProviders: ImportSecretsCommand.Options.sourceProviders(sources: importSecretsOptions.sources),
-          envSubstOptions: envSusbstOptions.options
+          envSubstOptions: envSusbstOptions.options,
         )
         environment.merge(secrets) { old, new in importSecretsOptions.overwriteExistingEnv ? new : old }
       }
@@ -79,14 +79,14 @@ import Foundation
           inputFileURL: confidentialOptions.configurationURL,
           outputFileURL: outputURL,
           environment: environment,
-          options: envSusbstOptions.options
+          options: envSusbstOptions.options,
         )
       #else
         try ObfuscateSecrets.substituteEnvAndObfuscateWithCLI(
           inputFileURL: confidentialOptions.configurationURL,
           outputFileURL: outputURL,
           environment: environment,
-          options: envSusbstOptions.options
+          options: envSusbstOptions.options,
         )
       #endif
     }

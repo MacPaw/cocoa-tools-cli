@@ -117,7 +117,7 @@ extension SecretProviderProtocol {
   /// - Throws: ImportSecrets.Error.configurationTypeMismatch if the configuration has the wrong type.
   static func getSourceConfiguration<T: SecretConfigurationProtocol>(
     _ configuration: (any SecretConfigurationProtocol)?,
-    is type: T.Type = T.self
+    is type: T.Type = T.self,
   ) throws -> T? {
     guard let configuration else { return nil }
     guard let typedConfiguration = configuration as? T else {
@@ -134,7 +134,7 @@ extension SecretProviderProtocol {
   /// - Throws: ImportSecrets.Error.sourceTypeMismatch if the source has the wrong type.
   static func mapSecretSource<Source: SecretSourceProtocol>(
     _ source: any SecretSourceProtocol,
-    as type: Source.Type = Source.self
+    as type: Source.Type = Source.self,
   ) throws -> Source {
     guard let typedSource = source as? Source else {
       throw ImportSecrets.Error.sourceTypeMismatch(expected: type, got: Swift.type(of: source))
@@ -201,7 +201,7 @@ where Fetcher.Source == Source, Source.Configuration: Decodable {
 /// This provides a standard implementation for providers where the source requires configuration during decoding.
 public struct BasicProviderDecodableWithConfigurationSource<
   Source: SecretSourceProtocol & DecodableWithConfiguration,
-  Fetcher: SecretFetcherProtocol
+  Fetcher: SecretFetcherProtocol,
 > where Fetcher.Source == Source, Source.Configuration: Decodable {
   /// The source type handled by this provider.
   public typealias Source = Source

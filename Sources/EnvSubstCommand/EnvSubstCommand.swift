@@ -27,7 +27,7 @@ public struct EnvSubstCommand: ParsableCommand {
         echo 'Hello $USER from $HOME' | mpct envsubst
         mpct envsubst -i template.txt -o output.txt
         mpct envsubst --no-unset --fail-fast < input.txt
-      """
+      """,
   )
 
   /// Input file path.

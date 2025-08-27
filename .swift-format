@@ -14,6 +14,7 @@
   "lineBreakBetweenDeclarationAttributes" : true,
   "lineLength" : 120,
   "maximumBlankLines" : 1,
+  "multilineTrailingCommaBehavior" : "alwaysUsed",
   "multiElementCollectionTrailingCommas" : true,
   "noAssignmentInExpressions" : {
     "allowedFunctions" : [
@@ -21,7 +22,9 @@
     ]
   },
   "prioritizeKeepingFunctionOutputTogether" : false,
-  "reflowMultilineStringLiterals" : "never",
+  "reflowMultilineStringLiterals" : {
+    "never" : {}
+  },
   "respectsExistingLineBreaks" : false,
   "rules" : {
     "AllPublicDeclarationsHaveDocumentation" : true,

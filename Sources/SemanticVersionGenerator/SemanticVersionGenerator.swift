@@ -10,7 +10,7 @@ struct SemanticVersionGenerator: ParsableCommand {
     discussion: """
       This tool reads a version string from a file and generates Swift source code
       that defines a static property using the #semanticVersion macro.
-      """
+      """,
   )
 
   @Option(name: .long, help: "Path to the version file")

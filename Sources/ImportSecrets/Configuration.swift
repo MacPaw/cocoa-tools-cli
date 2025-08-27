@@ -60,7 +60,7 @@ extension ImportSecrets.Configuration: DecodableWithConfiguration {
       try container.decodeIfPresent(
         ImportSecrets.SourceConfigurations.self,
         forKey: .sourceConfigurations,
-        configuration: configuration
+        configuration: configuration,
       ) ?? .init(configurations: [:])
 
     // Decode secrets using dynamic keys (the YAML keys become the environment variable names)
@@ -75,8 +75,8 @@ extension ImportSecrets.Configuration: DecodableWithConfiguration {
         configuration: .init(
           topLevelDecodingConfiguration: configuration,
           sourcesConfigurations: sourceConfigurations,
-          secretEnvVarName: key.stringValue  // YAML key becomes the env var name
-        )
+          secretEnvVarName: key.stringValue,  // YAML key becomes the env var name
+        ),
       )
       secrets.append(secret)
     }

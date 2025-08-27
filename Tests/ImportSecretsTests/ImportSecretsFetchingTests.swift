@@ -11,7 +11,7 @@ struct ImportSecretsFetchingTests {
   // MARK: - Helper Methods
   private static func buildProviders(
     opCLIMock: MockOnePasswordCLI,
-    fakeProviderFetcher: ImportSecrets.Providers.FakeProvider.Fetcher
+    fakeProviderFetcher: ImportSecrets.Providers.FakeProvider.Fetcher,
   ) -> [any SecretProviderProtocol] {
     [
       ImportSecrets.Providers.OnePassword(fetcher: .init(onePasswordCLI: opCLIMock)),
@@ -26,7 +26,7 @@ struct ImportSecretsFetchingTests {
     includeSecrets: [String]? = .none,
     removeSecrets: [String]? = .none,
     opCLIMock: MockOnePasswordCLI? = .none,
-    fakeProviderFetcher: ImportSecrets.Providers.FakeProvider.Fetcher? = .none
+    fakeProviderFetcher: ImportSecrets.Providers.FakeProvider.Fetcher? = .none,
   ) throws -> ImportSecrets.Configuration {
     // Parse the full YAML configuration
     guard let data = YamlMocks.yamlContent.data(using: .utf8) else { throw TestError.dataConversionFailed }
@@ -34,8 +34,8 @@ struct ImportSecretsFetchingTests {
       configurationData: data,
       sourceProviders: Self.buildProviders(
         opCLIMock: opCLIMock ?? self.opCLIMock,
-        fakeProviderFetcher: fakeProviderFetcher ?? self.fakeProviderFetcher
-      )
+        fakeProviderFetcher: fakeProviderFetcher ?? self.fakeProviderFetcher,
+      ),
     )
     // Remove specified secrets from the configuration
     configuration.secrets = configuration.secrets.filter { secret in
@@ -103,7 +103,7 @@ struct ImportSecretsFetchingTests {
           String(
             describing: ImportSecrets.Providers.OnePassword.Fetcher.FetchError.failedToFetch(
               secret: "TEST_MPCT_SECRET6_OP_MISSING_FAKE_MISSING",
-              labelMissing: "item6-secret"
+              labelMissing: "item6-secret",
             )
           ),
           String(
@@ -144,7 +144,7 @@ struct ImportSecretsFetchingTests {
     await #expect(throws: DecodingError.self) {
       try await ImportSecrets.getSecrets(
         configurationData: data,
-        sourceProviders: Self.buildProviders(opCLIMock: opCLIMock, fakeProviderFetcher: fakeProviderFetcher)
+        sourceProviders: Self.buildProviders(opCLIMock: opCLIMock, fakeProviderFetcher: fakeProviderFetcher),
       )
     }
   }

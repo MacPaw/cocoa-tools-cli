@@ -8,13 +8,13 @@ extension ObfuscateSecretsCommand {
     @Option(
       name: [.customLong("import-secrets-config")],
       help: "The path to a secrets import configuration file",
-      transform: URL.init(fileURLWithPath:)
+      transform: URL.init(fileURLWithPath:),
     )
     var configurationURL: URL?
 
     @Option(
       name: .customLong("secrets-source"),
-      help: .init("Source to import secrets from.", argumentType: ImportSecretsCommand.Options.Source.self)
+      help: .init("Source to import secrets from.", argumentType: ImportSecretsCommand.Options.Source.self),
     )
     var sources: [ImportSecretsCommand.Options.Source] = []
 

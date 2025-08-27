@@ -16,7 +16,7 @@ extension Configuration: Decodable {}
 extension Configuration: Equatable {
   static func == (
     lhs: ImportSecrets.Providers.FakeProvider.Source.Configuration,
-    rhs: ImportSecrets.Providers.FakeProvider.Source.Configuration
+    rhs: ImportSecrets.Providers.FakeProvider.Source.Configuration,
   ) -> Bool { lhs.url == rhs.url }
 }
 

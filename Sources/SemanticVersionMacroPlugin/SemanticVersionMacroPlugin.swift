@@ -28,7 +28,7 @@ public struct SemanticVersionMacro: ExpressionMacro {
     guard node.arguments.count == 1, let argument: LabeledExprSyntax = node.arguments.first else {
       throw diagnosticsError(
         node,
-        error: .init(message: "Macro supports only one argument", topic: .invalidMacroArgument)
+        error: .init(message: "Macro supports only one argument", topic: .invalidMacroArgument),
       )
     }
 
@@ -49,8 +49,8 @@ public struct SemanticVersionMacro: ExpressionMacro {
           node,
           error: .init(
             message: "Unexpected argument. Must be a string literal, integer literal, or float literal",
-            topic: .invalidMacroArgument
-          )
+            topic: .invalidMacroArgument,
+          ),
         )
       }
 
@@ -61,8 +61,8 @@ public struct SemanticVersionMacro: ExpressionMacro {
         node,
         error: .init(
           message: "'\(versionString)' can't be parsed as a SemanticVersion: \(error.errorDescription)",
-          topic: .invalidVersionValue
-        )
+          topic: .invalidVersionValue,
+        ),
       )
     }
 
@@ -87,7 +87,7 @@ public struct SemanticVersionMacro: ExpressionMacro {
             for prereleaseIdentifier in version.prereleaseIdentifiers {
               ArrayElementSyntax(expression: StringLiteralExprSyntax(content: prereleaseIdentifier))
             }
-          }
+          },
         )
       }
 
@@ -99,7 +99,7 @@ public struct SemanticVersionMacro: ExpressionMacro {
             for buildIdentifier in version.buildMetadataIdentifiers {
               ArrayElementSyntax(expression: StringLiteralExprSyntax(content: buildIdentifier))
             }
-          }
+          },
         )
       }
     }
@@ -107,7 +107,7 @@ public struct SemanticVersionMacro: ExpressionMacro {
     let functionCallExpr = FunctionCallExprSyntax(
       calledExpression: MemberAccessExprSyntax(
         base: DeclReferenceExprSyntax(baseName: .identifier("SemanticVersion")),
-        name: .identifier("init")
+        name: .identifier("init"),
       ),
       leftParen: .leftParenToken(),
       arguments: argumentList,

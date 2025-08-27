@@ -28,7 +28,7 @@ extension ImportSecrets {
     /// - Throws: ImportSecrets.Error.configurationTypeMismatch if the configuration exists but has the wrong type.
     func getConfiguration<Configuration: SecretConfigurationProtocol>(
       for configurationKey: String,
-      type: Configuration.Type = Configuration.self
+      type: Configuration.Type = Configuration.self,
     ) throws -> Configuration? {
       guard let configuration = configurations[configurationKey] else { return nil }
       guard let configuration = configuration as? Configuration else {
@@ -83,7 +83,7 @@ extension ImportSecrets.SourceConfigurations: DecodableWithConfiguration {
         throw DecodingError.dataCorrupted(
           DecodingError.Context(
             codingPath: decoder.codingPath,
-            debugDescription: "Multiple configurations for source key \(sourceConfigurationKey)"
+            debugDescription: "Multiple configurations for source key \(sourceConfigurationKey)",
           )
         )
       }

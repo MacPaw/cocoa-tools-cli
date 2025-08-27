@@ -56,7 +56,7 @@ extension Fetcher: SecretFetcherProtocol {
   /// - Throws: Shell.Error if the 1Password CLI cannot be initialized or configured.
   public func fetch(
     secrets: [String: ImportSecrets.Providers.OnePassword.Source],
-    sourceConfiguration: ImportSecrets.Providers.OnePassword.Source.Configuration?
+    sourceConfiguration: ImportSecrets.Providers.OnePassword.Source.Configuration?,
   ) async throws -> SecretsFetchResult {
     guard !secrets.isEmpty else { return .init() }
 
@@ -69,7 +69,7 @@ extension Fetcher: SecretFetcherProtocol {
       let uniqueItem: UniqueItem = .init(
         source: opSource,
         defaultAccount: sourceConfiguration?.account,
-        defaultVault: sourceConfiguration?.vault
+        defaultVault: sourceConfiguration?.vault,
       )
       accum[uniqueItem, default: []].insert(opSource.label)
     }
@@ -92,7 +92,7 @@ extension Fetcher: SecretFetcherProtocol {
           account: uniqueItem.account,
           vault: uniqueItem.vault,
           item: uniqueItem.item,
-          labels: labels
+          labels: labels,
         )
 
         opFetchedItems[uniqueItem] = fieldValues
@@ -106,7 +106,7 @@ extension Fetcher: SecretFetcherProtocol {
       let uniqueItem: UniqueItem = .init(
         source: secret.value,
         defaultAccount: sourceConfiguration?.account,
-        defaultVault: sourceConfiguration?.vault
+        defaultVault: sourceConfiguration?.vault,
       )
 
       // Check if we successfully fetched data for this item

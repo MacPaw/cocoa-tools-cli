@@ -126,7 +126,7 @@ extension Shell.OnePassword: OnePasswordCLIProtocol {
       account: account,
       vault: vault,
       item: item,
-      labels: labels
+      labels: labels,
     )
     return fields.reduce(into: [String: String]()) { $0[$1.label] = $1.value }
   }

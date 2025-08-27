@@ -35,7 +35,7 @@ public enum Shell {
       executableURL: URL(fileURLWithPath: "/bin/sh"),
       arguments: ["-c", "eval \"\(expression)\""],
       environment: environment,
-      trim: trim
+      trim: trim,
     )
   }
 
@@ -56,7 +56,7 @@ public enum Shell {
     arguments: [String],
     currentDirectoryURL: URL? = .none,
     environment: [String: String]? = .none,
-    trim: Bool = true
+    trim: Bool = true,
   ) throws -> Data {
     let stdoutPipe = Pipe()
     let stderrPipe = Pipe()
@@ -110,14 +110,14 @@ public enum Shell {
     arguments: [String],
     currentDirectoryURL: URL? = .none,
     environment: [String: String]? = .none,
-    trim: Bool = true
+    trim: Bool = true,
   ) throws -> String {
     let stdoutData: Data = try run(
       executableURL: executableURL,
       arguments: arguments,
       currentDirectoryURL: currentDirectoryURL,
       environment: environment,
-      trim: trim
+      trim: trim,
     )
 
     var stdoutString: String? = String(data: stdoutData, encoding: .utf8)

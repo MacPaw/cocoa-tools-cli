@@ -12,20 +12,20 @@ class ImportSecretsTests {
         MocksBuilder.onePasswordSecret(
           envVarName: "TEST_MPCT_SECRET1_OP_ONLY",
           item: "shared-item",
-          label: "item1-secret"
+          label: "item1-secret",
         ),
         MocksBuilder.onePasswordSecret(
           envVarName: "TEST_MPCT_SECRET2_MULTILINE",
           item: "shared-item",
-          label: "item1-multiline"
+          label: "item1-multiline",
         ),
         MocksBuilder.onePasswordSecret(
           envVarName: "TEST_MPCT_SECRET3_OP_AND_FAKE",
           item: "database-item",
-          label: "item2-secret"
+          label: "item2-secret",
         ),
       ],
-      onePasswordCLI: mockOnePasswordCLI ?? self.mockOnePasswordCLI
+      onePasswordCLI: mockOnePasswordCLI ?? self.mockOnePasswordCLI,
     )
   }
 
@@ -73,14 +73,14 @@ class ImportSecretsTests {
   static func require<T>(
     _ block: @autoclosure () async throws -> T,
     _ comment: @autoclosure () -> Comment? = nil,
-    sourceLocation: SourceLocation = #_sourceLocation
+    sourceLocation: SourceLocation = #_sourceLocation,
   ) async throws -> T {
     do { return try await block() }
     catch {
       #expect(
         Bool(false),
         "\(comment()?.rawValue ?? "")Expected no error but got: \(error)",
-        sourceLocation: sourceLocation
+        sourceLocation: sourceLocation,
       )
       throw error
     }
@@ -89,14 +89,14 @@ class ImportSecretsTests {
   static func require<T>(
     _ block: @autoclosure () throws -> T,
     _ comment: @autoclosure () -> Comment? = nil,
-    sourceLocation: SourceLocation = #_sourceLocation
+    sourceLocation: SourceLocation = #_sourceLocation,
   ) throws -> T {
     do { return try block() }
     catch {
       #expect(
         Bool(false),
         "\(comment()?.rawValue ?? "")Expected no error but got: \(error)",
-        sourceLocation: sourceLocation
+        sourceLocation: sourceLocation,
       )
       throw error
     }

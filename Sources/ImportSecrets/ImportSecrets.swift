@@ -37,8 +37,7 @@ public struct ImportSecrets {
       sourceProviders: sourceProviders,
       encoding: encoding,
       envSubstOptions: envSubstOptions,
-      environment: environment,
-      fileManager: fileManager
+      environment: environment
     )
 
     return configuration
@@ -58,7 +57,7 @@ public struct ImportSecrets {
     sourceProviders: [any SecretProviderProtocol],
     encoding: Parser.Encoding = .default,
     envSubstOptions: EnvSubst.Options? = .none,
-    environment: [String: String] = ProcessInfo.processInfo.environment
+    environment: [String: String] = ProcessInfo.processInfo.environment,
   ) throws -> ImportSecrets.Configuration {
     // Apply environment variable substitution to the configuration data if options are provided
     // This allows configuration files to contain ${VAR} placeholders that get replaced with actual env values
@@ -99,7 +98,7 @@ public struct ImportSecrets {
       encoding: encoding,
       envSubstOptions: envSubstOptions,
       environment: environment,
-      fileManager: fileManager
+      fileManager: fileManager,
     )
 
     try configuration.validate()
@@ -114,7 +113,6 @@ public struct ImportSecrets {
   ///   - encoding: Text encoding for parsing the configuration data.
   ///   - envSubstOptions: Optional environment variable substitution options.
   ///   - environment: Environment variables to use for substitution. Defaults to the current process environment.
-  ///   - fileManager: File manager (unused in this method but kept for consistency).
   /// - Returns: A dictionary mapping environment variable names to their secret values.
   /// - Throws: Configuration errors, validation errors, or fetching errors.
   public static func getSecrets(
@@ -123,7 +121,6 @@ public struct ImportSecrets {
     encoding: Parser.Encoding = .default,
     envSubstOptions: EnvSubst.Options? = .none,
     environment: [String: String] = ProcessInfo.processInfo.environment,
-    fileManager: FileManagerProtocol = FileManager.default,
   ) async throws -> [String: String] {
     var configuration = try configuration(
       configurationData: configurationData,
@@ -131,7 +128,6 @@ public struct ImportSecrets {
       encoding: encoding,
       envSubstOptions: envSubstOptions,
       environment: environment,
-      fileManager: fileManager
     )
 
     try configuration.validate()
@@ -150,14 +146,14 @@ public struct ImportSecrets {
     return try await ImportSecrets.getSecrets(
       secrets: configuration.secrets,
       sourceProviders: configuration.sourceProviders,
-      sourceConfigurations: configuration.sourceConfigurations
+      sourceConfigurations: configuration.sourceConfigurations,
     )
   }
 
   private static func getSecrets(
     secrets: [ImportSecrets.Secret],
     sourceProviders: [any SecretProviderProtocol],
-    sourceConfigurations: ImportSecrets.SourceConfigurations
+    sourceConfigurations: ImportSecrets.SourceConfigurations,
   ) async throws -> [String: String] {
     guard !secrets.isEmpty else { throw Error.noSecretsToFetch }
 
@@ -184,7 +180,7 @@ public struct ImportSecrets {
 
       let fetchedSecretsResult: SecretsFetchResult = try await sourceProvider.fetch(
         secrets: sourceSecrets as [ImportSecrets.Secret],
-        sourceConfiguration: sourceConfiguration
+        sourceConfiguration: sourceConfiguration,
       )
 
       // Merge the fetched secrets, preferring new values over existing ones
@@ -216,7 +212,7 @@ public struct ImportSecrets {
   /// rather than making individual API calls for each secret.
   private static func groupSecretsBySourceProvider(
     secrets: [ImportSecrets.Secret],
-    sourceProviders: [any SecretProviderProtocol]
+    sourceProviders: [any SecretProviderProtocol],
   ) throws -> [String: [ImportSecrets.Secret]] {
     var result: [String: [ImportSecrets.Secret]] = [:]
 

@@ -12,21 +12,21 @@ extension ObfuscateSecrets {
     options: EnvSubst.Options = .strict,
     encoding: String.Encoding = .utf8,
     swiftConfidentialBinaryURL: URL? = .none,
-    fileManager: FileManager = .default
+    fileManager: FileManager = .default,
   ) throws {
     let substitutedData = try substituteEnv(
       inputFileURL: inputFileURL,
       environment: environment,
       options: options,
       encoding: encoding,
-      fileManager: fileManager
+      fileManager: fileManager,
     )
 
     try obfuscateWithCLI(
       substitutedData,
       outputFileURL: outputFileURL,
       swiftConfidentialBinaryURL: swiftConfidentialBinaryURL,
-      fileManager: fileManager
+      fileManager: fileManager,
     )
   }
 
@@ -35,7 +35,7 @@ extension ObfuscateSecrets {
     environment: [String: String],
     options: EnvSubst.Options,
     encoding: String.Encoding,
-    fileManager: FileManager
+    fileManager: FileManager,
   ) throws -> Data {
     guard fileManager.isReadableFile(atPath: inputFileURL.path(percentEncoded: false)) else {
       throw Error(#"Unable to read configuration file at "\#(inputFileURL.path(percentEncoded: false))""#)
@@ -58,7 +58,7 @@ extension ObfuscateSecrets {
     _ configurationData: Data,
     outputFileURL: URL,
     swiftConfidentialBinaryURL: URL? = .none,
-    fileManager: FileManager
+    fileManager: FileManager,
   ) throws {
     let tempDir = fileManager.temporaryDirectory.appending(path: "obfuscate-secrets", directoryHint: .isDirectory)
     defer { try? fileManager.removeItem(at: tempDir) }
@@ -93,21 +93,21 @@ extension ObfuscateSecrets {
       environment: [String: String] = ProcessInfo.processInfo.environment,
       options: EnvSubst.Options = .strict,
       encoding: String.Encoding = .utf8,
-      fileManager: FileManager = .default
+      fileManager: FileManager = .default,
     ) throws {
       let substitutedData = try substituteEnv(
         inputFileURL: inputFileURL,
         environment: environment,
         options: options,
         encoding: encoding,
-        fileManager: fileManager
+        fileManager: fileManager,
       )
 
       try obfuscateWithLibrary(
         substitutedData,
         outputFileURL: outputFileURL,
         encoding: encoding,
-        fileManager: fileManager
+        fileManager: fileManager,
       )
     }
 
@@ -115,7 +115,7 @@ extension ObfuscateSecrets {
       _ configurationData: Data,
       outputFileURL: URL,
       encoding: String.Encoding,
-      fileManager: FileManager
+      fileManager: FileManager,
     ) throws {
       let text: String = try ConfidentialObfuscator.obfuscate(configurationData: configurationData)
 

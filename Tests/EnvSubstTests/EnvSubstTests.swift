@@ -46,7 +46,7 @@ struct EnvSubstTests {
       fail: [TestMode] = [],
       _ description: String,
       eval: Bool = true,
-      _ sourceLocation: SourceLocation = #_sourceLocation
+      _ sourceLocation: SourceLocation = #_sourceLocation,
     ) {
       self.input = input
       self.expectedOutput = expectedOutput
@@ -84,19 +84,19 @@ struct EnvSubstTests {
       input: "hello $BAR\nhello ${EMPTY:=$FOO}",
       expectedOutput: "hello bar\nhello foo",
       fail: .never,
-      "multi line string"
+      "multi line string",
     ),
     .init(
       input: "name: ${NAME:=foo_qux}, key: ${EMPTY:=baz_bar}",
       expectedOutput: "name: foo_qux, key: baz_bar",
       fail: .never,
-      "issue #2"
+      "issue #2",
     ),
     .init(
       input: "prop=${HOME_URL-http://localhost:8080}",
       expectedOutput: "prop=http://localhost:8080",
       fail: .never,
-      "gh-issue-8"
+      "gh-issue-8",
     ),
 
     // TODO: fix this
@@ -104,13 +104,13 @@ struct EnvSubstTests {
       input: "$NOTSET:=wo_rld $ALSO_NOTSET:=bar_baz $EMPTY:=some",
       expectedOutput: ":=wo_rld :=bar_baz :=some",
       fail: .strict,
-      "issue #1"
+      "issue #1",
     ),
     .init(
       input: "${NOTSET:=wo_rld} ${ALSO_NOTSET:=bar_baz} ${EMPTY:=some}",
       expectedOutput: "wo_rld bar_baz some",
       fail: .never,
-      "issue #1"
+      "issue #1",
     ),
 
     // Unset-default
@@ -118,25 +118,25 @@ struct EnvSubstTests {
       input: "${NOTSET--1}",
       expectedOutput: "-1",
       fail: .never,
-      "if $var not set, - correctly parse default direct value"
+      "if $var not set, - correctly parse default direct value",
     ),
     .init(
       input: "${NOTSET:--1}",
       expectedOutput: "-1",
       fail: .never,
-      "if $var not set, :- correctly parse default direct value"
+      "if $var not set, :- correctly parse default direct value",
     ),
     .init(
       input: "${NOTSET=-1}",
       expectedOutput: "-1",
       fail: .never,
-      "if $var not set, = correctly parse default direct value"
+      "if $var not set, = correctly parse default direct value",
     ),
     .init(
       input: "${NOTSET:==1}",
       expectedOutput: "=1",
       fail: .never,
-      "if $var not set, := correctly parse default direct value"
+      "if $var not set, := correctly parse default direct value",
     ),
 
     // Single letter
@@ -158,25 +158,30 @@ struct EnvSubstTests {
     .init(input: "${BAR:-var is set}", expectedOutput: "bar", fail: .never, "$var is set and default provided :-"),
     .init(input: "${BAR=var is set}", expectedOutput: "bar", fail: .never, "$var is set and default provided ="),
     .init(input: "${BAR:=var is set}", expectedOutput: "bar", fail: .never, "$var is set and default provided :="),
-    .init(input: "${BAR+var is set}", expectedOutput: "var is set", fail: .never, "$var is set and default provided +"),
+    .init(
+      input: "${BAR+var is set}",
+      expectedOutput: "var is set",
+      fail: .never,
+      "$var is set and default provided +",
+    ),
     .init(
       input: "${BAR:+var is set}",
       expectedOutput: "var is set",
       fail: .never,
-      "$var is set and default provided :+"
+      "$var is set and default provided :+",
     ), .init(input: "${BAR?var is set}", expectedOutput: "bar", fail: .never, "$var is set and default provided ?"),
     .init(input: "${BAR:?var is set}", expectedOutput: "bar", fail: .never, "$var is set and default provided :?"),
     .init(
       input: "${BAR=var is set} $BAR",
       expectedOutput: "bar bar",
       fail: .never,
-      "$var is set and default provided =, $var value not changed"
+      "$var is set and default provided =, $var value not changed",
     ),
     .init(
       input: "${BAR:=var is set} $BAR",
       expectedOutput: "bar bar",
       fail: .never,
-      "$var is set and default provided :=, $var value not changed"
+      "$var is set and default provided :=, $var value not changed",
     ),
 
     // Set-other
@@ -191,29 +196,39 @@ struct EnvSubstTests {
       input: "${BAR=$FOO} $BAR",
       expectedOutput: "bar bar",
       fail: .never,
-      "$var and $OTHER are set =, $var value not changed"
+      "$var and $OTHER are set =, $var value not changed",
     ),
     .init(
       input: "${BAR:=$FOO} $BAR",
       expectedOutput: "bar bar",
       fail: .never,
-      "$var and $OTHER are set :=, $var value not changed"
+      "$var and $OTHER are set :=, $var value not changed",
     ),
 
     // Unset-default
-    .init(input: "${NOTSET-var is unset}", expectedOutput: "var is unset", fail: .never, "$var and $DEFAULT not set -"),
+    .init(
+      input: "${NOTSET-var is unset}",
+      expectedOutput: "var is unset",
+      fail: .never,
+      "$var and $DEFAULT not set -",
+    ),
     .init(
       input: "${NOTSET:-var is unset}",
       expectedOutput: "var is unset",
       fail: .never,
-      "$var and $DEFAULT not set :-"
+      "$var and $DEFAULT not set :-",
     ),
-    .init(input: "${NOTSET=var is unset}", expectedOutput: "var is unset", fail: .never, "$var and $DEFAULT not set ="),
+    .init(
+      input: "${NOTSET=var is unset}",
+      expectedOutput: "var is unset",
+      fail: .never,
+      "$var and $DEFAULT not set =",
+    ),
     .init(
       input: "${NOTSET:=var is unset}",
       expectedOutput: "var is unset",
       fail: .never,
-      "$var and $DEFAULT not set :="
+      "$var and $DEFAULT not set :=",
     ), .init(input: "${NOTSET+var is unset}", expectedOutput: "", fail: .never, "$var and $OTHER not set +"),
     .init(input: "${NOTSET:+var is unset}", expectedOutput: "", fail: .never, "$var and $OTHER not set :+"),
     .init(input: "${NOTSET?var is unset}", expectedOutput: "", fail: .always, "$var and $OTHER not set ?"),
@@ -224,13 +239,13 @@ struct EnvSubstTests {
       input: "${NOTSET=var is unset} $NOTSET",
       expectedOutput: "var is unset var is unset",
       fail: .never,
-      "$var and $DEFAULT not set =, $var is set after"
+      "$var and $DEFAULT not set =, $var is set after",
     ),
     .init(
       input: "${NOTSET:=var is unset} $NOTSET",
       expectedOutput: "var is unset var is unset",
       fail: .never,
-      "$var and $DEFAULT not set :=, $var is set after"
+      "$var and $DEFAULT not set :=, $var is set after",
     ),
 
     // Empty-default
@@ -239,13 +254,13 @@ struct EnvSubstTests {
       input: "${EMPTY:-var is empty}",
       expectedOutput: "var is empty",
       fail: .never,
-      "$var and $DEFAULT not set :-"
+      "$var and $DEFAULT not set :-",
     ), .init(input: "${EMPTY=var is empty}", expectedOutput: "", fail: .noEmpty, "$var and $DEFAULT not set ="),
     .init(
       input: "${EMPTY:=var is empty}",
       expectedOutput: "var is empty",
       fail: .never,
-      "$var and $DEFAULT not set :="
+      "$var and $DEFAULT not set :=",
     ), .init(input: "${EMPTY+var is empty}", expectedOutput: "var is empty", fail: .never, "$var and $OTHER not set +"),
     .init(input: "${EMPTY:+var is empty}", expectedOutput: "", fail: .never, "$var and $OTHER not set :+"),
     .init(input: "${EMPTY?var is empty}", expectedOutput: "", fail: .noEmpty, "$var and $OTHER not set ?"),
@@ -255,7 +270,7 @@ struct EnvSubstTests {
       input: "${EMPTY:=var is empty} $EMPTY",
       expectedOutput: "var is empty var is empty",
       fail: .never,
-      "$var not set and $DEFAULT provided with :=, $var is set after"
+      "$var not set and $DEFAULT provided with :=, $var is set after",
     ),
 
     // Unset-unset
@@ -343,28 +358,28 @@ struct EnvSubstTests {
       #expect(
         throws: (any Error).self,
         "[\(mode)] \(testCase.description): input '\(testCase.input)', result '\((try? sut.substitute(testCase.input)) ?? "")'",
-        sourceLocation: testCase.sourceLocation
+        sourceLocation: testCase.sourceLocation,
       ) { try sut.substitute(testCase.input) }
     }
     else {
       let expectedOutput = try #require(
         testCase.expectedOutput,
         "[\(mode)] output must be set",
-        sourceLocation: testCase.sourceLocation
+        sourceLocation: testCase.sourceLocation,
       )
       do {
         let result = try sut.substitute(testCase.input)
         #expect(
           result == testCase.expectedOutput,
           "[\(mode)] \(testCase.description): input: '\(testCase.input)', got '\(result)', expected '\(expectedOutput)'",
-          sourceLocation: testCase.sourceLocation
+          sourceLocation: testCase.sourceLocation,
         )
       }
       catch {
         #expect(
           Bool(false),
           "[\(mode)] unexpected error: \(error), input: '\(testCase.input)', expected '\(expectedOutput)'",
-          sourceLocation: testCase.sourceLocation
+          sourceLocation: testCase.sourceLocation,
         )
       }
 
@@ -375,14 +390,14 @@ struct EnvSubstTests {
           #expect(
             result == testCase.expectedOutput,
             "[\(mode).eval] \(testCase.description): input: '\(testCase.input)', got '\(result)', expected '\(expectedOutput)'",
-            sourceLocation: testCase.sourceLocation
+            sourceLocation: testCase.sourceLocation,
           )
         }
         catch {
           #expect(
             Bool(false),
             "[\(mode).eval] unexpected error: \(error), input: '\(testCase.input)', expected '\(expectedOutput)'",
-            sourceLocation: testCase.sourceLocation
+            sourceLocation: testCase.sourceLocation,
           )
         }
       }

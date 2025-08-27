@@ -69,7 +69,7 @@ extension ImportSecrets {
     /// - Returns: True if the secret has a source for the given key, false otherwise.
     func hasSource<Source: SecretSourceProtocol>(
       for configurationKey: String = Source.configurationKey,
-      type: Source.Type = Source.self
+      type: Source.Type = Source.self,
     ) -> Bool { sources[configurationKey] is Source }
 
     /// Get all available source keys for this secret.
@@ -149,7 +149,7 @@ extension ImportSecrets.Secret: DecodableWithConfiguration {
       throw DecodingError.dataCorruptedError(
         forKey: .sources,
         in: container,
-        debugDescription: "No known sources specified for \(configuration.secretEnvVarName) secret"
+        debugDescription: "No known sources specified for \(configuration.secretEnvVarName) secret",
       )
     }
 

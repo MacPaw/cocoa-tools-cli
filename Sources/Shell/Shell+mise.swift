@@ -17,7 +17,7 @@ extension Shell.Mise {
         URL(
           fileURLWithPath: ".local/bin",
           isDirectory: true,
-          relativeTo: FileManager.default.homeDirectoryForCurrentUser
+          relativeTo: FileManager.default.homeDirectoryForCurrentUser,
         ), URL(fileURLWithPath: "/opt/homebrew/bin", isDirectory: true),
         URL(fileURLWithPath: "/usr/local/bin", isDirectory: true),
       ]

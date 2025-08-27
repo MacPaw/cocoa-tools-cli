@@ -171,9 +171,9 @@ let package = Package(
   ],
   dependencies: [
     .package(url: "https://github.com/apple/swift-argument-parser.git", .upToNextMajor(from: "1.6.1")),
-    .package(url: "https://github.com/swiftlang/swift-format.git", branch: "main"),
+    .package(url: "https://github.com/swiftlang/swift-format.git", .upToNextMajor(from: "601.0.0")),
     .package(url: "https://github.com/swiftlang/swift-testing.git", .upToNextMajor(from: "6.1.1")),
-    .package(url: "https://github.com/swiftlang/swift-syntax.git", "601.0.0"..<"602.0.0"),
+    .package(url: "https://github.com/swiftlang/swift-syntax.git", "509.1.1"..<"602.0.0"),
     swiftConfidentialSource.packageDependency, yamsSource.packageDependency,
   ],
   targets: [

@@ -18,7 +18,7 @@
       tempDirectoryURL = fileManager.temporaryDirectory.appending(
         components: "obfuscate-secrets-tests",
         UUID().uuidString,
-        directoryHint: .isDirectory
+        directoryHint: .isDirectory,
       )
       inputFileURL = tempDirectoryURL.appending(path: "input.yaml", directoryHint: .notDirectory)
       outputFileURL = tempDirectoryURL.appending(path: "input.yaml", directoryHint: .isDirectory)
@@ -95,7 +95,7 @@
 
     private func validateContentsWithoutDataAndNonce(
       obfuscatedString: String,
-      _ sourceLocation: SourceLocation = #_sourceLocation
+      _ sourceLocation: SourceLocation = #_sourceLocation,
     ) throws {
       let obfuscatedString = obfuscatedString.replacing(dataReplacementRegex, with: "(data: [], nonce: 0)")
 
@@ -105,7 +105,7 @@
     private func validateSecretValues(
       _ secretValues: [String: String],
       in obfuscatedString: String,
-      _ sourceLocation: SourceLocation = #_sourceLocation
+      _ sourceLocation: SourceLocation = #_sourceLocation,
     ) throws {
       let crypter = Obfuscation.Encryption.DataCrypter(algorithm: .aes128GCM)
 
@@ -131,7 +131,7 @@
     func validate(
       outputFileURL: URL,
       secretValues: [String: String],
-      _ sourceLocation: SourceLocation = #_sourceLocation
+      _ sourceLocation: SourceLocation = #_sourceLocation,
     ) throws {
       let obfuscatedString = try String(contentsOf: outputFileURL, encoding: .utf8)
 
@@ -160,7 +160,7 @@
         try sut.substituteEnvAndObfuscateWithCLI(
           inputFileURL: inputFileURL,
           outputFileURL: outputFileURL,
-          environment: environment
+          environment: environment,
         )
       }
       catch { #expect(Bool(false), "Got error: \(error)") }
@@ -182,7 +182,7 @@
           try? sut.substituteEnvAndObfuscateWithLibrary(
             inputFileURL: inputFileURL,
             outputFileURL: outputFileURL,
-            environment: Self.environment
+            environment: Self.environment,
           )
         )
 

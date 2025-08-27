@@ -18,7 +18,7 @@ extension ImportSecretsCommand {
       help: #"""
         A path to the configuration YAML file.
         """#,
-      transform: URL.init(fileURLWithPath:)
+      transform: URL.init(fileURLWithPath:),
     )
     var configurationURL: URL
 

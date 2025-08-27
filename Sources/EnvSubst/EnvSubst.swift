@@ -62,7 +62,7 @@ extension EnvSubst {
   public static func substitute(
     _ input: String,
     environment: [String: String] = ProcessInfo.processInfo.environment,
-    options: Options = .default
+    options: Options = .default,
   ) throws(Error) -> String {
     let envsubst: EnvSubst = .init(environment: environment, options: options)
     return try envsubst.substitute(input)
@@ -81,7 +81,7 @@ extension EnvSubst {
     _ input: Data,
     environment: [String: String] = ProcessInfo.processInfo.environment,
     options: Options = .default,
-    encoding: String.Encoding = .utf8
+    encoding: String.Encoding = .utf8,
   ) throws(Error) -> Data {
     guard let string = String(data: input, encoding: encoding) else { throw .cantConvertDataToString(encoding) }
     let substitutedString = try EnvSubst.substitute(string, environment: environment, options: options)

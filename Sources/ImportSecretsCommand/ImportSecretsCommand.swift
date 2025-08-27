@@ -16,7 +16,7 @@ public struct ImportSecretsCommand {
     abstract: "Import secrets",
     discussion: """
       Imports secrets from various sources, such as 1Password.
-      """
+      """,
   )
 
   /// Command-line options for configuring secret import and export behavior.
@@ -88,7 +88,7 @@ extension ImportSecretsCommand: AsyncParsableCommand {
     var configuration = try ImportSecrets.configuration(
       configurationURL: options.configurationURL,
       sourceProviders: sourceProviders,
-      envSubstOptions: options.envSubstOptions.options
+      envSubstOptions: options.envSubstOptions.options,
     )
 
     try configuration.validate()

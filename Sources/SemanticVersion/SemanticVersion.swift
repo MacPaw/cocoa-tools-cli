@@ -70,16 +70,16 @@ public struct SemanticVersion: Sendable {
     _ minor: Int = 0,
     _ patch: Int = 0,
     prereleaseIdentifiers: [String] = [],
-    buildMetadataIdentifiers: [String] = []
+    buildMetadataIdentifiers: [String] = [],
   ) {
     precondition(major >= 0 && minor >= 0 && patch >= 0, "Negative versioning is invalid.")
     precondition(
       prereleaseIdentifiers.allSatisfy { $0.allSatisfy { $0.isASCII && ($0.isLetter || $0.isNumber || $0 == "-") } },
-      #"Pre-release identifiers can contain only ASCII alpha-numeric characters and "-"."#
+      #"Pre-release identifiers can contain only ASCII alpha-numeric characters and "-"."#,
     )
     precondition(
       buildMetadataIdentifiers.allSatisfy { $0.allSatisfy { $0.isASCII && ($0.isLetter || $0.isNumber || $0 == "-") } },
-      #"Build metadata identifiers can contain only ASCII alpha-numeric characters and "-"."#
+      #"Build metadata identifiers can contain only ASCII alpha-numeric characters and "-"."#,
     )
     self.major = major
     self.minor = minor
@@ -320,7 +320,7 @@ extension SemanticVersion: LosslessStringConvertible {
       minorVersion,
       patchVersion,
       prereleaseIdentifiers: prereleaseIdentifiers,
-      buildMetadataIdentifiers: buildMetadataIdentifiers
+      buildMetadataIdentifiers: buildMetadataIdentifiers,
     )
 
     return semanticVersion
@@ -359,8 +359,8 @@ extension SemanticVersion: Decodable {
             SemanticVersion.self,
             DecodingError.Context(
               codingPath: decoder.codingPath,
-              debugDescription: "Expected to decode String, Int or Double"
-            )
+              debugDescription: "Expected to decode String, Int or Double",
+            ),
           )
         }
       }
@@ -370,7 +370,7 @@ extension SemanticVersion: Decodable {
     catch {
       throw DecodingError.dataCorruptedError(
         in: container,
-        debugDescription: "Could not parse \(versionString) as SemanticVersion: \(error.errorDescription)"
+        debugDescription: "Could not parse \(versionString) as SemanticVersion: \(error.errorDescription)",
       )
     }
   }

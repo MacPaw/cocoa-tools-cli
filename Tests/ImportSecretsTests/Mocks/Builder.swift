@@ -14,13 +14,13 @@ enum MocksBuilder {
     sourceConfigurations: ImportSecrets.SourceConfigurations = .init(configurations: [:]),
     secrets: [ImportSecrets.Secret],
     sourceProviders: [any SecretProviderProtocol] = [],
-    onePasswordCLI: MockOnePasswordCLI? = .none
+    onePasswordCLI: MockOnePasswordCLI? = .none,
   ) throws -> ImportSecrets.Configuration {
     var config = ImportSecrets.Configuration(
       version: .none,
       sourceConfigurations: sourceConfigurations,
       secrets: secrets,
-      sourceProviders: sourceProviders
+      sourceProviders: sourceProviders,
     )
 
     try config.sourceConfigurations.addConfiguration(

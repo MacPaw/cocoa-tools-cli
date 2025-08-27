@@ -44,7 +44,7 @@ extension ImportSecrets.Error {
 
   static func configurationTypeMismatch(
     expected: any SecretConfigurationProtocol.Type,
-    got: any SecretConfigurationProtocol.Type
+    got: any SecretConfigurationProtocol.Type,
   ) -> Self { .configurationTypeMismatch(expected: String(describing: expected), got: String(describing: got)) }
 
   static func failedToFetchSecrets(_ secretFetchErrors: [String: [Swift.Error]]) -> Self {

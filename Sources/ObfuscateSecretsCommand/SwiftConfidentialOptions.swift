@@ -7,7 +7,7 @@ extension ObfuscateSecretsCommand {
     @Option(
       name: .customLong("swift-confidential-config"),
       help: "The path to a swift-confidential configuration file",
-      transform: URL.init(fileURLWithPath:)
+      transform: URL.init(fileURLWithPath:),
     )
     var configurationURL: URL
 

@@ -12,7 +12,7 @@ struct MPCT: AsyncParsableCommand {
   static let configuration: CommandConfiguration = CommandConfiguration(
     abstract: "A wrapper command-line tool for various scripts and tools we use every day",
     version: TargetVersions.mpct.description,
-    subcommands: [EnvSubstCommand.self, SecretsCommand.self]
+    subcommands: [EnvSubstCommand.self, SecretsCommand.self],
   )
 
   @OptionGroup(visibility: .default)
@@ -35,6 +35,6 @@ struct SecretsCommand: ParsableCommand {
   static let configuration: CommandConfiguration = CommandConfiguration(
     commandName: "secrets",
     abstract: "Secrets manipulation",
-    subcommands: obfuscate + [ImportSecretsCommand.self]
+    subcommands: obfuscate + [ImportSecretsCommand.self],
   )
 }
