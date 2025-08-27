@@ -20,6 +20,10 @@ inputs:
     description: 'Architecture to use'
     required: true
     default: ${{ runner.arch }}
+  use-build-cache:
+    description: 'Use build cache'
+    required: false
+    default: true
 runs:
   using: 'composite'
   steps:
@@ -40,6 +44,7 @@ runs:
 
     - name: Cache Swift Build Intermediate Files
       uses: actions/cache@v4
+      if: ${{ inputs.use-build-cache == 'true' }}
       with:
         path: |
           ./.build

@@ -22,6 +22,10 @@ inputs:
     description: 'Architecture to use'
     required: true
     default: ${{ runner.arch }}
+  use-build-cache:
+    description: 'Use build cache'
+    required: false
+    default: true
 runs:
   using: 'composite'
   steps:
@@ -40,6 +44,7 @@ runs:
         configuration: ${{ inputs.configuration }}
         xcode-version: ${{ inputs.xcode-version }}
         architecture: ${{ inputs.architecture }}
+        use-build-cache: ${{ inputs.use-build-cache }}
 
     - name: Trust Swift Package Macros and Plugins
       uses: ./.github/workflows/templates/spm-trust/

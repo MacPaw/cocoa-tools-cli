@@ -100,8 +100,26 @@ jobs:
             COMPILER_INDEX_STORE_ENABLE=NO \
             test-without-building
 
+  lint:
+    needs:
+      - load-env
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Prepare Swift
+        uses: ./.github/workflows/templates/prepare-swift/
+        with:
+          xcode-version: ${{ needs.load-env.outputs.xcode-version }}
+          swift-version: ${{ needs.load-env.outputs.swift-version }}
+          package-name: ${{ needs.load-env.outputs.package-name }}
+          build-system: swift
+          configuration: debug
+          use-build-cache: false
+
       - name: Lint with swift-format
-        if: matrix.build-system == 'swift' && contains(matrix.os, 'macOS')
-        shell: bash
-        run: |
-          swift package plugin --allow-writing-to-package-directory format-source-code
+        run: swift package plugin --allow-writing-to-package-directory format-source-code
