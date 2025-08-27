@@ -45,4 +45,23 @@ struct SemanticVersionTests {
     #expect(SemanticVersion(2, 2, 3) > 2)
     #expect(SemanticVersion(2, 2, 3) > 2.1)
   }
+
+  @Test
+  func test_version_isPrerelease() {
+    #expect(SemanticVersion(1, 2, 3, prereleaseIdentifiers: ["alpha", "1"]).isPrerelease == true)
+    #expect(SemanticVersion(1, 2, 3, prereleaseIdentifiers: []).isPrerelease == false)
+  }
+
+  @Test
+  func test_version_isRelease() {
+    #expect(SemanticVersion(1, 2, 3).isRelease == true)
+    #expect(SemanticVersion(1, 2, 3, prereleaseIdentifiers: ["alpha", "1"]).isRelease == false)
+  }
+
+  @Test
+  func test_version_buildVersion() {
+    #expect(SemanticVersion(1, 2, 3, buildMetadataIdentifiers: ["build", "1"]).buildVersion == "1")
+    #expect(SemanticVersion(1, 2, 3, buildMetadataIdentifiers: ["build"]).buildVersion == .none)
+    #expect(SemanticVersion(1, 2, 3, buildMetadataIdentifiers: []).buildVersion == .none)
+  }
 }

@@ -388,16 +388,27 @@ extension SemanticVersion: Encodable {
 }
 
 extension SemanticVersion {
-  /// Extracts the version string from build metadata if present.
+  /// Extracts the build version string from build metadata if present.
   ///
-  /// - Returns: The version string if found in build metadata, nil otherwise.
-  public var version: String? {
+  /// - Returns: The build version string if found in build metadata, nil otherwise.
+  ///
+  /// - Note: Build version is not part of the semantic versioning specification. It's a custom extension. To specify build version, pass ["build", "version"] as build metadata identifiers. The build version is the value of the next identifier after the "build" identifier.
+  @inlinable
+  public var buildVersion: String? {
     guard let buildIndex = buildMetadataIdentifiers.firstIndex(of: "build"),
-      buildIndex < buildMetadataIdentifiers.endIndex
+          buildIndex < buildMetadataIdentifiers.endIndex.advanced(by: -1)
     else { return .none }
 
     let buildValueIndex = buildMetadataIdentifiers.index(after: buildIndex)
 
     return buildMetadataIdentifiers[buildValueIndex]
   }
+
+  /// Returns a Boolean value indicating whether the version is a pre-release.
+  @inlinable @inline(__always)
+  public var isPrerelease: Bool { !prereleaseIdentifiers.isEmpty }
+
+  /// Returns a Boolean value indicating whether the version is a release.
+  @inlinable
+  public var isRelease: Bool { !isPrerelease }
 }
