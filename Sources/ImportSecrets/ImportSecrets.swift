@@ -4,6 +4,7 @@ import Shell
 import Yams
 
 /// Main entry point for importing secrets from various providers.
+///
 /// ImportSecrets provides a unified interface for loading secret configurations,
 /// fetching secrets from different providers, and managing the import process.
 public struct ImportSecrets {

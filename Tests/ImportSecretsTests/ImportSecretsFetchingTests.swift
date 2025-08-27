@@ -6,6 +6,8 @@ import Testing
 
 @Suite("ImportSecrets Fetching Tests")
 struct ImportSecretsFetchingTests {
+  private enum TestError: Error { case dataConversionFailed }
+
   // MARK: - Helper Methods
   private static func buildProviders(
     opCLIMock: MockOnePasswordCLI,
@@ -27,7 +29,7 @@ struct ImportSecretsFetchingTests {
     fakeProviderFetcher: ImportSecrets.Providers.FakeProvider.Fetcher? = .none
   ) throws -> ImportSecrets.Configuration {
     // Parse the full YAML configuration
-    let data = YamlMocks.yamlContent.data(using: .utf8)!
+    guard let data = YamlMocks.yamlContent.data(using: .utf8) else { throw TestError.dataConversionFailed }
     var configuration = try ImportSecrets.configuration(
       configurationData: data,
       sourceProviders: Self.buildProviders(

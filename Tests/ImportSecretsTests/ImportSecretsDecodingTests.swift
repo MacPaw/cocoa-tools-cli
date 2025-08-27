@@ -16,9 +16,11 @@ struct ImportSecretsDecodingTests {
   }
 
   private static func buildConfiguration() throws -> ImportSecrets.Configuration {
-    let data = YamlMocks.yamlContent.data(using: .utf8)!
+    guard let data = YamlMocks.yamlContent.data(using: .utf8) else { throw TestError.dataConversionFailed }
     return try ImportSecrets.configuration(configurationData: data, sourceProviders: buildProviders())
   }
+
+  private enum TestError: Error { case dataConversionFailed }
 
   // MARK: - Tests
 

@@ -39,7 +39,12 @@ public struct EnvSubst: Sendable {
       }
     }
 
-    if !errors.isEmpty && !options.failFast { throw errors.first! }
+    if !errors.isEmpty && !options.failFast {
+      guard let firstError = errors.first else {
+        throw Error.unknown("Unknown error occurred during substitution")
+      }
+      throw firstError
+    }
 
     return result
   }

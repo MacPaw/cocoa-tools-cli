@@ -28,13 +28,13 @@ struct CommonOptions: ParsableArguments, Decodable {
 
 struct SecretsCommand: ParsableCommand {
   #if canImport(ObfuscateSecretsCommand)
-    private static let obfuscateSecretsCommand: [ParsableCommand.Type] = [ObfuscateSecretsCommand.self]
+    private static let obfuscate: [ParsableCommand.Type] = [ObfuscateSecretsCommand.self]
   #else
-    private static let obfuscateSecretsCommand: [ParsableCommand.Type] = []
+    private static let obfuscate: [ParsableCommand.Type] = []
   #endif
   static let configuration: CommandConfiguration = CommandConfiguration(
     commandName: "secrets",
     abstract: "Secrets manipulation",
-    subcommands: obfuscateSecretsCommand + [ImportSecretsCommand.self]
+    subcommands: obfuscate + [ImportSecretsCommand.self]
   )
 }

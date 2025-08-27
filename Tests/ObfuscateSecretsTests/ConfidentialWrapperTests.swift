@@ -30,7 +30,7 @@
 
     deinit {
       // Tear down
-      [inputFileURL, outputFileURL, tempDirectoryURL].forEach { try? fileManager.removeItem(at: $0) }
+      for url in [inputFileURL, outputFileURL, tempDirectoryURL] { try? fileManager.removeItem(at: url) }
     }
 
     /// Testing environment.
