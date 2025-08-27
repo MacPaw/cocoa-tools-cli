@@ -48,7 +48,7 @@ die() {
   echo "${*}" >&2
   exit 2
 } # complain to STDERR and exit with error
-needs_arg() { if [ -z "$OPTARG" ]; then die "No arg for --${OPT} option"; fi; }
+needs_arg() { if [ -z "$OPTARG" ]; then die "No arg for --${OPTSPEC} option"; fi; }
 
 while getopts "t:s:-:" OPTSPEC; do
 
