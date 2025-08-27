@@ -61,17 +61,6 @@ jobs:
         if: matrix.build-system == 'swift'
         run: swift build --disable-automatic-resolution --enable-experimental-prebuilts
 
-      - name: Install mise tools
-        uses: jdx/mise-action@5ac50f778e26fac95da98d50503682459e86d566
-        with:
-          mise_toml: |
-            [tools]
-            "ubi:securevale/swift-confidential" = "0.4.1"
-
-      - name: Test with Swift Package Manager
-        if: matrix.build-system == 'swift'
-        run: swift test --disable-automatic-resolution --enable-experimental-prebuilts
-
       - name: Build with Xcodebuild
         if: matrix.build-system == 'xcodebuild'
         run: |
@@ -86,6 +75,17 @@ jobs:
             COMPILER_INDEX_STORE_ENABLE=NO \
             build-for-testing
 
+      - name: Install mise tools
+        uses: jdx/mise-action@5ac50f778e26fac95da98d50503682459e86d566
+        with:
+          mise_toml: |
+            [tools]
+            "ubi:securevale/swift-confidential" = "0.4.1"
+
+      - name: Test with Swift Package Manager
+        if: matrix.build-system == 'swift'
+        run: swift test --disable-automatic-resolution --enable-experimental-prebuilts
+
       - name: Test with Xcodebuild
         if: matrix.build-system == 'xcodebuild'
         run: |
@@ -99,3 +99,9 @@ jobs:
             RUN_CLANG_STATIC_ANALYZER=NO \
             COMPILER_INDEX_STORE_ENABLE=NO \
             test-without-building
+
+      - name: Lint with swift-format
+        if: matrix.build-system == 'swift' && contains(matrix.os, 'macOS')
+        shell: bash
+        run: |
+          mise tasks run lint
