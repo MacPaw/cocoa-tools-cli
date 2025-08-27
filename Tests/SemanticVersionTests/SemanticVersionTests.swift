@@ -9,7 +9,9 @@ struct SemanticVersionTests {
     let version = SemanticVersion(1, 2, 3, prereleaseIdentifiers: ["alpha", "1"], buildMetadataIdentifiers: ["4"])
 
     // Same init is equal
-    #expect(version == SemanticVersion(1, 2, 3, prereleaseIdentifiers: ["alpha", "1"], buildMetadataIdentifiers: ["4"]))
+    #expect(
+      version == SemanticVersion(1, 2, 3, prereleaseIdentifiers: ["alpha", "1"], buildMetadataIdentifiers: ["4"])
+    )
 
     // Equal to ExpressibleByStringLiteral
     #expect(version == "1.2.3-alpha.1+4")
