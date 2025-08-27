@@ -16,6 +16,10 @@ inputs:
   xcode-version:
     description: 'Xcode version being used'
     required: true
+  architecture:
+    description: 'Architecture to use'
+    required: true
+    default: ${{ runner.arch }}
 runs:
   using: 'composite'
   steps:
@@ -45,4 +49,4 @@ runs:
           !./.build/workspace-state.json
           ./DerivedData
           !./DerivedData/SourcePackages/*
-        key: build-${{ inputs.configuration }}-swift-${{ inputs.swift-version }}-xcode-${{ inputs.xcode-version }}-${{ runner.os }}-${{ runner.arch }}-${{ inputs.build-system }}
+        key: build-${{ inputs.configuration }}-swift-${{ inputs.swift-version }}-xcode-${{ inputs.xcode-version }}-${{ runner.os }}-${{ inputs.architecture }}-${{ inputs.build-system }}

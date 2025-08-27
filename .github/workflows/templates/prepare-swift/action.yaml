@@ -18,6 +18,10 @@ inputs:
     description: 'Configuration to use'
     required: true
     default: 'debug'
+  architecture:
+    description: 'Architecture to use'
+    required: true
+    default: ${{ runner.arch }}
 runs:
   using: 'composite'
   steps:
@@ -35,6 +39,7 @@ runs:
         swift-version: ${{ inputs.swift-version }}
         configuration: ${{ inputs.configuration }}
         xcode-version: ${{ inputs.xcode-version }}
+        architecture: ${{ inputs.architecture }}
 
     - name: Trust Swift Package Macros and Plugins
       uses: ./.github/workflows/templates/spm-trust/

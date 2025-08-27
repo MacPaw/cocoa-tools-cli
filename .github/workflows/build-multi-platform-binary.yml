@@ -71,6 +71,20 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Map architecture
+        id: map-architecture
+        run: |
+          echo "Mapping architecture to GitHub Actions runner.arch"
+          if [ "$matrix.arch" = "universal" ]; then
+            echo "architecture=UNIVERSAL" >> "${GITHUB_OUTPUT}"
+          elif [ "$matrix.arch" = "arm64" ]; then
+            echo "architecture=ARM64" >> "${GITHUB_OUTPUT}"
+          elif [ "$matrix.arch" = "x86_64" ]; then
+            echo "architecture=X64" >> "${GITHUB_OUTPUT}"
+          else
+            echo "architecture=${{ matrix.arch }}" >> "${GITHUB_OUTPUT}"
+          fi
+
       - name: Prepare Swift
         uses: ./.github/workflows/templates/prepare-swift/
         with:
@@ -79,6 +93,7 @@ jobs:
           package-name: ${{ env.package_name }}
           build-system: swift
           configuration: release
+          architecture: ${{ steps.map-architecture.outputs.architecture }}
 
       - name: Build binary
         id: build
