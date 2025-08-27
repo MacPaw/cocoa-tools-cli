@@ -1,4 +1,4 @@
-name: Build Multi-Platform Binary
+name: Release
 
 permissions:
   contents: write
@@ -8,9 +8,15 @@ on:
     branches:
       - main
     paths:
+      # Run release workflow if .version file is updated
       - .version
-      - .github/workflows/build-multi-platform-binary.yml
-      - .github/workflows/scripts/build-multi-platform-binary/*
+      # Run release workflow if related workflow files are updated
+      # So we don't need to manually trigger the release workflow
+      # or update the .version fileonce again.
+      - .github/workflows/release.yml
+      - .github/workflows/scripts/release/*
+      - .github/workflows/templates/*
+      - .github/workflows/load-env.yaml
 
 jobs:
   load-env:
@@ -36,7 +42,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         VERSION: ${{ needs.load-env.outputs.version }}
-      run: node ./.github/workflows/scripts/build-multi-platform-binary/check-tag-and-release.js
+      run: node ./.github/workflows/scripts/release/check-tag-and-release.js
 
   build-binary:
     needs:
@@ -107,7 +113,7 @@ jobs:
           VERSION: ${{ needs.load-env.outputs.version }}
           ARCH: ${{ matrix.arch }}
           BINARY_NAME: ${{ needs.load-env.outputs.package-name }}
-        run: ./.github/workflows/scripts/build-multi-platform-binary/build-binary.sh
+        run: ./.github/workflows/scripts/release/build-binary.sh
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -141,11 +147,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION: ${{ needs.load-env.outputs.version }}
           IS_PRERELEASE: ${{ needs.load-env.outputs.is_prerelease }}
-        run: node ./.github/workflows/scripts/build-multi-platform-binary/create-release.js
+        run: node ./.github/workflows/scripts/release/create-release.js
 
       - name: Upload assets to release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_ID: ${{ steps.create-release.outputs.release_id }}
           ARTIFACTS_PATH: artifacts
-        run: node ./.github/workflows/scripts/build-multi-platform-binary/upload-assets.js
+        run: node ./.github/workflows/scripts/release/upload-assets.js

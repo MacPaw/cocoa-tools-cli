@@ -52,6 +52,6 @@ jobs:
 
       - name: Build release binary
         id: build
-        run: ./.github/workflows/scripts/build-multi-platform-binary/build-binary.sh
+        run: ./.github/workflows/scripts/release/build-binary.sh
         env:
           BINARY_NAME: ${{ env.package_name }}
