@@ -114,8 +114,12 @@ dependencies: [
 targets: [
   .target(
     name: "MyTarget",
-    dependencies: [.product(name: "SemanticVersion", package: "cocoa-tools")],
-    plugins: [.plugin(name: "SemanticVersionBuildToolPlugin", package: "cocoa-tools")],
+    dependencies: [
+      .product(name: "SemanticVersion", package: "cocoa-tools"),
+    ],
+    plugins: [
+      .plugin(name: "SemanticVersionBuildToolPlugin", package: "cocoa-tools"),
+    ],
   )
 ]
 ```
@@ -153,11 +157,11 @@ let package = Package(
     .target(
       name: "Core",
       dependencies: [
-        .product(name: "SemanticVersion", package: "cocoa-tools")
+        .product(name: "SemanticVersion", package: "cocoa-tools"),
       ],
       plugins: [
-        .plugin(name: "SemanticVersionBuildToolPlugin", package: "cocoa-tools")
-      ]
+        .plugin(name: "SemanticVersionBuildToolPlugin", package: "cocoa-tools"),
+      ],
     )
   ]
 )
