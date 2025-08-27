@@ -30,12 +30,11 @@ idiomatic_version_file_enable_tools = []
 
 [tasks.format]
 description = "Format source code"
-run = "swift package plugin --allow-writing-to-package-directory format-source-code"
-alias = "fmt"
+run = "Scripts/tools/swift-format/swift-format.sh --format"
 
 [tasks.lint]
 description = "Lint source code"
-run = "swift package plugin --allow-writing-to-package-directory lint-source-code"
+run = "Scripts/tools/swift-format/swift-format.sh --lint"
 
 [tasks.test-linux]
 description = "Test on Linux"

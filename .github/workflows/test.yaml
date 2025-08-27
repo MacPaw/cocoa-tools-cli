@@ -122,4 +122,4 @@ jobs:
           use-build-cache: false
 
       - name: Lint with swift-format
-        run: swift package plugin --allow-writing-to-package-directory format-source-code
+        run: ./Scripts/tools/swift-format/swift-format.sh --lint

@@ -2,20 +2,14 @@
 
 set -Eeo pipefail
 
-REPOSITORY_ROOT_DIR="${REPOSITORY_ROOT_DIR:-"$(git rev-parse --show-toplevel 2>/dev/null || pwd)"}"
+swift_format_format() {
+  echo "Formatting source code..."
+  swift package plugin --allow-writing-to-package-directory format-source-code
+}
 
-docker_run_tests() {
-
-  SWIFT_VERSION="${SWIFT_VERSION:-"$(tr -d '[:space:]' <.swift-version || echo '6.1.2')"}"
-
-  docker run \
-    --rm \
-    --cap-add sys_ptrace \
-    --volume "${REPOSITORY_ROOT_DIR}:/package:ro" \
-    --workdir /package \
-    --entrypoint /bin/sh \
-    "swift:${SWIFT_VERSION}" \
-    Scripts/linux-tests/test.sh
+swift_format_lint() {
+  echo "Linting source code..."
+  swift package plugin --allow-writing-to-package-directory lint-source-code
 }
 
 die() {
@@ -24,7 +18,7 @@ die() {
 } # complain to STDERR and exit with error
 needs_arg() { if [ -z "$OPTARG" ]; then die "No arg for --${OPT} option"; fi; }
 
-while getopts "t:-:" OPTSPEC; do
+while getopts "f:l:-:" OPTSPEC; do
 
   # support long options: https://stackoverflow.com/a/28466267/519360
   if [ "$OPTSPEC" = "-" ]; then   # long option: reformulate OPT and OPTARG
@@ -34,12 +28,15 @@ while getopts "t:-:" OPTSPEC; do
   fi
 
   case "${OPTSPEC}" in
-    t | test)
-      docker_run_tests
+    f | format)
+      swift_format_format
+      ;;
+    l | lint)
+      swift_format_lint
       ;;
     *)
       echo "Unknown option: ${OPTSPEC}" >&2
-      echo "Supported options: --test, -t" >&2
+      echo "Supported options: --format, -f, --lint, -l" >&2
       exit 1
       ;;
   esac
