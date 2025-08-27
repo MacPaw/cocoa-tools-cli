@@ -4,11 +4,10 @@
 min_version = "2025.8.6"
 
 [tools]
-gh = "latest"
 1password = "latest"
-container = "0.3.0"
+# Doesn't work with swift container.
+# container = "0.3.0"
 "ubi:securevale/swift-confidential" = "0.4.1"
-yq = "latest"
 
 [settings]
 # Enables experimental features.

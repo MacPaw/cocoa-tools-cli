@@ -120,10 +120,7 @@ mpct (executable)
 
 ## 🔧 Development
 
-### Requirements
-- Swift 6.1+
-- macOS 15+
-- Xcode 16+ (for development)
+See the [docs/DEVELOPMENT.md](./docs/DEVELOPMENT.md) file.
 
 ## 📚 Documentation
 
