@@ -104,4 +104,4 @@ jobs:
         if: matrix.build-system == 'swift' && contains(matrix.os, 'macOS')
         shell: bash
         run: |
-          mise tasks run lint
+          swift package plugin --allow-writing-to-package-directory format-source-code
