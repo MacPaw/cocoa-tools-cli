@@ -14,9 +14,9 @@ on:
       # So we don't need to manually trigger the release workflow
       # or update the .version fileonce again.
       - .github/workflows/release.yml
-      - .github/workflows/scripts/release/*
-      - .github/workflows/templates/*
       - .github/workflows/load-env.yaml
+      - .github/workflows/scripts/*
+      - .github/workflows/templates/*
 
 jobs:
   load-env:
