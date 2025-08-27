@@ -9,7 +9,7 @@
 # the `language` matrix defined below to confirm you have the correct set of
 # supported CodeQL languages.
 #
-name: "CodeQL Advanced"
+name: "CodeQL"
 
 permissions:
   contents: read
@@ -18,6 +18,12 @@ on:
   pull_request:
     branches:
       - main
+    paths:
+      - '**/*.swift'
+      - '.github/**/*.yaml'
+      - '.github/**/*.yml'
+      - 'Package.swift'
+      - 'Package.resolved'
   merge_group:
     types:
       - checks_requested
@@ -26,14 +32,45 @@ on:
   push:
     branches:
       - main
+    paths:
+      - '**/*.swift'
+      - '.github/**/*.yaml'
+      - '.github/**/*.yml'
+      - 'Package.swift'
+      - 'Package.resolved'
 
 jobs:
   load-env:
     uses: ./.github/workflows/load-env.yaml
 
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      swift-changed: ${{ steps.changes.outputs.swift }}
+      workflows-changed: ${{ steps.changes.outputs.workflows }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Detect file changes
+        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36
+        id: changes
+        with:
+          filters: |
+            swift:
+              - '**/*.swift'
+              - 'Package.swift'
+              - 'Package.resolved'
+            workflows:
+              - '.github/**/*.yaml'
+              - '.github/**/*.yml'
+
   analyze:
     needs:
       - load-env
+      - detect-changes
     env:
       package_name: ${{ needs.load-env.outputs.package-name }}
       swift_version: ${{ needs.load-env.outputs.swift-version }}
@@ -63,8 +100,10 @@ jobs:
         include:
           - language: actions
             build-mode: none
+            condition: ${{ needs.detect-changes.outputs.workflows-changed == 'true' }}
           - language: swift
             build-mode: manual
+            condition: ${{ needs.detect-changes.outputs.swift-changed == 'true' }}
           # CodeQL supports the following values keywords for 'language': 'actions', 'c-cpp', 'csharp', 'go', 'java-kotlin', 'javascript-typescript', 'python', 'ruby', 'rust', 'swift'
           # Use `c-cpp` to analyze code written in C, C++ or both
           # Use 'java-kotlin' to analyze code written in Java, Kotlin or both
@@ -73,6 +112,7 @@ jobs:
           # see https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/customizing-your-advanced-setup-for-code-scanning.
           # If you are analyzing a compiled language, you can modify the 'build-mode' for that language to customize how
           # your codebase is analyzed, see https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/codeql-code-scanning-for-compiled-languages
+    if: ${{ matrix.condition }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
