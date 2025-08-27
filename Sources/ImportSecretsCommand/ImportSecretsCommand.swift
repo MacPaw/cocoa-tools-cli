@@ -10,6 +10,7 @@ import Shell
 /// fetch secrets from different sources (like 1Password) and export them to various destinations
 /// such as environment files, mise configurations, or standard output.
 public struct ImportSecretsCommand {
+  /// Configuration for the ArgumentParser command.
   public static let configuration = CommandConfiguration(
     commandName: "import",
     abstract: "Import secrets",
@@ -23,6 +24,7 @@ public struct ImportSecretsCommand {
   var options: Options
 
   /// The loaded and validated ImportSecrets configuration.
+  ///
   /// Set during the validate() phase and used during run().
   var configuration: ImportSecrets.Configuration? = .none
 

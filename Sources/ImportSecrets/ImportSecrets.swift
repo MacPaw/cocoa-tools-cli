@@ -211,6 +211,7 @@ public struct ImportSecrets {
   }
 
   /// Groups secrets by their available providers for efficient batch fetching.
+  ///
   /// This optimization allows providers to fetch multiple secrets in a single request
   /// rather than making individual API calls for each secret.
   private static func groupSecretsBySourceProvider(

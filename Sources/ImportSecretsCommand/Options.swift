@@ -31,6 +31,7 @@ extension ImportSecretsCommand {
     var envSubstOptions: EnvSubstCommand.Options
 
     /// List of source providers to use for fetching secrets.
+    ///
     /// Multiple sources can be specified to support different secret providers.
     @Option(name: .customLong("source"), help: .init("Source to import secrets from.", argumentType: Source.self))
     var sources: [Source]
@@ -73,6 +74,7 @@ extension ImportSecretsCommand.Options {
     var destinationType: ImportSecretsCommand.Options.Destination.DestinationType
 
     /// Optional file path for file-based destinations (mise, dotenv).
+    ///
     /// If not specified, default file names will be used based on the destination type.
     @Option(name: .customLong("file"), help: "Destination file. Applicable for mise and dotenv destinations.")
     var destinationFile: String?

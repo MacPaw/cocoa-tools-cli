@@ -36,17 +36,31 @@ extension ExportSecrets.Destinations {
 }
 
 extension Mise: ExportSecretsDestinationProtocol {
+  /// Creates a new mise export destination with default Shell.Mise CLI.
+  ///
+  /// - Parameter file: Optional path to the mise configuration file. If nil, uses mise's default.
+  /// - Throws: Shell.Error if the mise CLI cannot be initialized.
   public init(file: String? = .none) throws {
     let miseCLI: SecretsDestinationMiseProtocol = try Shell.Mise()
     self.init(file: file, miseCLI: miseCLI)
   }
 
+  /// Exports secrets to the mise configuration file.
+  ///
+  /// - Parameter secrets: Dictionary mapping environment variable names to their values.
+  /// - Throws: Export errors if the mise CLI operation fails.
   public func export(secrets: [String: String]) throws { try miseCLI.export(secrets: secrets, file: file) }
 }
 
 extension Mise: Sendable {}
 
 extension Shell.Mise: SecretsDestinationMiseProtocol {
+  /// Exports secrets to a mise configuration file using the mise CLI.
+  ///
+  /// - Parameters:
+  ///   - secrets: Dictionary mapping environment variable names to their values.
+  ///   - file: Optional path to the mise configuration file. If nil, uses mise's default.
+  /// - Throws: Shell.Error if the mise CLI command fails.
   public func export(secrets: [String: String], file: String?) throws {
     let arguments: [[String]] = [["set"], file.map { ["--file", $0] }, secrets.toEnv(wrappingValues: false)]
       .compactMap(\.self)

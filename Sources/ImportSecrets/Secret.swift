@@ -94,6 +94,10 @@ extension ImportSecrets.Secret: Sendable {}
 // Custom decoding is handled in Configuration.swift using YAML parsing
 
 extension ImportSecrets.Secret: DecodableWithConfiguration {
+  /// Configuration used for decoding secrets from YAML.
+  ///
+  /// Contains the necessary context for decoding a secret, including available providers,
+  /// global source configurations, and the environment variable name.
   public struct DecodingConfiguration {
     let topLevelDecodingConfiguration: ImportSecrets.Configuration.DecodingConfiguration
     let sourcesConfigurations: ImportSecrets.SourceConfigurations
@@ -102,6 +106,12 @@ extension ImportSecrets.Secret: DecodableWithConfiguration {
 
   private enum CodingKeys: String, CodingKey { case sources }
 
+  /// Initializes a secret from a decoder with the given decoding configuration.
+  ///
+  /// - Parameters:
+  ///   - decoder: The decoder to read secret data from.
+  ///   - configuration: The decoding configuration containing providers and context.
+  /// - Throws: Decoding errors if the secret cannot be parsed or has no valid sources.
   public init(from decoder: any Decoder, configuration: DecodingConfiguration) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
@@ -146,6 +156,10 @@ extension ImportSecrets.Secret: DecodableWithConfiguration {
     self.sources = sources
   }
 
+  /// Validates the secret and applies default configurations from source configurations.
+  ///
+  /// - Parameter sourceConfigurations: The global source configurations to apply defaults from.
+  /// - Throws: Validation errors if the secret configuration is invalid.
   mutating public func validate(with sourceConfigurations: ImportSecrets.SourceConfigurations) throws {
     // Validate each source, allowing them to apply default configurations
     // For example, 1Password sources can inherit default vault from global config

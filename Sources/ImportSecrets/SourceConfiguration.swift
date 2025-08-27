@@ -57,8 +57,15 @@ extension ImportSecrets {
 // Custom decoding is handled in Configuration.swift using YAML parsing
 
 extension ImportSecrets.SourceConfigurations: DecodableWithConfiguration {
+  /// Decoding configuration type used for parsing source configurations.
   public typealias DecodingConfiguration = ImportSecrets.Configuration.DecodingConfiguration
 
+  /// Initializes source configurations from a decoder with the given decoding configuration.
+  ///
+  /// - Parameters:
+  ///   - decoder: The decoder to read source configuration data from.
+  ///   - configuration: The decoding configuration containing source providers.
+  /// - Throws: Decoding errors if the configurations cannot be parsed.
   public init(from decoder: any Decoder, configuration: DecodingConfiguration) throws {
     let sourcesContainer = try decoder.container(keyedBy: DynamicCodingKey.self)
 

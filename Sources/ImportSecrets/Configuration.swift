@@ -42,6 +42,12 @@ extension ImportSecrets.Configuration {
 extension ImportSecrets.Configuration: Sendable {}
 
 extension ImportSecrets.Configuration: DecodableWithConfiguration {
+  /// Initializes a configuration from a decoder with the given decoding configuration.
+  ///
+  /// - Parameters:
+  ///   - decoder: The decoder to read configuration data from.
+  ///   - configuration: The decoding configuration containing source providers.
+  /// - Throws: Decoding errors if the configuration cannot be parsed.
   public init(from decoder: any Decoder, configuration: DecodingConfiguration) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
@@ -86,6 +92,10 @@ extension ImportSecrets.Configuration: DecodableWithConfiguration {
 }
 
 extension ImportSecrets.Configuration: Decodable {
+  /// Fallback initializer for Decodable conformance (should not be used directly).
+  ///
+  /// - Parameter decoder: The decoder (unused).
+  /// - Throws: Always throws a precondition failure as this method should not be called.
   public init(from decoder: any Decoder) throws {
     // This initializer should never be called directly - it's only here for ArgumentParser compatibility
     // ArgumentParser requires Decodable conformance but we need the custom configuration-aware decoding

@@ -158,7 +158,7 @@ extension SecretProviderProtocol {
     return try await self.fetch(secrets: secretsToFetch, sourceConfiguration: sourceConfiguration)
   }
 
-  /// Type-erased source decoding - converts from any protocol to specific Source type
+  /// Type-erased source decoding - converts from any secret configuration protocol to specific Source type.
   func decodeSource(from decoder: any Decoder, sourceConfiguration: (any SecretConfigurationProtocol)?) throws
     -> any SecretSourceProtocol
   {
@@ -168,7 +168,7 @@ extension SecretProviderProtocol {
     return source
   }
 
-  /// Type-erased configuration decoding - converts from specific Configuration to any protocol
+  /// Type-erased configuration decoding - converts from specific Configuration to any protocol.
   func decodeConfiguration(from decoder: any Decoder) throws -> any SecretConfigurationProtocol {
     // Decode using typed method then return as type-erased protocol
     let configuration: Source.Configuration = try decodeConfiguration(from: decoder)
@@ -179,10 +179,13 @@ extension SecretProviderProtocol {
 // MARK: Default generics implementations
 
 /// Basic provider implementation for sources that conform to Decodable.
+///
 /// This provides a standard implementation for providers where the source can be decoded directly.
 public struct BasicProviderDecodableSource<Source: SecretSourceProtocol & Decodable, Fetcher: SecretFetcherProtocol>
 where Fetcher.Source == Source, Source.Configuration: Decodable {
+  /// The source type handled by this provider.
   public typealias Source = Source
+  /// The fetcher type used to retrieve secrets.
   public typealias Fetcher = Fetcher
 
   /// The fetcher implementation used to retrieve secrets.
@@ -194,12 +197,15 @@ where Fetcher.Source == Source, Source.Configuration: Decodable {
 }
 
 /// Basic provider implementation for sources that conform to DecodableWithConfiguration.
+///
 /// This provides a standard implementation for providers where the source requires configuration during decoding.
 public struct BasicProviderDecodableWithConfigurationSource<
   Source: SecretSourceProtocol & DecodableWithConfiguration,
   Fetcher: SecretFetcherProtocol
 > where Fetcher.Source == Source, Source.Configuration: Decodable {
+  /// The source type handled by this provider.
   public typealias Source = Source
+  /// The fetcher type used to retrieve secrets.
   public typealias Fetcher = Fetcher
 
   /// The fetcher implementation used to retrieve secrets.
