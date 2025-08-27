@@ -1,4 +1,5 @@
 /// Protocol that describes a secret source type (e.g., `1Password`, `Vault`).
+///
 /// A secret source represents a specific location or reference to a secret within a provider,
 /// such as a specific item in 1Password or a path in HashiCorp Vault.
 public protocol SecretSourceProtocol: Sendable {
@@ -18,6 +19,10 @@ extension SecretSourceProtocol {
     try validate(with: configuration)
   }
 
+  /// Default implementation of validate that performs no validation.
+  ///
+  /// - Parameter configuration: Optional configuration to validate against.
+  /// - Throws: Validation errors if the configuration is invalid.
   public mutating func validate(with configuration: Configuration?) throws {}
 }
 

@@ -1,10 +1,13 @@
 extension ImportSecrets.Providers.OnePassword {
   /// Represents a specific secret source within 1Password.
+  ///
   /// This defines the vault, item, and field label needed to locate a secret.
   public struct Source {
     /// The account shorthand, sign-in address, account ID, or user ID.
     public var account: String?
-    /// The vault name or ID. If nil, searches all accessible vaults.
+    /// The vault name or ID.
+    ///
+    /// If nil, searches all accessible vaults.
     public var vault: String?
 
     /// The item name or ID containing the secret.
@@ -34,8 +37,13 @@ extension Source: Decodable {}
 extension Source: Sendable {}
 
 extension Source: SecretSourceProtocol {
+  /// Configuration key used to identify this provider in YAML.
   public static let configurationKey: String = "op"
 
+  /// Validates and applies default configuration values.
+  ///
+  /// - Parameter configuration: Optional configuration containing default values for account and vault.
+  /// - Throws: Validation errors if the source configuration is invalid.
   public mutating func validate(with configuration: Configuration?) throws {
     account = account ?? configuration?.account
     vault = vault ?? configuration?.vault

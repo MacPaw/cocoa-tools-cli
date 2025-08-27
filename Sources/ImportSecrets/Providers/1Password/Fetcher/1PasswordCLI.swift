@@ -2,6 +2,7 @@ import Foundation
 import Shell
 
 /// Protocol for interacting with the 1Password CLI tool.
+///
 /// This abstraction allows for testing and different implementations of 1Password integration.
 public protocol OnePasswordCLIProtocol: Sendable {
   /// Retrieves specific fields from a 1Password item.
@@ -17,6 +18,7 @@ public protocol OnePasswordCLIProtocol: Sendable {
 
 extension Shell {
   /// 1Password CLI wrapper implementation.
+  ///
   /// This provides access to the 1Password command-line tool for retrieving secrets.
   public struct OnePassword {
     /// The URL to the 1Password CLI executable.
@@ -109,6 +111,15 @@ extension Shell.OnePassword.Item {
 }
 
 extension Shell.OnePassword: OnePasswordCLIProtocol {
+  /// Retrieves specific fields from a 1Password item using the CLI.
+  ///
+  /// - Parameters:
+  ///   - account: Optional account shorthand, sign-in address, account ID, or user ID.
+  ///   - vault: Optional vault name or ID. If nil, searches all accessible vaults.
+  ///   - item: The item name or ID to retrieve fields from.
+  ///   - labels: Array of field labels to retrieve from the item.
+  /// - Returns: Dictionary mapping field labels to their values.
+  /// - Throws: CLI errors if the operation fails (authentication, network, item not found, etc.).
   public func getItemFields(account: String?, vault: String?, item: String, labels: [String]) throws -> [String: String]
   {
     let fields: [Shell.OnePassword.Item.Field] = try getItemFields(

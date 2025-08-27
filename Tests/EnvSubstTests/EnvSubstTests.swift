@@ -14,7 +14,7 @@ extension [EnvSubstTests.TestMode] {
 
 @Suite("EnvSubstTests")
 struct EnvSubstTests {
-  /// Test modes
+  /// Test modes.
   enum TestMode: CaseIterable {
     /// Fail when unset.
     case noUnset

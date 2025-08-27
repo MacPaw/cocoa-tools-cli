@@ -1,4 +1,5 @@
 /// A dynamic coding key that can be created from string or integer values.
+///
 /// This is used internally for decoding YAML configurations with dynamic keys.
 struct DynamicCodingKey {
   /// The string representation of the coding key.

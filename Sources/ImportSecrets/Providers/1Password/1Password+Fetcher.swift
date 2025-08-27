@@ -2,6 +2,7 @@ import Shell
 
 extension ImportSecrets.Providers.OnePassword {
   /// Fetcher implementation for retrieving secrets from 1Password.
+  ///
   /// This handles the actual communication with the 1Password CLI and manages
   /// batching of requests for efficiency.
   public struct Fetcher {
@@ -17,8 +18,9 @@ extension ImportSecrets.Providers.OnePassword {
 private typealias Fetcher = ImportSecrets.Providers.OnePassword.Fetcher
 
 extension Fetcher {
-  /// Represents a unique 1Password item (vault + item name combination)
-  /// Used to group multiple field requests for the same item to optimize API calls
+  /// Represents a unique 1Password item (vault + item name combination).
+  ///
+  /// Used to group multiple field requests for the same item to optimize API calls.
   private struct UniqueItem: Equatable, Hashable {
     var account: String?
     var vault: String?
@@ -30,7 +32,7 @@ extension Fetcher {
       self.item = item
     }
 
-    /// Creates a UniqueItem from a source, applying default account and vault if needed
+    /// Creates a UniqueItem from a source, applying default account and vault if needed.
     init(source: ImportSecrets.Providers.OnePassword.Source, defaultAccount: String?, defaultVault: String?) {
       self.account = source.account ?? defaultAccount
       self.vault = source.vault ?? defaultVault
@@ -42,8 +44,15 @@ extension Fetcher {
 extension Fetcher: Sendable {}
 
 extension Fetcher: SecretFetcherProtocol {
+  /// Source type for 1Password fetcher.
   public typealias Source = ImportSecrets.Providers.OnePassword.Source
 
+  /// Fetches secrets from 1Password using the configured CLI.
+  ///
+  /// - Parameters:
+  ///   - secrets: Dictionary mapping secret names to their 1Password source configurations.
+  ///   - sourceConfiguration: Optional configuration containing default account and vault settings.
+  /// - Returns: Result containing successfully fetched secrets and any errors encountered.
   public func fetch(
     secrets: [String: ImportSecrets.Providers.OnePassword.Source],
     sourceConfiguration: ImportSecrets.Providers.OnePassword.Source.Configuration?

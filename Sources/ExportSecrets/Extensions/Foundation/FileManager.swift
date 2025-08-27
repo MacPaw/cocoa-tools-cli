@@ -1,6 +1,7 @@
 import Foundation
 
 /// Protocol that abstracts file system operations for testability.
+///
 /// This allows the ImportSecrets module to work with different file system implementations.
 public protocol FileManagerProtocol {
   /// Creates a file at the specified path.

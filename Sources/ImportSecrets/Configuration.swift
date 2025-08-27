@@ -2,6 +2,7 @@ import Foundation
 
 extension ImportSecrets {
   /// The main configuration structure for ImportSecrets.
+  ///
   /// This contains all the information needed to fetch secrets from various providers.
   public struct Configuration {
     /// The configuration version for compatibility checking.

@@ -2,12 +2,14 @@ import Foundation
 
 extension ImportSecrets {
   /// Represents a secret to be imported from one or more sources.
+  ///
   /// A secret defines the environment variable name and the sources from which
   /// the secret value can be retrieved.
   public struct Secret {
     /// The environment variable name to import the secret to.
     public var envVarName: String
     /// Typed secret sources for extensible secret sources.
+    ///
     /// Maps source keys to their corresponding source configurations.
     private var sources: [String: any SecretSourceProtocol]
 

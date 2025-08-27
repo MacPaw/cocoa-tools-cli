@@ -1,6 +1,7 @@
 import Foundation
 
 /// Result structure for secret fetching operations.
+///
 /// Contains both successfully fetched secrets and any errors that occurred during fetching.
 public struct SecretsFetchResult {
   /// Dictionary mapping environment variable names to their fetched secret values.
@@ -19,6 +20,7 @@ public struct SecretsFetchResult {
 }
 
 /// Protocol that describes a secret fetcher type.
+///
 /// A secret fetcher is responsible for actually retrieving secret values from a provider
 /// using the specified sources and configuration.
 public protocol SecretFetcherProtocol: Sendable {
@@ -34,4 +36,7 @@ public protocol SecretFetcherProtocol: Sendable {
   func fetch(secrets: [String: Source], sourceConfiguration: Source.Configuration?) async throws -> SecretsFetchResult
 }
 
-extension ImportSecrets { public enum SecretFetchers {} }
+extension ImportSecrets {
+  /// Namespace for secret fetcher implementations.
+  public enum SecretFetchers {}
+}

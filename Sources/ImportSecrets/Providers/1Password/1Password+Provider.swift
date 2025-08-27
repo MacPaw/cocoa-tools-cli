@@ -1,5 +1,6 @@
 extension ImportSecrets.Providers {
   /// 1Password secret provider implementation.
+  ///
   /// This provider integrates with the 1Password CLI to fetch secrets from 1Password vaults.
   public struct OnePassword {
     /// The fetcher implementation used to retrieve secrets from 1Password.

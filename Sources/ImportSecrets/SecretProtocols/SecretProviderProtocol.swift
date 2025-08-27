@@ -1,6 +1,6 @@
 import Foundation
 
-/// Protocol defining a secret provider that combines a source and fetcher
+/// Protocol defining a secret provider that combines a source and fetcher.
 public protocol SecretProviderProtocol: Sendable {
   associatedtype Source: SecretSourceProtocol
   associatedtype Fetcher: SecretFetcherProtocol where Fetcher.Source == Source

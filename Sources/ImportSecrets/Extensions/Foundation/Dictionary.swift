@@ -8,9 +8,8 @@ extension Dictionary where Key == String, Value == String {
   /// - Returns: Array of strings in "KEY=VALUE" format, sorted by key.
   func toEnv(wrappingValues: Bool = true, wrapper: String = "'") -> [String] {
     keys.sorted()
-      .map { key in
-        let index = self.keys.firstIndex(of: key)!
-        let value = self.values[index]
+      .compactMap { key in
+        guard let value = self[key] else { return nil }
         return "\(key)=\(wrappingValues ? "\(wrapper)\(value)\(wrapper)" : value)"
       }
   }

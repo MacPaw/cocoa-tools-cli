@@ -1,4 +1,5 @@
 /// Protocol for synchronous secret export destinations.
+///
 /// Destinations that implement this protocol can export secrets to various formats or systems.
 public protocol ExportSecretsDestinationProtocol: Sendable {
   /// Exports secrets to the destination.
@@ -8,6 +9,7 @@ public protocol ExportSecretsDestinationProtocol: Sendable {
 }
 
 /// Protocol for asynchronous secret export destinations.
+///
 /// This extends the base protocol to support destinations that require async operations.
 public protocol ExportSecretsAsyncDestinationProtocol: ExportSecretsDestinationProtocol {
   /// Exports secrets to the destination asynchronously.
@@ -17,8 +19,15 @@ public protocol ExportSecretsAsyncDestinationProtocol: ExportSecretsDestinationP
 }
 
 extension ExportSecretsAsyncDestinationProtocol {
+  /// Default implementation that throws an error for sync export.
+  ///
+  /// - Parameter secrets: Dictionary mapping environment variable names to their values.
+  /// - Throws: ExportSecrets.Error.syncExportNotSupported always.
   @available(*, unavailable, message: "This destination does not support sync export")
   public func export(secrets: [String: String]) throws { throw ExportSecrets.Error.syncExportNotSupported }
 }
 
-extension ExportSecrets { public enum Destinations {} }
+extension ExportSecrets {
+  /// Namespace for export destination implementations.
+  public enum Destinations {}
+}

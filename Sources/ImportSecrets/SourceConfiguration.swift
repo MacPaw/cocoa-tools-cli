@@ -2,6 +2,7 @@ import Foundation
 
 extension ImportSecrets {
   /// Container for source configurations used by secret providers.
+  ///
   /// This stores the configuration parameters needed by different secret providers
   /// to authenticate and connect to their respective services.
   public struct SourceConfigurations {

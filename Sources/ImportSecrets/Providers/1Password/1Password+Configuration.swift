@@ -1,5 +1,6 @@
 extension ImportSecrets.Providers.OnePassword.Source {
   /// Configuration for the 1Password provider.
+  ///
   /// This defines default settings that apply to all secrets from this provider.
   public struct Configuration {
     /// Default account shorthand, sign-in address, account ID, or user ID.
@@ -25,4 +26,7 @@ extension Configuration: Equatable {}
 extension Configuration: Decodable {}
 extension Configuration: Sendable {}
 
-extension Configuration: SecretConfigurationProtocol { public static let configurationKey: String = "op" }
+extension Configuration: SecretConfigurationProtocol {
+  /// Configuration key used to identify this provider in YAML.
+  public static let configurationKey: String = "op"
+}

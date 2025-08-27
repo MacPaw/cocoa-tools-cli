@@ -1,4 +1,5 @@
 /// Protocol that defines the configuration for a secret source.
+///
 /// Configurations provide the necessary parameters for secret sources to operate,
 /// such as authentication details, endpoints, or other provider-specific settings.
 public protocol SecretConfigurationProtocol: Sendable, Equatable {
@@ -10,4 +11,7 @@ public protocol SecretConfigurationProtocol: Sendable, Equatable {
   mutating func validate() throws
 }
 
-extension SecretConfigurationProtocol { public mutating func validate() {} }
+extension SecretConfigurationProtocol {
+  /// Default implementation of validate that performs no validation.
+  public mutating func validate() {}
+}

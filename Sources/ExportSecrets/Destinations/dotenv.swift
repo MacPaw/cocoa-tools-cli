@@ -4,6 +4,7 @@ private typealias DotEnv = ExportSecrets.Destinations.DotEnv
 
 extension ExportSecrets.Destinations {
   /// Export destination that writes secrets to .env files.
+  ///
   /// This format is commonly used by many applications and development tools
   /// to load environment variables from files.
   public struct DotEnv {
@@ -24,6 +25,10 @@ extension ExportSecrets.Destinations {
 }
 
 extension DotEnv: ExportSecretsDestinationProtocol {
+  /// Exports secrets to a .env file.
+  ///
+  /// - Parameter secrets: Dictionary mapping environment variable names to their values.
+  /// - Throws: ExportSecrets.Error.fileCreationFailed if the file cannot be written.
   public func export(secrets: [String: String]) throws {
     let path: String = file ?? ".env"
     let fileContents: String = secrets.toEnv().joined(separator: "\n")
