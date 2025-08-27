@@ -2,12 +2,12 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 
 async function createTagAndRelease() {
-  const tagName = process.env.TAG_NAME;
+  const tagName = process.env.VERSION;
   const token = process.env.GITHUB_TOKEN;
   const isPrerelease = process.env.IS_PRERELEASE === 'true';
 
   if (!tagName || !token) {
-    console.error('TAG_NAME and GITHUB_TOKEN environment variables are required');
+    console.error('VERSION and GITHUB_TOKEN environment variables are required');
     process.exit(1);
   }
 
