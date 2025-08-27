@@ -147,16 +147,16 @@ extension TargetVersions {
 let package = Package(
   name: "MyPackage",
   dependencies: [
-    .package(path: "../mpct")
+    .package(url: "https://github.com/MacPaw/cocoa-tools-cli.git", from: "0.1.0"),
   ],
   targets: [
     .target(
       name: "Core",
       dependencies: [
-        .product(name: "SemanticVersion", package: "mpct")
+        .product(name: "SemanticVersion", package: "cocoa-tools")
       ],
       plugins: [
-        .plugin(name: "SemanticVersionBuildToolPlugin", package: "mpct")
+        .plugin(name: "SemanticVersionBuildToolPlugin", package: "cocoa-tools")
       ]
     )
   ]

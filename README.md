@@ -15,7 +15,7 @@ mpct is a modular Swift CLI project targeting macOS 15+ that helps engineers wit
 1. Add `mpct` to the `[tools]` section in your `mise.toml`
     ```toml
     [tools]
-    "ubi:MacPaw/cocoa-tools-cli" = { version = "latest", matching = "mpct", exe = "mpct" }
+    "ubi:MacPaw/cocoa-tools-cli" = { version = "latest", exe = "mpct" }
     ```
 
 2. Run `mise install`.
