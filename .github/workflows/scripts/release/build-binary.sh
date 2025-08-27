@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-set -e
+set -Eeo pipefail
 
 # Extract version from tag (remove 'v' prefix if present)
 VERSION="${VERSION:-"$((cat .version || echo '0.0.1') | tr -d '[:space:]')"}"
