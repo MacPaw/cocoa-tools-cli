@@ -1,40 +1,78 @@
-# Development
+# Development Guide
 
-## Getting started
+## Getting Started
 
-1. Run `make bootstrap`.  
-This will install necessary tools:  
-  * mise
-    * `op` - 1Password CLI.
-    * `swift-confidential` - github.com/securevale/swift-confidential CLI.
+### Prerequisites
+- macOS 15+ (for local development)
+- Swift 6.1+
+- Docker Desktop (for Linux testing)
+- 1Password account (for integration testing)
+
+### Setup
+**Bootstrap the development environment:**
+   ```bash
+   make bootstrap
+   ```
+   
+   This installs necessary tools via `mise`:
+   - **`op`** - 1Password CLI for secrets management
+   - **`swift-confidential`** - CLI from [github.com/securevale/swift-confidential](https://github.com/securevale/swift-confidential)
 
 ## Testing
 
-Usual `swift test` is supported.
+### Local Testing
+Standard Swift testing is fully supported:
+```bash
+swift test
+```
 
-### Linux
-To test on Linux platform:  
-1. Start the Docker app.
-2. Run `mise tasks run test-linux`.
+### Platform-Specific Testing
 
-### 1Password
+#### Linux Testing
+To test cross-platform compatibility on Linux:
 
-#### Prerequisites
+1. **Start Docker Desktop**
+2. **Run Linux tests:**
+   ```bash
+   mise tasks run test-linux
+   ```
 
-1. You must add a persoanal account to 1Password.
-2. 1Password CLI must be authenticated.
+#### 1Password Integration Testing
 
-#### Test 1Password integration 
-To test 1Password integration run `mise tasks run test-op`.
+**Prerequisites:**
+1. Add a personal account to 1Password app
+2. Authenticate the 1Password CLI:
+   ```bash
+   op account add
+   op signin
+   ```
 
-## Release process
-Update the `.version` file in the repo root and merge changes into the main branch. 
+**Run integration tests:**
+```bash
+mise tasks run test-op
+```
 
-The contents of the `.version` file is a single line with a [Semantic Version](https://semver.org/spec/v2.0.0.html). If there are [pre-release identifiers](https://semver.org/spec/v2.0.0.html#spec-item-9) the release on the GitHub will be marked as a pre-release.
+## Release Process
 
-If something fails during the release updating `.github` workflows and scripts will trigger the release process once again, and no need to constantly bump version.
+### Creating a Release
+1. **Update version:**
+   - Edit `.version` file in the repository root
+   - Use [Semantic Versioning](https://semver.org/spec/v2.0.0.html) format (e.g., `1.2.3`)
+   - For pre-releases, add pre-release identifiers (e.g., `1.2.3-rc.1`)
 
-## Other
+2. **Trigger release:**
+   - Merge changes to the `main` branch
+   - GitHub Actions will automatically create the release
 
-### CodeQL
-CodeQL will run swift and actions checks only if corresponding files were changed.
+### Release Behavior
+- **Pre-release versions** (with `-` identifiers) are marked as pre-releases on GitHub
+- **Failed releases** can be retried by updating `.github/workflows/` files without version bumps
+- **Multi-platform binaries** are built for macOS (universal, arm64, x86_64) and Linux (x86_64)
+
+## Continuous Integration
+
+### CodeQL Security Analysis
+We do manual CodeQL checks, because default CodeQL runners don't support Swift 6.1.
+CodeQL runs conditionally based on file changes:
+- **Swift analysis** - triggered by changes to `**/*.swift`, `Package.swift`, or `Package.resolved`
+- **Actions analysis** - triggered by changes to `.github/**/*.yaml` or `.github/**/*.yml`
