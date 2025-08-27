@@ -74,11 +74,11 @@ jobs:
           matrix_include="[]"
 
           if [[ "${{ steps.changes.outputs.workflows }}" == "true" ]]; then
-            matrix_include="$(echo "$matrix_include" | jq '. += [{"language": "actions", "build-mode": "none"}]')"
+            matrix_include="$(echo "$matrix_include" | jq -c '. += [{"language": "actions", "build-mode": "none"}]')"
           fi
 
           if [[ "${{ steps.changes.outputs.swift }}" == "true" ]]; then
-            matrix_include="$(echo "$matrix_include" | jq '. += [{"language": "swift", "build-mode": "manual"}]')"
+            matrix_include="$(echo "$matrix_include" | jq -c '. += [{"language": "swift", "build-mode": "manual"}]')"
           fi
 
           echo "matrix={\"include\":$matrix_include}" >> $GITHUB_OUTPUT
