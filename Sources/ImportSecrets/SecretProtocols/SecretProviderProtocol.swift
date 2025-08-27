@@ -36,6 +36,11 @@ extension SecretProviderProtocol { static var configurationKey: String { Source.
 
 // For sources with simple Decodable configurations
 extension SecretProviderProtocol where Source.Configuration: Decodable {
+  /// Decodes a configuration from the given decoder.
+  ///
+  /// - Parameter decoder: The decoder to read configuration data from.
+  /// - Returns: The decoded configuration.
+  /// - Throws: Decoding errors if the configuration cannot be parsed.
   public func decodeConfiguration(from decoder: any Decoder) throws -> Source.Configuration {
     try Source.Configuration.init(from: decoder)
   }
@@ -43,6 +48,13 @@ extension SecretProviderProtocol where Source.Configuration: Decodable {
 
 // For sources that can be decoded without additional configuration
 extension SecretProviderProtocol where Source: Decodable {
+  /// Decodes a source from the given decoder without requiring configuration.
+  ///
+  /// - Parameters:
+  ///   - decoder: The decoder to read source data from.
+  ///   - sourceConfiguration: Optional source configuration (unused for simple Decodable sources).
+  /// - Returns: The decoded source.
+  /// - Throws: Decoding errors if the source cannot be parsed.
   public func decodeSource(from decoder: any Decoder, sourceConfiguration: Source.Configuration?) throws -> Source {
     try Source.init(from: decoder)
   }
@@ -51,6 +63,13 @@ extension SecretProviderProtocol where Source: Decodable {
 // For sources that need optional configuration during decoding
 extension SecretProviderProtocol
 where Source: DecodableWithConfiguration, Source.DecodingConfiguration == Source.Configuration? {
+  /// Decodes a source from the given decoder with optional configuration.
+  ///
+  /// - Parameters:
+  ///   - decoder: The decoder to read source data from.
+  ///   - sourceConfiguration: Optional source configuration to use during decoding.
+  /// - Returns: The decoded source.
+  /// - Throws: Decoding errors if the source cannot be parsed.
   public func decodeSource(from decoder: any Decoder, sourceConfiguration: Source.Configuration?) throws -> Source {
     try Source.init(from: decoder, configuration: sourceConfiguration)
   }
@@ -59,6 +78,13 @@ where Source: DecodableWithConfiguration, Source.DecodingConfiguration == Source
 // For sources that require configuration during decoding (configuration cannot be nil)
 extension SecretProviderProtocol
 where Source: DecodableWithConfiguration, Source.DecodingConfiguration == Source.Configuration {
+  /// Decodes a source from the given decoder with required configuration.
+  ///
+  /// - Parameters:
+  ///   - decoder: The decoder to read source data from.
+  ///   - sourceConfiguration: Required source configuration to use during decoding.
+  /// - Returns: The decoded source.
+  /// - Throws: Decoding errors if the source cannot be parsed, or fatal error if configuration is nil.
   public func decodeSource(from decoder: any Decoder, sourceConfiguration: Source.Configuration?) throws -> Source {
     guard let sourceConfiguration else { fatalError("Cannot decode source without configuration") }
     return try Source.init(from: decoder, configuration: sourceConfiguration)
@@ -68,6 +94,13 @@ where Source: DecodableWithConfiguration, Source.DecodingConfiguration == Source
 // MARK: - Default fetching
 
 extension SecretProviderProtocol {
+  /// Fetches secrets using the provider's fetcher implementation.
+  ///
+  /// - Parameters:
+  ///   - secrets: Dictionary mapping secret names to their source configurations.
+  ///   - sourceConfiguration: Optional configuration to use for fetching.
+  /// - Returns: Result containing successfully fetched secrets and any errors encountered.
+  /// - Throws: Fetching errors if the operation fails.
   public func fetch(secrets: [String: Source], sourceConfiguration: Source.Configuration?) async throws
     -> SecretsFetchResult
   { try await fetcher.fetch(secrets: secrets, sourceConfiguration: sourceConfiguration) }

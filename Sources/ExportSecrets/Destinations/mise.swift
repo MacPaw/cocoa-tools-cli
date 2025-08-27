@@ -1,6 +1,7 @@
 import Shell
 
 /// Protocol for exporting secrets to mise configuration files.
+///
 /// Mise is a development environment manager that can load environment variables from configuration files.
 public protocol SecretsDestinationMiseProtocol: Sendable {
   /// Exports secrets to a mise configuration file.
@@ -15,6 +16,7 @@ private typealias Mise = ExportSecrets.Destinations.Mise
 
 extension ExportSecrets.Destinations {
   /// Export destination that writes secrets to mise configuration files.
+  ///
   /// This allows secrets to be loaded as environment variables by the mise tool.
   public struct Mise {
     /// The path to the mise configuration file to write to.

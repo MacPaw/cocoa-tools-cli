@@ -46,12 +46,11 @@ public struct ImportSecrets {
 
   /// Creates a configuration from YAML data.
   /// - Parameters:
-  ///   - configurationData: Raw YAML data containing the configuration.
+  ///   - data: Raw YAML data containing the configuration.
   ///   - sourceProviders: Array of secret source providers to use for decoding.
   ///   - encoding: Text encoding for parsing the configuration data.
   ///   - envSubstOptions: Optional environment variable substitution options.
   ///   - environment: Environment variables to use for substitution. Defaults to the current process environment.
-  ///   - fileManager: File manager (unused in this method but kept for consistency).
   /// - Returns: A parsed ImportSecrets configuration.
   /// - Throws: Parsing errors or validation errors from the configuration.
   public static func configuration(
@@ -59,8 +58,7 @@ public struct ImportSecrets {
     sourceProviders: [any SecretProviderProtocol],
     encoding: Parser.Encoding = .default,
     envSubstOptions: EnvSubst.Options? = .none,
-    environment: [String: String] = ProcessInfo.processInfo.environment,
-    fileManager: FileManagerProtocol = FileManager.default,
+    environment: [String: String] = ProcessInfo.processInfo.environment
   ) throws -> ImportSecrets.Configuration {
     // Apply environment variable substitution to the configuration data if options are provided
     // This allows configuration files to contain ${VAR} placeholders that get replaced with actual env values

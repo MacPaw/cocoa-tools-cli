@@ -64,7 +64,8 @@ extension ImportSecrets {
     /// Check if this secret has a source for the given configuration key.
     ///
     /// - Parameters:
-    ///   - key: The key to check for.
+    ///   - configurationKey: The configuration key to check for.
+    ///   - type: The source type to check for.
     /// - Returns: True if the secret has a source for the given key, false otherwise.
     func hasSource<Source: SecretSourceProtocol>(
       for configurationKey: String = Source.configurationKey,

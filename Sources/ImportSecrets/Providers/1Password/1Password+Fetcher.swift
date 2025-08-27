@@ -53,6 +53,7 @@ extension Fetcher: SecretFetcherProtocol {
   ///   - secrets: Dictionary mapping secret names to their 1Password source configurations.
   ///   - sourceConfiguration: Optional configuration containing default account and vault settings.
   /// - Returns: Result containing successfully fetched secrets and any errors encountered.
+  /// - Throws: Shell.Error if the 1Password CLI cannot be initialized or configured.
   public func fetch(
     secrets: [String: ImportSecrets.Providers.OnePassword.Source],
     sourceConfiguration: ImportSecrets.Providers.OnePassword.Source.Configuration?
