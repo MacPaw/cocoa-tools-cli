@@ -33,6 +33,10 @@ description = "Format source code"
 run = "swift package plugin --allow-writing-to-package-directory format-source-code"
 alias = "fmt"
 
+[tasks.lint]
+description = "Lint source code"
+run = "swift package plugin --allow-writing-to-package-directory lint-source-code"
+
 [tasks.test-linux]
 description = "Test on Linux"
 # container fails to run tests on macOS with M2 chip.
