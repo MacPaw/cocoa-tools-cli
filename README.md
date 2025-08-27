@@ -95,7 +95,7 @@ Swift code generation with obfuscated secret literals using swift-confidential.
 - **Use Cases**: Secure secret storage in mobile apps, build-time secret processing
 - **Example**: Generate obfuscated Swift accessors for runtime secret access
 
-### [SemanticVersion](docs/Products/SemanticVersion.md)
+#### [SemanticVersion](docs/Products/SemanticVersion.md)
 Comprehensive semantic versioning implementation with compile-time macro support and build tool integration.
 
 - **Features**: Semantic Versioning 2.0.0 compliance, compile-time `#semanticVersion` macro, build plugin for automatic version generation

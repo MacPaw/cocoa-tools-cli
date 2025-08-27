@@ -42,6 +42,7 @@ import SemanticVersion
 // Create versions
 let version1 = SemanticVersion(1, 2, 3)
 let version2 = SemanticVersion(1, 2, 4, prereleaseIdentifiers: ["beta", "1"])
+// Create versions with literals
 let version3: SemanticVersion = "2.0.0"
 let version4: SemanticVersion = 2
 let version5: SemanticVersion = 3.14
@@ -50,30 +51,11 @@ let version5: SemanticVersion = 3.14
 print(version1 < version2) // true
 print(version2.isPrerelease) // true
 print(version1.isRelease) // true
-print(version4) // "2.0.0"
-print(version5) // "3.14"
 
 // Access components
 print(version1.major) // 1
 print(version1.minor) // 2
 print(version1.patch) // 3
-```
-
-#### Advanced Features
-
-```swift
-// Build metadata (custom extension)
-let buildVersion = SemanticVersion(
-  1, 0, 0,
-  buildMetadataIdentifiers: ["build", "123"]
-)
-print(buildVersion.buildVersion) // Optional("123")
-
-// String parsing
-let parsed = SemanticVersion("1.2.3-alpha.1+build.456")
-print(parsed?.prereleaseIdentifiers) // ["alpha", "1"]
-print(parsed?.buildMetadataIdentifiers) // ["build", "456"]
-print(parsed?.buildVersion) // "456"
 ```
 
 ### SemanticVersionMacro
@@ -90,7 +72,7 @@ A compile-time macro that parses version strings and generates optimized Semanti
 #### Usage
 
 ```swift
-import SemanticVersion
+import SemanticVersionMacro
 
 // String literal
 let version1 = #semanticVersion("1.2.3")
@@ -104,22 +86,6 @@ let version3 = #semanticVersion(1.5)
 // Complex versions
 let prerelease = #semanticVersion("2.0.0-beta.1")
 let withBuild = #semanticVersion("1.0.0+build.123")
-```
-
-#### Macro Expansion
-
-The macro expands to direct SemanticVersion initialization:
-
-```swift
-// Input
-#semanticVersion("1.2.3-beta.1")
-
-// Expands to
-SemanticVersion(
-  1, 2, 3,
-  prereleaseIdentifiers: ["beta", "1"],
-  buildMetadataIdentifiers: []
-)
 ```
 
 ### SemanticVersionBuildToolPlugin
@@ -140,13 +106,18 @@ A Swift Package Manager build plugin that automatically generates version inform
 1.2.3
 ```
 
-2. Add the plugin to your target in `Package.swift`:
+2. Add the plugin and `SemanticVersion` dependency to your target in `Package.swift`:
 ```swift
-.target(
-  name: "MyTarget",
-  dependencies: ["SemanticVersion"],
-  plugins: ["SemanticVersionBuildToolPlugin"]
-)
+dependencies: [
+    .package(url: "https://github.com/MacPaw/cocoa-tools-cli.git", from: "0.1.0"),
+],
+targets: [
+  .target(
+    name: "MyTarget",
+    dependencies: [.product(name: "SemanticVersion", package: "cocoa-tools")],
+    plugins: [.plugin(name: "SemanticVersionBuildToolPlugin", package: "cocoa-tools")],
+  )
+]
 ```
 
 3. Use the generated version:

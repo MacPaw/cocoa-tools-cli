@@ -161,7 +161,7 @@ enum Targets {
 }
 
 let package = Package(
-  name: "mpct",
+  name: "cocoa-tools",
   platforms: [.macOS(.v14)],
   products: [
     .executable(name: "mpct", targets: ["mpct"]), .library(name: "EnvSubst", targets: ["EnvSubst"]),
