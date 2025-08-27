@@ -396,7 +396,7 @@ extension SemanticVersion {
   @inlinable
   public var buildVersion: String? {
     guard let buildIndex = buildMetadataIdentifiers.firstIndex(of: "build"),
-          buildIndex < buildMetadataIdentifiers.endIndex.advanced(by: -1)
+      buildIndex < buildMetadataIdentifiers.endIndex.advanced(by: -1)
     else { return .none }
 
     let buildValueIndex = buildMetadataIdentifiers.index(after: buildIndex)
@@ -405,7 +405,8 @@ extension SemanticVersion {
   }
 
   /// Returns a Boolean value indicating whether the version is a pre-release.
-  @inlinable @inline(__always)
+  @inlinable
+  @inline(__always)
   public var isPrerelease: Bool { !prereleaseIdentifiers.isEmpty }
 
   /// Returns a Boolean value indicating whether the version is a release.
