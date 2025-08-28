@@ -18,7 +18,7 @@ mkdir -p build
 function build() {
   local ARCH="${1}"
   echo "Building ${ARCH} binary for ${PLATFORM}..."
-  ./Scripts/tools/swift/swift.sh --action=build --configuration=release -- --arch "${ARCH}"
+  ./scripts/tools/swift/swift.sh --action=build --configuration=release -- --arch "${ARCH}"
 }
 
 if [ "${PLATFORM}" == "Darwin" ] && [ "${ARCH}" == "universal" ]; then

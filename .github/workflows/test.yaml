@@ -58,13 +58,13 @@ jobs:
 
       - name: Build with Swift Package Manager
         if: matrix.build-system == 'swift'
-        run: ./Scripts/tools/swift/swift.sh --action=build
+        run: ./scripts/tools/swift/swift.sh --action=build
 
       - name: Build with Xcodebuild
         if: matrix.build-system == 'xcodebuild'
         env:
           PACKAGE_NAME: ${{ env.package_name }}
-        run: ./Scripts/tools/xcodebuild/xcodebuild.sh --package-name="${PACKAGE_NAME}" --action=build-for-testing
+        run: ./scripts/tools/xcodebuild/xcodebuild.sh --package-name="${PACKAGE_NAME}" --action=build-for-testing
 
       - name: Install mise tools
         uses: jdx/mise-action@5ac50f778e26fac95da98d50503682459e86d566
@@ -75,13 +75,13 @@ jobs:
 
       - name: Test with Swift Package Manager
         if: matrix.build-system == 'swift'
-        run: ./Scripts/tools/swift/swift.sh --action=test
+        run: ./scripts/tools/swift/swift.sh --action=test
 
       - name: Test with Xcodebuild
         if: matrix.build-system == 'xcodebuild'
         env:
           PACKAGE_NAME: ${{ env.package_name }}
-        run: ./Scripts/tools/xcodebuild/xcodebuild.sh --package-name="${PACKAGE_NAME}" --action=test-without-building
+        run: ./scripts/tools/xcodebuild/xcodebuild.sh --package-name="${PACKAGE_NAME}" --action=test-without-building
 
   lint:
     needs:

@@ -3,7 +3,7 @@
 .PHONY: install_mise
 ## Install mise and tools.
 install_mise:
-	@Scripts/tools/mise/mise.sh --install
+	@./scripts/tools/mise/mise.sh --install
 
 .PHONY: bootstrap
 ## Install and configure all necessary tools.

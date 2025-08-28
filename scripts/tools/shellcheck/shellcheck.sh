@@ -8,9 +8,9 @@ shellcheck_lint() {
     --shell=bash \
     --check-sourced \
     --extended-analysis=true \
-    Scripts/**/*.sh \
-    Scripts/**/**/*.sh \
-    .github/workflows/scripts/**/*.sh
+    ./scripts/**/*.sh \
+    ./scripts/**/**/*.sh \
+    ./.github/workflows/scripts/**/*.sh
 }
 
 shellcheck_format() {
@@ -20,9 +20,9 @@ shellcheck_format() {
     --format=diff \
     --check-sourced \
     --extended-analysis=true \
-    Scripts/**/*.sh \
-    Scripts/**/**/*.sh \
-    .github/workflows/scripts/**/*.sh \
+    ./scripts/**/*.sh \
+    ./scripts/**/**/*.sh \
+    ./.github/workflows/scripts/**/*.sh \
     | git apply --allow-empty) || true
 }
 

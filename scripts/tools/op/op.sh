@@ -34,7 +34,7 @@ op_remove_test_secrets() {
 op_run_tests() {
 
   echo "Building mpct cli..."
-  ./Scripts/tools/swift/swift.sh --action=build -- --target mpct
+  ./scripts/tools/swift/swift.sh --action=build -- --target mpct
 
   op_remove_test_secrets > /dev/null 2>&1
   op_create_test_secrets

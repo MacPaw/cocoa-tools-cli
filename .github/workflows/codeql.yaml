@@ -157,7 +157,7 @@ jobs:
         if: matrix.language == 'swift' && matrix.build-mode == 'manual'
         env:
           PACKAGE_NAME: ${{ env.package_name }}
-        run: ./Scripts/tools/xcodebuild/xcodebuild.sh --package-name="${PACKAGE_NAME}" --action=build-for-testing
+        run: ./scripts/tools/xcodebuild/xcodebuild.sh --package-name="${PACKAGE_NAME}" --action=build-for-testing
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3

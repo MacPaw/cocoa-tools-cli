@@ -20,8 +20,8 @@ echo "Copying resolved packages..."
 cp -r .build/checkouts .build/repositories .build/plugins .build/workspace-state.json /package-copy/.build || true
 
 echo "Copying necessary scripts..."
-mkdir -p /package-copy/Scripts/tools/swift
-cp -r Scripts/tools/swift/swift.sh /package-copy/Scripts/tools/swift/swift.sh
+mkdir -p /package-copy/scripts/tools/swift
+cp -r ./scripts/tools/swift/swift.sh /package-copy/scripts/tools/swift/swift.sh
 
 echo "Changing directory..."
 cd /package-copy
@@ -39,10 +39,10 @@ rm -rf .build/*-linux-* || true
 # /usr/bin/swift package resolve
 
 echo "Building..."
-./Scripts/tools/swift/swift.sh --action=build
+./scripts/tools/swift/swift.sh --action=build
 
 echo "Testing..."
-./Scripts/tools/swift/swift.sh --action=test
+./scripts/tools/swift/swift.sh --action=test
 
 echo "Removing copy..."
 rm -rf /package-copy

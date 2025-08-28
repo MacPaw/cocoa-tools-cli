@@ -37,7 +37,7 @@ container_run_tests() {
     --workdir /package \
     --entrypoint /bin/sh \
     "swift:${SWIFT_VERSION}" \
-    Scripts/container-tests/test.sh
+    ./scripts/container-tests/test.sh
 
   if [ "${CONTAINER_WAS_RUNNING}" != "true" ]; then
     container_stop

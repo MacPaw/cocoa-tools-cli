@@ -2,19 +2,21 @@
 
 set -Eeo pipefail
 
-shfmt_format() {
-  echo "Formatting shell scripts with shfmt..."
-  shfmt \
-    --indent 2 \
-    --language-dialect bash \
-    --simplify \
-    --case-indent \
-    --binary-next-line \
-    --space-redirects \
-    --write \
-    Scripts/**/*.sh \
-    Scripts/**/**/*.sh \
-    .github/workflows/scripts/**/*.sh
+REPOSITORY_ROOT_DIR="${REPOSITORY_ROOT_DIR:-"$(git rev-parse --show-toplevel 2> /dev/null || pwd)"}"
+
+docker_run_tests() {
+
+  SWIFT_VERSION="${SWIFT_VERSION:-"$(tr -d '[:space:]' < .swift-version || echo '6.1.2')"}"
+  echo "Using Swift version: ${SWIFT_VERSION}"
+
+  docker run \
+    --rm \
+    --cap-add sys_ptrace \
+    --volume "${REPOSITORY_ROOT_DIR}:/package:ro" \
+    --workdir /package \
+    --entrypoint /bin/sh \
+    "swift:${SWIFT_VERSION}" \
+    ./scripts/container-tests/test.sh
 }
 
 die() {
@@ -23,7 +25,7 @@ die() {
 } # complain to STDERR and exit with error
 needs_arg() { if [ -z "$OPTARG" ]; then die "No arg for --${OPTSPEC} option"; fi; }
 
-while getopts "f:-:" OPTSPEC; do
+while getopts "t:-:" OPTSPEC; do
 
   # support long options: https://stackoverflow.com/a/28466267/519360
   if [ "$OPTSPEC" = "-" ]; then   # long option: reformulate OPT and OPTARG
@@ -33,12 +35,12 @@ while getopts "f:-:" OPTSPEC; do
   fi
 
   case "${OPTSPEC}" in
-    format)
-      shfmt_format
+    test)
+      docker_run_tests
       ;;
     *)
       echo "Unknown option: ${OPTSPEC}" >&2
-      echo "Supported options: --format" >&2
+      echo "Supported options: --test" >&2
       exit 1
       ;;
   esac

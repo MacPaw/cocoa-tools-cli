@@ -50,28 +50,28 @@ idiomatic_version_file_enable_tools = []
 
 [tasks.test-linux]
 description = "Run tests in Linux container"
-run = "Scripts/tools/container/container.sh --test"
+run = "./scripts/tools/container/container.sh --test"
 
 [tasks.test-linux-docker]
 # Sometimes the `container` binary fails, and this task can be used as a fallback.
 description = "Run tests in Linux container with Docker.app"
-run = "Scripts/tools/docker/docker.sh --test"
+run = "./scripts/tools/docker/docker.sh --test"
 
 [tasks.test-op]
 description = "Integration test on macOS with 1Password"
-run = "Scripts/tools/op/op.sh --test"
+run = "./scripts/tools/op/op.sh --test"
 
 [tasks.lint]
 description = "Lint source code"
 run = """
-Scripts/tools/swift-format/swift-format.sh --lint
-Scripts/tools/shellcheck/shellcheck.sh --lint
+./scripts/tools/swift-format/swift-format.sh --lint
+./scripts/tools/shellcheck/shellcheck.sh --lint
 """
 
 [tasks.format]
 description = "Format source code"
 run = """
-Scripts/tools/swift-format/swift-format.sh --format
-Scripts/tools/shellcheck/shellcheck.sh --format
-Scripts/tools/shfmt/shfmt.sh --format
+./scripts/tools/swift-format/swift-format.sh --format
+./scripts/tools/shellcheck/shellcheck.sh --format
+./scripts/tools/shfmt/shfmt.sh --format
 """
