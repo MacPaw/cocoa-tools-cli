@@ -95,6 +95,9 @@ enum Targets {
       )
   }
 
+  static var env: [PackageDescription.Target] { targetBundle(name: "ENV") }
+  static var ci: [PackageDescription.Target] { targetBundle(name: "CI") }
+
   static var shell: [PackageDescription.Target] { targetBundle(name: "Shell", tests: false) }
 
   static var envSubst: [PackageDescription.Target] {
@@ -163,6 +166,7 @@ let package = Package(
     .library(name: "ExportSecrets", targets: ["ExportSecrets"]),
     .library(name: "ObfuscateSecrets", targets: ["ObfuscateSecrets"]),
     .plugin(name: "SemanticVersionBuildToolPlugin", targets: ["SemanticVersionBuildToolPlugin"]),
+    .library(name: "ENV", targets: ["ENV"]), .library(name: "CI", targets: ["CI"]),
   ],
   dependencies: [
     .package(url: "https://github.com/apple/swift-argument-parser.git", .upToNextMajor(from: "1.6.1")),
@@ -186,7 +190,7 @@ let package = Package(
     .target(name: "Dummy"),
 
   ] + Targets.shell + Targets.envSubst + Targets.exportSecrets + Targets.importSecrets + Targets.obfuscateSecrets
-    + Targets.semanticVersion,
+    + Targets.semanticVersion + Targets.env + Targets.ci,
 
   swiftLanguageModes: [.version(swiftLanguageVersion)]
 )
