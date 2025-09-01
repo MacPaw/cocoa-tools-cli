@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -Eeo pipefail
+
 PLATFORM=$(uname -s)
 
 SOURCE_TRUST_DIR=".github/workflows/scripts/spm-trust/assets"
@@ -15,6 +17,11 @@ SPM_TRUST_DIR="${SPM_CACHE_DIR}/security"
 function update_trust_info() {
   echo "Getting trust info for ${1}" >&2
 
+  if [ ! -f "${SOURCE_TRUST_DIR}/${1}" ]; then
+    echo "  File ${SOURCE_TRUST_DIR}/${1} does not exist, skipping..." >&2
+    return
+  fi
+
   if [ ! -f "${SPM_TRUST_DIR}/${1}" ]; then
     echo "  File ${SPM_TRUST_DIR}/${1} does not exist, creating empty file..." >&2
     mkdir -p "${SPM_TRUST_DIR}"
@@ -29,6 +36,7 @@ function update_trust_info() {
   for ((INDEX = 0; INDEX < LENGTH; INDEX++)); do
     echo "  Index: $INDEX" >&2
     local TARGET_NAME PACKAGE_NAME FINGERPRINT TRUSTED_INFO_ITEM EXISTING_TRUSTED_INFO_ITEM
+
     TARGET_NAME="$(jq -r ".[$INDEX].targetName" < "${SOURCE_TRUST_DIR}/${1}" | tr -d '[:space:]')"
     echo "    Target name: $TARGET_NAME" >&2
 
@@ -36,7 +44,6 @@ function update_trust_info() {
     echo "    Package name: $PACKAGE_NAME" >&2
 
     FINGERPRINT=$(jq -r ".pins[] | select(.identity==\"${PACKAGE_NAME}\") | .state.revision" < Package.resolved | tr -d '[:space:]')
-
     if [ -z "$FINGERPRINT" ]; then
       echo "    Fingerprint for target ${TARGET_NAME} in package ${PACKAGE_NAME} is empty, skipping..." >&2
       continue
@@ -46,7 +53,9 @@ function update_trust_info() {
 
     EXISTING_TRUSTED_INFO_ITEM="$(jq -r ".[] | select((.fingerprint==\"${FINGERPRINT}\") and (.packageIdentity==\"${PACKAGE_NAME}\") and (.targetName==\"${TARGET_NAME}\"))" <<< "${TRUSTED_INFO}" | tr -d '[:space:]')"
 
-    if [ ! -z "$EXISTING_TRUSTED_INFO_ITEM" ]; then
+    if [ -z "$EXISTING_TRUSTED_INFO_ITEM" ]; then
+      echo "    Adding trust info item for target ${TARGET_NAME} in package ${PACKAGE_NAME}..." >&2
+    else
       echo "    Trusted info item for target ${TARGET_NAME} in package ${PACKAGE_NAME} is already in the list, skipping..." >&2
       continue
     fi
@@ -83,13 +92,12 @@ while getopts "t:u:-:" OPTSPEC; do
   fi
 
   case "${OPTSPEC}" in
-    trust) ;;
     update-trust)
       spm_update_trust
       ;;
     *)
       echo "Unknown option: ${OPTSPEC}" >&2
-      echo "Supported options: --trust, --update-trust" >&2
+      echo "Supported options: --update-trust" >&2
       exit 1
       ;;
   esac
