@@ -1,0 +1,42 @@
+# https://swiftpackageindex.com/apple/swift-openapi-generator/1.10.2/documentation/swift-openapi-generator/configuring-the-generator
+
+#array of strings. Each string value is a mode for the generator invocation, which is one of:
+# types: Common types and abstractions used by generated client and server code.
+# client: Client code that can be used with any client transport (depends on code from types).
+# server: Server code that can be used with any server transport (depends on code from types).
+generate:
+  - types
+  - client
+
+#(optional): a string. Customizes the visibility of the API of the generated code.
+# public: Generated API is accessible from other modules and other packages (if included in a product).
+# package: Generated API is accessible from other modules within the same package or project.
+# internal (default): Generated API is accessible from the containing module only.
+accessModifier: internal
+
+# (optional): array of strings. Each string value is a Swift module name. An import statement will be added to the generated source files for each module.
+additionalImports: []
+
+# additionalFileComments (optional): array of strings. Each string value is a comment that will be added to the top of each generated file (after the do-not-edit comment). Useful for adding directives like swift-format-ignore-file or swiftlint:disable all.
+additionalFileComments: []
+
+#filter (optional): Filters to apply to the OpenAPI document before generation.
+#
+#    operations: Operations with these operation IDs will be included in the filter.
+#
+#    tags: Operations tagged with these tags will be included in the filter.
+#
+#    paths: Operations for these paths will be included in the filter.
+#
+#    schemas: These (additional) schemas will be included in the filter.
+
+filter:
+  operations:
+    - read-kv-secrets
+
+#namingStrategy (optional): a string. The strategy of converting OpenAPI identifiers into Swift identifiers.
+#
+#    defensive (default): Produces non-conflicting Swift identifiers for any OpenAPI identifiers. Check out SOAR-0001 for details.
+#
+#    idiomatic: Produces more idiomatic Swift identifiers for OpenAPI identifiers. Might produce name conflicts (in that case, switch back to defensive). Check out SOAR-0013 for details.
+namingStrategy: idiomatic

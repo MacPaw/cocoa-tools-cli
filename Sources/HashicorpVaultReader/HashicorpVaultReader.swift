@@ -1,4 +1,25 @@
 import Foundation
+import OpenAPIRuntime
+
+struct VClient {
+  let client: Client
+  init(url: URL, transport: any ClientTransport, middlewares: [any ClientMiddleware]) {
+    client = Client(serverURL: url, transport: transport, middlewares: middlewares)
+  }
+
+  func doo() async throws -> [String: String] {
+    let response = try await client.readKvSecrets(
+      path: .init(kvPath: "", secretKey: ""),
+      query: .init(version: 0),
+      headers: .init()
+    )
+    switch response {
+    case .ok(let ok): try ok.body.json.data.data?.value.map(String.init(describing:))
+    case let .badRequest(err): throw err
+    case .undocumented(let statusCode, let payload): throw statusCode
+    }
+  }
+}
 
 public protocol HashicorpVaultEngineProtocol {
   associatedtype DefaultConfiguration: HashicorpVaultEngineDefaultConfigurationProtocol
