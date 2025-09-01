@@ -75,7 +75,7 @@ function update_trust_info() {
 
 function spm_update_trust() {
   echo "Updating trust for Swift Package Macros and Plugins..."
-  SPM_TRUST_DIR="."
+
   update_trust_info "macros.json"
   update_trust_info "plugins.json"
 }
