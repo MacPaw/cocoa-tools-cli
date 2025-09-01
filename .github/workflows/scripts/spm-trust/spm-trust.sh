@@ -43,12 +43,16 @@ function update_trust_info() {
     PACKAGE_NAME="$(jq -r ".[$INDEX].packageIdentity" < "${SOURCE_TRUST_DIR}/${1}" | tr -d '[:space:]')"
     echo "    Package name: $PACKAGE_NAME" >&2
 
-    FINGERPRINT=$(jq -r ".pins[] | select(.identity==\"${PACKAGE_NAME}\") | .state.revision" < Package.resolved | tr -d '[:space:]')
+    # Get fingerprint from source file, if not found, get it from Package.resolved.
+    FINGERPRINT="$(jq -r ".[$INDEX].fingerprint" < "${SOURCE_TRUST_DIR}/${1}" | tr -d '[:space:]')"
     if [ -z "$FINGERPRINT" ]; then
-      echo "    Fingerprint for target ${TARGET_NAME} in package ${PACKAGE_NAME} is empty, skipping..." >&2
-      continue
-    else
-      echo "    Fingerprint: $FINGERPRINT" >&2
+      FINGERPRINT=$(jq -r ".pins[] | select(.identity==\"${PACKAGE_NAME}\") | .state.revision" < Package.resolved | tr -d '[:space:]')
+      if [ -z "$FINGERPRINT" ]; then
+        echo "    Fingerprint for target ${TARGET_NAME} in package ${PACKAGE_NAME} is empty, skipping..." >&2
+        continue
+      else
+        echo "    Fingerprint: $FINGERPRINT" >&2
+      fi
     fi
 
     EXISTING_TRUSTED_INFO_ITEM="$(jq -r ".[] | select((.fingerprint==\"${FINGERPRINT}\") and (.packageIdentity==\"${PACKAGE_NAME}\") and (.targetName==\"${TARGET_NAME}\"))" <<< "${TRUSTED_INFO}" | tr -d '[:space:]')"
