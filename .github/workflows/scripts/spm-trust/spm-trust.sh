@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 PLATFORM=$(uname -s)
 
@@ -12,12 +12,85 @@ fi
 
 SPM_TRUST_DIR="${SPM_CACHE_DIR}/security"
 
-mkdir -p "${SPM_TRUST_DIR}"
+function update_trust_info() {
+  echo "Getting trust info for ${1}" >&2
 
-echo "Copying macros.json to ${SPM_TRUST_DIR}/macros.json"
-cp -r "${SOURCE_TRUST_DIR}/macros.json" "${SPM_TRUST_DIR}/macros.json"
+  if [ ! -f "${SPM_TRUST_DIR}/${1}" ]; then
+    echo "  File ${SPM_TRUST_DIR}/${1} does not exist, creating empty file..." >&2
+    mkdir -p "${SPM_TRUST_DIR}"
+    echo "[]" > "${SPM_TRUST_DIR}/${1}"
+  fi
 
-echo "Copying plugins.json to ${SPM_TRUST_DIR}/plugins.json"
-cp -r "${SOURCE_TRUST_DIR}/plugins.json" "${SPM_TRUST_DIR}/plugins.json"
+  local TRUSTED_INFO LENGTH INDEX
+  TRUSTED_INFO="$(jq '.' < "${SPM_TRUST_DIR}/${1}")"
+  LENGTH=$(jq '. | length' < "${SOURCE_TRUST_DIR}/${1}" | tr -d '[:space:]')
+  echo "  Element count: $LENGTH" >&2
 
-echo "Done"
+  for ((INDEX = 0; INDEX < LENGTH; INDEX++)); do
+    echo "  Index: $INDEX" >&2
+    local TARGET_NAME PACKAGE_NAME FINGERPRINT TRUSTED_INFO_ITEM EXISTING_TRUSTED_INFO_ITEM
+    TARGET_NAME="$(jq -r ".[$INDEX].targetName" < "${SOURCE_TRUST_DIR}/${1}" | tr -d '[:space:]')"
+    echo "    Target name: $TARGET_NAME" >&2
+
+    PACKAGE_NAME="$(jq -r ".[$INDEX].packageIdentity" < "${SOURCE_TRUST_DIR}/${1}" | tr -d '[:space:]')"
+    echo "    Package name: $PACKAGE_NAME" >&2
+
+    FINGERPRINT=$(jq -r ".pins[] | select(.identity==\"${PACKAGE_NAME}\") | .state.revision" < Package.resolved | tr -d '[:space:]')
+
+    if [ -z "$FINGERPRINT" ]; then
+      echo "    Fingerprint for target ${TARGET_NAME} in package ${PACKAGE_NAME} is empty, skipping..." >&2
+      continue
+    else
+      echo "    Fingerprint: $FINGERPRINT" >&2
+    fi
+
+    EXISTING_TRUSTED_INFO_ITEM="$(jq -r ".[] | select((.fingerprint==\"${FINGERPRINT}\") and (.packageIdentity==\"${PACKAGE_NAME}\") and (.targetName==\"${TARGET_NAME}\"))" <<< "${TRUSTED_INFO}" | tr -d '[:space:]')"
+
+    if [ ! -z "$EXISTING_TRUSTED_INFO_ITEM" ]; then
+      echo "    Trusted info item for target ${TARGET_NAME} in package ${PACKAGE_NAME} is already in the list, skipping..." >&2
+      continue
+    fi
+
+    TRUSTED_INFO_ITEM="{\"fingerprint\": \"${FINGERPRINT}\", \"packageIdentity\": \"${PACKAGE_NAME}\", \"targetName\": \"${TARGET_NAME}\"}"
+
+    TRUSTED_INFO="$(jq ". += [${TRUSTED_INFO_ITEM}]" <<< "${TRUSTED_INFO}")"
+
+  done
+
+  jq "." <<< "${TRUSTED_INFO}" > "${SPM_TRUST_DIR}/${1}"
+}
+
+function spm_update_trust() {
+  echo "Updating trust for Swift Package Macros and Plugins..."
+  SPM_TRUST_DIR="."
+  update_trust_info "macros.json"
+  update_trust_info "plugins.json"
+}
+
+die() {
+  echo "${*}" >&2
+  exit 2
+} # complain to STDERR and exit with error
+needs_arg() { if [ -z "$OPTARG" ]; then die "No arg for --${OPTSPEC} option"; fi; }
+
+while getopts "t:u:-:" OPTSPEC; do
+
+  # support long options: https://stackoverflow.com/a/28466267/519360
+  if [ "$OPTSPEC" = "-" ]; then   # long option: reformulate OPT and OPTARG
+    OPTSPEC="${OPTARG%%=*}"       # extract long option name
+    OPTARG="${OPTARG#"$OPTSPEC"}" # extract long option argument (may be empty)
+    OPTARG="${OPTARG#=}"          # if long option argument, remove assigning `=`
+  fi
+
+  case "${OPTSPEC}" in
+    trust) ;;
+    update-trust)
+      spm_update_trust
+      ;;
+    *)
+      echo "Unknown option: ${OPTSPEC}" >&2
+      echo "Supported options: --trust, --update-trust" >&2
+      exit 1
+      ;;
+  esac
+done

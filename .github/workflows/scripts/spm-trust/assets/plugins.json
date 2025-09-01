@@ -1,2 +1,6 @@
 [
+  {
+    "packageIdentity" : "swift-openapi-generator",
+    "targetName" : "OpenAPIGenerator"
+  }
 ]
