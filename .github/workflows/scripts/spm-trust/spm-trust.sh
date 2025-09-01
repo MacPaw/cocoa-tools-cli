@@ -22,37 +22,41 @@ function update_trust_info() {
     return
   fi
 
-  if [ ! -f "${SPM_TRUST_DIR}/${1}" ]; then
-    echo "  File ${SPM_TRUST_DIR}/${1} does not exist, creating empty file..." >&2
-    mkdir -p "${SPM_TRUST_DIR}"
-    echo "[]" > "${SPM_TRUST_DIR}/${1}"
-  fi
-
-  local TRUSTED_INFO LENGTH INDEX
-  TRUSTED_INFO="$(jq '.' < "${SPM_TRUST_DIR}/${1}")"
+  local TRUSTED_INFO LENGTH INDEX INDICES_TO_REMOVE
+  INDICES_TO_REMOVE=()
+  TRUSTED_INFO="$(jq '.' < "${SOURCE_TRUST_DIR}/${1}")"
   LENGTH=$(jq '. | length' < "${SOURCE_TRUST_DIR}/${1}" | tr -d '[:space:]')
   echo "  Element count: $LENGTH" >&2
 
   for ((INDEX = 0; INDEX < LENGTH; INDEX++)); do
     echo "  Index: $INDEX" >&2
-    local TARGET_NAME PACKAGE_NAME FINGERPRINT TRUSTED_INFO_ITEM EXISTING_TRUSTED_INFO_ITEM
+    local TARGET_NAME PACKAGE_NAME FINGERPRINT EXISTING_FINGERPRINT PACKAGE_FINGERPRINT TRUSTED_INFO_ITEM EXISTING_TRUSTED_INFO_ITEM
 
-    TARGET_NAME="$(jq -r ".[$INDEX].targetName" < "${SOURCE_TRUST_DIR}/${1}" | tr -d '[:space:]')"
+    TARGET_NAME="$(jq -r ".[$INDEX].targetName" <<< "${TRUSTED_INFO}" | tr -d '[:space:]')"
     echo "    Target name: $TARGET_NAME" >&2
 
-    PACKAGE_NAME="$(jq -r ".[$INDEX].packageIdentity" < "${SOURCE_TRUST_DIR}/${1}" | tr -d '[:space:]')"
+    PACKAGE_NAME="$(jq -r ".[$INDEX].packageIdentity" <<< "${TRUSTED_INFO}" | tr -d '[:space:]')"
     echo "    Package name: $PACKAGE_NAME" >&2
 
     # Get fingerprint from source file, if not found, get it from Package.resolved.
-    FINGERPRINT="$(jq -r ".[$INDEX].fingerprint" < "${SOURCE_TRUST_DIR}/${1}" | tr -d '[:space:]')"
-    if [ -z "$FINGERPRINT" ]; then
-      FINGERPRINT=$(jq -r ".pins[] | select(.identity==\"${PACKAGE_NAME}\") | .state.revision" < Package.resolved | tr -d '[:space:]')
-      if [ -z "$FINGERPRINT" ]; then
-        echo "    Fingerprint for target ${TARGET_NAME} in package ${PACKAGE_NAME} is empty, skipping..." >&2
-        continue
-      else
-        echo "    Fingerprint: $FINGERPRINT" >&2
-      fi
+    EXISTING_FINGERPRINT="$(jq -r ".[$INDEX].fingerprint" <<< "${TRUSTED_INFO}" | tr -d '[:space:]')"
+
+    PACKAGE_FINGERPRINT=$(jq -r ".pins[] | select(.identity==\"${PACKAGE_NAME}\") | .state.revision" < Package.resolved | tr -d '[:space:]')
+    if [ -z "$PACKAGE_FINGERPRINT" ]; then
+      echo "    Fingerprint for target ${TARGET_NAME} in package ${PACKAGE_NAME} is empty, skipping..." >&2
+      INDICES_TO_REMOVE+=("$INDEX")
+      continue
+    else
+      echo "    Fingerprint: $PACKAGE_FINGERPRINT" >&2
+    fi
+
+    if [[ "$EXISTING_FINGERPRINT" != "$PACKAGE_FINGERPRINT" ]]; then
+      echo "    Fingerprint for target ${TARGET_NAME} in package ${PACKAGE_NAME} is different, updating..." >&2
+      FINGERPRINT="$PACKAGE_FINGERPRINT"
+      INDICES_TO_REMOVE+=("$INDEX")
+    else
+      echo "    Fingerprint for target ${TARGET_NAME} in package ${PACKAGE_NAME} is the same, skipping..." >&2
+      continue
     fi
 
     EXISTING_TRUSTED_INFO_ITEM="$(jq -r ".[] | select((.fingerprint==\"${FINGERPRINT}\") and (.packageIdentity==\"${PACKAGE_NAME}\") and (.targetName==\"${TARGET_NAME}\"))" <<< "${TRUSTED_INFO}" | tr -d '[:space:]')"
@@ -70,7 +74,19 @@ function update_trust_info() {
 
   done
 
-  jq "." <<< "${TRUSTED_INFO}" > "${SPM_TRUST_DIR}/${1}"
+  for INDEX in "${INDICES_TO_REMOVE[@]}"; do
+    echo "  Removing outdated trust info item at index: $INDEX" >&2
+    TRUSTED_INFO="$(jq "del(.[$INDEX])" <<< "${TRUSTED_INFO}")"
+  done
+
+  jq "." <<< "${TRUSTED_INFO}" > "${SOURCE_TRUST_DIR}/${1}"
+}
+
+function spm_trust() {
+  echo "Trusting Swift Package Macros and Plugins..."
+  mkdir -p "${SPM_TRUST_DIR}"
+  cp -r "${SOURCE_TRUST_DIR}/macros.json" "${SPM_TRUST_DIR}/macros.json"
+  cp -r "${SOURCE_TRUST_DIR}/plugins.json" "${SPM_TRUST_DIR}/plugins.json"
 }
 
 function spm_update_trust() {
@@ -99,9 +115,12 @@ while getopts "t:u:-:" OPTSPEC; do
     update-trust)
       spm_update_trust
       ;;
+    trust)
+      spm_trust
+      ;;
     *)
       echo "Unknown option: ${OPTSPEC}" >&2
-      echo "Supported options: --update-trust" >&2
+      echo "Supported options: --update-trust, --trust" >&2
       exit 1
       ;;
   esac

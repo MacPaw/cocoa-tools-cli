@@ -1,6 +1,7 @@
 [
   {
-    "packageIdentity" : "swift-case-paths",
-    "targetName" : "CasePathsMacros"
+    "fingerprint": "9810c8d6c2914de251e072312f01d3bf80071852",
+    "packageIdentity": "swift-case-paths",
+    "targetName": "CasePathsMacros"
   }
 ]
