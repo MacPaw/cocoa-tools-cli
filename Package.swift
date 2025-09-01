@@ -96,7 +96,7 @@ enum Targets {
   }
 
   static var env: [PackageDescription.Target] { targetBundle(name: "ENV") }
-  static var ci: [PackageDescription.Target] { targetBundle(name: "CI") }
+  static var ci: [PackageDescription.Target] { targetBundle(name: "CI", dependencies: [.target(name: "ENV")]) }
 
   static var shell: [PackageDescription.Target] { targetBundle(name: "Shell", tests: false) }
 
@@ -155,6 +155,10 @@ enum Targets {
         ),
       ]
   }
+
+  static var hashicorpVaultReader: [PackageDescription.Target] {
+    targetBundle(name: "HashicorpVaultReader", tests: false)
+  }
 }
 
 let package = Package(
@@ -165,6 +169,7 @@ let package = Package(
     .library(name: "Shell", targets: ["Shell"]), .library(name: "ImportSecrets", targets: ["ImportSecrets"]),
     .library(name: "ExportSecrets", targets: ["ExportSecrets"]),
     .library(name: "ObfuscateSecrets", targets: ["ObfuscateSecrets"]),
+    .library(name: "HashicorpVaultReader", targets: ["HashicorpVaultReader"]),
     .plugin(name: "SemanticVersionBuildToolPlugin", targets: ["SemanticVersionBuildToolPlugin"]),
     .library(name: "ENV", targets: ["ENV"]), .library(name: "CI", targets: ["CI"]),
   ],
@@ -190,7 +195,7 @@ let package = Package(
     .target(name: "Dummy"),
 
   ] + Targets.shell + Targets.envSubst + Targets.exportSecrets + Targets.importSecrets + Targets.obfuscateSecrets
-    + Targets.semanticVersion + Targets.env + Targets.ci,
+    + Targets.semanticVersion + Targets.env + Targets.ci + Targets.hashicorpVaultReader,
 
   swiftLanguageModes: [.version(swiftLanguageVersion)]
 )

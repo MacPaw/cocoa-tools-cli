@@ -13,22 +13,19 @@ public struct ENV: Sendable, Equatable, Hashable {
 
   /// Initialize with a process info.
   ///
-  /// - Parameters:
-  ///   - processInfo: Process info.
+  /// - Parameter processInfo: Process info.
   @inlinable
   public init(processInfo: ProcessInfo) { self.init(variables: processInfo.environment) }
 
   /// Get an environment variable by key.
   ///
-  /// - Parameters:
-  ///   - member: An environment variable name.
+  /// - Parameter member: An environment variable name.
   @inlinable
   public subscript(dynamicMember member: String) -> String? { variables[member] }
 
   /// Get an environment variable by key.
   ///
-  /// - Parameters:
-  ///   - member: An environment variable name.
+  /// - Parameter member: An environment variable name.
   @inlinable
   public subscript(_ member: String) -> String? { variables[member] }
 
@@ -46,15 +43,13 @@ public struct ENV: Sendable, Equatable, Hashable {
 extension ENV {
   /// Get an environment variable by key.
   ///
-  /// - Parameters:
-  ///   - member: An environment variable name.
+  /// - Parameter member: An environment variable name.
   @inlinable
   public static subscript(dynamicMember member: String) -> String? { current.variables[member] }
 
   /// Get an environment variable by key.
   ///
-  /// - Parameters:
-  ///   - member: An environment variable name.
+  /// - Parameter member: An environment variable name.
   @inlinable
   public static subscript(_ member: String) -> String? { current.variables[member] }
 
@@ -69,4 +64,7 @@ extension ENV {
   }
 }
 
-extension ENV { public static let current: Self = .init(processInfo: ProcessInfo.processInfo) }
+extension ENV {
+  /// Current environment variables from the process.
+  public static let current: Self = .init(processInfo: ProcessInfo.processInfo)
+}

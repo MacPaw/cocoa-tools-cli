@@ -4,8 +4,7 @@ public struct CIType {
   public let name: String
   /// Initialize a CI type.
   ///
-  /// - Parameters:
-  ///   - name: Name of the CI.
+  /// - Parameter name: Name of the CI.
   public init(name: String) { self.name = name }
 }
 

@@ -4,13 +4,13 @@ import Foundation
 /// CI.
 public struct CI {
   /// CI interface.
-  let ci: CIInterface
+  let ci: any CIInterface
 
   /// CI type.
   public var type: CIType { ci.type }
 
-  private init(env: ENV = ENV.current, supportedCIs: [CIInterface.Type] = Self.supportedCIs) {
-    let currentCI: CIInterface =
+  private init(env: ENV = ENV.current, supportedCIs: [any CIInterface.Type] = Self.supported) {
+    let currentCI: any CIInterface =
       if let currentCIType: any CIInterface.Type = supportedCIs.first(where: { $0.validateAsCurrentCI(env) }) {
         currentCIType.init(env: env)
       }
@@ -20,11 +20,15 @@ public struct CI {
 }
 
 extension CI: CIInterface {
-  public init(env: ENV) { self.init(env: env, supportedCIs: Self.supportedCIs) }
+  /// Initialize CI with environment variables.
+  ///
+  /// - Parameter env: Environment variables.
+  public init(env: ENV) { self.init(env: env, supportedCIs: Self.supported) }
 
   /// Validate if the current CI is supported.
   ///
   /// - Parameter environment: Environment variables.
+  /// - Returns: `true` if the current CI is supported, `false` otherwise.
   public static func validateAsCurrentCI(_ environment: ENV = ENV.current) -> Bool {
     Swift.type(of: current).validateAsCurrentCI(environment)
   }
@@ -37,28 +41,29 @@ extension CI: Sendable {}
 extension CI {
   private static let lock: NSRecursiveLock = .init()
 
-  private static let defaultSupportedCIs: [CIInterface.Type] = [CI.AzurePipelines.self, CI.GitHubActions.self]
+  private static let defaultSupported: [any CIInterface.Type] = [CI.AzurePipelines.self, CI.GitHubActions.self]
 
-  private nonisolated(unsafe) static var supportedCIs: [CIInterface.Type] = defaultSupportedCIs
-  private nonisolated(unsafe) static var _current: CIInterface?
+  private nonisolated(unsafe) static var supported: [any CIInterface.Type] = defaultSupported
+  private nonisolated(unsafe) static var _current: (any CIInterface)?
 
   /// Get the current CI.
   ///
   /// - Returns: The current CI.
-  public static var current: CIInterface {
+  public static var current: any CIInterface {
     lock.withLock {
       if let cached: any CIInterface = _current { return cached }
       _current = detectCurrent()
-      return _current!
+      guard let current = _current else { fatalError("Failed to detect current CI") }
+      return current
     }
   }
 
   /// Register a new CI type.
   ///
   /// - Parameter ciType: The CI type to register.
-  public static func register(_ ciType: CIInterface.Type) {
+  public static func register(_ ciType: any CIInterface.Type) {
     lock.withLock {
-      supportedCIs.insert(ciType, at: 0)
+      supported.insert(ciType, at: 0)
       _current = nil  // Reset cache
     }
   }
@@ -66,11 +71,11 @@ extension CI {
   /// Reset the current CI cache.
   public static func reset() {
     lock.withLock {
-      supportedCIs = defaultSupportedCIs
+      supported = defaultSupported
       _current = nil
     }
   }
 
   /// Detect the current CI based on environment.
-  private static func detectCurrent() -> CIInterface { CI() }
+  private static func detectCurrent() -> any CIInterface { CI() }
 }

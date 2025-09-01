@@ -1,10 +1,26 @@
 extension ENV {
+  /// Check equality between ENV and dictionary.
+  ///
+  /// - Parameters:
+  ///   - lhs: Left-hand side ENV instance.
+  ///   - rhs: Right-hand side dictionary.
+  /// - Returns: `true` if equal, `false` otherwise.
   public static func == (lhs: ENV, rhs: [String: String]) -> Bool { lhs.variables == rhs }
 
+  /// Check equality between dictionary and ENV.
+  ///
+  /// - Parameters:
+  ///   - lhs: Left-hand side dictionary.
+  ///   - rhs: Right-hand side ENV instance.
+  /// - Returns: `true` if equal, `false` otherwise.
   public static func == (lhs: [String: String], rhs: ENV) -> Bool { lhs == rhs.variables }
 }
 
 extension ENV: Decodable {
+  /// Initialize from decoder.
+  ///
+  /// - Parameter decoder: The decoder to read data from.
+  /// - Throws: DecodingError if decoding fails.
   public init(from decoder: any Decoder) throws {
     let variables = try decoder.singleValueContainer().decode([String: String].self)
     self.init(variables: variables)
@@ -12,6 +28,10 @@ extension ENV: Decodable {
 }
 
 extension ENV: Encodable {
+  /// Encode to encoder.
+  ///
+  /// - Parameter encoder: The encoder to write data to.
+  /// - Throws: EncodingError if encoding fails.
   public func encode(to encoder: any Encoder) throws {
     var container = encoder.singleValueContainer()
     try container.encode(variables)
@@ -19,30 +39,49 @@ extension ENV: Encodable {
 }
 
 extension ENV: ExpressibleByDictionaryLiteral {
+  /// Key type for dictionary literal.
   public typealias Key = String
+  /// Value type for dictionary literal.
   public typealias Value = String
 
+  /// Initialize from dictionary literal.
+  ///
+  /// - Parameter elements: Key-value pairs.
   public init(dictionaryLiteral elements: (String, String)...) {
     self.init(variables: Dictionary(uniqueKeysWithValues: elements))
   }
 }
 
-extension ENV { public typealias Collection = [Key: Value] }
+extension ENV {
+  /// Collection type alias for underlying dictionary.
+  public typealias Collection = [Key: Value]
+}
 
 extension ENV: Sequence {
+  /// Element type for sequence iteration.
   public typealias Element = (key: Key, value: Value)
+  /// Iterator type for sequence iteration.
   public typealias Iterator = Collection.Iterator
 
+  /// Create an iterator for the sequence.
+  ///
+  /// - Returns: An iterator over the key-value pairs.
   @inlinable
   public func makeIterator() -> Iterator { variables.makeIterator() }
 
+  /// A value less than or equal to the number of elements in the sequence.
+  ///
+  /// - Returns: The underestimated count.
   @inlinable
   public var underestimatedCount: Int { variables.underestimatedCount }
 }
 
 extension ENV: Collection {
+  /// Index type for collection access.
   public typealias Index = Collection.Index
+  /// SubSequence type for collection slicing.
   public typealias SubSequence = Slice<Collection>
+  /// Indices type for collection indexing.
   public typealias Indices = DefaultIndices<Collection>
 
   /// The position of the first element in a nonempty dictionary.
@@ -140,9 +179,17 @@ extension ENV: Collection {
   ///   `endIndex`.
   /// - Returns: A two-element tuple with the key and value corresponding to
   ///   `position`.
+  /// Access the key-value pair at the specified position.
+  ///
+  /// - Parameter position: The position to access.
+  /// - Returns: The key-value pair at the position.
   @inlinable
   public subscript(position: Index) -> Element { variables[position] }
 
+  /// Access a subsequence within the specified bounds.
+  ///
+  /// - Parameter bounds: The range of indices.
+  /// - Returns: A subsequence within the bounds.
   @inlinable
   public subscript(bounds: Range<Self.Index>) -> Self.SubSequence { variables[bounds] }
 }
