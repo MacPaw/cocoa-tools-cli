@@ -4,7 +4,7 @@ set -Eeo pipefail
 
 PLATFORM=$(uname -s)
 
-SOURCE_TRUST_DIR=".github/workflows/scripts/spm-trust/assets"
+SOURCE_TRUST_DIR="$(dirname "${0}")/assets"
 
 if [ "$PLATFORM" == "Darwin" ]; then
   SPM_CACHE_DIR="${HOME}/Library/org.swift.swiftpm"
