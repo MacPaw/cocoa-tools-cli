@@ -3,27 +3,27 @@ import Foundation
 import FoundationNetworking
 #endif
 
-public protocol HashicorpVaultEngineGetSecretsResultProtocol: Decodable { var secrets: [String: String] { get } }
+public protocol HashiCorpVaultEngineGetSecretsResultProtocol: Decodable { var secrets: [String: String] { get } }
 
-public protocol HashicorpVaultReaderProtocol: Sendable {
-  func fetch(secrets: [String: HashicorpVaultReader.Element], configuration: HashicorpVaultReader.Configuration)
+public protocol HashiCorpVaultReaderProtocol: Sendable {
+  func fetch(secrets: [String: HashiCorpVaultReader.Element], configuration: HashiCorpVaultReader.Configuration)
     async throws -> [String: String]
 }
 
-public struct HashicorpVaultReader { public init() {} }
+public struct HashiCorpVaultReader { public init() {} }
 
-extension HashicorpVaultReader {
+extension HashiCorpVaultReader {
   struct SecretsFetchResult<ContainedData: Decodable>: Decodable { let data: ContainedData }
 }
 
-extension HashicorpVaultReader {
+extension HashiCorpVaultReader {
   public struct Element {
-    public var keyValue: HashicorpVaultReader.Engine.KeyValue.Element?
-    public var aws: HashicorpVaultReader.Engine.AWS.Element?
+    public var keyValue: HashiCorpVaultReader.Engine.KeyValue.Element?
+    public var aws: HashiCorpVaultReader.Engine.AWS.Element?
 
     public init(
-      keyValue: HashicorpVaultReader.Engine.KeyValue.Element? = nil,
-      aws: HashicorpVaultReader.Engine.AWS.Element? = nil
+      keyValue: HashiCorpVaultReader.Engine.KeyValue.Element? = nil,
+      aws: HashiCorpVaultReader.Engine.AWS.Element? = nil
     ) {
       self.keyValue = keyValue
       self.aws = aws
@@ -31,39 +31,39 @@ extension HashicorpVaultReader {
   }
 }
 
-extension HashicorpVaultReader.Element: DecodableWithConfiguration {
+extension HashiCorpVaultReader.Element: DecodableWithConfiguration {
   private enum CodingKeys: String, CodingKey {
     case keyValue = "kv"
     case aws
   }
-  public init(from decoder: any Decoder, configuration: HashicorpVaultReader.Configuration) throws {
+  public init(from decoder: any Decoder, configuration: HashiCorpVaultReader.Configuration) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
     self.keyValue = try container.decodeIfPresent(
-      HashicorpVaultReader.Engine.KeyValue.Element.self,
+      HashiCorpVaultReader.Engine.KeyValue.Element.self,
       forKey: .keyValue,
       configuration: configuration
     )
 
     self.aws = try container.decodeIfPresent(
-      HashicorpVaultReader.Engine.AWS.Element.self,
+      HashiCorpVaultReader.Engine.AWS.Element.self,
       forKey: .aws,
       configuration: configuration
     )
   }
 }
 
-extension HashicorpVaultReader.Element: Sendable {}
+extension HashiCorpVaultReader.Element: Sendable {}
 
-extension HashicorpVaultReader: Sendable {}
+extension HashiCorpVaultReader: Sendable {}
 
-extension HashicorpVaultReader: HashicorpVaultReaderProtocol {
+extension HashiCorpVaultReader: HashiCorpVaultReaderProtocol {
   public enum HTTPError: Swift.Error {
     case responseNotHTTP(URLResponse)
     case wrongStatusCode(Int)
   }
 
-  func fetch(urlRequest: URLRequest, api: any HashicorpVaultEngineAPIProtocol) async throws -> [String: String] {
+  func fetch(urlRequest: URLRequest, api: any HashiCorpVaultEngineAPIProtocol) async throws -> [String: String] {
     let (data, response) = try await URLSession.shared.data(for: urlRequest)
     guard let response = response as? HTTPURLResponse else { throw HTTPError.responseNotHTTP(response) }
     guard (200..<300).contains(response.statusCode) else { throw HTTPError.wrongStatusCode(response.statusCode) }
@@ -85,8 +85,8 @@ extension HashicorpVaultReader: HashicorpVaultReaderProtocol {
       }
     }
 
-    let keyValueAPI = HashicorpVaultReader.Engine.KeyValue.API()
-    let awsAPI = HashicorpVaultReader.Engine.AWS.API()
+    let keyValueAPI = HashiCorpVaultReader.Engine.KeyValue.API()
+    let awsAPI = HashiCorpVaultReader.Engine.AWS.API()
 
     let baseRequest: URLRequest = try configuration.buildURLRequest()
 
@@ -96,7 +96,7 @@ extension HashicorpVaultReader: HashicorpVaultReaderProtocol {
     ) { taskGroup in
       for (item, keys) in itemsToFetch {
         let urlRequest: URLRequest
-        let api: any HashicorpVaultEngineAPIProtocol
+        let api: any HashiCorpVaultEngineAPIProtocol
         if let keyValue = item.keyValue {
           urlRequest = try keyValueAPI.adaptURLRequest(urlRequest: baseRequest, for: keyValue)
           api = keyValueAPI
@@ -109,7 +109,7 @@ extension HashicorpVaultReader: HashicorpVaultReaderProtocol {
           continue
         }
 
-        taskGroup.addTask { [self, urlRequest] in try await self.fetch(urlRequest: urlRequest, api: api) }
+        taskGroup.addTask { [self, urlRequest, keys] in try await self.fetch(urlRequest: urlRequest, api: api).filter { keys.contains($0.key) } }
       }
 
       return try await taskGroup.reduce(into: [String: String]()) { partialResult, name in
@@ -124,22 +124,22 @@ extension HashicorpVaultReader: HashicorpVaultReaderProtocol {
   ///
   /// Used to group multiple field requests for the same item to optimize API calls.
   fileprivate struct UniqueItem: Equatable, Hashable {
-    fileprivate struct KeyValue: Equatable, Hashable, HashicorpVaultReaderKeyValueUniqueElement {
+    fileprivate struct KeyValue: Equatable, Hashable, HashiCorpVaultReaderKeyValueUniqueElement {
       var secretMountPath: String
       var path: String
       var version: Int
 
-      init?(source: HashicorpVaultReader.Engine.KeyValue.Element?) {
+      init?(source: HashiCorpVaultReader.Engine.KeyValue.Element?) {
         guard let source else { return nil }
         self.secretMountPath = source.secretMountPath
         self.path = source.path
         self.version = 0
       }
     }
-    fileprivate struct AWS: Equatable, Hashable, HashicorpVaultReaderAWSUniqueElement {
+    fileprivate struct AWS: Equatable, Hashable, HashiCorpVaultReaderAWSUniqueElement {
       var enginePath: String
       var role: String
-      init?(source: HashicorpVaultReader.Engine.AWS.Element?) {
+      init?(source: HashiCorpVaultReader.Engine.AWS.Element?) {
         guard let source else { return nil }
         self.enginePath = source.enginePath
         self.role = source.role
@@ -149,7 +149,7 @@ extension HashicorpVaultReader: HashicorpVaultReaderProtocol {
     var aws: AWS?
 
     /// Creates a UniqueItem from a source, applying default account and vault if needed.
-    init(source: HashicorpVaultReader.Element) {
+    init(source: HashiCorpVaultReader.Element) {
       keyValue = .init(source: source.keyValue)
       aws = .init(source: source.aws)
     }

@@ -1,8 +1,8 @@
-import HashicorpVaultReader
+import HashiCorpVaultReader
 
-extension ImportSecrets.Providers.HashicorpVault { public typealias Source = HashicorpVaultReader.Element }
+extension ImportSecrets.Providers.HashiCorpVault { public typealias Source = HashiCorpVaultReader.Element }
 
-private typealias Source = ImportSecrets.Providers.HashicorpVault.Source
+private typealias Source = ImportSecrets.Providers.HashiCorpVault.Source
 
 extension Source: SecretSourceProtocol {
   /// Configuration key used to identify this provider in YAML.

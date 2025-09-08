@@ -3,7 +3,7 @@ import Foundation
 import FoundationNetworking
 #endif
 
-public protocol HashicorpVaultEngineAPIProtocol: Equatable, Hashable, Sendable {
+public protocol HashiCorpVaultEngineAPIProtocol: Equatable, Hashable, Sendable {
   associatedtype Element
   func adaptURLRequest(urlRequest: URLRequest, for element: Element) throws -> URLRequest
 

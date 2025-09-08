@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension HashicorpVaultReader.Engine.KeyValue {
+extension HashiCorpVaultReader.Engine.KeyValue {
   public struct Element {
     /// The path to the KV mount to config, such as `secret`.
     ///
@@ -23,7 +23,7 @@ extension HashicorpVaultReader.Engine.KeyValue {
   }
 }
 
-private typealias Element = HashicorpVaultReader.Engine.KeyValue.Element
+private typealias Element = HashiCorpVaultReader.Engine.KeyValue.Element
 
 extension Element: DecodableWithConfiguration {
   private enum CodingKeys: String, CodingKey {
@@ -33,7 +33,7 @@ extension Element: DecodableWithConfiguration {
     case version
   }
 
-  public init(from decoder: any Decoder, configuration: HashicorpVaultReader.Configuration) throws {
+  public init(from decoder: any Decoder, configuration: HashiCorpVaultReader.Configuration) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     var secretMountPath = try container.decodeIfPresent(String.self, forKey: .secretMountPath)
     if secretMountPath == .none {

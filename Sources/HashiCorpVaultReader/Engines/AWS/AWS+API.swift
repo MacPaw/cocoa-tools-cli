@@ -3,35 +3,35 @@ import Foundation
 import FoundationNetworking
 #endif
 
-public protocol HashicorpVaultReaderAWSUniqueElement: Hashable {
+public protocol HashiCorpVaultReaderAWSUniqueElement: Hashable {
   var enginePath: String { get }
   var role: String { get }
 }
 
-extension HashicorpVaultReader.Engine.AWS { public struct API { public init() {} } }
+extension HashiCorpVaultReader.Engine.AWS { public struct API { public init() {} } }
 
-private typealias API = HashicorpVaultReader.Engine.AWS.API
+private typealias API = HashiCorpVaultReader.Engine.AWS.API
 
 extension API: Sendable {}
 
-extension API: HashicorpVaultEngineAPIProtocol {
+extension API: HashiCorpVaultEngineAPIProtocol {
   public func decodeGetSecretsResult(data: Data) throws -> [String: String] {
     try self.decodeGetSecretsResult(data: data, type: GetSecretsResult.self)
   }
 
-  private func adaptURL(url: URL?, for element: any HashicorpVaultReaderAWSUniqueElement) throws -> URL {
-    guard let url = url else { throw HashicorpVaultReader.Error.urlIsNotSet }
+  private func adaptURL(url: URL?, for element: any HashiCorpVaultReaderAWSUniqueElement) throws -> URL {
+    guard let url = url else { throw HashiCorpVaultReader.Error.urlIsNotSet }
     guard var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
-      throw HashicorpVaultReader.Error.invalidURL(url: url, message: "Failed to read URL components from URL \(url)")
+      throw HashiCorpVaultReader.Error.invalidURL(url: url, message: "Failed to read URL components from URL \(url)")
     }
     urlComponents.path = "/\(element.enginePath)/creds/\(element.role)"
     guard let url = urlComponents.url else {
-      throw HashicorpVaultReader.Error.invalidURL(url: url, message: "Failed to create URL from URL components")
+      throw HashiCorpVaultReader.Error.invalidURL(url: url, message: "Failed to create URL from URL components")
     }
     return url
   }
 
-  public func adaptURLRequest(urlRequest: URLRequest, for element: any HashicorpVaultReaderAWSUniqueElement) throws
+  public func adaptURLRequest(urlRequest: URLRequest, for element: any HashiCorpVaultReaderAWSUniqueElement) throws
     -> URLRequest
   {
     var urlRequest = urlRequest
@@ -48,6 +48,6 @@ extension API {
 }
 
 extension API.GetSecretsResult: Decodable {}
-extension API.GetSecretsResult: HashicorpVaultEngineGetSecretsResultProtocol {
+extension API.GetSecretsResult: HashiCorpVaultEngineGetSecretsResultProtocol {
   public var secrets: [String: String] { ["accessKey": accessKey, "secretKey": secretKey] }
 }

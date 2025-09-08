@@ -3,27 +3,27 @@ import Foundation
 import FoundationNetworking
 #endif
 
-public protocol HashicorpVaultReaderKeyValueUniqueElement: Hashable {
+public protocol HashiCorpVaultReaderKeyValueUniqueElement: Hashable {
   var secretMountPath: String { get }
   var path: String { get }
   var version: Int { get }
 }
 
-extension HashicorpVaultReader.Engine.KeyValue { public struct API { public init() {} } }
+extension HashiCorpVaultReader.Engine.KeyValue { public struct API { public init() {} } }
 
-private typealias API = HashicorpVaultReader.Engine.KeyValue.API
+private typealias API = HashiCorpVaultReader.Engine.KeyValue.API
 
 extension API: Sendable {}
 
-extension API: HashicorpVaultEngineAPIProtocol {
+extension API: HashiCorpVaultEngineAPIProtocol {
   public func decodeGetSecretsResult(data: Data) throws -> [String: String] {
     try self.decodeGetSecretsResult(data: data, type: GetSecretsResult.self)
   }
 
-  private func adaptURL(url: URL?, for element: any HashicorpVaultReaderKeyValueUniqueElement) throws -> URL {
-    guard let url = url else { throw HashicorpVaultReader.Error.urlIsNotSet }
+  private func adaptURL(url: URL?, for element: any HashiCorpVaultReaderKeyValueUniqueElement) throws -> URL {
+    guard let url = url else { throw HashiCorpVaultReader.Error.urlIsNotSet }
     guard var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
-      throw HashicorpVaultReader.Error.invalidURL(url: url, message: "Failed to read URL components from URL \(url)")
+      throw HashiCorpVaultReader.Error.invalidURL(url: url, message: "Failed to read URL components from URL \(url)")
     }
     urlComponents.path = "/\(element.secretMountPath)/data/\(element.path)"
     if element.version > 0 {
@@ -32,13 +32,13 @@ extension API: HashicorpVaultEngineAPIProtocol {
       urlComponents.queryItems = queryItems
     }
     guard let url = urlComponents.url else {
-      throw HashicorpVaultReader.Error.invalidURL(url: url, message: "Failed to create URL from URL components")
+      throw HashiCorpVaultReader.Error.invalidURL(url: url, message: "Failed to create URL from URL components")
     }
 
     return url
   }
 
-  public func adaptURLRequest(urlRequest: URLRequest, for element: any HashicorpVaultReaderKeyValueUniqueElement) throws
+  public func adaptURLRequest(urlRequest: URLRequest, for element: any HashiCorpVaultReaderKeyValueUniqueElement) throws
     -> URLRequest
   {
     var urlRequest = urlRequest
@@ -50,6 +50,6 @@ extension API: HashicorpVaultEngineAPIProtocol {
 extension API { public struct GetSecretsResult { public let data: [String: String] } }
 
 extension API.GetSecretsResult: Decodable {}
-extension API.GetSecretsResult: HashicorpVaultEngineGetSecretsResultProtocol {
+extension API.GetSecretsResult: HashiCorpVaultEngineGetSecretsResultProtocol {
   public var secrets: [String: String] { self.data }
 }

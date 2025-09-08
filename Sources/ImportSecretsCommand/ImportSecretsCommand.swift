@@ -71,7 +71,7 @@ extension ImportSecretsCommand.Options {
     sources.map {
       switch $0 {
       case .op: return ImportSecrets.Providers.OnePassword(fetcher: .init())
-      case .vault: return ImportSecrets.Providers.HashicorpVault(fetcher: .init())
+      case .vault: return ImportSecrets.Providers.HashiCorpVault(fetcher: .init())
       }
     }
   }

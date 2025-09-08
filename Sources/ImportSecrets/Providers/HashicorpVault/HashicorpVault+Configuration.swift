@@ -1,10 +1,10 @@
-import HashicorpVaultReader
+import HashiCorpVaultReader
 
-extension ImportSecrets.Providers.HashicorpVault.Source {
-  public typealias Configuration = HashicorpVaultReader.Configuration
+extension ImportSecrets.Providers.HashiCorpVault.Source {
+  public typealias Configuration = HashiCorpVaultReader.Configuration
 }
 
-private typealias Configuration = ImportSecrets.Providers.HashicorpVault.Source.Configuration
+private typealias Configuration = ImportSecrets.Providers.HashiCorpVault.Source.Configuration
 
 extension Configuration: SecretConfigurationProtocol {
   /// Configuration key used to identify this provider in YAML.

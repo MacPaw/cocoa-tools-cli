@@ -5,4 +5,4 @@
 //  Created by Vitalii Budnik on 9/8/25.
 //
 
-extension HashicorpVaultReader.Engine { public enum AWS {} }
+extension HashiCorpVaultReader.Engine { public enum AWS {} }

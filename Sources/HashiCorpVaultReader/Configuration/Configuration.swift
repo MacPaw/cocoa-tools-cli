@@ -3,7 +3,7 @@ import Foundation
 import FoundationNetworking
 #endif
 
-extension HashicorpVaultReader {
+extension HashiCorpVaultReader {
   public struct Configuration {
     /// The address of the Vault server.
     public var vaultAddress: URL
@@ -14,13 +14,13 @@ extension HashicorpVaultReader {
     /// The token to use to authenticate with the Vault server.
     public var vaultToken: String
     /// The contexts to use to read secrets from the Vault server.
-    public var defaultEngineConfigurations: HashicorpVaultReader.Configuration.EngineConfigurations
+    public var defaultEngineConfigurations: HashiCorpVaultReader.Configuration.EngineConfigurations
 
     public init(
       vaultAddress: URL,
       apiVersion: String = "v1",
       vaultToken: String,
-      defaultEngineConfigurations: HashicorpVaultReader.Configuration.EngineConfigurations
+      defaultEngineConfigurations: HashiCorpVaultReader.Configuration.EngineConfigurations
     ) {
       self.vaultAddress = vaultAddress
       self.apiVersion = apiVersion
@@ -30,7 +30,7 @@ extension HashicorpVaultReader {
   }
 }
 
-extension HashicorpVaultReader.Configuration: Decodable {
+extension HashiCorpVaultReader.Configuration: Decodable {
   private enum CodingKeys: String, CodingKey {
     case vaultAddress
     case apiVersion
@@ -44,19 +44,19 @@ extension HashicorpVaultReader.Configuration: Decodable {
     self.apiVersion = try container.decodeIfPresent(String.self, forKey: .apiVersion) ?? "v1"
     self.vaultToken = try container.decode(String.self, forKey: .vaultToken)
     self.defaultEngineConfigurations = try .init(from: decoder)
-    // self.engineContexts = try container.decode([String: any HashicorpVaultEngineContextProtocol].self, forKey: .engineContexts)
+    // self.engineContexts = try container.decode([String: any HashiCorpVaultEngineContextProtocol].self, forKey: .engineContexts)
   }
 }
 
-extension HashicorpVaultReader.Configuration {
+extension HashiCorpVaultReader.Configuration {
   func buildBaseURL() throws -> URL {
     let url = vaultAddress
     guard var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
-      throw HashicorpVaultReader.Error.invalidURL(url: url, message: "Failed to read URL components from URL \(url)")
+      throw HashiCorpVaultReader.Error.invalidURL(url: url, message: "Failed to read URL components from URL \(url)")
     }
     components.path += "/\(apiVersion)"
     guard let url = components.url else {
-      throw HashicorpVaultReader.Error.invalidURL(url: url, message: "Failed to create URL from URL components")
+      throw HashiCorpVaultReader.Error.invalidURL(url: url, message: "Failed to create URL from URL components")
     }
     return url
   }
@@ -71,5 +71,5 @@ extension HashicorpVaultReader.Configuration {
   }
 }
 
-extension HashicorpVaultReader.Configuration: Equatable {}
-extension HashicorpVaultReader.Configuration: Sendable {}
+extension HashiCorpVaultReader.Configuration: Equatable {}
+extension HashiCorpVaultReader.Configuration: Sendable {}

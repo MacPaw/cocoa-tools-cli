@@ -1,6 +1,6 @@
 import Foundation
 
-extension HashicorpVaultReader.Engine.AWS {
+extension HashiCorpVaultReader.Engine.AWS {
   public struct Element {
     /// The path to the AWS engine to use, such as `aws`.
     public var enginePath: String
@@ -10,7 +10,7 @@ extension HashicorpVaultReader.Engine.AWS {
   }
 }
 
-private typealias Element = HashicorpVaultReader.Engine.AWS.Element
+private typealias Element = HashiCorpVaultReader.Engine.AWS.Element
 
 extension Element: DecodableWithConfiguration {
   private enum CodingKeys: String, CodingKey {
@@ -19,7 +19,7 @@ extension Element: DecodableWithConfiguration {
     case key
   }
 
-  public init(from decoder: any Decoder, configuration: HashicorpVaultReader.Configuration) throws {
+  public init(from decoder: any Decoder, configuration: HashiCorpVaultReader.Configuration) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     var enginePath = try container.decodeIfPresent(String.self, forKey: .enginePath)
     if enginePath == .none { enginePath = configuration.defaultEngineConfigurations.aws?.defaultEnginePath }

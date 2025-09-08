@@ -1,35 +1,35 @@
-import HashicorpVaultReader
+import HashiCorpVaultReader
 import Shell
 
-extension ImportSecrets.Providers.HashicorpVault {
-  /// Fetcher implementation for retrieving secrets from 1Password.
+extension ImportSecrets.Providers.HashiCorpVault {
+  /// Fetcher implementation for retrieving secrets from HashiCorp Vault.
   ///
-  /// This handles the actual communication with the 1Password CLI and manages
+  /// This handles the actual communication with the HashiCorp Vault API and manages
   /// batching of requests for efficiency.
   public struct Fetcher {
-    var reader: any HashicorpVaultReaderProtocol
-    public init(reader: any HashicorpVaultReaderProtocol = HashicorpVaultReader()) { self.reader = reader }
+    var reader: any HashiCorpVaultReaderProtocol
+    public init(reader: any HashiCorpVaultReaderProtocol = HashiCorpVaultReader()) { self.reader = reader }
   }
 }
 
-private typealias Fetcher = ImportSecrets.Providers.HashicorpVault.Fetcher
+private typealias Fetcher = ImportSecrets.Providers.HashiCorpVault.Fetcher
 
 extension Fetcher: Sendable {}
 
 extension Fetcher: SecretFetcherProtocol {
-  /// Source type for 1Password fetcher.
-  public typealias Source = ImportSecrets.Providers.HashicorpVault.Source
+  /// Source type for HashiCorp Vault fetcher.
+  public typealias Source = ImportSecrets.Providers.HashiCorpVault.Source
 
-  /// Fetches secrets from 1Password using the configured CLI.
+  /// Fetches secrets from HashiCorp Vault using the configured reader.
   ///
   /// - Parameters:
-  ///   - secrets: Dictionary mapping secret names to their 1Password source configurations.
-  ///   - sourceConfiguration: Optional configuration containing default account and vault settings.
+  ///   - secrets: Dictionary mapping secret names to their HashiCorp Vault source configurations.
+  ///   - sourceConfiguration: Configuration containing default account and vault settings.
   /// - Returns: Result containing successfully fetched secrets and any errors encountered.
-  /// - Throws: Shell.Error if the 1Password CLI cannot be initialized or configured.
+  /// - Throws: Error if the HashiCorp Vault cannot be initialized, configured or throws error during fetching.
   public func fetch(
-    secrets: [String: ImportSecrets.Providers.HashicorpVault.Source],
-    sourceConfiguration: ImportSecrets.Providers.HashicorpVault.Source.Configuration?,
+    secrets: [String: ImportSecrets.Providers.HashiCorpVault.Source],
+    sourceConfiguration: ImportSecrets.Providers.HashiCorpVault.Source.Configuration?,
   ) async throws -> SecretsFetchResult {
     guard !secrets.isEmpty else { return .init() }
     guard let sourceConfiguration else { throw FetchError.configurationNotSet }

@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension HashicorpVaultReader.Engine.KeyValue {
+extension HashiCorpVaultReader.Engine.KeyValue {
   public struct DefaultConfiguration {
     public var defaultSecretMountPath: String
 
@@ -15,7 +15,7 @@ extension HashicorpVaultReader.Engine.KeyValue {
   }
 }
 
-private typealias DefaultConfiguration = HashicorpVaultReader.Engine.KeyValue.DefaultConfiguration
+private typealias DefaultConfiguration = HashiCorpVaultReader.Engine.KeyValue.DefaultConfiguration
 
 extension DefaultConfiguration: Decodable {
   private enum CodingKeys: String, CodingKey { case defaultSecretMountPath }
@@ -30,4 +30,4 @@ extension DefaultConfiguration: Decodable {
 
 extension DefaultConfiguration: Equatable {}
 extension DefaultConfiguration: Sendable {}
-extension DefaultConfiguration: HashicorpVaultEngineDefaultConfigurationProtocol {}
+extension DefaultConfiguration: HashiCorpVaultEngineDefaultConfigurationProtocol {}

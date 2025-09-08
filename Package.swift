@@ -110,11 +110,11 @@ enum Targets {
     commandBundle(
       name: "ImportSecrets",
       dependencies: [
-        .target(name: "EnvSubst"), .target(name: "Shell"), .target(name: "HashicorpVaultReader"),
+        .target(name: "EnvSubst"), .target(name: "Shell"), .target(name: "HashiCorpVaultReader"),
         .product(name: "Yams", package: "Yams"),
       ],
       commandDependencies: [
-        .target(name: "EnvSubstCommand"), .target(name: "ExportSecrets"), .target(name: "HashicorpVaultReader"),
+        .target(name: "EnvSubstCommand"), .target(name: "ExportSecrets"), .target(name: "HashiCorpVaultReader"),
       ]
     )
   }
@@ -164,7 +164,7 @@ enum Targets {
   }
 
   static var hashicorpVaultReader: [PackageDescription.Target] {
-    targetBundle(name: "HashicorpVaultReader", tests: false)
+    targetBundle(name: "HashiCorpVaultReader", tests: false)
   }
 }
 
@@ -176,7 +176,7 @@ let package = Package(
     .library(name: "Shell", targets: ["Shell"]), .library(name: "ImportSecrets", targets: ["ImportSecrets"]),
     .library(name: "ExportSecrets", targets: ["ExportSecrets"]),
     .library(name: "ObfuscateSecrets", targets: ["ObfuscateSecrets"]),
-    .library(name: "HashicorpVaultReader", targets: ["HashicorpVaultReader"]),
+    .library(name: "HashiCorpVaultReader", targets: ["HashiCorpVaultReader"]),
     .plugin(name: "SemanticVersionBuildToolPlugin", targets: ["SemanticVersionBuildToolPlugin"]),
     .library(name: "ENV", targets: ["ENV"]), .library(name: "CI", targets: ["CI"]),
   ],

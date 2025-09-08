@@ -1,4 +1,4 @@
-extension HashicorpVaultReader.Engine.AWS {
+extension HashiCorpVaultReader.Engine.AWS {
   public struct DefaultConfiguration {
     /// The path to the AWS engine to configure, such as `aws`.
     ///
@@ -9,7 +9,7 @@ extension HashicorpVaultReader.Engine.AWS {
   }
 }
 
-private typealias DefaultConfiguration = HashicorpVaultReader.Engine.AWS.DefaultConfiguration
+private typealias DefaultConfiguration = HashiCorpVaultReader.Engine.AWS.DefaultConfiguration
 
 extension DefaultConfiguration: Decodable {
   private enum CodingKeys: String, CodingKey { case defaultEnginePath }
@@ -24,4 +24,4 @@ extension DefaultConfiguration: Decodable {
 
 extension DefaultConfiguration: Equatable {}
 extension DefaultConfiguration: Sendable {}
-extension DefaultConfiguration: HashicorpVaultEngineDefaultConfigurationProtocol {}
+extension DefaultConfiguration: HashiCorpVaultEngineDefaultConfigurationProtocol {}
