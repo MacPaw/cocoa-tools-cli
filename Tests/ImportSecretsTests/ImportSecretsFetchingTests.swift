@@ -12,10 +12,12 @@ struct ImportSecretsFetchingTests {
   private static func buildProviders(
     opCLIMock: MockOnePasswordCLI,
     fakeProviderFetcher: ImportSecrets.Providers.FakeProvider.Fetcher,
+    hashicorpVaultReaderMock: MockHashicorpVaultReaderProtocol = .init()
   ) -> [any SecretProviderProtocol] {
     [
       ImportSecrets.Providers.OnePassword(fetcher: .init(onePasswordCLI: opCLIMock)),
       ImportSecrets.Providers.FakeProvider(fetcher: fakeProviderFetcher),
+      ImportSecrets.Providers.HashicorpVault(fetcher: .init(reader: hashicorpVaultReaderMock)),
     ]
   }
 

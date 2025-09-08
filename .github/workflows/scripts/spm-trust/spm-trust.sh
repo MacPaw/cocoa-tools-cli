@@ -29,31 +29,31 @@ function update_trust_info() {
   echo "  Element count: $LENGTH" >&2
 
   for ((INDEX = 0; INDEX < LENGTH; INDEX++)); do
-    echo "  Index: $INDEX" >&2
+    echo "  Index: ${INDEX}" >&2
     local TARGET_NAME PACKAGE_NAME FINGERPRINT EXISTING_FINGERPRINT PACKAGE_FINGERPRINT TRUSTED_INFO_ITEM EXISTING_TRUSTED_INFO_ITEM
 
-    TARGET_NAME="$(jq -r ".[$INDEX].targetName" <<< "${TRUSTED_INFO}" | tr -d '[:space:]')"
+    TARGET_NAME="$(jq -r ".[${INDEX}].targetName" <<< "${TRUSTED_INFO}" | tr -d '[:space:]')"
     echo "    Target name: $TARGET_NAME" >&2
 
-    PACKAGE_NAME="$(jq -r ".[$INDEX].packageIdentity" <<< "${TRUSTED_INFO}" | tr -d '[:space:]')"
+    PACKAGE_NAME="$(jq -r ".[${INDEX}].packageIdentity" <<< "${TRUSTED_INFO}" | tr -d '[:space:]')"
     echo "    Package name: $PACKAGE_NAME" >&2
 
     # Get fingerprint from source file, if not found, get it from Package.resolved.
-    EXISTING_FINGERPRINT="$(jq -r ".[$INDEX].fingerprint" <<< "${TRUSTED_INFO}" | tr -d '[:space:]')"
+    EXISTING_FINGERPRINT="$(jq -r ".[${INDEX}].fingerprint" <<< "${TRUSTED_INFO}" | tr -d '[:space:]')"
 
     PACKAGE_FINGERPRINT=$(jq -r ".pins[] | select(.identity==\"${PACKAGE_NAME}\") | .state.revision" < Package.resolved | tr -d '[:space:]')
     if [ -z "$PACKAGE_FINGERPRINT" ]; then
       echo "    Fingerprint for target ${TARGET_NAME} in package ${PACKAGE_NAME} is empty, skipping..." >&2
-      INDICES_TO_REMOVE+=("$INDEX")
+      INDICES_TO_REMOVE+=("${INDEX}")
       continue
     else
-      echo "    Fingerprint: $PACKAGE_FINGERPRINT" >&2
+      echo "    Fingerprint: ${PACKAGE_FINGERPRINT}" >&2
     fi
 
-    if [[ "$EXISTING_FINGERPRINT" != "$PACKAGE_FINGERPRINT" ]]; then
+    if [[ "${EXISTING_FINGERPRINT}" != "${PACKAGE_FINGERPRINT}" ]]; then
       echo "    Fingerprint for target ${TARGET_NAME} in package ${PACKAGE_NAME} is different, updating..." >&2
       FINGERPRINT="$PACKAGE_FINGERPRINT"
-      INDICES_TO_REMOVE+=("$INDEX")
+      INDICES_TO_REMOVE+=("${INDEX}")
     else
       echo "    Fingerprint for target ${TARGET_NAME} in package ${PACKAGE_NAME} is the same, skipping..." >&2
       continue
@@ -61,7 +61,7 @@ function update_trust_info() {
 
     EXISTING_TRUSTED_INFO_ITEM="$(jq -r ".[] | select((.fingerprint==\"${FINGERPRINT}\") and (.packageIdentity==\"${PACKAGE_NAME}\") and (.targetName==\"${TARGET_NAME}\"))" <<< "${TRUSTED_INFO}" | tr -d '[:space:]')"
 
-    if [ -z "$EXISTING_TRUSTED_INFO_ITEM" ]; then
+    if [ -z "${EXISTING_TRUSTED_INFO_ITEM}" ]; then
       echo "    Adding trust info item for target ${TARGET_NAME} in package ${PACKAGE_NAME}..." >&2
     else
       echo "    Trusted info item for target ${TARGET_NAME} in package ${PACKAGE_NAME} is already in the list, skipping..." >&2
@@ -75,8 +75,8 @@ function update_trust_info() {
   done
 
   for INDEX in "${INDICES_TO_REMOVE[@]}"; do
-    echo "  Removing outdated trust info item at index: $INDEX" >&2
-    TRUSTED_INFO="$(jq "del(.[$INDEX])" <<< "${TRUSTED_INFO}")"
+    echo "  Removing outdated trust info item at index: ${INDEX}" >&2
+    TRUSTED_INFO="$(jq "del(.[${INDEX}])" <<< "${TRUSTED_INFO}")"
   done
 
   jq "." <<< "${TRUSTED_INFO}" > "${SOURCE_TRUST_DIR}/${1}"
@@ -100,12 +100,12 @@ die() {
   echo "${*}" >&2
   exit 2
 } # complain to STDERR and exit with error
-needs_arg() { if [ -z "$OPTARG" ]; then die "No arg for --${OPTSPEC} option"; fi; }
+needs_arg() { if [ -z "${OPTARG}" ]; then die "No arg for --${OPTSPEC} option"; fi; }
 
 while getopts "t:u:-:" OPTSPEC; do
 
   # support long options: https://stackoverflow.com/a/28466267/519360
-  if [ "$OPTSPEC" = "-" ]; then   # long option: reformulate OPT and OPTARG
+  if [ "${OPTSPEC}" = "-" ]; then   # long option: reformulate OPT and OPTARG
     OPTSPEC="${OPTARG%%=*}"       # extract long option name
     OPTARG="${OPTARG#"$OPTSPEC"}" # extract long option argument (may be empty)
     OPTARG="${OPTARG#=}"          # if long option argument, remove assigning `=`

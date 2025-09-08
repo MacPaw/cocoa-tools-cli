@@ -46,6 +46,8 @@ extension ImportSecretsCommand.Options {
   public enum Source: String {
     /// 1Password CLI integration for fetching secrets from 1Password vaults.
     case op
+    /// Hashicorp Vault source.
+    case vault
   }
 }
 
@@ -59,6 +61,7 @@ extension ImportSecretsCommand.Options.Source: ExpressibleByArgument {
   public var defaultValueDescription: String {
     switch self {
     case .op: "Import secrets from 1Password."
+    case .vault: "Import secrets from Hashicorp Vault."
     }
   }
 }

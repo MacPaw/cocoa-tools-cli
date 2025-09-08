@@ -26,6 +26,16 @@ enum MocksBuilder {
     try config.sourceConfigurations.addConfiguration(
       ImportSecrets.Providers.OnePassword.Source.Configuration(vault: .none)
     )
+    try config.sourceConfigurations.addConfiguration(
+      ImportSecrets.Providers.HashicorpVault.Source.Configuration(
+        vaultAddress: URL(string: "https://vault.example.com")!,
+        vaultToken: "fake_token",
+        defaultEngineConfigurations: .init(
+          keyValue: .init(defaultSecretMountPath: "secrets"),
+          aws: .init(defaultEnginePath: "aws")
+        )
+      )
+    )
 
     config.sourceProviders.append(onePasswordProvider(onePasswordCLI: onePasswordCLI))
     return config

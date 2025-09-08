@@ -109,8 +109,13 @@ enum Targets {
   static var importSecrets: [PackageDescription.Target] {
     commandBundle(
       name: "ImportSecrets",
-      dependencies: [.target(name: "EnvSubst"), .target(name: "Shell"), .product(name: "Yams", package: "Yams")],
-      commandDependencies: [.target(name: "EnvSubstCommand"), .target(name: "ExportSecrets")]
+      dependencies: [
+        .target(name: "EnvSubst"), .target(name: "Shell"), .target(name: "HashicorpVaultReader"),
+        .product(name: "Yams", package: "Yams"),
+      ],
+      commandDependencies: [
+        .target(name: "EnvSubstCommand"), .target(name: "ExportSecrets"), .target(name: "HashicorpVaultReader"),
+      ]
     )
   }
 
@@ -159,12 +164,7 @@ enum Targets {
   }
 
   static var hashicorpVaultReader: [PackageDescription.Target] {
-    targetBundle(
-      name: "HashicorpVaultReader",
-      dependencies: [.product(name: "OpenAPIRuntime", package: "swift-openapi-runtime")],
-      plugins: [.plugin(name: "OpenAPIGenerator", package: "swift-openapi-generator")],
-      tests: false
-    )
+    targetBundle(name: "HashicorpVaultReader", tests: false)
   }
 }
 
@@ -184,9 +184,6 @@ let package = Package(
     .package(url: "https://github.com/apple/swift-argument-parser.git", .upToNextMajor(from: "1.6.1")),
     .package(url: "https://github.com/swiftlang/swift-format.git", .upToNextMajor(from: "601.0.0")),
     .package(url: "https://github.com/swiftlang/swift-syntax.git", "509.1.1"..<"602.0.0"),
-    .package(url: "https://github.com/apple/swift-openapi-generator.git", from: "1.10.2"),
-    .package(url: "https://github.com/apple/swift-openapi-runtime.git", from: "1.8.2"),
-    .package(url: "https://github.com/swift-server/swift-openapi-async-http-client.git", from: "1.1.0"),
     swiftConfidentialSource.packageDependency, yamsSource.packageDependency,
   ],
   targets: [

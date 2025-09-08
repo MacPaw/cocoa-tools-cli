@@ -1,7 +1,7 @@
 #:schema ./schema/mise.json
 
 # Minimum required mise version.
-min_version = "2025.8.6"
+min_version = "2025.9.6"
 
 [tools]
 # https://app-updates.agilebits.com/product_history/CLI2
@@ -64,14 +64,34 @@ run = "./scripts/tools/op/op.sh --test"
 [tasks.lint]
 description = "Lint source code"
 run = """
-./scripts/tools/swift-format/swift-format.sh --lint
-./scripts/tools/shellcheck/shellcheck.sh --lint
+mise tasks run lint-swift
+mise tasks run lint-shellcheck
 """
+
+[tasks.lint-swift]
+description = "Lint Swift source code"
+run = "./scripts/tools/swift-format/swift-format.sh --lint"
+
+[tasks.lint-shellcheck]
+description = "Lint shell scripts code with shellcheck"
+run = "./scripts/tools/shellcheck/shellcheck.sh --lint"
 
 [tasks.format]
 description = "Format source code"
 run = """
-./scripts/tools/swift-format/swift-format.sh --format
-./scripts/tools/shellcheck/shellcheck.sh --format
-./scripts/tools/shfmt/shfmt.sh --format
+mise tasks run format-swift
+mise tasks run format-shellcheck
+mise tasks run format-shfmt
 """
+
+[tasks.format-swift]
+description = "Format Swift source code"
+run = "./scripts/tools/swift-format/swift-format.sh --format"
+
+[tasks.format-shellcheck]
+description = "Format shell scripts code with shellcheck"
+run = "./scripts/tools/shellcheck/shellcheck.sh --format"
+
+[tasks.format-shfmt]
+description = "Format shell scripts code with shfmt"
+run = "./scripts/tools/shellcheck/shellcheck.sh --format"

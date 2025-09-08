@@ -1,0 +1,59 @@
+//
+//  File.swift
+//  cocoa-tools
+//
+//  Created by Vitalii Budnik on 9/8/25.
+//
+
+import Foundation
+
+public protocol HashicorpVaultReaderKeyValueUniqueElement: Hashable {
+  var secretMountPath: String { get }
+  var path: String { get }
+  var version: Int { get }
+}
+
+extension HashicorpVaultReader.Engine.KeyValue { public struct API { public init() {} } }
+
+private typealias API = HashicorpVaultReader.Engine.KeyValue.API
+
+extension API: Sendable {}
+
+extension API: HashicorpVaultEngineAPIProtocol {
+  public func decodeGetSecretsResult(data: Data) throws -> [String: String] {
+    try self.decodeGetSecretsResult(data: data, type: GetSecretsResult.self)
+  }
+
+  private func adaptURL(url: URL?, for element: any HashicorpVaultReaderKeyValueUniqueElement) throws -> URL {
+    guard let url = url else { throw HashicorpVaultReader.Error.urlIsNotSet }
+    guard var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
+      throw HashicorpVaultReader.Error.invalidURL(url: url, message: "Failed to read URL components from URL \(url)")
+    }
+    urlComponents.path = "/\(element.secretMountPath)/data/\(element.path)"
+    if element.version > 0 {
+      var queryItems = urlComponents.queryItems ?? []
+      queryItems.append(URLQueryItem(name: "version", value: String(element.version)))
+      urlComponents.queryItems = queryItems
+    }
+    guard let url = urlComponents.url else {
+      throw HashicorpVaultReader.Error.invalidURL(url: url, message: "Failed to create URL from URL components")
+    }
+
+    return url
+  }
+
+  public func adaptURLRequest(urlRequest: URLRequest, for element: any HashicorpVaultReaderKeyValueUniqueElement) throws
+    -> URLRequest
+  {
+    var urlRequest = urlRequest
+    urlRequest.url = try adaptURL(url: urlRequest.url, for: element)
+    return urlRequest
+  }
+}
+
+extension API { public struct GetSecretsResult { public let data: [String: String] } }
+
+extension API.GetSecretsResult: Decodable {}
+extension API.GetSecretsResult: HashicorpVaultEngineGetSecretsResultProtocol {
+  public var secrets: [String: String] { self.data }
+}
