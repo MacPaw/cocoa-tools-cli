@@ -1,11 +1,7 @@
-//
-//  File.swift
-//  cocoa-tools
-//
-//  Created by Vitalii Budnik on 9/8/25.
-//
-
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 public protocol HashicorpVaultEngineAPIProtocol: Equatable, Hashable, Sendable {
   associatedtype Element

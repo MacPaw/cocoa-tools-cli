@@ -1,4 +1,7 @@
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 public protocol HashicorpVaultEngineGetSecretsResultProtocol: Decodable { var secrets: [String: String] { get } }
 
