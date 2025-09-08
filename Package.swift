@@ -146,7 +146,7 @@ enum Targets {
           name: "SemanticVersionMacroPlugin",
           dependencies: [
             .target(name: "SemanticVersion"), .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
-            .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
+            .product(name: "SwiftCompilerPlugin", package: "swift-syntax"), .product(name: "SwiftSyntax", package: "swift-syntax"),
           ]
         ),
         .plugin(
