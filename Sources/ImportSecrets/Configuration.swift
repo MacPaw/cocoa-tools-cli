@@ -80,12 +80,12 @@ extension ImportSecrets.Configuration: DecodableWithConfiguration {
             secretEnvVarName: key.stringValue,  // YAML key becomes the env var name
           ),
         )
-      } catch let error as  DecodingError {
+      }
+      catch let error as DecodingError {
         switch error {
-        case .dataCorrupted(let context) where context.underlyingError as? ImportSecrets.Error == .secretHasNoKnownSources:
-          continue
-        default:
-          throw error
+        case .dataCorrupted(let context)
+        where context.underlyingError as? ImportSecrets.Error == .secretHasNoKnownSources: continue
+        default: throw error
         }
       }
       secrets.append(secret)

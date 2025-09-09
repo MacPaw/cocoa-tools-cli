@@ -1,6 +1,7 @@
 import Foundation
+
 #if canImport(FoundationNetworking)
-import FoundationNetworking
+  import FoundationNetworking
 #endif
 
 public protocol HashiCorpVaultReaderAWSUniqueElement: Hashable {
@@ -24,7 +25,7 @@ extension API: HashiCorpVaultEngineAPIProtocol {
     guard var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
       throw HashiCorpVaultReader.Error.invalidURL(url: url, message: "Failed to read URL components from URL \(url)")
     }
-    urlComponents.path = "/\(element.enginePath)/creds/\(element.role)"
+    urlComponents.path += "/\(element.enginePath)/creds/\(element.role)"
     guard let url = urlComponents.url else {
       throw HashiCorpVaultReader.Error.invalidURL(url: url, message: "Failed to create URL from URL components")
     }

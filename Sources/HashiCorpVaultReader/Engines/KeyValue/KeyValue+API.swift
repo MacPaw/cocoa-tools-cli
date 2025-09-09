@@ -1,6 +1,7 @@
 import Foundation
+
 #if canImport(FoundationNetworking)
-import FoundationNetworking
+  import FoundationNetworking
 #endif
 
 public protocol HashiCorpVaultReaderKeyValueUniqueElement: Hashable {
@@ -25,7 +26,7 @@ extension API: HashiCorpVaultEngineAPIProtocol {
     guard var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
       throw HashiCorpVaultReader.Error.invalidURL(url: url, message: "Failed to read URL components from URL \(url)")
     }
-    urlComponents.path = "/\(element.secretMountPath)/data/\(element.path)"
+    urlComponents.path += "/\(element.secretMountPath)/data/\(element.path)"
     if element.version > 0 {
       var queryItems = urlComponents.queryItems ?? []
       queryItems.append(URLQueryItem(name: "version", value: String(element.version)))

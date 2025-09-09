@@ -29,11 +29,12 @@ enum MocksBuilder {
     try config.sourceConfigurations.addConfiguration(
       ImportSecrets.Providers.HashiCorpVault.Source.Configuration(
         vaultAddress: URL(string: "https://vault.example.com")!,
-        vaultToken: "fake_token",
         defaultEngineConfigurations: .init(
           keyValue: .init(defaultSecretMountPath: "secrets"),
           aws: .init(defaultEnginePath: "aws")
-        )
+        ),
+        authenticationCredentials: .init(token: .init(vaultToken: "fake-token")),
+        authenticationMethod: .token
       )
     )
 

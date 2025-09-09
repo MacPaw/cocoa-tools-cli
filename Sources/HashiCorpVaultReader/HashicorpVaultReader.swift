@@ -1,6 +1,7 @@
 import Foundation
+
 #if canImport(FoundationNetworking)
-import FoundationNetworking
+  import FoundationNetworking
 #endif
 
 public protocol HashiCorpVaultEngineGetSecretsResultProtocol: Decodable { var secrets: [String: String] { get } }
@@ -53,10 +54,18 @@ extension HashiCorpVaultReader.Element: DecodableWithConfiguration {
 
     let engineConfigs: [Any?] = [keyValue, aws]
     guard !engineConfigs.compactMap(\.self).isEmpty else {
-      throw DecodingError.valueNotFound(Self.self, .init(codingPath: decoder.codingPath, debugDescription: "No engine configured for this item."))
+      throw DecodingError.valueNotFound(
+        Self.self,
+        .init(codingPath: decoder.codingPath, debugDescription: "No engine configured for this item.")
+      )
     }
     guard engineConfigs.compactMap(\.self).count == 1 else {
-      throw DecodingError.dataCorrupted(.init(codingPath: decoder.codingPath, debugDescription: "Too many engine configs. Only one engine can be configured per item (kv or aws, not both)."))
+      throw DecodingError.dataCorrupted(
+        .init(
+          codingPath: decoder.codingPath,
+          debugDescription: "Too many engine configs. Only one engine can be configured per item (kv or aws, not both)."
+        )
+      )
     }
   }
 }
@@ -79,25 +88,56 @@ extension HashiCorpVaultReader: HashiCorpVaultReaderProtocol {
     return result
   }
 
+  func authenticateWithAppRole(configuration: Configuration) async throws -> String {
+    var urlRequest: URLRequest = try URLRequest(url: configuration.buildBaseURL(path: "auth/approle/login"))
+    urlRequest.httpMethod = "POST"
+    urlRequest.setValue("application/json", forHTTPHeaderField: "Accept")
+    urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+    let appRole = configuration.authenticationCredentials.appRole
+    guard let appRole else { throw HashiCorpVaultReader.Error.appRoleAuthenticationCredentialsAreNotSet }
+    urlRequest.httpBody = Data(#"{"role_id": "\#(appRole.roleId)", "secret_id": "\#(appRole.secretId)"}"#.utf8)
+
+    let (data, response) = try await URLSession.shared.data(for: urlRequest)
+    guard let response = response as? HTTPURLResponse else { throw HTTPError.responseNotHTTP(response) }
+    guard (200..<300).contains(response.statusCode) else { throw HTTPError.wrongStatusCode(response.statusCode) }
+    let result = try JSONDecoder().decode([String: String].self, from: data)
+    let vaultToken = result["client_token"]
+    guard let vaultToken else { throw HashiCorpVaultReader.Error.cantGetTokenFromAppRoleAuthenticationResponse }
+    return vaultToken
+  }
+
+  func authenticate(configuration: Configuration) async throws -> String {
+    switch configuration.authenticationMethod {
+    case .token:
+      guard let token = configuration.authenticationCredentials.token?.vaultToken else {
+        throw HashiCorpVaultReader.Error.tokenAuthenticationCredentialsIsNotSet
+      }
+      return token
+    case .appRole: return try await authenticateWithAppRole(configuration: configuration)
+    }
+  }
+
   public func fetch(secrets: [String: Element], configuration: Configuration) async throws -> [String: String] {
     // Group secrets by unique item (vault + item name) to batch field requests
     // This optimization allows us to fetch multiple fields from the same item in one API call
     // instead of making separate calls for each field
     let itemsToFetch: [UniqueItem: Set<String>] = secrets.values.reduce(into: [:]) { accum, source in
       let uniqueItem: UniqueItem = .init(source: source)
-      if let path = source.keyValue?.path {
-        accum[uniqueItem, default: []].insert(path)
+      if let key = source.keyValue?.key {
+        accum[uniqueItem, default: []].insert(key)
       }
       else if let key = source.aws?.key {
         accum[uniqueItem, default: []].insert(key)
       }
     }
 
+    let vaultToken = try await authenticate(configuration: configuration)
+
     let keyValueAPI = HashiCorpVaultReader.Engine.KeyValue.API()
     let awsAPI = HashiCorpVaultReader.Engine.AWS.API()
 
-    let baseRequest: URLRequest = try configuration.buildURLRequest()
-
+    let baseRequest: URLRequest = try configuration.buildURLRequest(vaultToken: vaultToken)
     let uniqueFetchedResult: [UniqueItem: [String: String]] = try await withThrowingTaskGroup(
       of: [UniqueItem: [String: String]].self,
       returning: [UniqueItem: [String: String]].self
@@ -118,8 +158,8 @@ extension HashiCorpVaultReader: HashiCorpVaultReaderProtocol {
         }
 
         taskGroup.addTask { [self, item, urlRequest, keys] in
-          let itemSecrets = try await self.fetch(urlRequest: urlRequest, api: api)
-            .filter { keys.contains($0.key) }
+          let fetchedSecrets = try await self.fetch(urlRequest: urlRequest, api: api)
+          let itemSecrets = fetchedSecrets.filter { keys.contains($0.key) }
           return [item: itemSecrets]
         }
       }
@@ -141,10 +181,10 @@ extension HashiCorpVaultReader: HashiCorpVaultReaderProtocol {
       let key: String
 
       if let keyValue = item.keyValue {
-        key =  keyValue.key
+        key = keyValue.key
       }
       else if let aws = item.aws {
-        key =  aws.key
+        key = aws.key
       }
       else {
         continue
@@ -177,6 +217,7 @@ extension HashiCorpVaultReader: HashiCorpVaultReaderProtocol {
         self.version = 0
       }
     }
+
     fileprivate struct AWS: Equatable, Hashable, HashiCorpVaultReaderAWSUniqueElement {
       var enginePath: String
       var role: String
@@ -186,6 +227,7 @@ extension HashiCorpVaultReader: HashiCorpVaultReaderProtocol {
         self.role = source.role
       }
     }
+
     var keyValue: KeyValue?
     var aws: AWS?
 

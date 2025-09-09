@@ -8,5 +8,8 @@ extension HashiCorpVaultReader {
     case noSecretValueForItemKey(secretName: String, item: HashiCorpVaultReader.Element, key: String)
     case tooManyEngineConfigs
     case noConfigsForItem
+    case appRoleAuthenticationCredentialsAreNotSet
+    case tokenAuthenticationCredentialsIsNotSet
+    case cantGetTokenFromAppRoleAuthenticationResponse
   }
 }
