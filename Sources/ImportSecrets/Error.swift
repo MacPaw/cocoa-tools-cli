@@ -34,6 +34,9 @@ extension ImportSecrets {
     case configurationNotValidated
     /// Thrown when multiple secrets are configured with the same environment variable name.
     case duplicatedEnvVarNames(Set<String>)
+
+    /// Thrown when secret declaration in config file has no known sources.
+    case secretHasNoKnownSources
   }
 }
 

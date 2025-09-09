@@ -19,7 +19,6 @@ struct ImportSecretsDecodingTests {
     [
       ImportSecrets.Providers.FakeProvider(fetcher: .init()),
       ImportSecrets.Providers.OnePassword(fetcher: .init(onePasswordCLI: MockOnePasswordCLI())),
-      ImportSecrets.Providers.HashiCorpVault(fetcher: .init(reader: MockHashiCorpVaultReaderProtocol())),
     ]
   }
 

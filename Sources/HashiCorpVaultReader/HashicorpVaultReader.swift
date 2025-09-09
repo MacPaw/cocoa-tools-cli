@@ -33,7 +33,7 @@ extension HashiCorpVaultReader {
 
 extension HashiCorpVaultReader.Element: DecodableWithConfiguration {
   private enum CodingKeys: String, CodingKey {
-    case keyValue = "kv"
+    case keyValue
     case aws
   }
   public init(from decoder: any Decoder, configuration: HashiCorpVaultReader.Configuration) throws {
@@ -50,6 +50,14 @@ extension HashiCorpVaultReader.Element: DecodableWithConfiguration {
       forKey: .aws,
       configuration: configuration
     )
+
+    let engineConfigs: [Any?] = [keyValue, aws]
+    guard !engineConfigs.compactMap(\.self).isEmpty else {
+      throw DecodingError.valueNotFound(Self.self, .init(codingPath: decoder.codingPath, debugDescription: "No engine configured for this item."))
+    }
+    guard engineConfigs.compactMap(\.self).count == 1 else {
+      throw DecodingError.dataCorrupted(.init(codingPath: decoder.codingPath, debugDescription: "Too many engine configs. Only one engine can be configured per item (kv or aws, not both)."))
+    }
   }
 }
 
@@ -90,9 +98,9 @@ extension HashiCorpVaultReader: HashiCorpVaultReaderProtocol {
 
     let baseRequest: URLRequest = try configuration.buildURLRequest()
 
-    let result: [String: String] = try await withThrowingTaskGroup(
-      of: [String: String].self,
-      returning: [String: String].self
+    let uniqueFetchedResult: [UniqueItem: [String: String]] = try await withThrowingTaskGroup(
+      of: [UniqueItem: [String: String]].self,
+      returning: [UniqueItem: [String: String]].self
     ) { taskGroup in
       for (item, keys) in itemsToFetch {
         let urlRequest: URLRequest
@@ -109,12 +117,45 @@ extension HashiCorpVaultReader: HashiCorpVaultReaderProtocol {
           continue
         }
 
-        taskGroup.addTask { [self, urlRequest, keys] in try await self.fetch(urlRequest: urlRequest, api: api).filter { keys.contains($0.key) } }
+        taskGroup.addTask { [self, item, urlRequest, keys] in
+          let itemSecrets = try await self.fetch(urlRequest: urlRequest, api: api)
+            .filter { keys.contains($0.key) }
+          return [item: itemSecrets]
+        }
       }
 
-      return try await taskGroup.reduce(into: [String: String]()) { partialResult, name in
-        partialResult.merge(name, uniquingKeysWith: { lhs, rhs in lhs })
+      return try await taskGroup.reduce(into: [UniqueItem: [String: String]]()) { partialResult, name in
+        partialResult.merge(name) { $0.merging($1) { old, _ in old } }
       }
+    }
+
+    var result: [String: String] = [:]
+    for (secretName, item) in secrets {
+      let uniqueItem = UniqueItem(source: item)
+
+      // Check if we successfully fetched data for this item
+      guard let fetchedSecrets = uniqueFetchedResult[uniqueItem] else {
+        throw Error.noSecretsFetched(secretName: secretName, item: item)
+      }
+
+      let key: String
+
+      if let keyValue = item.keyValue {
+        key =  keyValue.key
+      }
+      else if let aws = item.aws {
+        key =  aws.key
+      }
+      else {
+        continue
+      }
+
+      // Check if we successfully fetched data for required key
+      guard let fetchedValue = fetchedSecrets[key] else {
+        throw Error.noSecretValueForItemKey(secretName: secretName, item: item, key: key)
+      }
+
+      result[secretName] = fetchedValue
     }
 
     return result

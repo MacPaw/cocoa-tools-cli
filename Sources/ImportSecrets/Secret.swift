@@ -104,7 +104,7 @@ extension ImportSecrets.Secret: DecodableWithConfiguration {
     let secretEnvVarName: String
   }
 
-  private enum CodingKeys: String, CodingKey { case sources }
+  internal enum CodingKeys: String, CodingKey { case sources }
 
   /// Initializes a secret from a decoder with the given decoding configuration.
   ///
@@ -146,10 +146,12 @@ extension ImportSecrets.Secret: DecodableWithConfiguration {
     // Ensure at least one source was successfully decoded
     // This prevents secrets that reference only unknown/unsupported providers
     guard !sources.isEmpty else {
-      throw DecodingError.dataCorruptedError(
-        forKey: .sources,
-        in: container,
-        debugDescription: "No known sources specified for \(configuration.secretEnvVarName) secret",
+      throw DecodingError.dataCorrupted(
+        DecodingError.Context(
+          codingPath: container.codingPath + [CodingKeys.sources],
+          debugDescription: "No known sources specified for \(configuration.secretEnvVarName) secret",
+          underlyingError: ImportSecrets.Error.secretHasNoKnownSources
+        )
       )
     }
 
