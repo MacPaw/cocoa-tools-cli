@@ -71,7 +71,14 @@ enum Targets {
     var targets: [PackageDescription.Target] = [.target(name: name, dependencies: dependencies, plugins: plugins)]
 
     if tests {
-      targets.append(.testTarget(name: "\(name)Tests", dependencies: [.target(name: name)] + testsDependencies + [.product(name: "Testing", package: "swift-testing")]))
+      targets.append(
+        .testTarget(
+          name: "\(name)Tests",
+          dependencies: [.target(name: name)] + testsDependencies + [
+            .product(name: "Testing", package: "swift-testing")
+          ]
+        )
+      )
     }
 
     return targets
@@ -164,9 +171,7 @@ enum Targets {
       ]
   }
 
-  static var hashicorpVaultReader: [PackageDescription.Target] {
-    targetBundle(name: "HashiCorpVaultReader")
-  }
+  static var hashicorpVaultReader: [PackageDescription.Target] { targetBundle(name: "HashiCorpVaultReader") }
 }
 
 let package = Package(

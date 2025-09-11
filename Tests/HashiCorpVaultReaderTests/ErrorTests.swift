@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import HashiCorpVaultReader
 
 #if canImport(FoundationNetworking)
@@ -8,7 +9,6 @@ import Testing
 
 @Suite("Error Tests")
 struct ErrorTests {
-
   // MARK: - HashiCorpVaultReader Error Tests
 
   @Test("Error invalidURL case")
@@ -25,8 +25,7 @@ struct ErrorTests {
     case .invalidURL(let errorURL, let errorMessage):
       #expect(errorURL == url)
       #expect(errorMessage == message)
-    default:
-      #expect(Bool(false), "Expected invalidURL case")
+    default: #expect(Bool(false), "Expected invalidURL case")
     }
   }
 
@@ -39,10 +38,8 @@ struct ErrorTests {
 
     // THEN: Error is correct case
     switch sut {
-    case .urlIsNotSet:
-      #expect(Bool(true), "Expected urlIsNotSet case")
-    default:
-      #expect(Bool(false), "Expected urlIsNotSet case")
+    case .urlIsNotSet: #expect(Bool(true), "Expected urlIsNotSet case")
+    default: #expect(Bool(false), "Expected urlIsNotSet case")
     }
   }
 
@@ -51,12 +48,7 @@ struct ErrorTests {
     // GIVEN: Secret name and item
     let secretName = "DATABASE_PASSWORD"
     let item = HashiCorpVaultReader.Element(
-      keyValue: .init(
-        secretMountPath: "secret",
-        path: "myapp/database",
-        version: 1,
-        key: "password"
-      )
+      keyValue: .init(secretMountPath: "secret", path: "myapp/database", version: 1, key: "password")
     )
 
     // WHEN: Creating noSecretsFetched error
@@ -68,8 +60,7 @@ struct ErrorTests {
       #expect(errorSecretName == secretName)
       #expect(errorItem.keyValue?.secretMountPath == "secret")
       #expect(errorItem.keyValue?.path == "myapp/database")
-    default:
-      #expect(Bool(false), "Expected noSecretsFetched case")
+    default: #expect(Bool(false), "Expected noSecretsFetched case")
     }
   }
 
@@ -79,20 +70,11 @@ struct ErrorTests {
     let secretName = "DATABASE_PASSWORD"
     let key = "password"
     let item = HashiCorpVaultReader.Element(
-      keyValue: .init(
-        secretMountPath: "secret",
-        path: "myapp/database",
-        version: 1,
-        key: key
-      )
+      keyValue: .init(secretMountPath: "secret", path: "myapp/database", version: 1, key: key)
     )
 
     // WHEN: Creating noSecretValueForItemKey error
-    let sut = HashiCorpVaultReader.Error.noSecretValueForItemKey(
-      secretName: secretName,
-      item: item,
-      key: key
-    )
+    let sut = HashiCorpVaultReader.Error.noSecretValueForItemKey(secretName: secretName, item: item, key: key)
 
     // THEN: Error contains correct information
     switch sut {
@@ -100,8 +82,7 @@ struct ErrorTests {
       #expect(errorSecretName == secretName)
       #expect(errorKey == key)
       #expect(errorItem.keyValue?.key == key)
-    default:
-      #expect(Bool(false), "Expected noSecretValueForItemKey case")
+    default: #expect(Bool(false), "Expected noSecretValueForItemKey case")
     }
   }
 
@@ -114,10 +95,8 @@ struct ErrorTests {
 
     // THEN: Error is correct case
     switch sut {
-    case .tooManyEngineConfigs:
-      #expect(Bool(true), "Expected tooManyEngineConfigs case")
-    default:
-      #expect(Bool(false), "Expected tooManyEngineConfigs case")
+    case .tooManyEngineConfigs: #expect(Bool(true), "Expected tooManyEngineConfigs case")
+    default: #expect(Bool(false), "Expected tooManyEngineConfigs case")
     }
   }
 
@@ -130,10 +109,8 @@ struct ErrorTests {
 
     // THEN: Error is correct case
     switch sut {
-    case .noConfigsForItem:
-      #expect(Bool(true), "Expected noConfigsForItem case")
-    default:
-      #expect(Bool(false), "Expected noConfigsForItem case")
+    case .noConfigsForItem: #expect(Bool(true), "Expected noConfigsForItem case")
+    default: #expect(Bool(false), "Expected noConfigsForItem case")
     }
   }
 
@@ -148,8 +125,7 @@ struct ErrorTests {
     switch sut {
     case .appRoleAuthenticationCredentialsAreNotSet:
       #expect(Bool(true), "Expected appRoleAuthenticationCredentialsAreNotSet case")
-    default:
-      #expect(Bool(false), "Expected appRoleAuthenticationCredentialsAreNotSet case")
+    default: #expect(Bool(false), "Expected appRoleAuthenticationCredentialsAreNotSet case")
     }
   }
 
@@ -164,8 +140,7 @@ struct ErrorTests {
     switch sut {
     case .tokenAuthenticationCredentialsIsNotSet:
       #expect(Bool(true), "Expected tokenAuthenticationCredentialsIsNotSet case")
-    default:
-      #expect(Bool(false), "Expected tokenAuthenticationCredentialsIsNotSet case")
+    default: #expect(Bool(false), "Expected tokenAuthenticationCredentialsIsNotSet case")
     }
   }
 
@@ -180,8 +155,7 @@ struct ErrorTests {
     switch sut {
     case .cantGetTokenFromAppRoleAuthenticationResponse:
       #expect(Bool(true), "Expected cantGetTokenFromAppRoleAuthenticationResponse case")
-    default:
-      #expect(Bool(false), "Expected cantGetTokenFromAppRoleAuthenticationResponse case")
+    default: #expect(Bool(false), "Expected cantGetTokenFromAppRoleAuthenticationResponse case")
     }
   }
 
@@ -202,10 +176,8 @@ struct ErrorTests {
 
     // THEN: Error contains correct response
     switch sut {
-    case .responseNotHTTP(let errorResponse):
-      #expect(errorResponse === response)
-    default:
-      #expect(Bool(false), "Expected responseNotHTTP case")
+    case .responseNotHTTP(let errorResponse): #expect(errorResponse === response)
+    default: #expect(Bool(false), "Expected responseNotHTTP case")
     }
   }
 
@@ -219,10 +191,8 @@ struct ErrorTests {
 
     // THEN: Error contains correct status code
     switch sut {
-    case .wrongStatusCode(let errorStatusCode):
-      #expect(errorStatusCode == statusCode)
-    default:
-      #expect(Bool(false), "Expected wrongStatusCode case")
+    case .wrongStatusCode(let errorStatusCode): #expect(errorStatusCode == statusCode)
+    default: #expect(Bool(false), "Expected wrongStatusCode case")
     }
   }
 
@@ -231,17 +201,13 @@ struct ErrorTests {
   @Test("Error pattern matching in do-catch")
   func test_error_patternMatchingInDoCatch() async {
     // GIVEN: Function that throws specific error
-    func throwsTokenError() throws {
-      throw HashiCorpVaultReader.Error.tokenAuthenticationCredentialsIsNotSet
-    }
+    func throwsTokenError() throws { throw HashiCorpVaultReader.Error.tokenAuthenticationCredentialsIsNotSet }
 
     // WHEN: Catching specific error
     var caughtCorrectError = false
-    do {
-      try throwsTokenError()
-    } catch HashiCorpVaultReader.Error.tokenAuthenticationCredentialsIsNotSet {
-      caughtCorrectError = true
-    } catch {
+    do { try throwsTokenError() }
+    catch HashiCorpVaultReader.Error.tokenAuthenticationCredentialsIsNotSet { caughtCorrectError = true }
+    catch {
       // Should not reach here
     }
 
@@ -252,19 +218,17 @@ struct ErrorTests {
   @Test("HTTPError pattern matching in do-catch")
   func test_httpError_patternMatchingInDoCatch() async {
     // GIVEN: Function that throws HTTP error
-    func throwsHTTPError() throws {
-      throw HashiCorpVaultReader.HTTPError.wrongStatusCode(401)
-    }
+    func throwsHTTPError() throws { throw HashiCorpVaultReader.HTTPError.wrongStatusCode(401) }
 
     // WHEN: Catching specific HTTP error
     var caughtCorrectError = false
     var caughtStatusCode = 0
-    do {
-      try throwsHTTPError()
-    } catch HashiCorpVaultReader.HTTPError.wrongStatusCode(let statusCode) {
+    do { try throwsHTTPError() }
+    catch HashiCorpVaultReader.HTTPError.wrongStatusCode(let statusCode) {
       caughtCorrectError = true
       caughtStatusCode = statusCode
-    } catch {
+    }
+    catch {
       // Should not reach here
     }
 
@@ -329,34 +293,28 @@ struct ErrorTests {
 
   private func compareErrors(_ error1: HashiCorpVaultReader.Error, _ error2: HashiCorpVaultReader.Error) -> Bool {
     switch (error1, error2) {
-    case (.urlIsNotSet, .urlIsNotSet),
-         (.tooManyEngineConfigs, .tooManyEngineConfigs),
-         (.noConfigsForItem, .noConfigsForItem),
-         (.appRoleAuthenticationCredentialsAreNotSet, .appRoleAuthenticationCredentialsAreNotSet),
-         (.tokenAuthenticationCredentialsIsNotSet, .tokenAuthenticationCredentialsIsNotSet),
-         (.cantGetTokenFromAppRoleAuthenticationResponse, .cantGetTokenFromAppRoleAuthenticationResponse):
+    case (.urlIsNotSet, .urlIsNotSet), (.tooManyEngineConfigs, .tooManyEngineConfigs),
+      (.noConfigsForItem, .noConfigsForItem),
+      (.appRoleAuthenticationCredentialsAreNotSet, .appRoleAuthenticationCredentialsAreNotSet),
+      (.tokenAuthenticationCredentialsIsNotSet, .tokenAuthenticationCredentialsIsNotSet),
+      (.cantGetTokenFromAppRoleAuthenticationResponse, .cantGetTokenFromAppRoleAuthenticationResponse):
       return true
     case (.invalidURL(let url1, let message1), .invalidURL(let url2, let message2)):
       return url1 == url2 && message1 == message2
-    case (.noSecretsFetched(let name1, _), .noSecretsFetched(let name2, _)):
-      return name1 == name2
+    case (.noSecretsFetched(let name1, _), .noSecretsFetched(let name2, _)): return name1 == name2
     case (.noSecretValueForItemKey(let name1, _, let key1), .noSecretValueForItemKey(let name2, _, let key2)):
       return name1 == name2 && key1 == key2
-    default:
-      return false
+    default: return false
     }
   }
 
-  private func compareHTTPErrors(_ error1: HashiCorpVaultReader.HTTPError, _ error2: HashiCorpVaultReader.HTTPError) -> Bool {
+  private func compareHTTPErrors(_ error1: HashiCorpVaultReader.HTTPError, _ error2: HashiCorpVaultReader.HTTPError)
+    -> Bool
+  {
     switch (error1, error2) {
-    case (.wrongStatusCode(let code1), .wrongStatusCode(let code2)):
-      return code1 == code2
-    case (.responseNotHTTP(let response1), .responseNotHTTP(let response2)):
-      return response1 === response2
-    default:
-      return false
+    case (.wrongStatusCode(let code1), .wrongStatusCode(let code2)): return code1 == code2
+    case (.responseNotHTTP(let response1), .responseNotHTTP(let response2)): return response1 === response2
+    default: return false
     }
   }
 }
-
-

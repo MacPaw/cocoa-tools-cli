@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import HashiCorpVaultReader
 
 #if canImport(FoundationNetworking)
@@ -8,7 +9,6 @@ import Testing
 
 @Suite("Engine Tests")
 struct EngineTests {
-
   // MARK: - Engine Enum Tests
 
   @Test("Engine enum cases have correct raw values")
@@ -28,7 +28,6 @@ struct EngineTests {
 
   @Suite("KeyValue Engine Tests")
   struct KeyValueEngineTests {
-
     @Test("KeyValue DefaultConfiguration initialization with default path")
     func test_keyValue_defaultConfiguration_initWithDefaultPath() {
       // GIVEN: Default secret mount path
@@ -46,9 +45,7 @@ struct EngineTests {
       let customPath = "kv-store"
 
       // WHEN: Creating default configuration
-      let sut = HashiCorpVaultReader.Engine.KeyValue.DefaultConfiguration(
-        defaultSecretMountPath: customPath
-      )
+      let sut = HashiCorpVaultReader.Engine.KeyValue.DefaultConfiguration(defaultSecretMountPath: customPath)
 
       // THEN: Custom path is set
       #expect(sut.defaultSecretMountPath == customPath)
@@ -58,17 +55,15 @@ struct EngineTests {
     func test_keyValue_defaultConfiguration_decodingFromJSON() throws {
       // GIVEN: JSON configuration data
       let jsonData = """
-      {
-        "defaultSecretMountPath": "kv-v2"
-      }
-      """.data(using: .utf8)!
+        {
+          "defaultSecretMountPath": "kv-v2"
+        }
+        """
+        .data(using: .utf8)!
 
       // WHEN: Decoding configuration
       let decoder = JSONDecoder()
-      let sut = try decoder.decode(
-        HashiCorpVaultReader.Engine.KeyValue.DefaultConfiguration.self,
-        from: jsonData
-      )
+      let sut = try decoder.decode(HashiCorpVaultReader.Engine.KeyValue.DefaultConfiguration.self, from: jsonData)
 
       // THEN: Configuration is decoded correctly
       #expect(sut.defaultSecretMountPath == "kv-v2")
@@ -81,10 +76,7 @@ struct EngineTests {
 
       // WHEN: Decoding configuration
       let decoder = JSONDecoder()
-      let sut = try decoder.decode(
-        HashiCorpVaultReader.Engine.KeyValue.DefaultConfiguration.self,
-        from: jsonData
-      )
+      let sut = try decoder.decode(HashiCorpVaultReader.Engine.KeyValue.DefaultConfiguration.self, from: jsonData)
 
       // THEN: Default path is used
       #expect(sut.defaultSecretMountPath == "secret")
@@ -117,13 +109,14 @@ struct EngineTests {
     func test_keyValue_element_decodingFromJSON() throws {
       // GIVEN: JSON element data and configuration
       let jsonData = """
-      {
-        "secretMountPath": "kv",
-        "path": "myapp/database",
-        "version": 3,
-        "key": "password"
-      }
-      """.data(using: .utf8)!
+        {
+          "secretMountPath": "kv",
+          "path": "myapp/database",
+          "version": 3,
+          "key": "password"
+        }
+        """
+        .data(using: .utf8)!
 
       let configuration = EngineTests.createMockConfiguration()
 
@@ -146,11 +139,12 @@ struct EngineTests {
     func test_keyValue_element_decodingUsesDefaultSecretMountPath() throws {
       // GIVEN: JSON element data without secretMountPath and configuration with default
       let jsonData = """
-      {
-        "path": "myapp/database",
-        "key": "password"
-      }
-      """.data(using: .utf8)!
+        {
+          "path": "myapp/database",
+          "key": "password"
+        }
+        """
+        .data(using: .utf8)!
 
       let configuration = EngineTests.createMockConfiguration()
 
@@ -164,22 +158,23 @@ struct EngineTests {
 
       // THEN: Default secret mount path is used
       #expect(sut.secretMountPath == "secret")
-      #expect(sut.version == 0) // Default version
+      #expect(sut.version == 0)  // Default version
     }
 
     @Test("KeyValue Element decoding without secretMountPath or default throws error")
     func test_keyValue_element_decodingWithoutSecretMountPath_throwsError() throws {
       // GIVEN: JSON element data without secretMountPath and configuration without default
       let jsonData = """
-      {
-        "path": "myapp/database",
-        "key": "password"
-      }
-      """.data(using: .utf8)!
+        {
+          "path": "myapp/database",
+          "key": "password"
+        }
+        """
+        .data(using: .utf8)!
 
       let configuration = HashiCorpVaultReader.Configuration(
         vaultAddress: URL(string: "https://vault.example.com")!,
-        defaultEngineConfigurations: .init(), // No KeyValue default configuration
+        defaultEngineConfigurations: .init(),  // No KeyValue default configuration
         authenticationCredentials: .init(),
         authenticationMethod: .token
       )
@@ -227,7 +222,7 @@ struct EngineTests {
       let element = HashiCorpVaultReader.Engine.KeyValue.Element(
         secretMountPath: "secret",
         path: "myapp/database",
-        version: 0, // No specific version
+        version: 0,  // No specific version
         key: "password"
       )
       let uniqueElement = HashiCorpVaultReader.UniqueItem.KeyValue(source: element)
@@ -244,15 +239,16 @@ struct EngineTests {
       // GIVEN: API instance and mock response data
       let sut = HashiCorpVaultReader.Engine.KeyValue.API()
       let responseData = """
-      {
-        "data": {
+        {
           "data": {
-            "password": "secret123",
-            "username": "admin"
+            "data": {
+              "password": "secret123",
+              "username": "admin"
+            }
           }
         }
-      }
-      """.data(using: .utf8)!
+        """
+        .data(using: .utf8)!
 
       // WHEN: Decoding get secrets result
       let result = try sut.decodeGetSecretsResult(data: responseData)
@@ -281,7 +277,6 @@ struct EngineTests {
 
   @Suite("AWS Engine Tests")
   struct AWSEngineTests {
-
     @Test("AWS DefaultConfiguration initialization with default path")
     func test_aws_defaultConfiguration_initWithDefaultPath() {
       // GIVEN: Default engine path
@@ -299,9 +294,7 @@ struct EngineTests {
       let customPath = "aws-prod"
 
       // WHEN: Creating default configuration
-      let sut = HashiCorpVaultReader.Engine.AWS.DefaultConfiguration(
-        defaultEnginePath: customPath
-      )
+      let sut = HashiCorpVaultReader.Engine.AWS.DefaultConfiguration(defaultEnginePath: customPath)
 
       // THEN: Custom path is set
       #expect(sut.defaultEnginePath == customPath)
@@ -311,17 +304,15 @@ struct EngineTests {
     func test_aws_defaultConfiguration_decodingFromJSON() throws {
       // GIVEN: JSON configuration data
       let jsonData = """
-      {
-        "defaultEnginePath": "aws-production"
-      }
-      """.data(using: .utf8)!
+        {
+          "defaultEnginePath": "aws-production"
+        }
+        """
+        .data(using: .utf8)!
 
       // WHEN: Decoding configuration
       let decoder = JSONDecoder()
-      let sut = try decoder.decode(
-        HashiCorpVaultReader.Engine.AWS.DefaultConfiguration.self,
-        from: jsonData
-      )
+      let sut = try decoder.decode(HashiCorpVaultReader.Engine.AWS.DefaultConfiguration.self, from: jsonData)
 
       // THEN: Configuration is decoded correctly
       #expect(sut.defaultEnginePath == "aws-production")
@@ -334,10 +325,7 @@ struct EngineTests {
 
       // WHEN: Decoding configuration
       let decoder = JSONDecoder()
-      let sut = try decoder.decode(
-        HashiCorpVaultReader.Engine.AWS.DefaultConfiguration.self,
-        from: jsonData
-      )
+      let sut = try decoder.decode(HashiCorpVaultReader.Engine.AWS.DefaultConfiguration.self, from: jsonData)
 
       // THEN: Default path is used
       #expect(sut.defaultEnginePath == "aws")
@@ -351,11 +339,7 @@ struct EngineTests {
       let key = "accessKey"
 
       // WHEN: Creating element
-      let sut = HashiCorpVaultReader.Engine.AWS.Element(
-        enginePath: enginePath,
-        role: role,
-        key: key
-      )
+      let sut = HashiCorpVaultReader.Engine.AWS.Element(enginePath: enginePath, role: role, key: key)
 
       // THEN: Element properties are set correctly
       #expect(sut.enginePath == enginePath)
@@ -367,12 +351,13 @@ struct EngineTests {
     func test_aws_element_decodingFromJSON() throws {
       // GIVEN: JSON element data and configuration
       let jsonData = """
-      {
-        "enginePath": "aws-prod",
-        "role": "my-role",
-        "key": "secretKey"
-      }
-      """.data(using: .utf8)!
+        {
+          "enginePath": "aws-prod",
+          "role": "my-role",
+          "key": "secretKey"
+        }
+        """
+        .data(using: .utf8)!
 
       let configuration = EngineTests.createMockConfiguration()
 
@@ -394,11 +379,12 @@ struct EngineTests {
     func test_aws_element_decodingUsesDefaultEnginePath() throws {
       // GIVEN: JSON element data without enginePath and configuration with default
       let jsonData = """
-      {
-        "role": "my-role",
-        "key": "accessKey"
-      }
-      """.data(using: .utf8)!
+        {
+          "role": "my-role",
+          "key": "accessKey"
+        }
+        """
+        .data(using: .utf8)!
 
       let configuration = EngineTests.createMockConfiguration()
 
@@ -420,15 +406,16 @@ struct EngineTests {
     func test_aws_element_decodingWithoutEnginePath_throwsError() throws {
       // GIVEN: JSON element data without enginePath and configuration without default
       let jsonData = """
-      {
-        "role": "my-role",
-        "key": "accessKey"
-      }
-      """.data(using: .utf8)!
+        {
+          "role": "my-role",
+          "key": "accessKey"
+        }
+        """
+        .data(using: .utf8)!
 
       let configuration = HashiCorpVaultReader.Configuration(
         vaultAddress: URL(string: "https://vault.example.com")!,
-        defaultEngineConfigurations: .init(), // No AWS default configuration
+        defaultEngineConfigurations: .init(),  // No AWS default configuration
         authenticationCredentials: .init(),
         authenticationMethod: .token
       )
@@ -436,11 +423,7 @@ struct EngineTests {
       // WHEN/THEN: Decoding should throw error
       let decoder = JSONDecoder()
       #expect(throws: DecodingError.self) {
-        try decoder.decode(
-          HashiCorpVaultReader.Engine.AWS.Element.self,
-          from: jsonData,
-          configuration: configuration
-        )
+        try decoder.decode(HashiCorpVaultReader.Engine.AWS.Element.self, from: jsonData, configuration: configuration)
       }
     }
 
@@ -451,11 +434,7 @@ struct EngineTests {
       let baseURL = URL(string: "https://vault.example.com/v1")!
       let urlRequest = URLRequest(url: baseURL)
 
-      let element = HashiCorpVaultReader.Engine.AWS.Element(
-        enginePath: "aws",
-        role: "my-role",
-        key: "accessKey"
-      )
+      let element = HashiCorpVaultReader.Engine.AWS.Element(enginePath: "aws", role: "my-role", key: "accessKey")
       let uniqueElement = HashiCorpVaultReader.UniqueItem.AWS(source: element)
 
       // WHEN: Adapting URL request
@@ -470,13 +449,14 @@ struct EngineTests {
       // GIVEN: API instance and mock response data
       let sut = HashiCorpVaultReader.Engine.AWS.API()
       let responseData = """
-      {
-        "data": {
-          "accessKey": "AKIA123456789",
-          "secretKey": "secret123456789"
+        {
+          "data": {
+            "accessKey": "AKIA123456789",
+            "secretKey": "secret123456789"
+          }
         }
-      }
-      """.data(using: .utf8)!
+        """
+        .data(using: .utf8)!
 
       // WHEN: Decoding get secrets result
       let result = try sut.decodeGetSecretsResult(data: responseData)
@@ -494,10 +474,7 @@ struct EngineTests {
       let secretKey = "secret123456789"
 
       // WHEN: Creating GetSecretsResult
-      let sut = HashiCorpVaultReader.Engine.AWS.API.GetSecretsResult(
-        accessKey: accessKey,
-        secretKey: secretKey
-      )
+      let sut = HashiCorpVaultReader.Engine.AWS.API.GetSecretsResult(accessKey: accessKey, secretKey: secretKey)
 
       // THEN: Properties are set correctly
       #expect(sut.accessKey == accessKey)
@@ -509,10 +486,7 @@ struct EngineTests {
       // GIVEN: GetSecretsResult with keys
       let accessKey = "AKIA123456789"
       let secretKey = "secret123456789"
-      let sut = HashiCorpVaultReader.Engine.AWS.API.GetSecretsResult(
-        accessKey: accessKey,
-        secretKey: secretKey
-      )
+      let sut = HashiCorpVaultReader.Engine.AWS.API.GetSecretsResult(accessKey: accessKey, secretKey: secretKey)
 
       // WHEN: Accessing secrets property
       let secrets = sut.secrets
@@ -527,18 +501,16 @@ struct EngineTests {
     func test_aws_getSecretsResult_decodingFromJSON() throws {
       // GIVEN: JSON result data
       let jsonData = """
-      {
-        "accessKey": "AKIA123456789",
-        "secretKey": "secret123456789"
-      }
-      """.data(using: .utf8)!
+        {
+          "accessKey": "AKIA123456789",
+          "secretKey": "secret123456789"
+        }
+        """
+        .data(using: .utf8)!
 
       // WHEN: Decoding result
       let decoder = JSONDecoder()
-      let sut = try decoder.decode(
-        HashiCorpVaultReader.Engine.AWS.API.GetSecretsResult.self,
-        from: jsonData
-      )
+      let sut = try decoder.decode(HashiCorpVaultReader.Engine.AWS.API.GetSecretsResult.self, from: jsonData)
 
       // THEN: Result is decoded correctly
       #expect(sut.accessKey == "AKIA123456789")
@@ -548,16 +520,14 @@ struct EngineTests {
 
   // MARK: - Helper Methods
 
-  private static func createMockConfiguration() -> HashiCorpVaultReader.Configuration {
-    HashiCorpVaultReader.Configuration(
-      vaultAddress: URL(string: "https://vault.example.com")!,
+  private static func createMockConfiguration() throws -> HashiCorpVaultReader.Configuration {
+    try HashiCorpVaultReader.Configuration(
+      vaultAddress: #require(URL(string: "https://vault.example.com")),
       defaultEngineConfigurations: .init(
         keyValue: .init(defaultSecretMountPath: "secret"),
         aws: .init(defaultEnginePath: "aws")
       ),
-      authenticationCredentials: .init(
-        token: .init(vaultToken: "test-token")
-      ),
+      authenticationCredentials: .init(token: .init(vaultToken: "test-token")),
       authenticationMethod: .token
     )
   }

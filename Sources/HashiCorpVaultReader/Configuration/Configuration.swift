@@ -80,9 +80,7 @@ extension HashiCorpVaultReader.Configuration {
   func buildBaseURL(path: String = "") throws -> URL {
     var url = vaultAddress
     url.append(component: apiVersion, directoryHint: .isDirectory)
-    if !path.isEmpty {
-      url.append(path: path)
-    }
+    if !path.isEmpty { url.append(path: path) }
     return url
   }
 

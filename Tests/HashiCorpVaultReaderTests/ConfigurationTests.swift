@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import HashiCorpVaultReader
 
 #if canImport(FoundationNetworking)
@@ -8,7 +9,6 @@ import Testing
 
 @Suite("Configuration Tests")
 struct ConfigurationTests {
-
   // MARK: - Configuration Initialization Tests
 
   @Test("Configuration initialization with all parameters")
@@ -67,23 +67,24 @@ struct ConfigurationTests {
   func test_configuration_decodingFromJSON() throws {
     // GIVEN: JSON configuration data
     let jsonData = """
-    {
-      "vaultAddress": "https://vault.example.com:8200",
-      "apiVersion": "v1",
-      "authenticationCredentials": {
-        "token": {
-          "vaultToken": "hvs.test-token"
+      {
+        "vaultAddress": "https://vault.example.com:8200",
+        "apiVersion": "v1",
+        "authenticationCredentials": {
+          "token": {
+            "vaultToken": "hvs.test-token"
+          }
+        },
+        "authenticationMethod": "token",
+        "keyValue": {
+          "defaultSecretMountPath": "secret"
+        },
+        "aws": {
+          "defaultEnginePath": "aws"
         }
-      },
-      "authenticationMethod": "token",
-      "keyValue": {
-        "defaultSecretMountPath": "secret"
-      },
-      "aws": {
-        "defaultEnginePath": "aws"
       }
-    }
-    """.data(using: .utf8)!
+      """
+      .data(using: .utf8)!
 
     // WHEN: Decoding configuration
     let decoder = JSONDecoder()
@@ -102,16 +103,17 @@ struct ConfigurationTests {
   func test_configuration_decodingWithMissingAPIVersion_usesDefault() throws {
     // GIVEN: JSON configuration data without API version
     let jsonData = """
-    {
-      "vaultAddress": "https://vault.example.com:8200",
-      "authenticationCredentials": {
-        "token": {
-          "vaultToken": "hvs.test-token"
-        }
-      },
-      "authenticationMethod": "token"
-    }
-    """.data(using: .utf8)!
+      {
+        "vaultAddress": "https://vault.example.com:8200",
+        "authenticationCredentials": {
+          "token": {
+            "vaultToken": "hvs.test-token"
+          }
+        },
+        "authenticationMethod": "token"
+      }
+      """
+      .data(using: .utf8)!
 
     // WHEN: Decoding configuration
     let decoder = JSONDecoder()
@@ -201,9 +203,7 @@ struct ConfigurationTests {
   @Test("AuthenticationCredentials initialization with token")
   func test_authenticationCredentials_initWithToken() {
     // GIVEN: Token credentials
-    let token = HashiCorpVaultReader.Configuration.AuthenticationCredentials.Token(
-      vaultToken: "hvs.test-token"
-    )
+    let token = HashiCorpVaultReader.Configuration.AuthenticationCredentials.Token(vaultToken: "hvs.test-token")
 
     // WHEN: Creating authentication credentials
     let sut = HashiCorpVaultReader.Configuration.AuthenticationCredentials(token: token)
@@ -234,23 +234,21 @@ struct ConfigurationTests {
   func test_authenticationCredentials_decodingFromJSON() throws {
     // GIVEN: JSON authentication credentials data
     let jsonData = """
-    {
-      "token": {
-        "vaultToken": "hvs.test-token"
-      },
-      "appRole": {
-        "roleId": "role-id-123",
-        "secretId": "secret-id-456"
+      {
+        "token": {
+          "vaultToken": "hvs.test-token"
+        },
+        "appRole": {
+          "roleId": "role-id-123",
+          "secretId": "secret-id-456"
+        }
       }
-    }
-    """.data(using: .utf8)!
+      """
+      .data(using: .utf8)!
 
     // WHEN: Decoding authentication credentials
     let decoder = JSONDecoder()
-    let sut = try decoder.decode(
-      HashiCorpVaultReader.Configuration.AuthenticationCredentials.self,
-      from: jsonData
-    )
+    let sut = try decoder.decode(HashiCorpVaultReader.Configuration.AuthenticationCredentials.self, from: jsonData)
 
     // THEN: Credentials are decoded correctly
     #expect(sut.token?.vaultToken == "hvs.test-token")
@@ -286,10 +284,7 @@ struct ConfigurationTests {
 
     // WHEN: Decoding authentication methods
     let decoder = JSONDecoder()
-    let tokenMethod = try decoder.decode(
-      HashiCorpVaultReader.Configuration.AuthenticationMethod.self,
-      from: tokenData
-    )
+    let tokenMethod = try decoder.decode(HashiCorpVaultReader.Configuration.AuthenticationMethod.self, from: tokenData)
     let appRoleMethod = try decoder.decode(
       HashiCorpVaultReader.Configuration.AuthenticationMethod.self,
       from: appRoleData
@@ -305,18 +300,11 @@ struct ConfigurationTests {
   @Test("EngineConfigurations initialization with all engines")
   func test_engineConfigurations_initWithAllEngines() {
     // GIVEN: KeyValue and AWS configurations
-    let keyValueConfig = HashiCorpVaultReader.Engine.KeyValue.DefaultConfiguration(
-      defaultSecretMountPath: "kv"
-    )
-    let awsConfig = HashiCorpVaultReader.Engine.AWS.DefaultConfiguration(
-      defaultEnginePath: "aws-prod"
-    )
+    let keyValueConfig = HashiCorpVaultReader.Engine.KeyValue.DefaultConfiguration(defaultSecretMountPath: "kv")
+    let awsConfig = HashiCorpVaultReader.Engine.AWS.DefaultConfiguration(defaultEnginePath: "aws-prod")
 
     // WHEN: Creating engine configurations
-    let sut = HashiCorpVaultReader.Configuration.EngineConfigurations(
-      keyValue: keyValueConfig,
-      aws: awsConfig
-    )
+    let sut = HashiCorpVaultReader.Configuration.EngineConfigurations(keyValue: keyValueConfig, aws: awsConfig)
 
     // THEN: Configurations are set correctly
     #expect(sut.keyValue?.defaultSecretMountPath == "kv")
@@ -326,16 +314,9 @@ struct ConfigurationTests {
   @Test("EngineConfigurations configuration for engine")
   func test_engineConfigurations_configurationForEngine() {
     // GIVEN: Engine configurations
-    let keyValueConfig = HashiCorpVaultReader.Engine.KeyValue.DefaultConfiguration(
-      defaultSecretMountPath: "kv"
-    )
-    let awsConfig = HashiCorpVaultReader.Engine.AWS.DefaultConfiguration(
-      defaultEnginePath: "aws-prod"
-    )
-    let sut = HashiCorpVaultReader.Configuration.EngineConfigurations(
-      keyValue: keyValueConfig,
-      aws: awsConfig
-    )
+    let keyValueConfig = HashiCorpVaultReader.Engine.KeyValue.DefaultConfiguration(defaultSecretMountPath: "kv")
+    let awsConfig = HashiCorpVaultReader.Engine.AWS.DefaultConfiguration(defaultEnginePath: "aws-prod")
+    let sut = HashiCorpVaultReader.Configuration.EngineConfigurations(keyValue: keyValueConfig, aws: awsConfig)
 
     // WHEN: Getting configuration for specific engines
     let keyValueResult = sut.configuration(for: .keyValue)
@@ -350,22 +331,20 @@ struct ConfigurationTests {
   func test_engineConfigurations_decodingFromJSON() throws {
     // GIVEN: JSON engine configurations data
     let jsonData = """
-    {
-      "keyValue": {
-        "defaultSecretMountPath": "secret"
-      },
-      "aws": {
-        "defaultEnginePath": "aws"
+      {
+        "keyValue": {
+          "defaultSecretMountPath": "secret"
+        },
+        "aws": {
+          "defaultEnginePath": "aws"
+        }
       }
-    }
-    """.data(using: .utf8)!
+      """
+      .data(using: .utf8)!
 
     // WHEN: Decoding engine configurations
     let decoder = JSONDecoder()
-    let sut = try decoder.decode(
-      HashiCorpVaultReader.Configuration.EngineConfigurations.self,
-      from: jsonData
-    )
+    let sut = try decoder.decode(HashiCorpVaultReader.Configuration.EngineConfigurations.self, from: jsonData)
 
     // THEN: Configurations are decoded correctly
     #expect(sut.keyValue?.defaultSecretMountPath == "secret")
@@ -380,9 +359,7 @@ struct ConfigurationTests {
     let tokenString = "hvs.test-token-123"
 
     // WHEN: Creating token
-    let sut = HashiCorpVaultReader.Configuration.AuthenticationCredentials.Token(
-      vaultToken: tokenString
-    )
+    let sut = HashiCorpVaultReader.Configuration.AuthenticationCredentials.Token(vaultToken: tokenString)
 
     // THEN: Token is set correctly
     #expect(sut.vaultToken == tokenString)
@@ -392,10 +369,11 @@ struct ConfigurationTests {
   func test_token_decodingFromJSON() throws {
     // GIVEN: JSON token data
     let jsonData = """
-    {
-      "vaultToken": "hvs.test-token-123"
-    }
-    """.data(using: .utf8)!
+      {
+        "vaultToken": "hvs.test-token-123"
+      }
+      """
+      .data(using: .utf8)!
 
     // WHEN: Decoding token
     let decoder = JSONDecoder()
@@ -417,10 +395,7 @@ struct ConfigurationTests {
     let secretId = "secret-id-456"
 
     // WHEN: Creating AppRole
-    let sut = HashiCorpVaultReader.Configuration.AuthenticationCredentials.AppRole(
-      roleId: roleId,
-      secretId: secretId
-    )
+    let sut = HashiCorpVaultReader.Configuration.AuthenticationCredentials.AppRole(roleId: roleId, secretId: secretId)
 
     // THEN: AppRole is set correctly
     #expect(sut.roleId == roleId)
@@ -431,11 +406,12 @@ struct ConfigurationTests {
   func test_appRole_decodingFromJSON() throws {
     // GIVEN: JSON AppRole data
     let jsonData = """
-    {
-      "roleId": "role-id-123",
-      "secretId": "secret-id-456"
-    }
-    """.data(using: .utf8)!
+      {
+        "roleId": "role-id-123",
+        "secretId": "secret-id-456"
+      }
+      """
+      .data(using: .utf8)!
 
     // WHEN: Decoding AppRole
     let decoder = JSONDecoder()
@@ -485,19 +461,15 @@ struct ConfigurationTests {
 
   // MARK: - Helper Methods
 
-  private func createMockConfiguration() -> HashiCorpVaultReader.Configuration {
+  private func createMockConfiguration() throws -> HashiCorpVaultReader.Configuration {
     HashiCorpVaultReader.Configuration(
-      vaultAddress: URL(string: "https://vault.example.com")!,
+      vaultAddress: #require(URL(string: "https://vault.example.com")),
       defaultEngineConfigurations: .init(
         keyValue: .init(defaultSecretMountPath: "secret"),
         aws: .init(defaultEnginePath: "aws")
       ),
-      authenticationCredentials: .init(
-        token: .init(vaultToken: "test-token")
-      ),
+      authenticationCredentials: .init(token: .init(vaultToken: "test-token")),
       authenticationMethod: .token
     )
   }
 }
-
-

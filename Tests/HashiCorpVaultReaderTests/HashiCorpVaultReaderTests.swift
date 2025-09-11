@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import HashiCorpVaultReader
 
 #if canImport(FoundationNetworking)
@@ -8,7 +9,6 @@ import Testing
 
 @Suite("HashiCorpVaultReader Tests")
 struct HashiCorpVaultReaderTests {
-
   // MARK: - Element Tests
 
   @Test("Element initialization with KeyValue engine")
@@ -36,11 +36,7 @@ struct HashiCorpVaultReaderTests {
   @Test("Element initialization with AWS engine")
   func test_element_initWithAWS() {
     // GIVEN: AWS element configuration
-    let awsElement = HashiCorpVaultReader.Engine.AWS.Element(
-      enginePath: "aws",
-      role: "my-role",
-      key: "accessKey"
-    )
+    let awsElement = HashiCorpVaultReader.Engine.AWS.Element(enginePath: "aws", role: "my-role", key: "accessKey")
 
     // WHEN: Creating Element with AWS configuration
     let sut = HashiCorpVaultReader.Element(aws: awsElement)
@@ -62,11 +58,7 @@ struct HashiCorpVaultReaderTests {
       version: 1,
       key: "password"
     )
-    let awsElement = HashiCorpVaultReader.Engine.AWS.Element(
-      enginePath: "aws",
-      role: "my-role",
-      key: "accessKey"
-    )
+    let awsElement = HashiCorpVaultReader.Engine.AWS.Element(enginePath: "aws", role: "my-role", key: "accessKey")
     let configuration = try createMockConfiguration()
 
     // WHEN: Creating Element with both configurations
@@ -74,29 +66,26 @@ struct HashiCorpVaultReaderTests {
 
     // THEN: Decoding should fail with validation error
     let jsonData = """
-    {
-      "keyValue": {
-        "secretMountPath": "secret",
-        "path": "myapp/database",
-        "version": 1,
-        "key": "password"
-      },
-      "aws": {
-        "enginePath": "aws",
-        "role": "my-role",
-        "key": "accessKey"
+      {
+        "keyValue": {
+          "secretMountPath": "secret",
+          "path": "myapp/database",
+          "version": 1,
+          "key": "password"
+        },
+        "aws": {
+          "enginePath": "aws",
+          "role": "my-role",
+          "key": "accessKey"
+        }
       }
-    }
-    """.data(using: .utf8)!
+      """
+      .data(using: .utf8)!
 
     let decoder = JSONDecoder()
 
     #expect(throws: DecodingError.self) {
-      try decoder.decode(
-        HashiCorpVaultReader.Element.self,
-        from: jsonData,
-        configuration: configuration
-      )
+      try decoder.decode(HashiCorpVaultReader.Element.self, from: jsonData, configuration: configuration)
     }
   }
 
@@ -107,19 +96,16 @@ struct HashiCorpVaultReaderTests {
 
     // WHEN: Creating Element with no configurations
     let jsonData = """
-    {
-    }
-    """.data(using: .utf8)!
+      {
+      }
+      """
+      .data(using: .utf8)!
 
     let decoder = JSONDecoder()
 
     // THEN: Decoding should fail with validation error
     #expect(throws: DecodingError.self) {
-      try decoder.decode(
-        HashiCorpVaultReader.Element.self,
-        from: jsonData,
-        configuration: configuration
-      )
+      try decoder.decode(HashiCorpVaultReader.Element.self, from: jsonData, configuration: configuration)
     }
   }
 
@@ -136,17 +122,13 @@ struct HashiCorpVaultReaderTests {
 
     // THEN: Errors are created correctly
     switch responseNotHTTP {
-    case .responseNotHTTP(let response):
-      #expect(response === mockResponse)
-    default:
-      #expect(Bool(false), "Expected responseNotHTTP case")
+    case .responseNotHTTP(let response): #expect(response === mockResponse)
+    default: #expect(Bool(false), "Expected responseNotHTTP case")
     }
 
     switch wrongStatusCode {
-    case .wrongStatusCode(let code):
-      #expect(code == 404)
-    default:
-      #expect(Bool(false), "Expected wrongStatusCode case")
+    case .wrongStatusCode(let code): #expect(code == 404)
+    default: #expect(Bool(false), "Expected wrongStatusCode case")
     }
   }
 
@@ -185,7 +167,6 @@ struct HashiCorpVaultReaderTests {
 
   // MARK: - UniqueItem Tests
 
-
   // MARK: - Helper Methods
 
   private func createMockConfiguration() throws -> HashiCorpVaultReader.Configuration {
@@ -195,9 +176,7 @@ struct HashiCorpVaultReaderTests {
         keyValue: .init(defaultSecretMountPath: "secret"),
         aws: .init(defaultEnginePath: "aws")
       ),
-      authenticationCredentials: .init(
-        token: .init(vaultToken: "test-token")
-      ),
+      authenticationCredentials: .init(token: .init(vaultToken: "test-token")),
       authenticationMethod: .token
     )
   }
