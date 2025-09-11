@@ -28,7 +28,7 @@ enum MocksBuilder {
     )
     try config.sourceConfigurations.addConfiguration(
       ImportSecrets.Providers.HashiCorpVault.Source.Configuration(
-        vaultAddress: URL(string: "https://vault.example.com")!,
+        vaultAddress: #require(URL(string: "https://vault.example.com")),
         defaultEngineConfigurations: .init(
           keyValue: .init(defaultSecretMountPath: "secrets"),
           aws: .init(defaultEnginePath: "aws")

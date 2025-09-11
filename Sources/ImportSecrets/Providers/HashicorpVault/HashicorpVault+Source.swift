@@ -1,6 +1,9 @@
 import HashiCorpVaultReader
 
-extension ImportSecrets.Providers.HashiCorpVault { public typealias Source = HashiCorpVaultReader.Element }
+extension ImportSecrets.Providers.HashiCorpVault {
+  /// HashiCorp Vault source.
+  public typealias Source = HashiCorpVaultReader.Element
+}
 
 private typealias Source = ImportSecrets.Providers.HashiCorpVault.Source
 

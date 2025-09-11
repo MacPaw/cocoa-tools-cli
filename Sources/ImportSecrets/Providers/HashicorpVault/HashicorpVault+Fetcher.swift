@@ -7,7 +7,11 @@ extension ImportSecrets.Providers.HashiCorpVault {
   /// This handles the actual communication with the HashiCorp Vault API and manages
   /// batching of requests for efficiency.
   public struct Fetcher {
+    /// The reader to use for fetching secrets from HashiCorp Vault.
     var reader: any HashiCorpVaultReaderProtocol
+
+    /// Initialize a new HashiCorp Vault fetcher.
+    /// - Parameter reader: The reader to use for fetching secrets from HashiCorp Vault. Defaults to a new reader.
     public init(reader: any HashiCorpVaultReaderProtocol = HashiCorpVaultReader()) { self.reader = reader }
   }
 }

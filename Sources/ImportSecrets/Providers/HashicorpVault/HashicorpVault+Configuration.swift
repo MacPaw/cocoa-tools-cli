@@ -1,6 +1,7 @@
 import HashiCorpVaultReader
 
 extension ImportSecrets.Providers.HashiCorpVault.Source {
+  /// HashiCorp Vault source configuration.
   public typealias Configuration = HashiCorpVaultReader.Configuration
 }
 
