@@ -318,3 +318,4 @@ struct ErrorTests {
     }
   }
 }
+
