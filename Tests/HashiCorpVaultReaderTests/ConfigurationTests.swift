@@ -473,4 +473,3 @@ struct ConfigurationTests {
     )
   }
 }
-
