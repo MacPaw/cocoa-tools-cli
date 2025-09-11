@@ -67,3 +67,4 @@ extension Element: DecodableWithConfiguration {
 
 extension Element: Equatable {}
 extension Element: Sendable {}
+extension Element: Hashable {}

@@ -101,6 +101,8 @@ extension HashiCorpVaultReader.Element: DecodableWithConfiguration {
 }
 
 extension HashiCorpVaultReader.Element: Sendable {}
+extension HashiCorpVaultReader.Element: Equatable {}
+extension HashiCorpVaultReader.Element: Hashable {}
 
 extension HashiCorpVaultReader: Sendable {}
 

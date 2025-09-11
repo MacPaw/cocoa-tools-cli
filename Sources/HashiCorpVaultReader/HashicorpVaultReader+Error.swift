@@ -2,7 +2,7 @@ import Foundation
 
 extension HashiCorpVaultReader {
   /// Errors that can occur during HashiCorp Vault operations.
-  public enum Error: Swift.Error {
+  public enum Error: Swift.Error, Equatable {
     /// The URL is invalid or cannot be constructed.
     case invalidURL(url: URL, message: String)
     /// The URL is not set when required.
