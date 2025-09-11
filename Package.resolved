@@ -1,5 +1,5 @@
 {
-  "originHash" : "96219613e95197c585db5cf269b4f4b720417e3a920463c14927822244abdf20",
+  "originHash" : "5287e7395952cb5070aaf818719891af1a6df83ec3be7ad40a56a58a840c4f49",
   "pins" : [
     {
       "identity" : "swift-argument-parser",
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-case-paths",
       "state" : {
-        "revision" : "9810c8d6c2914de251e072312f01d3bf80071852",
-        "version" : "1.7.1"
+        "revision" : "5da6989aae464f324eef5c5b52bdb7974725ab81",
+        "version" : "1.0.0"
       }
     },
     {
@@ -34,7 +34,7 @@
       "location" : "https://github.com/nekrich/swift-confidential.git",
       "state" : {
         "branch" : "master",
-        "revision" : "a1bc4d31f74815e57b109c53903daa8f761626e3"
+        "revision" : "5bd9e29336cc7b288af41bafb886abcdae19f3a0"
       }
     },
     {
@@ -42,14 +42,14 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/swiftlang/swift-format.git",
       "state" : {
-        "revision" : "ffbb3225ffda37b62c7283c70e87e8bc7e8e202a",
-        "version" : "601.0.0"
+        "revision" : "2a2abbfba12c02e1dc5bdf59974790f069450bb3",
+        "version" : "603.0.0-prerelease-2025-08-11"
       }
     },
     {
       "identity" : "swift-markdown",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-markdown.git",
+      "location" : "https://github.com/swiftlang/swift-markdown.git",
       "state" : {
         "revision" : "ea79e83c8744d2b50b0dc2d5bbd1e857e1253bf9",
         "version" : "0.6.0"
@@ -69,8 +69,17 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/swiftlang/swift-syntax.git",
       "state" : {
-        "revision" : "f99ae8aa18f0cf0d53481901f88a0991dc3bd4a2",
-        "version" : "601.0.1"
+        "revision" : "07bf225e198119c23b2b9a0a3432bdb534498873",
+        "version" : "603.0.0-prerelease-2025-08-11"
+      }
+    },
+    {
+      "identity" : "swift-testing",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/swiftlang/swift-testing.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "82b63f65870e59862a7c3a9d719e0be074f94620"
       }
     },
     {
