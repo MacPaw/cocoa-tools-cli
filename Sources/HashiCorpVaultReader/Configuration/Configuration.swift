@@ -5,6 +5,7 @@ import Foundation
 #endif
 
 extension HashiCorpVaultReader {
+  /// Configuration for connecting to and authenticating with a HashiCorp Vault server.
   public struct Configuration {
     /// The address of the Vault server.
     public var vaultAddress: URL
@@ -21,6 +22,14 @@ extension HashiCorpVaultReader {
     /// The method to use to authenticate with the Vault server.
     public var authenticationMethod: HashiCorpVaultReader.Configuration.AuthenticationMethod
 
+    /// Initialize a new vault configuration.
+    ///
+    /// - Parameters:
+    ///   - vaultAddress: The address of the Vault server.
+    ///   - apiVersion: The API version to use (defaults to "v1").
+    ///   - defaultEngineConfigurations: Default configurations for vault engines.
+    ///   - authenticationCredentials: Credentials for vault authentication.
+    ///   - authenticationMethod: The authentication method to use.
     public init(
       vaultAddress: URL,
       apiVersion: String = "v1",
@@ -46,6 +55,10 @@ extension HashiCorpVaultReader.Configuration: Decodable {
     case engineContexts
   }
 
+  /// Initialize configuration from decoder.
+  ///
+  /// - Parameter decoder: The decoder to read data from.
+  /// - Throws: DecodingError if decoding fails.
   public init(from decoder: any Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     self.vaultAddress = try container.decode(URL.self, forKey: .vaultAddress)

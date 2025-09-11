@@ -4,24 +4,48 @@ import Foundation
   import FoundationNetworking
 #endif
 
-public protocol HashiCorpVaultEngineGetSecretsResultProtocol: Decodable { var secrets: [String: String] { get } }
+/// Protocol for HashiCorp Vault engine get secrets result.
+public protocol HashiCorpVaultEngineGetSecretsResultProtocol: Decodable {
+  /// The secrets dictionary containing key-value pairs.
+  var secrets: [String: String] { get }
+}
 
+/// Protocol for HashiCorp Vault reader functionality.
 public protocol HashiCorpVaultReaderProtocol: Sendable {
+  /// Fetch secrets from HashiCorp Vault.
+  ///
+  /// - Parameters:
+  ///   - secrets: Dictionary mapping secret names to their element configurations.
+  ///   - configuration: The vault configuration containing authentication and connection details.
+  /// - Returns: Dictionary mapping secret names to their values.
+  /// - Throws: Various errors related to authentication, network, or vault operations.
   func fetch(secrets: [String: HashiCorpVaultReader.Element], configuration: HashiCorpVaultReader.Configuration)
     async throws -> [String: String]
 }
 
-public struct HashiCorpVaultReader { public init() {} }
+/// HashiCorp Vault reader for fetching secrets from Vault servers.
+public struct HashiCorpVaultReader {
+  /// Initialize a new HashiCorp Vault reader.
+  public init() {}
+}
 
 extension HashiCorpVaultReader {
   struct SecretsFetchResult<ContainedData: Decodable>: Decodable { let data: ContainedData }
 }
 
 extension HashiCorpVaultReader {
+  /// Represents a vault element that can be either KeyValue or AWS engine type.
   public struct Element {
+    /// KeyValue engine configuration for this element.
     public var keyValue: HashiCorpVaultReader.Engine.KeyValue.Element?
+    /// AWS engine configuration for this element.
     public var aws: HashiCorpVaultReader.Engine.AWS.Element?
 
+    /// Initialize a new vault element.
+    ///
+    /// - Parameters:
+    ///   - keyValue: Optional KeyValue engine configuration.
+    ///   - aws: Optional AWS engine configuration.
     public init(
       keyValue: HashiCorpVaultReader.Engine.KeyValue.Element? = nil,
       aws: HashiCorpVaultReader.Engine.AWS.Element? = nil
@@ -37,6 +61,12 @@ extension HashiCorpVaultReader.Element: DecodableWithConfiguration {
     case keyValue
     case aws
   }
+  /// Initialize element from decoder with configuration.
+  ///
+  /// - Parameters:
+  ///   - decoder: The decoder to read data from.
+  ///   - configuration: The vault configuration for default values.
+  /// - Throws: DecodingError if decoding fails or validation fails.
   public init(from decoder: any Decoder, configuration: HashiCorpVaultReader.Configuration) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
@@ -75,8 +105,11 @@ extension HashiCorpVaultReader.Element: Sendable {}
 extension HashiCorpVaultReader: Sendable {}
 
 extension HashiCorpVaultReader: HashiCorpVaultReaderProtocol {
+  /// HTTP-related errors that can occur during vault operations.
   public enum HTTPError: Swift.Error {
+    /// The response is not an HTTP response.
     case responseNotHTTP(URLResponse)
+    /// The HTTP status code indicates an error.
     case wrongStatusCode(Int)
   }
 
@@ -118,6 +151,13 @@ extension HashiCorpVaultReader: HashiCorpVaultReaderProtocol {
     }
   }
 
+  /// Fetch secrets from HashiCorp Vault.
+  ///
+  /// - Parameters:
+  ///   - secrets: Dictionary mapping secret names to their element configurations.
+  ///   - configuration: The vault configuration containing authentication and connection details.
+  /// - Returns: Dictionary mapping secret names to their values.
+  /// - Throws: Various errors related to authentication, network, or vault operations.
   public func fetch(secrets: [String: Element], configuration: Configuration) async throws -> [String: String] {
     // Group secrets by unique item (vault + item name) to batch field requests
     // This optimization allows us to fetch multiple fields from the same item in one API call

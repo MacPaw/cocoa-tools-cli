@@ -5,4 +5,7 @@
 //  Created by Vitalii Budnik on 9/8/25.
 //
 
-extension HashiCorpVaultReader.Engine { public enum AWS {} }
+extension HashiCorpVaultReader.Engine {
+  /// AWS secrets engine for HashiCorp Vault.
+  public enum AWS {}
+}

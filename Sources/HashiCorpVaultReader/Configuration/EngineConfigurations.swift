@@ -8,10 +8,18 @@
 import Foundation
 
 extension HashiCorpVaultReader.Configuration {
+  /// Default configurations for vault engines.
   public struct EngineConfigurations {
+    /// Default configuration for KeyValue engine.
     public var keyValue: HashiCorpVaultReader.Engine.KeyValue.DefaultConfiguration?
+    /// Default configuration for AWS engine.
     public var aws: HashiCorpVaultReader.Engine.AWS.DefaultConfiguration?
 
+    /// Initialize engine configurations.
+    ///
+    /// - Parameters:
+    ///   - keyValue: Optional KeyValue engine default configuration.
+    ///   - aws: Optional AWS engine default configuration.
     public init(
       keyValue: HashiCorpVaultReader.Engine.KeyValue.DefaultConfiguration? = nil,
       aws: HashiCorpVaultReader.Engine.AWS.DefaultConfiguration? = nil

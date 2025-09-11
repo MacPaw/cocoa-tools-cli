@@ -1,11 +1,13 @@
 import Foundation
 
 extension HashiCorpVaultReader.Engine.AWS {
+  /// Element configuration for AWS engine operations.
   public struct Element {
     /// The path to the AWS engine to use, such as `aws`.
     public var enginePath: String
     /// Specifies the name of the role to generate credentials against.
     public var role: String
+    /// The key within the credentials to retrieve.
     public var key: String
   }
 }
@@ -19,6 +21,12 @@ extension Element: DecodableWithConfiguration {
     case key
   }
 
+  /// Initialize element from decoder with configuration.
+  ///
+  /// - Parameters:
+  ///   - decoder: The decoder to read data from.
+  ///   - configuration: The vault configuration for default values.
+  /// - Throws: DecodingError if decoding fails.
   public init(from decoder: any Decoder, configuration: HashiCorpVaultReader.Configuration) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     var enginePath = try container.decodeIfPresent(String.self, forKey: .enginePath)

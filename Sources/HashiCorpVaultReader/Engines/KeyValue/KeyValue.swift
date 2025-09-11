@@ -1,3 +1,6 @@
 import Foundation
 
-extension HashiCorpVaultReader.Engine { public enum KeyValue {} }
+extension HashiCorpVaultReader.Engine {
+  /// Key-Value secrets engine for HashiCorp Vault.
+  public enum KeyValue {}
+}

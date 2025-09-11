@@ -8,6 +8,7 @@
 import Foundation
 
 extension HashiCorpVaultReader.Engine.KeyValue {
+  /// Element configuration for KeyValue engine operations.
   public struct Element {
     /// The path to the KV mount to config, such as `secret`.
     ///
@@ -19,6 +20,7 @@ extension HashiCorpVaultReader.Engine.KeyValue {
     ///
     /// If not set or the value is not positive integer (`<= 0`), the latest version is returned.
     public var version: Int
+    /// The key within the secret to retrieve.
     public var key: String
   }
 }
@@ -33,6 +35,12 @@ extension Element: DecodableWithConfiguration {
     case version
   }
 
+  /// Initialize element from decoder with configuration.
+  ///
+  /// - Parameters:
+  ///   - decoder: The decoder to read data from.
+  ///   - configuration: The vault configuration for default values.
+  /// - Throws: DecodingError if decoding fails.
   public init(from decoder: any Decoder, configuration: HashiCorpVaultReader.Configuration) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     var secretMountPath = try container.decodeIfPresent(String.self, forKey: .secretMountPath)
