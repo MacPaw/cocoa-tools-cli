@@ -35,14 +35,9 @@ extension API: HashiCorpVaultEngineAPIProtocol {
   }
 
   private func adaptURL(url: URL?, for element: any HashiCorpVaultReaderAWSUniqueElement) throws -> URL {
-    guard let url = url else { throw HashiCorpVaultReader.Error.urlIsNotSet }
-    guard var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
-      throw HashiCorpVaultReader.Error.invalidURL(url: url, message: "Failed to read URL components from URL \(url)")
-    }
-    urlComponents.path += "/\(element.enginePath)/creds/\(element.role)"
-    guard let url = urlComponents.url else {
-      throw HashiCorpVaultReader.Error.invalidURL(url: url, message: "Failed to create URL from URL components")
-    }
+    guard var url = url else { throw HashiCorpVaultReader.Error.urlIsNotSet }
+    url.append(path: element.enginePath, directoryHint: .isDirectory)
+    url.append(components: "creds", element.role, directoryHint: .notDirectory)
     return url
   }
 

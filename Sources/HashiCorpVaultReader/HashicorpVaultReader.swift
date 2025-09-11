@@ -124,7 +124,7 @@ extension HashiCorpVaultReader: HashiCorpVaultReaderProtocol {
   }
 
   func authenticateWithAppRole(configuration: Configuration) async throws -> String {
-    var urlRequest: URLRequest = try URLRequest(url: configuration.buildBaseURL(path: "auth/approle/login"))
+    var urlRequest: URLRequest = try URLRequest(url: configuration.buildBaseURL(path: "/auth/approle/login"))
     urlRequest.httpMethod = "POST"
     urlRequest.setValue("application/json", forHTTPHeaderField: "Accept")
     urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -246,25 +246,33 @@ extension HashiCorpVaultReader: HashiCorpVaultReaderProtocol {
   /// Represents a unique 1Password item (vault + item name combination).
   ///
   /// Used to group multiple field requests for the same item to optimize API calls.
-  fileprivate struct UniqueItem: Equatable, Hashable {
-    fileprivate struct KeyValue: Equatable, Hashable, HashiCorpVaultReaderKeyValueUniqueElement {
+  struct UniqueItem: Equatable, Hashable {
+    struct KeyValue: Equatable, Hashable, HashiCorpVaultReaderKeyValueUniqueElement {
       var secretMountPath: String
       var path: String
       var version: Int
 
       init?(source: HashiCorpVaultReader.Engine.KeyValue.Element?) {
         guard let source else { return nil }
+        self.init(source: source)
+      }
+
+      init(source: HashiCorpVaultReader.Engine.KeyValue.Element) {
         self.secretMountPath = source.secretMountPath
         self.path = source.path
-        self.version = 0
+        self.version = source.version
       }
     }
 
-    fileprivate struct AWS: Equatable, Hashable, HashiCorpVaultReaderAWSUniqueElement {
+    struct AWS: Equatable, Hashable, HashiCorpVaultReaderAWSUniqueElement {
       var enginePath: String
       var role: String
       init?(source: HashiCorpVaultReader.Engine.AWS.Element?) {
         guard let source else { return nil }
+        self.init(source: source)
+      }
+
+      init(source: HashiCorpVaultReader.Engine.AWS.Element) {
         self.enginePath = source.enginePath
         self.role = source.role
       }

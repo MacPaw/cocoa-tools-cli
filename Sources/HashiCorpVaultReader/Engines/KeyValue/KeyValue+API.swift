@@ -37,16 +37,19 @@ extension API: HashiCorpVaultEngineAPIProtocol {
   }
 
   private func adaptURL(url: URL?, for element: any HashiCorpVaultReaderKeyValueUniqueElement) throws -> URL {
-    guard let url = url else { throw HashiCorpVaultReader.Error.urlIsNotSet }
+    guard var url = url else { throw HashiCorpVaultReader.Error.urlIsNotSet }
+    url.append(path: element.secretMountPath, directoryHint: .isDirectory)
+    url.append(component: "data", directoryHint: .isDirectory)
+    url.append(path: element.path, directoryHint: .notDirectory)
+    guard element.version > 0 else { return url }
+
     guard var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
       throw HashiCorpVaultReader.Error.invalidURL(url: url, message: "Failed to read URL components from URL \(url)")
     }
-    urlComponents.path += "/\(element.secretMountPath)/data/\(element.path)"
-    if element.version > 0 {
-      var queryItems = urlComponents.queryItems ?? []
-      queryItems.append(URLQueryItem(name: "version", value: String(element.version)))
-      urlComponents.queryItems = queryItems
-    }
+    var queryItems = urlComponents.queryItems ?? []
+    queryItems.append(URLQueryItem(name: "version", value: String(element.version)))
+    urlComponents.queryItems = queryItems
+
     guard let url = urlComponents.url else {
       throw HashiCorpVaultReader.Error.invalidURL(url: url, message: "Failed to create URL from URL components")
     }

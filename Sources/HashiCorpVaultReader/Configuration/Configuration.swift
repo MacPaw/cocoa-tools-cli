@@ -78,14 +78,10 @@ extension HashiCorpVaultReader.Configuration: Decodable {
 
 extension HashiCorpVaultReader.Configuration {
   func buildBaseURL(path: String = "") throws -> URL {
-    let url = vaultAddress
-    guard var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
-      throw HashiCorpVaultReader.Error.invalidURL(url: url, message: "Failed to read URL components from URL \(url)")
-    }
-    components.path += "/\(apiVersion)"
-    if !path.isEmpty { components.path += "\(path)" }
-    guard let url = components.url else {
-      throw HashiCorpVaultReader.Error.invalidURL(url: url, message: "Failed to create URL from URL components")
+    var url = vaultAddress
+    url.append(component: apiVersion, directoryHint: .isDirectory)
+    if !path.isEmpty {
+      url.append(path: path)
     }
     return url
   }
