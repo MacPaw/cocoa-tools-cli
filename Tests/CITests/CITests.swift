@@ -29,7 +29,11 @@ final class CITests {
 
     // THEN
     // Check that it returns Local CI type
-    #expect(sut.type.name == "Local")
+    if ENV.GITHUB_ACTIONS {
+      #expect(sut.type.name == "GitHub Actions")
+    } else {
+      #expect(sut.type.name == "Local")
+    }
 
     CI.reset()
   }
