@@ -71,14 +71,7 @@ enum Targets {
     var targets: [PackageDescription.Target] = [.target(name: name, dependencies: dependencies, plugins: plugins)]
 
     if tests {
-      targets.append(
-        .testTarget(
-          name: "\(name)Tests",
-          dependencies: [.target(name: name)] + testsDependencies + [
-            .product(name: "Testing", package: "swift-testing")
-          ]
-        )
-      )
+      targets.append(.testTarget(name: "\(name)Tests", dependencies: [.target(name: name)] + testsDependencies))
     }
 
     return targets
@@ -171,7 +164,9 @@ enum Targets {
       ]
   }
 
-  static var hashicorpVaultReader: [PackageDescription.Target] { targetBundle(name: "HashiCorpVaultReader") }
+  static var hashicorpVaultReader: [PackageDescription.Target] {
+    targetBundle(name: "HashiCorpVaultReader", tests: false)
+  }
 }
 
 let package = Package(
@@ -188,9 +183,8 @@ let package = Package(
   ],
   dependencies: [
     .package(url: "https://github.com/apple/swift-argument-parser.git", .upToNextMajor(from: "1.6.1")),
-    .package(url: "https://github.com/swiftlang/swift-format.git", "603.0.0-latest"..<"604.0.0"),
-    .package(url: "https://github.com/swiftlang/swift-syntax.git", "603.0.0-latest"..<"604.0.0"),
-    .package(url: "https://github.com/swiftlang/swift-testing.git", branch: "main"),
+    .package(url: "https://github.com/swiftlang/swift-format.git", .upToNextMajor(from: "601.0.0")),
+    .package(url: "https://github.com/swiftlang/swift-syntax.git", "509.1.1"..<"602.0.0"),
     swiftConfidentialSource.packageDependency, yamsSource.packageDependency,
   ],
   targets: [

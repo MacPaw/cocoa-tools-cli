@@ -6,13 +6,13 @@ swift_format_format() {
   echo "Formatting Swift source code with swift-format..."
   # Calling swift ... swift-format doesn't format Package.swift 🤷.
   # Copy Package.swift to Sources so it is formatted too.
-  cp Package.swift Sources/Dummy
+  cp Package*.swift Sources/Dummy
 
   # Format .swift files.
   swift package plugin --allow-writing-to-package-directory --package swift-format format-source-code
 
   # Move formatted Package.swift back to the root folder.
-  mv Sources/Dummy/Package.swift .
+  mv Sources/Dummy/Package*.swift .
 }
 
 swift_format_lint() {

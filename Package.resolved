@@ -1,5 +1,5 @@
 {
-  "originHash" : "5287e7395952cb5070aaf818719891af1a6df83ec3be7ad40a56a58a840c4f49",
+  "originHash" : "4181dfde3fcaa1f58c39065e7d3cb82bb4b12bfc9975ccbbf73d6ce1a8902a82",
   "pins" : [
     {
       "identity" : "swift-argument-parser",
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-case-paths",
       "state" : {
-        "revision" : "5da6989aae464f324eef5c5b52bdb7974725ab81",
-        "version" : "1.0.0"
+        "revision" : "9810c8d6c2914de251e072312f01d3bf80071852",
+        "version" : "1.7.1"
       }
     },
     {
@@ -34,7 +34,7 @@
       "location" : "https://github.com/nekrich/swift-confidential.git",
       "state" : {
         "branch" : "master",
-        "revision" : "5bd9e29336cc7b288af41bafb886abcdae19f3a0"
+        "revision" : "0c260ea4cd4d2a412dc264cfa76e6fc9ec85c2ab"
       }
     },
     {
@@ -42,14 +42,14 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/swiftlang/swift-format.git",
       "state" : {
-        "revision" : "2a2abbfba12c02e1dc5bdf59974790f069450bb3",
-        "version" : "603.0.0-prerelease-2025-08-11"
+        "revision" : "ffbb3225ffda37b62c7283c70e87e8bc7e8e202a",
+        "version" : "601.0.0"
       }
     },
     {
       "identity" : "swift-markdown",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/swiftlang/swift-markdown.git",
+      "location" : "https://github.com/apple/swift-markdown.git",
       "state" : {
         "revision" : "ea79e83c8744d2b50b0dc2d5bbd1e857e1253bf9",
         "version" : "0.6.0"
@@ -69,17 +69,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/swiftlang/swift-syntax.git",
       "state" : {
-        "revision" : "07bf225e198119c23b2b9a0a3432bdb534498873",
-        "version" : "603.0.0-prerelease-2025-08-11"
-      }
-    },
-    {
-      "identity" : "swift-testing",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/swiftlang/swift-testing.git",
-      "state" : {
-        "branch" : "main",
-        "revision" : "82b63f65870e59862a7c3a9d719e0be074f94620"
+        "revision" : "f99ae8aa18f0cf0d53481901f88a0991dc3bd4a2",
+        "version" : "601.0.1"
       }
     },
     {
