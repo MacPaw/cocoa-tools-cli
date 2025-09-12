@@ -8,7 +8,7 @@ The ImportSecrets module provides a unified interface for managing secrets acros
 
 ## Features
 
-- **Multiple Secret Providers**: Built-in support for 1Password, extensible for other providers
+- **Multiple Secret Providers**: Built-in support for 1Password and HashiCorp Vault, extensible for other providers
 - **Flexible Export Destinations**: Support for .env files, mise configurations, stdout, and custom destinations
 - **YAML Configuration**: Declarative configuration with environment variable substitution
 - **Batch Operations**: Optimized fetching with provider-specific batching
@@ -53,7 +53,10 @@ secrets:
 import ImportSecrets
 
 // Configure providers
-let providers = [ImportSecrets.Providers.OnePassword()]
+let providers = [
+    ImportSecrets.Providers.OnePassword(),
+    ImportSecrets.Providers.HashiCorpVault()
+]
 
 // Load and fetch secrets
 let secrets = try await ImportSecrets.getSecrets(
@@ -75,17 +78,27 @@ version: "1.0"
 sourceConfigurations:
   op:  # 1Password
     vault: "Development"  # Default vault for all secrets
+  
+  vault:  # HashiCorp Vault
+    vaultAddress: "https://vault.example.com:8200"
+    authenticationMethod: "token"
+    authenticationCredentials:
+      token:
+        vaultToken: "${VAULT_TOKEN}"
+    defaultEngineConfigurations:
+      keyValue:
+        defaultSecretMountPath: "secret"
 
 # Individual secrets configuration
 secrets:
-  # Database connection string
+  # Database connection string from 1Password
   DATABASE_URL:
     sources:
       op:
         item: "Database Config"
         label: "connection_string"
   
-  # API key with vault override
+  # API key from 1Password with vault override
   API_KEY:
     sources:
       op:
@@ -93,12 +106,21 @@ secrets:
         label: "production_key"
         vault: "Production"  # Override default vault
   
-  # Secret with multiple potential sources
-  BACKUP_TOKEN:
+  # Application secret from HashiCorp Vault
+  APP_SECRET:
     sources:
-      op:
-        item: "Backup Service"
-        label: "api_token"
+      vault:
+        keyValue:
+          path: "myapp/secrets"
+          key: "app_secret"
+  
+  # AWS credentials from HashiCorp Vault
+  AWS_ACCESS_KEY_ID:
+    sources:
+      vault:
+        aws:
+          role: "myapp-role"
+          key: "accessKey"
 ```
 
 ### Environment Variable Substitution
@@ -162,6 +184,125 @@ secrets:
         account: "another_acc"       # Optional: Override default account
         vault: "Specific Vault"      # Optional: Override default vault
 ```
+
+### HashiCorp Vault Provider
+
+The built-in HashiCorp Vault provider integrates with HashiCorp Vault servers to fetch secrets from KeyValue and AWS secrets engines:
+
+```swift
+// Basic HashiCorp Vault provider
+let vaultProvider = ImportSecrets.Providers.HashiCorpVault()
+
+// With custom reader
+let customReader = HashiCorpVaultReader()
+let customProvider = ImportSecrets.Providers.HashiCorpVault(
+    fetcher: .init(reader: customReader)
+)
+```
+
+#### HashiCorp Vault Configuration Format
+
+```yaml
+sourceConfigurations:
+  vault:
+    # Required: Vault server address
+    vaultAddress: "https://vault.example.com:8200"
+    
+    # Optional: API version (defaults to "v1")
+    apiVersion: "v1"
+    
+    # Required: Authentication method
+    authenticationMethod: "token"  # or "appRole"
+    
+    # Required: Authentication credentials
+    authenticationCredentials:
+      # For token authentication
+      token:
+        vaultToken: "..."
+      
+      # For AppRole authentication (alternative to token)
+      appRole:
+        roleId: "role-id-here"
+        secretId: "secret-id-here"
+    
+    # Optional: Default engine configurations
+    defaultEngineConfigurations:
+      # KeyValue engine defaults
+      keyValue:
+        defaultSecretMountPath: "secret"  # Default mount path
+      
+      # AWS engine defaults
+      aws:
+        defaultEnginePath: "aws"  # Default engine path
+
+secrets:
+  # KeyValue engine secret
+  DATABASE_PASSWORD:
+    sources:
+      vault:
+        keyValue:
+          secretMountPath: "secret"        # Optional: Override default
+          path: "myapp/database"           # Required: Secret path
+          key: "password"                  # Required: Key within secret
+          version: 2                       # Optional: Specific version (If not specified or value less than 1 the latest version will be used)
+  
+  # AWS engine secret (access key)
+  AWS_ACCESS_KEY:
+    sources:
+      vault:
+        aws:
+          enginePath: "aws"               # Optional: Override default
+          role: "my-role"                 # Required: AWS role name
+          key: "accessKey"                # Required: "accessKey" or "secretKey"
+  
+  # AWS engine secret (secret key)
+  AWS_SECRET_KEY:
+    sources:
+      vault:
+        aws:
+          enginePath: "aws"
+          role: "my-role"
+          key: "secretKey"
+```
+
+#### Authentication Methods
+
+**Token Authentication:**
+```yaml
+sourceConfigurations:
+  vault:
+    vaultAddress: "https://vault.example.com:8200"
+    authenticationMethod: "token"
+    authenticationCredentials:
+      token:
+        vaultToken: "${VAULT_TOKEN}"
+```
+
+**AppRole Authentication:**
+```yaml
+sourceConfigurations:
+  vault:
+    vaultAddress: "https://vault.example.com:8200"
+    authenticationMethod: "appRole"
+    authenticationCredentials:
+      appRole:
+        roleId: "${VAULT_APP_ROLE_ROLE_ID}"
+        secretId: "${VAULT_APP_ROLE_SECRET_ID}"
+```
+
+You can specify both `authenticationCredentials` at the same time and use `EnvSubst` for the `authenticationMethod`, 
+
+#### Supported Engines
+
+**KeyValue Engine (KV v2):**
+- Supports versioned key-value secrets
+- Configurable mount paths
+- Specific version retrieval or latest version
+
+**AWS Secrets Engine:**
+- Dynamic AWS credentials generation
+- Role-based access
+- Returns both access key and secret key
 
 ## Advanced Usage
 
@@ -293,6 +434,9 @@ secrets:
 5. **Batch Related Secrets**: Group secrets from the same source for better performance
 6. **Test with Mock Providers**: Use mock providers for unit testing
 7. **Secure Configuration Files**: Keep configuration files secure and don't commit them with sensitive data
+8. **HashiCorp Vault Security**: Use appropriate authentication methods (prefer AppRole for applications)
+9. **Version Management**: Use specific versions for critical secrets in HashiCorp Vault KV engine
+10. **Engine Path Organization**: Organize HashiCorp Vault secrets with clear mount paths and role naming
 
 
 ## Security Considerations
@@ -302,3 +446,8 @@ secrets:
 3. **Provider Authentication**: Ensure proper authentication setup for secret providers
 4. **Error Message Sanitization**: Avoid exposing sensitive information in error messages
 5. **Temporary File Handling**: The module handles temporary files securely during processing
+6. **HashiCorp Vault Token Security**: Store vault tokens securely and rotate them regularly
+7. **AppRole Credentials**: Use AppRole authentication for applications and secure role/secret IDs
+8. **Network Security**: Ensure HashiCorp Vault communication uses HTTPS and proper certificates
+9. **Access Policies**: Implement least-privilege access policies in HashiCorp Vault
+10. **Audit Logging**: Enable audit logging in HashiCorp Vault for security monitoring

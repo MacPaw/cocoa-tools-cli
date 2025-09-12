@@ -12,6 +12,7 @@ struct ImportSecretsFetchingTests {
   private static func buildProviders(
     opCLIMock: MockOnePasswordCLI,
     fakeProviderFetcher: ImportSecrets.Providers.FakeProvider.Fetcher,
+    hashicorpVaultReaderMock: MockHashiCorpVaultReaderProtocol = .init()
   ) -> [any SecretProviderProtocol] {
     [
       ImportSecrets.Providers.OnePassword(fetcher: .init(onePasswordCLI: opCLIMock)),
@@ -141,7 +142,7 @@ struct ImportSecretsFetchingTests {
       """
     // WHEN/THEN: Getting secrets throws unsupportedSecretSource error
     let data = yamlConfig.data(using: .utf8)!
-    await #expect(throws: DecodingError.self) {
+    await #expect(throws: ImportSecrets.Error.noSecretsToFetch) {
       try await ImportSecrets.getSecrets(
         configurationData: data,
         sourceProviders: Self.buildProviders(opCLIMock: opCLIMock, fakeProviderFetcher: fakeProviderFetcher),

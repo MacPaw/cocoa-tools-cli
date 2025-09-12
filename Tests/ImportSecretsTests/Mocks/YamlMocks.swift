@@ -6,10 +6,18 @@ enum YamlMocks {
         vault: personal
       fake-source:
         url: https://macpaw.com
+      vault:
+        vaultAddress: https://macpaw.com
+        apiVersion: v1
+        vaultToken: some_token
+        keyValue:
+          defaultSecretMountPath: secret
+        aws:
+          defaultEnginePath: aws
     secrets:
       TEST_MPCT_SECRET1_OP_ONLY:
         sources:
-          # Test: Should not call OnePassword provider
+          # Test: Should not call FakeProvider provider
           op:
             item: "[TEST] mpct.import-secrets.shared-item"
             label: item1-secret
@@ -55,5 +63,23 @@ enum YamlMocks {
           fake-source:
             path: /test/mpct/item6/secret
             key: missing
+      TEST_MPCT_SECRET7_VAULT_KV:
+        sources:
+          vault:
+            keyValue:
+              path: path/secret7
+              key: key
+      TEST_MPCT_SECRET7_VAULT_AWS:
+        sources:
+          vault:
+            aws:
+              role: role1
+              key: key1
+      TEST_MPCT_SECRET8_VAULT_AWS:
+        sources:
+          vault:
+            aws:
+              role: role1
+              key: key2
     """
 }

@@ -33,6 +33,7 @@ container_run_tests() {
 
   "${CONTAINER_BINARY}" run \
     --remove \
+    --volume "${REPOSITORY_ROOT_DIR}/.build/prebuilts:/package/.build/prebuilts:rw" \
     --volume "${REPOSITORY_ROOT_DIR}:/package:ro" \
     --workdir /package \
     --entrypoint /bin/sh \

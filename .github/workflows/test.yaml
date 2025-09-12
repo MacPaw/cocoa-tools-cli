@@ -46,7 +46,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
       - name: Prepare Swift
         uses: ./.github/workflows/templates/prepare-swift/
@@ -92,7 +92,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
       - name: Prepare Swift
         uses: ./.github/workflows/templates/prepare-swift/

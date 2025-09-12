@@ -1,0 +1,12 @@
+[
+  {
+    "fingerprint": "82b63f65870e59862a7c3a9d719e0be074f94620",
+    "packageIdentity": "swift-testing",
+    "targetName": "TestingMacros"
+  },
+  {
+    "fingerprint": "5da6989aae464f324eef5c5b52bdb7974725ab81",
+    "packageIdentity": "swift-case-paths",
+    "targetName": "CasePathsMacros"
+  }
+]

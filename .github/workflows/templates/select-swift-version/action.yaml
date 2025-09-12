@@ -22,10 +22,8 @@ runs:
       env:
         XCODE_VERSION: ${{ inputs.xcode-version }}
 
-    # Issues: https://github.com/swift-actions/setup-swift/issues/694, https://github.com/swift-actions/setup-swift/issues/739
-    # Author is focused on new action version: https://github.com/swift-actions/setup-swift/pull/710
     # - name: Setup Swift (Linux)
     #   if: ${{ inputs.swift-version != '' && runner.os == 'Linux' }}
-    #   uses: swift-actions/setup-swift@v2
+    #   uses: swift-actions/setup-swift@7d6348b84c07b33515ee21ebc40bbf974cc19d40
     #   with:
-    #     swift-version: ${{ matrix.swift-version }}
+    #     swift-version: ${{ inputs.swift-version }}

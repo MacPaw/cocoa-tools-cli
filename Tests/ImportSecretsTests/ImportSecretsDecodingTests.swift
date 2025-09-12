@@ -1,8 +1,15 @@
 import Foundation
+import HashiCorpVaultReader
 import Testing
 
 @testable import ImportSecrets
 @testable import Shell
+
+final class MockHashiCorpVaultReaderProtocol: HashiCorpVaultReaderProtocol {
+  func fetch(secrets: [String: HashiCorpVaultReader.Element], configuration: HashiCorpVaultReader.Configuration)
+    async throws -> [String: String]
+  { [:] }
+}
 
 @Suite("ImportSecrets Decoding Tests")
 struct ImportSecretsDecodingTests {

@@ -16,8 +16,14 @@ echo "Copying sources with Plugins..."
 cp -r Plugins Sources Tests Package.swift Package.resolved .version /package-copy
 
 echo "Copying resolved packages..."
-# Not copying .build/prebuilts because they are platform-specific.
-cp -r .build/checkouts .build/repositories .build/plugins .build/workspace-state.json /package-copy/.build || true
+cp -r .build/checkouts \
+  .build/repositories \
+  .build/plugins \
+  .build/workspace-state.json \
+  .build/prebuilts \
+  \
+  /package-copy/.build \
+  || true
 
 echo "Copying necessary scripts..."
 mkdir -p /package-copy/scripts/tools/swift
@@ -43,6 +49,12 @@ echo "Building..."
 
 echo "Testing..."
 ./scripts/tools/swift/swift.sh --action=test
+
+echo "Copying prebuilts back..."
+cp -r .build/prebuilts \
+  \
+  /package/.build \
+  || true
 
 echo "Removing copy..."
 rm -rf /package-copy

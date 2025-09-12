@@ -64,10 +64,11 @@ enum Targets {
   static func targetBundle(
     name: String,
     dependencies: [PackageDescription.Target.Dependency] = [],
+    plugins: [PackageDescription.Target.PluginUsage] = [],
     tests: Bool = true,
     testsDependencies: [PackageDescription.Target.Dependency] = []
   ) -> [PackageDescription.Target] {
-    var targets: [PackageDescription.Target] = [.target(name: name, dependencies: dependencies)]
+    var targets: [PackageDescription.Target] = [.target(name: name, dependencies: dependencies, plugins: plugins)]
 
     if tests {
       targets.append(.testTarget(name: "\(name)Tests", dependencies: [.target(name: name)] + testsDependencies))
@@ -79,6 +80,7 @@ enum Targets {
   static func commandBundle(
     name: String,
     dependencies: [PackageDescription.Target.Dependency] = [],
+    plugins: [PackageDescription.Target.PluginUsage] = [],
     tests: Bool = true,
     testsDependencies: [PackageDescription.Target.Dependency] = [],
     commandDependencies: [PackageDescription.Target.Dependency] = [],
@@ -95,6 +97,9 @@ enum Targets {
       )
   }
 
+  static var env: [PackageDescription.Target] { targetBundle(name: "ENV") }
+  static var ci: [PackageDescription.Target] { targetBundle(name: "CI", dependencies: [.target(name: "ENV")]) }
+
   static var shell: [PackageDescription.Target] { targetBundle(name: "Shell", tests: false) }
 
   static var envSubst: [PackageDescription.Target] {
@@ -104,8 +109,13 @@ enum Targets {
   static var importSecrets: [PackageDescription.Target] {
     commandBundle(
       name: "ImportSecrets",
-      dependencies: [.target(name: "EnvSubst"), .target(name: "Shell"), .product(name: "Yams", package: "Yams")],
-      commandDependencies: [.target(name: "EnvSubstCommand"), .target(name: "ExportSecrets")]
+      dependencies: [
+        .target(name: "EnvSubst"), .target(name: "Shell"), .target(name: "HashiCorpVaultReader"),
+        .product(name: "Yams", package: "Yams"),
+      ],
+      commandDependencies: [
+        .target(name: "EnvSubstCommand"), .target(name: "ExportSecrets"), .target(name: "HashiCorpVaultReader"),
+      ]
     )
   }
 
@@ -137,6 +147,7 @@ enum Targets {
           dependencies: [
             .target(name: "SemanticVersion"), .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
             .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
+            .product(name: "SwiftSyntax", package: "swift-syntax"),
           ]
         ),
         .plugin(
@@ -152,6 +163,10 @@ enum Targets {
         ),
       ]
   }
+
+  static var hashicorpVaultReader: [PackageDescription.Target] {
+    targetBundle(name: "HashiCorpVaultReader", tests: false)
+  }
 }
 
 let package = Package(
@@ -162,7 +177,9 @@ let package = Package(
     .library(name: "Shell", targets: ["Shell"]), .library(name: "ImportSecrets", targets: ["ImportSecrets"]),
     .library(name: "ExportSecrets", targets: ["ExportSecrets"]),
     .library(name: "ObfuscateSecrets", targets: ["ObfuscateSecrets"]),
+    .library(name: "HashiCorpVaultReader", targets: ["HashiCorpVaultReader"]),
     .plugin(name: "SemanticVersionBuildToolPlugin", targets: ["SemanticVersionBuildToolPlugin"]),
+    .library(name: "ENV", targets: ["ENV"]), .library(name: "CI", targets: ["CI"]),
   ],
   dependencies: [
     .package(url: "https://github.com/apple/swift-argument-parser.git", .upToNextMajor(from: "1.6.1")),
@@ -186,7 +203,7 @@ let package = Package(
     .target(name: "Dummy"),
 
   ] + Targets.shell + Targets.envSubst + Targets.exportSecrets + Targets.importSecrets + Targets.obfuscateSecrets
-    + Targets.semanticVersion,
+    + Targets.semanticVersion + Targets.env + Targets.ci + Targets.hashicorpVaultReader,
 
   swiftLanguageModes: [.version(swiftLanguageVersion)]
 )

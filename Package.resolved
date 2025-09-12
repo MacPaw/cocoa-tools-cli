@@ -1,5 +1,5 @@
 {
-  "originHash" : "0c1aac73a1b412097ba1b3b5ef7e48268cd878f65ad86b34c00268ed5b382662",
+  "originHash" : "4181dfde3fcaa1f58c39065e7d3cb82bb4b12bfc9975ccbbf73d6ce1a8902a82",
   "pins" : [
     {
       "identity" : "swift-argument-parser",
@@ -34,7 +34,7 @@
       "location" : "https://github.com/nekrich/swift-confidential.git",
       "state" : {
         "branch" : "master",
-        "revision" : "a1bc4d31f74815e57b109c53903daa8f761626e3"
+        "revision" : "0c260ea4cd4d2a412dc264cfa76e6fc9ec85c2ab"
       }
     },
     {

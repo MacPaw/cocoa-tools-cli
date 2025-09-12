@@ -36,7 +36,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v5
       with:
-        fetch-depth: 0
+        fetch-depth: 1
     - name: Check if tag and release exist
       id: check
       env:
@@ -73,7 +73,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
       - name: Map architecture
         id: map-architecture
@@ -131,7 +131,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
       - name: Download all artifacts
         uses: actions/download-artifact@v5

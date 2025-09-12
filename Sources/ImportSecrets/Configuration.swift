@@ -70,14 +70,24 @@ extension ImportSecrets.Configuration: DecodableWithConfiguration {
     // Decode each secret, using the YAML key as the environment variable name
     for key in secretsContainer.allKeys {
       let secretDecoder = try secretsContainer.superDecoder(forKey: key)
-      let secret = try ImportSecrets.Secret(
-        from: secretDecoder,
-        configuration: .init(
-          topLevelDecodingConfiguration: configuration,
-          sourcesConfigurations: sourceConfigurations,
-          secretEnvVarName: key.stringValue,  // YAML key becomes the env var name
-        ),
-      )
+      let secret: ImportSecrets.Secret
+      do {
+        secret = try ImportSecrets.Secret(
+          from: secretDecoder,
+          configuration: .init(
+            topLevelDecodingConfiguration: configuration,
+            sourcesConfigurations: sourceConfigurations,
+            secretEnvVarName: key.stringValue,  // YAML key becomes the env var name
+          ),
+        )
+      }
+      catch let error as DecodingError {
+        switch error {
+        case .dataCorrupted(let context)
+        where context.underlyingError as? ImportSecrets.Error == .secretHasNoKnownSources: continue
+        default: throw error
+        }
+      }
       secrets.append(secret)
     }
     self.secrets = secrets
