@@ -24,7 +24,7 @@ on:
         description: 'Xcode version'
         type: string
         required: false
-        default: '26.0'
+        default: '16.4'
       macOS-runner-os:
         description: 'macOS runner OS (macos-15, macos-latest)'
         type: string
