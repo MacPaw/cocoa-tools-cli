@@ -3,8 +3,8 @@ import EnvSubstCommand
 import Foundation
 @_exported public import ImportSecrets
 
-extension ImportSecretsCommand {
-  /// Command-line options for the ImportSecretsCommand.
+extension ExportSecretsCommand {
+  /// Command-line options for the ExportSecretsCommand.
   ///
   /// Configures the source providers, configuration file location, export destination,
   /// and environment variable substitution behavior for the secret import process.
@@ -41,7 +41,7 @@ extension ImportSecretsCommand {
   }
 }
 
-extension ImportSecretsCommand.Options {
+extension ExportSecretsCommand.Options {
   /// Available secret source providers.
   public enum Source: String {
     /// 1Password CLI integration for fetching secrets from 1Password vaults.
@@ -51,10 +51,10 @@ extension ImportSecretsCommand.Options {
   }
 }
 
-extension ImportSecretsCommand.Options.Source: Decodable {}
-extension ImportSecretsCommand.Options.Source: CaseIterable {}
-extension ImportSecretsCommand.Options.Source: Equatable {}
-extension ImportSecretsCommand.Options.Source: ExpressibleByArgument {
+extension ExportSecretsCommand.Options.Source: Decodable {}
+extension ExportSecretsCommand.Options.Source: CaseIterable {}
+extension ExportSecretsCommand.Options.Source: Equatable {}
+extension ExportSecretsCommand.Options.Source: ExpressibleByArgument {
   /// Provides a human-readable description of each source provider.
   ///
   /// - Returns: A description string explaining what the source provider does.
@@ -66,7 +66,7 @@ extension ImportSecretsCommand.Options.Source: ExpressibleByArgument {
   }
 }
 
-extension ImportSecretsCommand.Options {
+extension ExportSecretsCommand.Options {
   /// Command-line arguments for configuring the export destination.
   ///
   /// Determines where fetched secrets will be exported, such as to files,
@@ -74,7 +74,7 @@ extension ImportSecretsCommand.Options {
   public struct DestinationArguments: ParsableArguments, Sendable {
     /// The type of destination to export secrets to.
     @Option(name: .customLong("destination"), help: "Destination to export the secrets to. Default value: in-memory.")
-    var destinationType: ImportSecretsCommand.Options.Destination.DestinationType
+    var destinationType: ExportSecretsCommand.Options.Destination.DestinationType
 
     /// Optional file path for file-based destinations (mise, dotenv).
     ///
@@ -87,9 +87,9 @@ extension ImportSecretsCommand.Options {
   }
 }
 
-extension ImportSecretsCommand.Options.DestinationArguments {
+extension ExportSecretsCommand.Options.DestinationArguments {
   /// Converts the destination arguments to a Destination configuration object.
   ///
   /// - Returns: A Destination instance combining the destination type and file path.
-  var destination: ImportSecretsCommand.Options.Destination { .init(type: destinationType, file: destinationFile) }
+  var destination: ExportSecretsCommand.Options.Destination { .init(type: destinationType, file: destinationFile) }
 }

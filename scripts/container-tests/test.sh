@@ -54,7 +54,7 @@ echo "Copying prebuilts back..."
 cp -r .build/prebuilts \
   \
   /package/.build \
-  || true
+  || true # Workaround for read-only mount when using the container binary.
 
 echo "Removing copy..."
 rm -rf /package-copy

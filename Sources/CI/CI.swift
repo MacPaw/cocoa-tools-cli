@@ -20,10 +20,16 @@ public struct CI {
 }
 
 extension CI: CIInterface {
+  /// Capabilities of the CI.
+  public var capabilities: Capabilities { ci.capabilities }
+
+  /// Environment variables management.
+  public var env: any CIEnvInterface { ci.env }
+
   /// Initialize CI with environment variables.
   ///
   /// - Parameter env: Environment variables.
-  public init(env: ENV) { self.init(env: env, supportedCIs: Self.supported) }
+  public init(env: ENV = .current) { self.init(env: env, supportedCIs: Self.supported) }
 
   /// Validate if the current CI is supported.
   ///

@@ -107,20 +107,24 @@ enum Targets {
   }
 
   static var importSecrets: [PackageDescription.Target] {
-    commandBundle(
+    targetBundle(
       name: "ImportSecrets",
       dependencies: [
         .target(name: "EnvSubst"), .target(name: "Shell"), .target(name: "HashiCorpVaultReader"),
         .product(name: "Yams", package: "Yams"),
-      ],
-      commandDependencies: [
-        .target(name: "EnvSubstCommand"), .target(name: "ExportSecrets"), .target(name: "HashiCorpVaultReader"),
       ]
     )
   }
 
   static var exportSecrets: [PackageDescription.Target] {
-    targetBundle(name: "ExportSecrets", dependencies: [.target(name: "Shell")])
+    commandBundle(
+      name: "ExportSecrets",
+      dependencies: [.target(name: "Shell"), .target(name: "CI")],
+      commandDependencies: [
+        .target(name: "EnvSubstCommand"), .target(name: "HashiCorpVaultReader"), .target(name: "CI"),
+        .target(name: "ImportSecrets"),
+      ]
+    )
   }
 
   static var obfuscateSecrets: [PackageDescription.Target] {
@@ -131,7 +135,7 @@ enum Targets {
         .product(name: "ConfidentialKit", package: "swift-confidential", condition: .when(platforms: [.macOS])),
         swiftConfidentialSource.targetDependency,
       ],
-      commandDependencies: [.target(name: "EnvSubstCommand"), .target(name: "ImportSecretsCommand")]
+      commandDependencies: [.target(name: "EnvSubstCommand"), .target(name: "ExportSecretsCommand")]
     )
   }
 
@@ -193,7 +197,7 @@ let package = Package(
       dependencies: [
         .product(name: "ArgumentParser", package: "swift-argument-parser"), .target(name: "EnvSubstCommand"),
         .target(name: "ObfuscateSecretsCommand", condition: .when(platforms: [.macOS])),
-        .target(name: "ImportSecretsCommand"), .target(name: "SemanticVersion"), .target(name: "SemanticVersionMacro"),
+        .target(name: "ExportSecretsCommand"), .target(name: "SemanticVersion"), .target(name: "SemanticVersionMacro"),
       ],
       packageAccess: true,
       plugins: [.plugin(name: "SemanticVersionBuildToolPlugin")]

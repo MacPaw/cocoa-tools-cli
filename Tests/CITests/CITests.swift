@@ -59,6 +59,10 @@ final class CITests {
 
 // Mock CI for testing
 struct MockCI: CIInterface {
+  var capabilities: CI.Capabilities = .local
+
+  var env: any CIEnvInterface = CI.Local.Environment(env: .current)
+
   var type: CIType { CIType(name: "Mock") }
 
   static func validateAsCurrentCI(_ environment: ENV) -> Bool {

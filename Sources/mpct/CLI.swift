@@ -1,7 +1,7 @@
 import ArgumentParser
 import EnvSubstCommand
+import ExportSecretsCommand
 import Foundation
-import ImportSecretsCommand
 import SemanticVersion
 import SemanticVersionMacro
 
@@ -37,6 +37,6 @@ struct SecretsCommand: ParsableCommand {
   static let configuration: CommandConfiguration = CommandConfiguration(
     commandName: "secrets",
     abstract: "Secrets manipulation",
-    subcommands: obfuscate + [ImportSecretsCommand.self],
+    subcommands: obfuscate + [ExportSecretsCommand.self],
   )
 }

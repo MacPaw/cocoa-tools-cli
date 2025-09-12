@@ -170,7 +170,7 @@ mpct envsubst --input app-config.template --output app-config.json --no-unset
 
 The EnvSubstCommand is also used internally by other commands:
 
-- **ImportSecretsCommand**: Uses envsubst options for processing configuration files
+- **ExportSecretsCommand**: Uses envsubst options for processing configuration files
 - **ObfuscateSecretsCommand**: Uses envsubst options for variable substitution in configuration
 
 ## Error Messages

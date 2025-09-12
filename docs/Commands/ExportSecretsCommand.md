@@ -1,15 +1,15 @@
-# ImportSecretsCommand
+# ExportSecretsCommand
 
 Command-line interface for importing secrets from various providers and exporting them to different destinations.
 
 ## Overview
 
-The ImportSecretsCommand provides a CLI wrapper around the ImportSecrets module, allowing users to fetch secrets from different sources (like 1Password) and export them to various destinations such as environment files, mise configurations, or standard output.
+The ExportSecretsCommand provides a CLI wrapper around the ImportSecrets module, allowing users to fetch secrets from different sources (like 1Password) and export them to various destinations such as environment files, mise configurations, or standard output.
 
 ## Usage
 
 ```bash
-mpct secrets import --config <config> --destination <destination> [--file <file>] [--no-unset] [--no-empty] [--fail-fast] --source <source> ...
+mpct secrets export --config <config> --destination <destination> [--file <file>] [--no-unset] [--no-empty] [--fail-fast] --source <source> ...
 ```
 
 ## Arguments
@@ -48,25 +48,25 @@ More info on the configuration file structure and avaulable secret sources confi
 ### Basic Usage
 Import secrets from 1Password and export to stdout:
 ```bash
-mpct secrets import --config secrets.yaml --source op --destination stdout --no-unset --no-empty
+mpct secrets export --config secrets.yaml --source op --destination stdout --no-unset --no-empty
 ```
 
 ### Export to mise configuration
 Import secrets and save to mise configuration file:
 ```bash
-mpct secrets import --config secrets.yaml --source op --destination mise
+mpct secrets export --config secrets.yaml --source op --destination mise
 ```
 
 ### Multiple sources
 Import from multiple sources (if supported):
 ```bash
-mpct secrets import --config secrets.yaml --source op --source vault --destination stdout
+mpct secrets export --config secrets.yaml --source op --source vault --destination stdout
 ```
 
 ### With environment variable substitution options
 Import with strict variable validation:
 ```bash
-mpct secrets import --config secrets.yaml --source op --destination stdout --no-unset --fail-fast
+mpct secrets export --config secrets.yaml --source op --destination stdout --no-unset --fail-fast
 ```
 
 ## Error Handling

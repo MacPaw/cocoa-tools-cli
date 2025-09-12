@@ -31,6 +31,10 @@ container_run_tests() {
   SWIFT_VERSION="${SWIFT_VERSION:-"$(tr -d '[:space:]' < .swift-version || echo '6.1.2')"}"
   echo "Using Swift version: ${SWIFT_VERSION}"
 
+  if [ ! -d "${REPOSITORY_ROOT_DIR}/.build/prebuilts" ]; then
+    mkdir -p "${REPOSITORY_ROOT_DIR}/.build/prebuilts"
+  fi
+
   "${CONTAINER_BINARY}" run \
     --remove \
     --volume "${REPOSITORY_ROOT_DIR}/.build/prebuilts:/package/.build/prebuilts:rw" \

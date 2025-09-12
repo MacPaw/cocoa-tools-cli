@@ -39,16 +39,16 @@ op_run_tests() {
   op_remove_test_secrets > /dev/null 2>&1
   op_create_test_secrets
 
-  echo "Running mpct secrets import command..."
+  echo "Running mpct secrets export command..."
   RESULT="$("./.build/$(uname -m)-apple-macosx/debug/mpct" \
-    secrets import \
+    secrets export \
     --config "$(dirname "${0}")/.import-secrets.yaml" \
     --destination stdout \
     --source op || echo "Error: $?")"
 
   op_remove_test_secrets
 
-  echo $'\nmpct secrets import result:\n'"${RESULT}"$'\n'
+  echo $'\nmpct secrets export result:\n'"${RESULT}"$'\n'
 
   echo "Evaluating result"
   eval "${RESULT}"

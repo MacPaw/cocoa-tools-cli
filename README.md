@@ -44,11 +44,11 @@ mpct envsubst --input template.txt --output config.txt
 - Stdin/stdout processing
 - Strict validation options
 
-### [secrets import](docs/Commands/ImportSecretsCommand.md)
+### [secrets export](docs/Commands/ExportSecretsCommand.md)
 Import secrets from various providers.
 
 ```bash
-mpct secrets import --config secrets.yaml --source op --destination mise
+mpct secrets export --config secrets.yaml --source op --destination mise
 ```
 
 **Key Features:**
@@ -122,7 +122,7 @@ Shell command execution utilities with mise integration.
 ```
 mpct (executable)
 ├── EnvSubstCommand → EnvSubst
-├── ImportSecretsCommand → ImportSecrets → EnvSubst, Shell
+├── ExportSecretsCommand → ImportSecrets → EnvSubst, Shell
 └── ObfuscateSecretsCommand → ObfuscateSecrets → EnvSubst, ImportSecrets
 ```
 
@@ -134,7 +134,7 @@ See the [docs/DEVELOPMENT.md](./docs/DEVELOPMENT.md) file.
 
 ### Commands
 - [EnvSubstCommand](docs/Commands/EnvSubstCommand.md) - Environment variable substitution
-- [ImportSecretsCommand](docs/Commands/ImportSecretsCommand.md) - Secret importing
+- [ExportSecretsCommand](docs/Commands/ExportSecretsCommand.md) - Secret importing
 - [ObfuscateSecretsCommand](docs/Commands/ObfuscateSecretsCommand.md) - Secret obfuscation
 
 ### Modules
