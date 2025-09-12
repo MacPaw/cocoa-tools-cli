@@ -22,8 +22,8 @@ runs:
       env:
         XCODE_VERSION: ${{ inputs.xcode-version }}
 
-    - name: Setup Swift (Linux)
-      if: ${{ inputs.swift-version != '' && runner.os == 'Linux' }}
-      uses: swift-actions/setup-swift@7d6348b84c07b33515ee21ebc40bbf974cc19d40
-      with:
-        swift-version: ${{ inputs.swift-version }}
+    # - name: Setup Swift (Linux)
+    #   if: ${{ inputs.swift-version != '' && runner.os == 'Linux' }}
+    #   uses: swift-actions/setup-swift@7d6348b84c07b33515ee21ebc40bbf974cc19d40
+    #   with:
+    #     swift-version: ${{ inputs.swift-version }}
