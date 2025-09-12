@@ -12,6 +12,7 @@ docker_run_tests() {
   docker run \
     --rm \
     --cap-add sys_ptrace \
+    --volume "${REPOSITORY_ROOT_DIR}/.build/prebuilts:/package/.build/prebuilts:rw" \
     --volume "${REPOSITORY_ROOT_DIR}:/package:ro" \
     --workdir /package \
     --entrypoint /bin/sh \
