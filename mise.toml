@@ -94,7 +94,7 @@ run = "./scripts/tools/shellcheck/shellcheck.sh --format"
 
 [tasks.format-shfmt]
 description = "Format shell scripts code with shfmt"
-run = "./scripts/tools/shellcheck/shellcheck.sh --format"
+run = "./scripts/tools/shfmt/shfmt.sh --format"
 
 [tasks.build-linux]
 # Using Docker.app instead of the `container` binary, because package dir is read-only when using the container binary.
