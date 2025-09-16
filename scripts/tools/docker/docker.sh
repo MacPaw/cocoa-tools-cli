@@ -4,7 +4,11 @@ set -Eeo pipefail
 
 REPOSITORY_ROOT_DIR="${REPOSITORY_ROOT_DIR:-"$(git rev-parse --show-toplevel 2> /dev/null || pwd)"}"
 
-docker_run_tests() {
+docker_run() {
+
+  local SCRIPT_TO_RUN SWIFT_VERSION
+
+  SCRIPT_TO_RUN="${1}"
 
   SWIFT_VERSION="${SWIFT_VERSION:-"$(tr -d '[:space:]' < .swift-version || echo '6.1.2')"}"
   echo "Using Swift version: ${SWIFT_VERSION}"
@@ -17,11 +21,20 @@ docker_run_tests() {
     --rm \
     --cap-add sys_ptrace \
     --volume "${REPOSITORY_ROOT_DIR}/.build/prebuilts:/package/.build/prebuilts:rw" \
+    --volume "${REPOSITORY_ROOT_DIR}/.build/aarch64-unknown-linux-gnu/release:/package/.build/aarch64-unknown-linux-gnu/release:rw" \
     --volume "${REPOSITORY_ROOT_DIR}:/package:ro" \
     --workdir /package \
     --entrypoint /bin/sh \
     "swift:${SWIFT_VERSION}" \
-    ./scripts/container-tests/test.sh
+    "${SCRIPT_TO_RUN}"
+}
+
+docker_run_build() {
+  docker_run "./scripts/linux-container-actions/build.sh"
+}
+
+docker_run_tests() {
+  docker_run "./scripts/linux-container-actions/test.sh"
 }
 
 die() {
@@ -30,7 +43,7 @@ die() {
 } # complain to STDERR and exit with error
 needs_arg() { if [ -z "$OPTARG" ]; then die "No arg for --${OPTSPEC} option"; fi; }
 
-while getopts "t:-:" OPTSPEC; do
+while getopts "t:b:-:" OPTSPEC; do
 
   # support long options: https://stackoverflow.com/a/28466267/519360
   if [ "$OPTSPEC" = "-" ]; then   # long option: reformulate OPT and OPTARG
@@ -40,8 +53,11 @@ while getopts "t:-:" OPTSPEC; do
   fi
 
   case "${OPTSPEC}" in
-    test)
+    t | test)
       docker_run_tests
+      ;;
+    b | build)
+      docker_run_build
       ;;
     *)
       echo "Unknown option: ${OPTSPEC}" >&2

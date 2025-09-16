@@ -1,10 +1,8 @@
 #!/usr/bin/env sh
 
-set -Eeo
-
 # Running test on a package copy to avoid modifying files in the original package folder (.build, .swiftpm, etc.).
-
-echo "Removing copy..."
+prepare_package_copy() {
+  echo "Removing copy..."
 rm -rf /package-copy
 
 mkdir -p /package-copy/.build
@@ -30,7 +28,7 @@ mkdir -p /package-copy/scripts/tools/swift
 cp -r ./scripts/tools/swift/swift.sh /package-copy/scripts/tools/swift/swift.sh
 
 echo "Changing directory..."
-cd /package-copy
+cd /package-copy || exit 1
 
 echo "Current directory:"
 pwd
@@ -44,13 +42,10 @@ rm -rf .build/*-linux-* || true
 # echo "Resolving packages..."
 # /usr/bin/swift package resolve
 
-echo "Building..."
-./scripts/tools/swift/swift.sh --action=build
+}
 
-echo "Testing..."
-./scripts/tools/swift/swift.sh --action=test
-
-echo "Copying prebuilts back..."
+finish() {
+  echo "Copying prebuilts back..."
 cp -r .build/prebuilts \
   \
   /package/.build \
@@ -58,3 +53,4 @@ cp -r .build/prebuilts \
 
 echo "Removing copy..."
 rm -rf /package-copy
+}

@@ -5,6 +5,8 @@ set -Eeo pipefail
 shellcheck_lint() {
   echo "Linting shell scripts with shellcheck..."
   shellcheck \
+    --external-sources \
+    --source-path=./scripts/linux-container-actions \
     --shell=bash \
     --check-sourced \
     --extended-analysis=true \
@@ -16,6 +18,8 @@ shellcheck_lint() {
 shellcheck_format() {
   echo "Formatting shell scripts with shellcheck..."
   (shellcheck \
+    --external-sources \
+    --source-path=./scripts/linux-container-actions \
     --shell=bash \
     --format=diff \
     --check-sourced \
