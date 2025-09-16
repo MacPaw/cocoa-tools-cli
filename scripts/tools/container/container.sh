@@ -38,7 +38,6 @@ container_run() {
     container_start
   fi
 
-  # TRIPLE="${TRIPLE:-"x86_64-swift-linux-musl"}"
   SWIFT_SDK="${SWIFT_SDK:-"x86_64-swift-linux-musl"}"
 
   "${CONTAINER_BINARY}" run \

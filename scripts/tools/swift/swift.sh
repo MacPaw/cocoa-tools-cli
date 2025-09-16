@@ -38,11 +38,6 @@ swift_install_sdk() {
     rm -rf "/tmp/${ARTIFACT_BUNDLE_FILE}.tar.gz"
   fi
 
-  local TARGET_TRIPPLE
-  TARGET_TRIPPLE="${TARGET_TRIPPLE:-"x86_64-swift-linux-musl"}"
-  echo "Swift SDK configuration..."
-  swift sdk configure --show-configuration "${SWIFT_SDK_FOLDER}" "${TARGET_TRIPPLE}"
-
   echo "Swift SDK installed"
 }
 
@@ -57,7 +52,9 @@ swift_run() {
 
   PLATFORM="${PLATFORM:-"$(uname -s)"}"
   if [ "${PLATFORM}" == "Linux" ]; then
-    DEFAULT_ARGS+=("--static-swift-stdlib")
+    if [ "${ACTION}" == "build" ]; then
+      DEFAULT_ARGS+=("--static-swift-stdlib")
+    fi
     DEFAULT_ARGS+=("--swift-sdk" "${SWIFT_SDK:-"x86_64-swift-linux-musl"}")
   fi
 
