@@ -19,7 +19,7 @@ swift_install_sdk() {
   fi
   echo "SDKS_DIR: ${SDKS_DIR}"
 
-  if [ ! -d "${SDKS_DIR}/${ARTIFACT_BUNDLE_FILE}" ]; then
+  if [ ! swift sdk list | grep "${ARTIFACT_BUNDLE_FILE}" > /dev/null ]; then
     echo "Installing curl..."
     if ! which curl > /dev/null 2>&1; then
       if [ "${PLATFORM}" == "Linux" ]; then
