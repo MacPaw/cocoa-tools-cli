@@ -3,23 +3,18 @@
 set -Eeo pipefail
 
 PLATFORM="${PLATFORM:-"$(uname -s)"}"
+echo "PLATFORM: ${PLATFORM}"
 
 swift_install_sdk() {
-  local ARTIFACT_BUNDLE_FILE SWIFT_VERSION SDKS_DIR PLATFORM
+  local ARTIFACT_BUNDLE_FILE SWIFT_VERSION SWIFT_SDK_FOLDER
   SWIFT_VERSION="$(cat .swift-version | tr -d '[:space:]')"
 
   echo "Using Swift version: ${SWIFT_VERSION}"
 
-  ARTIFACT_BUNDLE_FILE="swift-${SWIFT_VERSION}-RELEASE_static-linux-0.0.1.artifactbundle"
+  SWIFT_SDK_FOLDER="swift-${SWIFT_VERSION}-RELEASE_static-linux-0.0.1"
+  ARTIFACT_BUNDLE_FILE="${SWIFT_SDK_FOLDER}.artifactbundle"
 
-  if [ "${PLATFORM}" == "Linux" ]; then
-    SDKS_DIR="/root/.swiftpm/swift-sdks"
-  else
-    SDKS_DIR="${HOME}/.swiftpm/swift-sdks"
-  fi
-  echo "SDKS_DIR: ${SDKS_DIR}"
-
-  if [ ! swift sdk list | grep "${ARTIFACT_BUNDLE_FILE}" > /dev/null ]; then
+  if ! swift sdk list | grep "${SWIFT_SDK_FOLDER}" > /dev/null; then
     echo "Installing curl..."
     if ! which curl > /dev/null 2>&1; then
       if [ "${PLATFORM}" == "Linux" ]; then
@@ -42,6 +37,11 @@ swift_install_sdk() {
 
     rm -rf "/tmp/${ARTIFACT_BUNDLE_FILE}.tar.gz"
   fi
+
+  local TARGET_TRIPPLE
+  TARGET_TRIPPLE="${TARGET_TRIPPLE:-"x86_64-swift-linux-musl"}"
+  echo "Swift SDK configuration..."
+  swift sdk configure --show-configuration "${SWIFT_SDK_FOLDER}" "${TARGET_TRIPPLE}"
 
   echo "Swift SDK installed"
 }

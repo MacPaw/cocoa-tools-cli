@@ -9,6 +9,9 @@ prepare_package_copy
 echo "Listing Swift SDKs..."
 swift sdk list
 
+echo "Listing Swift SDKs with ls..."
+ls ~/.swiftpm/swift-sdks
+
 echo "Building Release configuration..."
 
 export SWIFT_SDK="${SWIFT_SDK:-"x86_64-swift-linux-musl"}"
