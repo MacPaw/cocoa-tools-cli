@@ -2,7 +2,11 @@
 #if os(Linux)
   // Glibc import must be the first import.
   // Issue: https://github.com/swiftlang/swift/issues/77866
+  #if canImport(Glibc)
   @preconcurrency import Glibc
+  #elseif canImport(Musl)
+  @preconcurrency import Musl
+  #endif
 #endif
 
 import Foundation

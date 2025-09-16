@@ -38,12 +38,17 @@ container_run() {
     container_start
   fi
 
+  TRIPLE="${TRIPLE:-"aarch64-swift-linux-musl"}"
+
   "${CONTAINER_BINARY}" run \
     --remove \
+    --volume "${HOME}/.swiftpm/swift-sdks:/root/.swiftpm/swift-sdks:rw" \
     --volume "${REPOSITORY_ROOT_DIR}/.build/prebuilts:/package/.build/prebuilts:rw" \
-    --volume "${REPOSITORY_ROOT_DIR}/.build/aarch64-unknown-linux-gnu/release:/package/.build/aarch64-unknown-linux-gnu/release:rw" \
+    --volume "${REPOSITORY_ROOT_DIR}/.build/${TRIPLE}/release:/package/.build/${TRIPLE}/release:rw" \
     --volume "${REPOSITORY_ROOT_DIR}:/package:ro" \
     --workdir /package \
+    --env "TRIPLE=${TRIPLE}" \
+    --env "SWIFT_VERSION=${SWIFT_VERSION}" \
     --entrypoint /bin/sh \
     "swift:${SWIFT_VERSION}" \
     "${SCRIPT_TO_RUN}"
