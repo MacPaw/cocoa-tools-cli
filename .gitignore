@@ -13,3 +13,5 @@ Binary/
 # Local files
 *.local.*
 *.local
+
+!/mise-tasks/build/

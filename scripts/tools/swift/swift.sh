@@ -6,12 +6,19 @@ PLATFORM="${PLATFORM:-"$(uname -s)"}"
 echo "PLATFORM: ${PLATFORM}"
 
 swift_install_sdk() {
-  local ARTIFACT_BUNDLE_FILE SWIFT_VERSION SWIFT_SDK_FOLDER
+  local ARTIFACT_BUNDLE_FILE SWIFT_VERSION SWIFT_SDK_FOLDER SWIFT_VERSION_SHORT SDK_URL
   SWIFT_VERSION="$(cat .swift-version | tr -d '[:space:]')"
 
   echo "Using Swift version: ${SWIFT_VERSION}"
 
-  SWIFT_SDK_FOLDER="swift-${SWIFT_VERSION}-RELEASE_static-linux-0.0.1"
+  if [[ "${SWIFT_VERSION}" == *".0" ]]; then
+    SWIFT_VERSION_SHORT="${SWIFT_VERSION%.0}"
+  else
+    SWIFT_VERSION_SHORT="${SWIFT_VERSION}"
+  fi
+  echo "SWIFT_VERSION_SHORT: ${SWIFT_VERSION_SHORT}"
+
+  SWIFT_SDK_FOLDER="swift-${SWIFT_VERSION_SHORT}-RELEASE_static-linux-0.0.1"
   ARTIFACT_BUNDLE_FILE="${SWIFT_SDK_FOLDER}.artifactbundle"
 
   if ! swift sdk list | grep "${SWIFT_SDK_FOLDER}" > /dev/null; then
@@ -24,9 +31,12 @@ swift_install_sdk() {
       fi
     fi
 
+    SDK_URL="https://download.swift.org/swift-${SWIFT_VERSION_SHORT}-release/static-sdk/swift-${SWIFT_VERSION_SHORT}-RELEASE/${ARTIFACT_BUNDLE_FILE}.tar.gz"
+    echo "SDK URL:        ${SDK_URL}"
+    echo "Copied SDK URL: https://download.swift.org/swift-6.2-release/static-sdk/swift-6.2-RELEASE/swift-6.2-RELEASE_static-linux-0.0.1.artifactbundle.tar.gz"
+
     echo "Downloading Swift SDK..."
-    curl --output "/tmp/${ARTIFACT_BUNDLE_FILE}.tar.gz" \
-      "https://download.swift.org/swift-${SWIFT_VERSION}-release/static-sdk/swift-${SWIFT_VERSION}-RELEASE/${ARTIFACT_BUNDLE_FILE}.tar.gz"
+    curl --output "/tmp/${ARTIFACT_BUNDLE_FILE}.tar.gz" "${SDK_URL}"
 
     echo "Computing checksum..."
     local CHECKSUM
@@ -46,16 +56,18 @@ swift_run() {
     "--disable-automatic-resolution"
     "--enable-experimental-prebuilts"
     "--configuration" "${CONFIGURATION}"
-    "--disable-index-store"
     "-debug-info-format" "none"
   )
 
   PLATFORM="${PLATFORM:-"$(uname -s)"}"
   if [ "${PLATFORM}" == "Linux" ]; then
     if [ "${ACTION}" == "build" ]; then
-      DEFAULT_ARGS+=("--static-swift-stdlib")
+      DEFAULT_ARGS+=(
+        "--disable-index-store"
+        "--static-swift-stdlib"
+        "--swift-sdk" "${SWIFT_SDK:-"x86_64-swift-linux-musl"}"
+      )
     fi
-    DEFAULT_ARGS+=("--swift-sdk" "${SWIFT_SDK:-"x86_64-swift-linux-musl"}")
   fi
 
   if [ "${ACTION}" == "build" ]; then

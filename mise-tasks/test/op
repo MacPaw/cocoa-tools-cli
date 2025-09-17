@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+#MISE description="Integration test on macOS with 1Password"
+
+./scripts/tools/op/op.sh --test

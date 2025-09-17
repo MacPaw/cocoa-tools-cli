@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+#MISE description="Build release binary on local machine for current architecture (xcodebuild)"
+
+PACKAGE_NAME="${PACKAGE_NAME:-"cocoa-tools"}"
+
+./scripts/tools/xcodebuild/xcodebuild.sh --package-name="${PACKAGE_NAME}" --action=build-for-testing

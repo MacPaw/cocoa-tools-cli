@@ -56,15 +56,10 @@ jobs:
           build-system: ${{ matrix.build-system }}
           configuration: debug
 
-      - name: Build with Swift Package Manager
-        if: matrix.build-system == 'swift'
-        run: ./scripts/tools/swift/swift.sh --action=build
-
-      - name: Build with Xcodebuild
-        if: matrix.build-system == 'xcodebuild'
+      - name: Build with ${{ matrix.build-system }}
+        run: mise tasks run build:${BUILD_SYSTEM}
         env:
-          PACKAGE_NAME: ${{ env.package_name }}
-        run: ./scripts/tools/xcodebuild/xcodebuild.sh --package-name="${PACKAGE_NAME}" --action=build-for-testing
+          BUILD_SYSTEM: ${{ matrix.build-system }}
 
       - name: Install mise tools
         uses: jdx/mise-action@5ac50f778e26fac95da98d50503682459e86d566
@@ -73,15 +68,10 @@ jobs:
             [tools]
             "ubi:securevale/swift-confidential" = "0.4.1"
 
-      - name: Test with Swift Package Manager
-        if: matrix.build-system == 'swift'
-        run: ./scripts/tools/swift/swift.sh --action=test
-
-      - name: Test with Xcodebuild
-        if: matrix.build-system == 'xcodebuild'
+      - name: Test with ${{ matrix.build-system }}
+        run: mise tasks run test:${BUILD_SYSTEM}
         env:
-          PACKAGE_NAME: ${{ env.package_name }}
-        run: ./scripts/tools/xcodebuild/xcodebuild.sh --package-name="${PACKAGE_NAME}" --action=test-without-building
+          BUILD_SYSTEM: ${{ matrix.build-system }}
 
   lint:
     needs:

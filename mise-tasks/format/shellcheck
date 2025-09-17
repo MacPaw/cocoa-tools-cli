@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+#MISE description="Format shell scripts code (shellcheck)"
+
+./scripts/tools/shellcheck/shellcheck.sh --format

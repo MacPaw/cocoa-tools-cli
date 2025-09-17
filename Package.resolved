@@ -1,5 +1,5 @@
 {
-  "originHash" : "4181dfde3fcaa1f58c39065e7d3cb82bb4b12bfc9975ccbbf73d6ce1a8902a82",
+  "originHash" : "1637a0d9fdeb8726d153c704c0f27ec73237febfa9a9dfae383e1f5497e86cdd",
   "pins" : [
     {
       "identity" : "swift-argument-parser",
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-case-paths",
       "state" : {
-        "revision" : "9810c8d6c2914de251e072312f01d3bf80071852",
-        "version" : "1.7.1"
+        "revision" : "5da6989aae464f324eef5c5b52bdb7974725ab81",
+        "version" : "1.0.0"
       }
     },
     {
@@ -24,8 +24,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/swiftlang/swift-cmark.git",
       "state" : {
-        "revision" : "b022b08312decdc46585e0b3440d97f6f22ef703",
-        "version" : "0.6.0"
+        "revision" : "b97d09472e847a416629f026eceae0e2afcfad65",
+        "version" : "0.7.0"
       }
     },
     {
@@ -34,7 +34,7 @@
       "location" : "https://github.com/nekrich/swift-confidential.git",
       "state" : {
         "branch" : "master",
-        "revision" : "0c260ea4cd4d2a412dc264cfa76e6fc9ec85c2ab"
+        "revision" : "c5933c29eefc0850c5957d9dbd5920eda6047480"
       }
     },
     {
@@ -42,14 +42,14 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/swiftlang/swift-format.git",
       "state" : {
-        "revision" : "ffbb3225ffda37b62c7283c70e87e8bc7e8e202a",
-        "version" : "601.0.0"
+        "revision" : "62eaad2822b865407b8cde56c36386c00800f7ec",
+        "version" : "602.0.0"
       }
     },
     {
       "identity" : "swift-markdown",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-markdown.git",
+      "location" : "https://github.com/swiftlang/swift-markdown.git",
       "state" : {
         "revision" : "ea79e83c8744d2b50b0dc2d5bbd1e857e1253bf9",
         "version" : "0.6.0"
@@ -69,8 +69,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/swiftlang/swift-syntax.git",
       "state" : {
-        "revision" : "f99ae8aa18f0cf0d53481901f88a0991dc3bd4a2",
-        "version" : "601.0.1"
+        "revision" : "4799286537280063c85a32f09884cfbca301b1a1",
+        "version" : "602.0.0"
       }
     },
     {

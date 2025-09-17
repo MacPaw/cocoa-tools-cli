@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+#MISE description="Run tests in Linux container (Docker)"
+
+./scripts/tools/docker/docker.sh --test

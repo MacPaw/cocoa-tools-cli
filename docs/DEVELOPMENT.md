@@ -34,7 +34,7 @@ swift test --enable-experimental-prebuilts
 To test cross-platform compatibility on Linux:
 **Run Linux tests:**
   ```bash
-  mise tasks run test-linux
+  mise tasks run test:linux
   ```
 
 #### 1Password Integration Testing
@@ -49,7 +49,7 @@ To test cross-platform compatibility on Linux:
 
 **Run integration tests:**
 ```bash
-mise tasks run test-op
+mise tasks run test:op
 ```
 
 ## Code formatting and linting
