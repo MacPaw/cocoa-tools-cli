@@ -82,7 +82,7 @@ jobs:
           fi
 
           if [[ "${{ steps.changes.outputs.swift }}" == "true" ]]; then
-            matrix_include="$(echo "$matrix_include" | jq -c '. += [{"language": "swift", "build-mode": "manual", "container": "swift:${{ needs.load-env.outputs.swift-version }}"}]')"
+            matrix_include="$(echo "$matrix_include" | jq -c '. += [{"language": "swift", "build-mode": "manual"}]')"
           fi
 
           echo "matrix={\"include\":$matrix_include}" >> $GITHUB_OUTPUT
@@ -104,7 +104,7 @@ jobs:
     #   - https://gh.io/using-larger-runners (GitHub.com only)
     # Consider using larger runners or machines with greater resources for possible analysis time improvements.
     runs-on: ${{ (matrix.language == 'swift' && format('{0}', needs.load-env.outputs.macOS-runner-os)) || 'ubuntu-latest' }}
-    container: ${{ matrix.container }}
+
     permissions:
       # required for all workflows
       security-events: write

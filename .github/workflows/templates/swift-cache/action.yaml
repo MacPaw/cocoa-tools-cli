@@ -20,7 +20,7 @@ inputs:
   use-build-cache:
     description: 'Use build cache'
     required: false
-    default: true
+    default: 'true'
 runs:
   using: 'composite'
   steps:
