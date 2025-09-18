@@ -49,7 +49,7 @@ To test cross-platform compatibility on Linux:
 
 **Run integration tests:**
 ```bash
-mise tasks run test:op
+mise tasks run test:integration:op
 ```
 
 ## Code formatting and linting
