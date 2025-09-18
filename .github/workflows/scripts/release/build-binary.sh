@@ -54,7 +54,15 @@ elif [ "${PLATFORM}" == "Linux" ] && [ "${ARCH}" == "x86_64" ]; then
 
   # Verify the binary
   echo "Verifying binary..."
-  file "build/${BINARY_NAME}"
+  if which file > /dev/null 2>&1; then
+    file "build/${BINARY_NAME}"
+  elif [ -f "build/${BINARY_NAME}" ]; then
+    # `file` tool is not available in the swift container
+    echo "Binary file found"
+  else
+    echo "Binary file not found"
+    exit 1
+  fi
 else
   echo "Unsupported platform/architecture combination: ${PLATFORM}/${ARCH}"
   exit 1
