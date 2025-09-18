@@ -163,6 +163,7 @@ jobs:
           # queries: security-extended,security-and-quality
 
       - name: Build
+        if: matrix.language == 'swift' && matrix.build-mode == 'manual'
         env:
           PACKAGE_NAME: ${{ env.package_name }}
         run: mise tasks run build:xcodebuild
