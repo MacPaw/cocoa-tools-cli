@@ -67,7 +67,9 @@ jobs:
           - os: ubuntu-latest
             arch: x86_64
             swift-version: ${{ needs.load-env.outputs.swift-version }}
+            container: swift:${{ needs.load-env.outputs.swift-version }}
     runs-on: ${{ matrix.os }}
+    container: ${{ matrix.container }}
 
     steps:
       - name: Checkout repository

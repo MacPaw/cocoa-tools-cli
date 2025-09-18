@@ -36,11 +36,13 @@ jobs:
           - os: ubuntu-latest
             build-system: swift
             swift-version: ${{ needs.load-env.outputs.swift-version }}
+            container: swift:${{ needs.load-env.outputs.swift-version }}
           - os: ${{ needs.load-env.outputs.macOS-runner-os }}
             build-system: xcodebuild
             xcode-version: ${{ needs.load-env.outputs.xcode-version }}
 
     runs-on: ${{ matrix.os }}
+    container: ${{ matrix.container }}
 
     steps:
       - name: Checkout repository
@@ -70,6 +72,7 @@ jobs:
     needs:
       - load-env
     runs-on: ubuntu-latest
+    container: swift:${{ needs.load-env.outputs.swift-version }}
 
     steps:
       - name: Checkout repository

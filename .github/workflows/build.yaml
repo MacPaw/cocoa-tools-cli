@@ -32,8 +32,10 @@ jobs:
             xcode-version: ${{ needs.load-env.outputs.xcode-version }}
           - os: ubuntu-latest
             swift-version: ${{ needs.load-env.outputs.swift-version }}
+            container: swift:${{ needs.load-env.outputs.swift-version }}
 
     runs-on: ${{ matrix.os }}
+    container: ${{ matrix.container }}
 
     steps:
       - name: Checkout repository
