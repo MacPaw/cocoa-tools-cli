@@ -26,6 +26,18 @@ inputs:
 runs:
   using: 'composite'
   steps:
+    - name: Install curl
+      shell: bash
+      run: |
+        PLATFORM="${PLATFORM:-"$(uname -s)"}"
+        if ! which curl > /dev/null 2>&1; then
+          if [ "${PLATFORM}" == "Linux" ]; then
+            apt-get update && apt-get install -y curl
+          else
+            brew install curl
+          fi
+        fi
+
     - name: Install mise tools
       uses: jdx/mise-action@5ac50f778e26fac95da98d50503682459e86d566
 
