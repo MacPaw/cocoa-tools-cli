@@ -2,4 +2,4 @@
 
 #MISE description="Build release binary on local machine for current architecture"
 
-mise tasks run build:swift
+mise tasks run build:swift -- "${@}"

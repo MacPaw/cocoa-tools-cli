@@ -2,4 +2,4 @@
 
 #MISE description="Run tests on local machine"
 
-mise tasks run test:swift
+mise tasks run test:swift "${@}"
