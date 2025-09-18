@@ -26,6 +26,9 @@ inputs:
 runs:
   using: 'composite'
   steps:
+    - name: Install mise tools
+      uses: jdx/mise-action@5ac50f778e26fac95da98d50503682459e86d566
+
     - name: Select Swift Version
       uses: ./.github/workflows/templates/select-swift-version/
       with:

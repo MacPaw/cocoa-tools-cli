@@ -56,13 +56,6 @@ jobs:
           build-system: ${{ matrix.build-system }}
           configuration: debug
 
-      - name: Install mise tools
-        uses: jdx/mise-action@5ac50f778e26fac95da98d50503682459e86d566
-        with:
-          mise_toml: |
-            [tools]
-            "ubi:securevale/swift-confidential" = "0.4.1"
-
       - name: Build with ${{ matrix.build-system }}
         run: mise tasks run build:${BUILD_SYSTEM}
         env:
@@ -92,9 +85,6 @@ jobs:
           build-system: swift
           configuration: debug
           use-build-cache: false
-
-      - name: Install mise tools
-        uses: jdx/mise-action@5ac50f778e26fac95da98d50503682459e86d566
 
       - name: Lint
         run: mise tasks run lint
