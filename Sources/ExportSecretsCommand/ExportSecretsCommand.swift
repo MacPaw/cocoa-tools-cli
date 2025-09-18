@@ -13,10 +13,10 @@ import Shell
 public struct ExportSecretsCommand {
   /// Configuration for the ArgumentParser command.
   public static let configuration = CommandConfiguration(
-    commandName: "import",
-    abstract: "Import secrets",
+    commandName: "export",
+    abstract: "Export secrets",
     discussion: """
-      Imports secrets from various sources, such as 1Password.
+      Exports secrets to various destinations, such as environment files, mise configurations, or standard output.
       """,
   )
 

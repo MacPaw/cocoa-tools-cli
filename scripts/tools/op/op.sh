@@ -41,7 +41,7 @@ op_run_tests() {
 
   echo "Running mpct secrets export command..."
   RESULT="$("./.build/$(uname -m)-apple-macosx/debug/mpct" \
-    secrets import \
+    secrets export \
     --config "$(dirname "${0}")/.import-secrets.yaml" \
     --destination stdout \
     --source op || echo "Error: $?")"
