@@ -26,16 +26,20 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Install curl
+    - name: Install dependencies
       shell: bash
+      if: ${{ runner.os == 'Linux' }}
       run: |
-        PLATFORM="${PLATFORM:-"$(uname -s)"}"
+        # Install curl and zip if they are missing
+        # This happens all the time in the swift container
+        apt-get update
+
         if ! which curl > /dev/null 2>&1; then
-          if [ "${PLATFORM}" == "Linux" ]; then
-            apt-get update && apt-get install -y curl
-          else
-            brew install curl
-          fi
+          apt-get install -y curl
+        fi
+
+        if ! which zip > /dev/null 2>&1; then
+          apt-get install -y zip
         fi
 
     - name: Install mise tools
