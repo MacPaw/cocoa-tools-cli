@@ -82,7 +82,8 @@ jobs:
           fi
 
           if [[ "${{ steps.changes.outputs.swift }}" == "true" ]]; then
-            matrix_include="$(echo "$matrix_include" | jq -c '. += [{"language": "swift", "build-mode": "manual"}]')"
+            # Turning off CodeQL for a while, since it's doesn't work with Swift 6.2.0
+            # matrix_include="$(echo "$matrix_include" | jq -c '. += [{"language": "swift", "build-mode": "manual"}]')"
           fi
 
           echo "matrix={\"include\":$matrix_include}" >> $GITHUB_OUTPUT
@@ -161,7 +162,6 @@ jobs:
           # queries: security-extended,security-and-quality
 
       - name: Build
-        if: matrix.language == 'swift' && matrix.build-mode == 'manual'
         env:
           PACKAGE_NAME: ${{ env.package_name }}
         run: mise tasks run build:xcodebuild
