@@ -189,7 +189,6 @@ let package = Package(
     .package(url: "https://github.com/apple/swift-argument-parser.git", .upToNextMajor(from: "1.6.1")),
     .package(url: "https://github.com/swiftlang/swift-format.git", .upToNextMajor(from: "602.0.0")),
     .package(url: "https://github.com/swiftlang/swift-syntax.git", "602.0.0"..<"603.0.0"),
-    .package(url: "https://github.com/swiftlang/swift-markdown.git", "0.6.0"..<"0.7.0"),
     swiftConfidentialSource.packageDependency, yamsSource.packageDependency,
   ],
   targets: [

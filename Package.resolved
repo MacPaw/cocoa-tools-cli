@@ -1,5 +1,5 @@
 {
-  "originHash" : "1637a0d9fdeb8726d153c704c0f27ec73237febfa9a9dfae383e1f5497e86cdd",
+  "originHash" : "70f41f8f9909966f19658fb38e2e05c0b3bc20d178779896afdbd91055ad3b6f",
   "pins" : [
     {
       "identity" : "swift-argument-parser",
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-case-paths",
       "state" : {
-        "revision" : "5da6989aae464f324eef5c5b52bdb7974725ab81",
-        "version" : "1.0.0"
+        "revision" : "6989976265be3f8d2b5802c722f9ba168e227c71",
+        "version" : "1.7.2"
       }
     },
     {
@@ -49,10 +49,10 @@
     {
       "identity" : "swift-markdown",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/swiftlang/swift-markdown.git",
+      "location" : "https://github.com/apple/swift-markdown.git",
       "state" : {
-        "revision" : "ea79e83c8744d2b50b0dc2d5bbd1e857e1253bf9",
-        "version" : "0.6.0"
+        "revision" : "d8cf111c276ed18cff82d3cad563d2ca5903b982",
+        "version" : "0.7.1"
       }
     },
     {
