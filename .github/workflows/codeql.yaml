@@ -84,6 +84,7 @@ jobs:
           if [[ "${{ steps.changes.outputs.swift }}" == "true" ]]; then
             # Turning off CodeQL for a while, since it's doesn't work with Swift 6.2.0
             # matrix_include="$(echo "$matrix_include" | jq -c '. += [{"language": "swift", "build-mode": "manual"}]')"
+            printf ''
           fi
 
           echo "matrix={\"include\":$matrix_include}" >> $GITHUB_OUTPUT
