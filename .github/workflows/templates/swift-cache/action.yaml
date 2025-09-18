@@ -36,7 +36,7 @@ runs:
           ./DerivedData/SourcePackages
           ~/Library/Caches/org.swift.swiftpm/
           ~/.cache/org.swift.swiftpm/
-        key: spm-${{ hashFiles('**/Package.resolved') }}-${{ runner.os }}-${{ inputs.build-system }}
+        key: spm-${{ hashFiles('Package.resolved') }}-${{ runner.os }}-${{ inputs.build-system }}
         restore-keys: |
           spm-${{ hashFiles('Package.resolved') }}-${{ runner.os }}-${{ inputs.build-system }}
 
