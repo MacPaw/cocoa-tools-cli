@@ -125,7 +125,7 @@ extension HashiCorpVaultReader: HashiCorpVaultReaderProtocol {
   }
 
   func authenticateWithAppRole(configuration: Configuration) async throws -> String {
-    log.debug("[HashiCorp Vault] Authenticating with App Role")
+    log.debug("Authenticating with App Role")
     var urlRequest: URLRequest = try URLRequest(url: configuration.buildBaseURL(path: "/auth/approle/login"))
     urlRequest.httpMethod = "POST"
     urlRequest.setValue("application/json", forHTTPHeaderField: "Accept")
@@ -135,14 +135,22 @@ extension HashiCorpVaultReader: HashiCorpVaultReaderProtocol {
     guard let appRole else { throw HashiCorpVaultReader.Error.appRoleAuthenticationCredentialsAreNotSet }
     urlRequest.httpBody = Data(#"{"role_id": "\#(appRole.roleId)", "secret_id": "\#(appRole.secretId)"}"#.utf8)
 
-    struct Response: Decodable { var clientToken: String }
+    struct Response: Decodable {
+      struct Auth: Decodable {
+        var clientToken: String
+        var leaseDuration: TimeInterval
+        var renewable: Bool
+        var tokenType: String
+      }
+      var auth: Auth
+    }
     let (data, response) = try await URLSession.shared.data(for: urlRequest)
     guard let response = response as? HTTPURLResponse else { throw HTTPError.responseNotHTTP(response) }
     guard (200..<300).contains(response.statusCode) else { throw HTTPError.wrongStatusCode(response.statusCode) }
     let decoder = JSONDecoder()
     decoder.keyDecodingStrategy = .convertFromSnakeCase
     let result = try decoder.decode(Response.self, from: data)
-    let vaultToken = result.clientToken
+    let vaultToken = result.auth.clientToken
     return vaultToken
   }
 
