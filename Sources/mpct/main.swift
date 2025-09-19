@@ -10,7 +10,7 @@
 #endif
 
 import Foundation
-
+import SharedLogger
 import protocol ArgumentParser.AsyncParsableCommand
 
 // Making sure that output will be shown immediately, as it comes in the script
@@ -20,4 +20,10 @@ import protocol ArgumentParser.AsyncParsableCommand
   setbuf(stdout, nil)
 #endif
 
-_ = await Task { await MPCT.main() }.result
+if ProcessInfo.processInfo.arguments.contains("--verbose") {
+  Logger.setLogLevel(.debug)
+}
+
+_ = await Task {
+  await MPCT.main()
+}.result

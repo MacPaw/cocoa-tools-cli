@@ -68,6 +68,8 @@ enum Targets {
     tests: Bool = true,
     testsDependencies: [PackageDescription.Target.Dependency] = []
   ) -> [PackageDescription.Target] {
+    var dependencies = dependencies
+    if name != "SharedLogger" { dependencies.append(.target(name: "SharedLogger")) }
     var targets: [PackageDescription.Target] = [.target(name: name, dependencies: dependencies, plugins: plugins)]
 
     if tests {
@@ -168,6 +170,10 @@ enum Targets {
       ]
   }
 
+  static var sharedLogger: [PackageDescription.Target] {
+    targetBundle(name: "SharedLogger", dependencies: [.product(name: "Logging", package: "swift-log")], tests: false)
+  }
+
   static var hashicorpVaultReader: [PackageDescription.Target] {
     targetBundle(name: "HashiCorpVaultReader", tests: false)
   }
@@ -189,6 +195,7 @@ let package = Package(
     .package(url: "https://github.com/apple/swift-argument-parser.git", .upToNextMajor(from: "1.6.1")),
     .package(url: "https://github.com/swiftlang/swift-format.git", .upToNextMajor(from: "602.0.0")),
     .package(url: "https://github.com/swiftlang/swift-syntax.git", "602.0.0"..<"603.0.0"),
+    .package(url: "https://github.com/apple/swift-log.git", .upToNextMajor(from: "1.6.4")),
     swiftConfidentialSource.packageDependency, yamsSource.packageDependency,
   ],
   targets: [
@@ -207,7 +214,7 @@ let package = Package(
     .target(name: "Dummy"),
 
   ] + Targets.shell + Targets.envSubst + Targets.exportSecrets + Targets.importSecrets + Targets.obfuscateSecrets
-    + Targets.semanticVersion + Targets.env + Targets.ci + Targets.hashicorpVaultReader,
+    + Targets.semanticVersion + Targets.env + Targets.ci + Targets.hashicorpVaultReader + Targets.sharedLogger,
 
   swiftLanguageModes: [.version(swiftLanguageVersion)]
 )

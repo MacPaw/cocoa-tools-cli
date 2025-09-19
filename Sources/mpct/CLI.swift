@@ -19,8 +19,6 @@ struct MPCT: AsyncParsableCommand {
 
   @OptionGroup(visibility: .default)
   var commonOptions: CommonOptions
-
-  func run() async throws {}
 }
 
 struct CommonOptions: ParsableArguments, Decodable {
