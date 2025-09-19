@@ -3,7 +3,6 @@
 set -Eeo pipefail
 
 PLATFORM="${PLATFORM:-"$(uname -s)"}"
-echo "PLATFORM: ${PLATFORM}"
 
 swift_install_sdk() {
   local ARTIFACT_BUNDLE_FILE SWIFT_VERSION SWIFT_SDK_FOLDER SWIFT_VERSION_SHORT SDK_URL

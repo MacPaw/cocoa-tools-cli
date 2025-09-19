@@ -9,7 +9,7 @@ set -Eeo
 prepare_package_copy
 
 echo "Building..."
-./scripts/tools/swift/swift.sh --action=build
+./scripts/tools/swift/swift.sh --action=build --configuration=debug
 
 echo "Testing..."
 ./scripts/tools/swift/swift.sh --action=test
