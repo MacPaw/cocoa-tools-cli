@@ -2,6 +2,7 @@
 
 set -Eeo
 
+# shellcheck source=./scripts/linux-container-actions/_common-source.sh
 . "$(dirname "$(realpath "$0")")/_common-source.sh"
 
 # Running test on a package copy to avoid modifying files in the original package folder (.build, .swiftpm, etc.).

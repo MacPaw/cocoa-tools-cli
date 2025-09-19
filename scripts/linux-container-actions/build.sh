@@ -2,6 +2,7 @@
 
 set -Eeo
 
+# shellcheck source=./scripts/linux-container-actions/_common-source.sh
 . "$(dirname "$(realpath "$0")")/_common-source.sh"
 
 prepare_package_copy
@@ -22,9 +23,9 @@ echo "Listing build directory..."
 ls -la --block-size=M .build/**/release/mpct
 
 echo "Making built binary executable..."
-chmod +x .build/${SWIFT_SDK}/release/mpct
+chmod +x ".build/${SWIFT_SDK}/release/mpct"
 
 echo "Copying built release binary back to the original package directory..."
-cp .build/${SWIFT_SDK}/release/mpct /package/.build/${SWIFT_SDK}/release/mpct
+cp ".build/${SWIFT_SDK}/release/mpct" "/package/.build/${SWIFT_SDK}/release/mpct"
 
 finish
