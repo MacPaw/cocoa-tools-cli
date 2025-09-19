@@ -11,7 +11,7 @@ swift_install_sdk() {
 
   echo "Using Swift version: ${SWIFT_VERSION}"
 
-  if [[ "${SWIFT_VERSION}" == *".0" ]]; then
+  if [[ ${SWIFT_VERSION} == *".0" ]]; then
     SWIFT_VERSION_SHORT="${SWIFT_VERSION%.0}"
   else
     SWIFT_VERSION_SHORT="${SWIFT_VERSION}"
