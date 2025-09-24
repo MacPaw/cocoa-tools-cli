@@ -47,7 +47,7 @@ public struct HashiCorpVaultReader {
   /// - Parameters:
   ///   - vaultToken: A vault token to authorize with.
   ///   - urlSession: An URLSession to use to fetch secrets from Vault.
-  public init(vaultToken: String? = .none, urlSession: URLSession = .vault) {
+  public init(vaultToken: String? = .none, urlSession: URLSession = URLSession.vault) {
     self.vaultToken = vaultToken
     self.urlSession = urlSession
   }
