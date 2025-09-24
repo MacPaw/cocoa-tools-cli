@@ -39,8 +39,11 @@ extension SecretProviderProtocol {
         fetchedSecrets = secretFetchResult.fetchedSecrets
       }
 
+      var fetchErrors: [String: [any Swift.Error]] = [:]
+      for (key, value) in secretFetchResult.errors { fetchErrors["\(secret.prefix)\(key)"] = value }
+
       try result.addFetchedSecrets(fetchedSecrets)
-      result.addErrors(secretFetchResult.errors)
+      result.addErrors(fetchErrors)
     }
 
     return result

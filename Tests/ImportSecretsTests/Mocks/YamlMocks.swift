@@ -62,8 +62,8 @@ enum YamlMocks {
               - item5-secret
           fake-source:
             path: /test/mpct/item5/secret
-            keys: 
-              - key
+            keys:
+              - item5-secret
       - prefix: TEST_MPCT_SECRET6_OP_MISSING_FAKE_MISSING_
         sources:
           # Test: Must get value from OnePassword provider first (but there is no such item)  and then call FakeProvider and fail

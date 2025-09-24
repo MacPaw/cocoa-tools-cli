@@ -84,7 +84,7 @@ struct ImportSecretsFetchingTests {
     let result = try await ImportSecrets.getSecrets(configuration: configuration)
 
     // THEN: All available secrets are fetched successfully
-    #expect(result["TEST_MPCT_SECRET5_OP_MISSING_FAKE_EXISTS_key"] == "/test/mpct/item5/secret.key")
+    #expect(result["TEST_MPCT_SECRET5_OP_MISSING_FAKE_EXISTS_item5_secret"] == "/test/mpct/item5/secret.item5-secret")
     #expect(result.count == 1)
 
     #expect(opCLIMock.getItemFieldsCalls.count == 1)
@@ -101,13 +101,16 @@ struct ImportSecretsFetchingTests {
     // WHEN/THEN: Getting secrets throws error when both providers fail
     await #expect(
       throws: ImportSecrets.Error.failedToFetchSecrets([
-        "all keys": [
+        "TEST_MPCT_SECRET6_OP_MISSING_FAKE_MISSING_all keys": [
           String(
             describing: ImportSecrets.Providers.FakeProvider.Fetcher.FetchError.failedToFetch(
               keyMissing: "/test/mpct/item6/secret.missing"
             )
           )
-        ], "item6-secret": [String(describing: SecretsInterface.Error.missingSecrets(["item6-secret"]))],
+        ],
+        "TEST_MPCT_SECRET6_OP_MISSING_FAKE_MISSING_item6-secret": [
+          String(describing: SecretsInterface.Error.missingSecrets(["item6-secret"]))
+        ],
       ])
     ) { try await ImportSecrets.getSecrets(configuration: configuration) }
   }
