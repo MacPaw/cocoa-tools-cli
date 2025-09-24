@@ -14,7 +14,7 @@ extension Fetcher: SecretFetcherProtocol {
 
   func initialize(configuration: Source.Configuration) async throws {}
 
-  func fetchItem(_ item: Source.Item, keys: Set<String>, configuration: Source.Configuration) async throws -> [String:
+  func fetchItem(_ item: Source.Item, keys: Set<String>, configuration: Source.Configuration) throws -> [String:
     String]
   {
     fetchItemCalls.append((item: item, keys: keys, configuration: configuration))
