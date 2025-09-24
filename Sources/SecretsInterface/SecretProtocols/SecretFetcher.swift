@@ -74,6 +74,16 @@ public protocol SecretFetcherAsyncProtocol: SecretFetcherProtocol {
 }
 
 extension SecretFetcherAsyncProtocol {
+  /// Fetches a single source item.
+  /// - Parameters:
+  ///   - item: A unique source item.
+  ///   - keys: A set of keys to fetch. If set is empty it will fetch all keys from a given `item`.
+  ///   - configuration: A source configuration to use when fetching secrets.
+  ///
+  /// - Note: There is no need to filter fetched secrets by passed keys in the implementation.
+  ///
+  /// - Returns: A map where secret name is a key, and secret value is a value.
+  /// - Throws: If error occurred during item fetch.
   public func fetchItem(_ item: Source.Item, keys: Set<String>, configuration: Source.Configuration) throws -> [String:
     String]
   { throw SecretsInterface.Error.syncFetchNotSupported }

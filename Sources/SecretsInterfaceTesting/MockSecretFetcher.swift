@@ -17,6 +17,7 @@ public struct MockSecretFetcher: SecretFetcherProtocol {
   public var initializationError: String?
 
   /// Predefined secrets to return during fetch operations.
+  ///
   /// Key is the item ID, value is a dictionary of secret key-value pairs.
   public var predefinedSecrets: [String: [String: String]]
 
