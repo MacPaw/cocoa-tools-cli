@@ -4,4 +4,4 @@
 
 PACKAGE_NAME="${PACKAGE_NAME:-"cocoa-tools"}"
 
-./scripts/tools/xcodebuild/xcodebuild.sh --package-name="${PACKAGE_NAME}" --action=build-for-testing -- "${@}"
+./scripts/tools/xcodebuild/xcodebuild.sh --package-name="${PACKAGE_NAME}" --action=build-for-testing "${@}"

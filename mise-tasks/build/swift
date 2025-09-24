@@ -2,4 +2,4 @@
 
 #MISE description="Build release binary on local machine for current architecture (swift)"
 
-./scripts/tools/swift/swift.sh --action=build --configuration=release -- "${@}"
+./scripts/tools/swift/swift.sh --action=build "${@}"

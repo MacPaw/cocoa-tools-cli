@@ -2,4 +2,4 @@
 
 #MISE description="Run tests on local machine (swift)"
 
-./scripts/tools/swift/swift.sh --action=test --configuration=debug -- "${@}"
+./scripts/tools/swift/swift.sh --action=test --configuration=debug "${@}"

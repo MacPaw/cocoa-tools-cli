@@ -59,12 +59,12 @@ jobs:
           configuration: debug
 
       - name: Build with ${{ matrix.build-system }}
-        run: mise tasks run build:${BUILD_SYSTEM}
+        run: mise tasks run build:${BUILD_SYSTEM} --configuration=debug
         env:
           BUILD_SYSTEM: ${{ matrix.build-system }}
 
       - name: Test with ${{ matrix.build-system }}
-        run: mise tasks run test:${BUILD_SYSTEM}
+        run: mise tasks run test:${BUILD_SYSTEM} --configuration=debug
         env:
           BUILD_SYSTEM: ${{ matrix.build-system }}
 
