@@ -40,7 +40,7 @@ extension SecretProviderProtocol {
       }
 
       try result.addFetchedSecrets(fetchedSecrets)
-      result.addErrors(result.errors)
+      result.addErrors(secretFetchResult.errors)
     }
 
     return result

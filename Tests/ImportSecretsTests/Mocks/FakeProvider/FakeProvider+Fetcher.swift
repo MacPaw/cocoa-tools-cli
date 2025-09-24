@@ -14,12 +14,11 @@ extension Fetcher: SecretFetcherProtocol {
 
   func initialize(configuration: Source.Configuration) async throws {}
 
-  func fetchItem(_ item: Source.Item, keys: Set<String>, configuration: Source.Configuration) throws -> [String:
-    String]
+  func fetchItem(_ item: Source.Item, keys: Set<String>, configuration: Source.Configuration) throws -> [String: String]
   {
     fetchItemCalls.append((item: item, keys: keys, configuration: configuration))
     let missingKeyError = keys.filter { $0.hasSuffix("missing") }
-      .map { FetchError.failedToFetch(keyMissing: "\(item.path)\($0)") }.first
+      .map { FetchError.failedToFetch(keyMissing: "\(item.path).\($0)") }.first
 
     if let missingKeyError { throw missingKeyError }
 

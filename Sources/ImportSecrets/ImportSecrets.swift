@@ -189,7 +189,7 @@ public struct ImportSecrets {
       try result.addFetchedSecrets(fetchedSecretsResult.fetchedSecrets)
 
       // Accumulate errors from all providers, combining error arrays for the same secret
-      result.addErrors(result.errors)
+      result.addErrors(fetchedSecretsResult.errors)
 
       // Clear errors for secrets that were successfully fetched
       for secretName in fetchedSecretsResult.fetchedSecrets.keys { result.errors[secretName] = nil }

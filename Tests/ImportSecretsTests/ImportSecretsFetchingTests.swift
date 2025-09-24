@@ -101,10 +101,13 @@ struct ImportSecretsFetchingTests {
     // WHEN/THEN: Getting secrets throws error when both providers fail
     await #expect(
       throws: ImportSecrets.Error.failedToFetchSecrets([
-        "TEST_MPCT_SECRET6_OP_MISSING_FAKE_MISSING": [
-          String(describing: "ImportSecrets.Providers.OnePassword.Fetcher.FetchError.failedToFetch"),
-          String(describing: "ImportSecrets.Providers.FakeProvider.Fetcher.FetchError.failedToFetch"),
-        ]
+        "all keys": [
+          String(
+            describing: ImportSecrets.Providers.FakeProvider.Fetcher.FetchError.failedToFetch(
+              keyMissing: "/test/mpct/item6/secret.missing"
+            )
+          )
+        ], "item6-secret": [String(describing: SecretsInterface.Error.missingSecrets(["item6-secret"]))],
       ])
     ) { try await ImportSecrets.getSecrets(configuration: configuration) }
   }
