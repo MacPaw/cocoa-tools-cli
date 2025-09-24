@@ -35,22 +35,6 @@ public protocol HashiCorpVaultReaderProtocol: Sendable {
   ) async throws -> [String: String]
 }
 
-extension URLSessionConfiguration {
-  /// A default URL session configuration for `HashiCorpVaultReader`.
-  static let vault: URLSessionConfiguration = {
-    var configuration: URLSessionConfiguration = .ephemeral
-
-    configuration.httpMaximumConnectionsPerHost = 10
-
-    return configuration
-  }()
-}
-
-extension URLSession {
-  /// A default session for `HashiCorpVaultReader`.
-  public static let vault: URLSession = .init(configuration: .vault)
-}
-
 /// HashiCorp Vault reader for fetching secrets from Vault servers.
 public struct HashiCorpVaultReader {
   /// A vault token to authorize with.

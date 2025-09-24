@@ -194,7 +194,7 @@ let package = Package(
     .library(name: "ObfuscateSecrets", targets: ["ObfuscateSecrets"]),
     .library(name: "HashiCorpVaultReader", targets: ["HashiCorpVaultReader"]),
     .plugin(name: "SemanticVersionBuildToolPlugin", targets: ["SemanticVersionBuildToolPlugin"]),
-    .library(name: "ENV", targets: ["ENV"]), .library(name: "CI", targets: ["CI"]),
+    .library(name: "ENV", targets: ["ENV"]), .library(name: "CI", targets: ["CI"]), .library(name: "SecretsInterfaceTesting", targets: ["SecretsInterfaceTesting"]), .library(name: "SecretsInterface", targets: ["SecretsInterface"]),
   ],
   dependencies: [
     .package(url: "https://github.com/apple/swift-argument-parser.git", .upToNextMajor(from: "1.6.1")),

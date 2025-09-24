@@ -17,12 +17,14 @@ enum MocksBuilder {
     secrets: [ImportSecrets.Secret],
     sourceProviders: [any SecretProviderProtocol] = [],
     onePasswordCLI: MockOnePasswordCLI? = .none,
+    secretNamesMapping: [String: String] = [:]
   ) throws -> ImportSecrets.Configuration {
     var config = ImportSecrets.Configuration(
       version: .none,
       sourceConfigurations: sourceConfigurations,
       secrets: secrets,
       sourceProviders: sourceProviders,
+      secretNamesMapping: secretNamesMapping,
     )
 
     try config.sourceConfigurations.addConfiguration(
@@ -61,9 +63,10 @@ enum MocksBuilder {
     -> ImportSecrets.Providers.OnePassword.Fetcher
   { .init(onePasswordCLI: onePasswordCLI ?? onePasswordCLIMock()) }
 
-  static func onePasswordSecret(envVarName: String, item: String, label: String) throws -> ImportSecrets.Secret {
-    let opSecretSource = ImportSecrets.Providers.OnePassword.Source(item: item, label: label)
-    let secret = try ImportSecrets.Secret(envVarName: envVarName, sources: [opSecretSource])
+  static func onePasswordSecret(prefix: String, item: String, label: String) throws -> ImportSecrets.Secret {
+    let item = ImportSecrets.Providers.OnePassword.Source.Item.init(vault: "some-vault", item: item)
+    let opSecretSource = ImportSecrets.Providers.OnePassword.Source(item: item, labels: [label])
+    let secret = try ImportSecrets.Secret(prefix: prefix, sources: [opSecretSource])
     return secret
   }
 }

@@ -10,17 +10,17 @@ class ImportSecretsTests {
     try MocksBuilder.configuration(
       secrets: [
         MocksBuilder.onePasswordSecret(
-          envVarName: "TEST_MPCT_SECRET1_OP_ONLY",
+          prefix: "TEST_MPCT_SECRET1_OP_ONLY_",
           item: "shared-item",
           label: "item1-secret",
         ),
         MocksBuilder.onePasswordSecret(
-          envVarName: "TEST_MPCT_SECRET2_MULTILINE",
+          prefix: "TEST_MPCT_SECRET2_MULTILINE_",
           item: "shared-item",
           label: "item1-multiline",
         ),
         MocksBuilder.onePasswordSecret(
-          envVarName: "TEST_MPCT_SECRET3_OP_AND_FAKE",
+          prefix: "TEST_MPCT_SECRET3_OP_AND_FAKE_",
           item: "database-item",
           label: "item2-secret",
         ),
@@ -30,9 +30,9 @@ class ImportSecretsTests {
   }
 
   var secrets: [String: String] = [
-    "TEST_MPCT_SECRET1_OP_ONLY": "test-item1-secret-value",
-    "TEST_MPCT_SECRET2_MULTILINE": "test-item1\nmultiline-value",
-    "TEST_MPCT_SECRET3_OP_AND_FAKE": "test-item2-secret-value",
+    "TEST_MPCT_SECRET1_OP_ONLY_item1_secret": "test-item1-secret-value",
+    "TEST_MPCT_SECRET2_MULTILINE_item1_multiline": "test-item1\nmultiline-value",
+    "TEST_MPCT_SECRET3_OP_AND_FAKE_item2_secret": "test-item2-secret-value",
   ]
 
   let mockOnePasswordCLI: MockOnePasswordCLI = {
@@ -111,9 +111,9 @@ class ImportSecretsTests {
     let result = try await Self.require(await ImportSecrets.getSecrets(configuration: configuration))
 
     // THEN: All environment variables are populated with correct values
-    #expect(result["TEST_MPCT_SECRET1_OP_ONLY"] == "test-item1-secret-value")
-    #expect(result["TEST_MPCT_SECRET2_MULTILINE"] == "test-item1\nmultiline-value")
-    #expect(result["TEST_MPCT_SECRET3_OP_AND_FAKE"] == "test-item2-secret-value")
+    #expect(result["TEST_MPCT_SECRET1_OP_ONLY_item1_secret"] == "test-item1-secret-value")
+    #expect(result["TEST_MPCT_SECRET2_MULTILINE_item1_multiline"] == "test-item1\nmultiline-value")
+    #expect(result["TEST_MPCT_SECRET3_OP_AND_FAKE_item2_secret"] == "test-item2-secret-value")
     #expect(result.count == 3)
     #expect(result == secrets)
 

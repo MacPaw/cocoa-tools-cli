@@ -7,9 +7,13 @@ import Testing
 @testable import Shell
 
 final class MockHashiCorpVaultReaderProtocol: HashiCorpVaultReaderProtocol {
-  func fetch(secrets: [String: HashiCorpVaultReader.Element], configuration: HashiCorpVaultReader.Configuration)
-    async throws -> [String: String]
-  { [:] }
+  func initialize(configuration: HashiCorpVaultReader.Configuration) async throws {
+
+  }
+
+  func fetchItem(_ item: HashiCorpVaultReader.Element.Item, keys: Set<String>, configuration: HashiCorpVaultReader.Configuration) async throws -> [String : String] {
+    [:]
+  }
 }
 
 @Suite("ImportSecrets Decoding Tests")
@@ -25,7 +29,12 @@ struct ImportSecretsDecodingTests {
 
   private static func buildConfiguration() throws -> ImportSecrets.Configuration {
     guard let data = YamlMocks.yamlContent.data(using: .utf8) else { throw TestError.dataConversionFailed }
-    return try ImportSecrets.configuration(configurationData: data, sourceProviders: buildProviders())
+    do {
+      return try ImportSecrets.configuration(configurationData: data, sourceProviders: buildProviders())
+    } catch {
+      #expect(Bool(false), "Got error: \(error)")
+      throw error
+    }
   }
 
   private enum TestError: Error { case dataConversionFailed }
@@ -45,12 +54,12 @@ struct ImportSecretsDecodingTests {
     #expect(sut.version == 1)
 
     // THEN: Secrets have correct environment variable names
-    let envVarNames = sut.secrets.map(\.envVarName)
-    #expect(envVarNames.contains("TEST_MPCT_SECRET1_OP_ONLY"))
-    #expect(envVarNames.contains("TEST_MPCT_SECRET2_MULTILINE"))
-    #expect(envVarNames.contains("TEST_MPCT_SECRET3_OP_AND_FAKE"))
-    #expect(envVarNames.contains("TEST_MPCT_SECRET4_FAKE_ONLY"))
-    #expect(envVarNames.contains("TEST_MPCT_SECRET5_OP_MISSING_FAKE_EXISTS"))
+    let prefixes = sut.secrets.map(\.prefix)
+    #expect(prefixes.contains("TEST_MPCT_SECRET1_OP_ONLY_"))
+    #expect(prefixes.contains("TEST_MPCT_SECRET2_MULTILINE_"))
+    #expect(prefixes.contains("TEST_MPCT_SECRET3_OP_AND_FAKE_"))
+    #expect(prefixes.contains("TEST_MPCT_SECRET4_FAKE_ONLY_"))
+    #expect(prefixes.contains("TEST_MPCT_SECRET5_OP_MISSING_FAKE_EXISTS_"))
   }
 
   @Test("Secret decoding with multiple sources succeeds")
@@ -59,7 +68,7 @@ struct ImportSecretsDecodingTests {
     let sut = try Self.buildConfiguration()
 
     // WHEN: Getting a secret with multiple sources
-    let multilineSecret = try #require(sut.secrets.first { $0.envVarName == "TEST_MPCT_SECRET2_MULTILINE" })
+    let multilineSecret = try #require(sut.secrets.first { $0.prefix == "TEST_MPCT_SECRET2_MULTILINE_" })
 
     // THEN: Secret has multiple available source keys
     #expect(multilineSecret.availableSourceKeys.count == 2)
@@ -126,11 +135,12 @@ struct ImportSecretsDecodingTests {
     let minimalYaml = """
       version: 1
       secrets:
-        TEST_SECRET:
+        - prefix: TEST_SECRET_
           sources:
             fake-source:
               path: /test/path
-              key: key
+              keys: 
+                - key
       """
     let data = minimalYaml.data(using: .utf8)!
 
@@ -140,6 +150,6 @@ struct ImportSecretsDecodingTests {
     // THEN: Configuration is successfully decoded with empty source configurations
     #expect(sut.version == 1)
     #expect(sut.secrets.count == 1)
-    #expect(sut.secrets[0].envVarName == "TEST_SECRET")
+    #expect(sut.secrets[0].prefix == "TEST_SECRET_")
   }
 }
