@@ -7,7 +7,7 @@ import Foundation
 extension URLSessionConfiguration {
   /// A default URL session configuration for `HashiCorpVaultReader`.
   static var vault: URLSessionConfiguration {
-    var configuration: URLSessionConfiguration = .ephemeral
+    let configuration: URLSessionConfiguration = .ephemeral
 
     configuration.httpMaximumConnectionsPerHost = 10
 
