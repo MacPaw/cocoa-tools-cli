@@ -28,9 +28,8 @@ public protocol SecretProviderProtocol: Sendable {
 }
 
 /// Protocol defining a secret provider that combines a source and fetcher.
-public protocol SecretProviderAsyncProtocol: SecretProviderProtocol where Fetcher: SecretFetcherAsyncProtocol, Fetcher.Source == Source {
-  
-}
+public protocol SecretProviderAsyncProtocol: SecretProviderProtocol
+where Fetcher: SecretFetcherAsyncProtocol, Fetcher.Source == Source {}
 
 // MARK: - Source key accessors
 
@@ -110,14 +109,19 @@ extension SecretProviderProtocol {
   ///   - sourceConfiguration: Optional configuration to use for fetching.
   /// - Returns: Result containing successfully fetched secrets and any errors encountered.
   /// - Throws: Fetching errors if the operation fails.
-  public func fetch(secrets: [Source], sourceConfiguration: Source.Configuration?) async throws -> [Source.Item: SecretsFetchResult] {
+  public func fetch(secrets: [Source], sourceConfiguration: Source.Configuration?) async throws -> [Source.Item:
+    SecretsFetchResult]
+  {
     guard let sourceConfiguration else { preconditionFailure("Cannot fetch without configuration") }
 
     var fetcher = fetcher
 
     try await fetcher.initialize(configuration: sourceConfiguration)
 
-    let fetchResult: [Source.Item: SecretsFetchResult] = try fetcher.fetch(secrets: secrets, sourceConfiguration: sourceConfiguration)
+    let fetchResult: [Source.Item: SecretsFetchResult] = try fetcher.fetch(
+      secrets: secrets,
+      sourceConfiguration: sourceConfiguration
+    )
 
     return fetchResult
   }
@@ -131,14 +135,19 @@ extension SecretProviderAsyncProtocol {
   ///   - sourceConfiguration: Optional configuration to use for fetching.
   /// - Returns: Result containing successfully fetched secrets and any errors encountered.
   /// - Throws: Fetching errors if the operation fails.
-  public func fetch(secrets: [Source], sourceConfiguration: Source.Configuration?) async throws -> [Source.Item: SecretsFetchResult] {
+  public func fetch(secrets: [Source], sourceConfiguration: Source.Configuration?) async throws -> [Source.Item:
+    SecretsFetchResult]
+  {
     guard let sourceConfiguration else { preconditionFailure("Cannot fetch without configuration") }
 
     var fetcher = fetcher
 
     try await fetcher.initialize(configuration: sourceConfiguration)
 
-    let fetchResult: [Source.Item: SecretsFetchResult] = try await fetcher.fetch(secrets: secrets, sourceConfiguration: sourceConfiguration)
+    let fetchResult: [Source.Item: SecretsFetchResult] = try await fetcher.fetch(
+      secrets: secrets,
+      sourceConfiguration: sourceConfiguration
+    )
 
     return fetchResult
   }

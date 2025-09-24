@@ -46,8 +46,7 @@ public protocol SecretFetcherProtocol: Sendable {
   ///
   /// - Returns: A map where secret name is a key, and secret value is a value.
   /// - Throws: If error occurred during item fetch.
-  func fetchItem(_ item: Source.Item, keys: Set<String>, configuration: Source.Configuration) throws -> [String:
-    String]
+  func fetchItem(_ item: Source.Item, keys: Set<String>, configuration: Source.Configuration) throws -> [String: String]
 }
 
 /// A secret fetcher is responsible for actually retrieving secret values from a provider
@@ -75,14 +74,13 @@ public protocol SecretFetcherAsyncProtocol: SecretFetcherProtocol {
 }
 
 extension SecretFetcherAsyncProtocol {
-  public func fetchItem(_ item: Source.Item, keys: Set<String>, configuration: Source.Configuration) throws -> [String : String] {
-    throw SecretsInterface.Error.syncFetchNotSupported
-  }
+  public func fetchItem(_ item: Source.Item, keys: Set<String>, configuration: Source.Configuration) throws -> [String:
+    String]
+  { throw SecretsInterface.Error.syncFetchNotSupported }
 }
 
 extension SecretFetcherProtocol {
   func convertFetchedSecretsToResult(fetchedSecrets: [String: String], keys: Set<String>) -> SecretsFetchResult {
-
     var fetchedSecrets = fetchedSecrets
 
     var result: SecretsFetchResult = .init()
@@ -100,8 +98,7 @@ extension SecretFetcherProtocol {
 
       // Check if the value is not empty
       let emptyKeys =
-        fetchedSecrets.filter { key, value in value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
-        .keys
+        fetchedSecrets.filter { key, value in value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }.keys
       for emptyKey in emptyKeys {
         result.errors[emptyKey, default: []].append(SecretsInterface.Error.emptySecrets([emptyKey]))
       }
@@ -112,16 +109,14 @@ extension SecretFetcherProtocol {
     return result
   }
 
-  func fetchItem(_ item: Source.Item, keys: Set<String>, configuration: Source.Configuration) throws -> (Source.Item, SecretsFetchResult) {
-      let fetchedSecrets: [String: String] = try self.fetchItem(
-        item,
-        keys: keys,
-        configuration: configuration
-      )
+  func fetchItem(_ item: Source.Item, keys: Set<String>, configuration: Source.Configuration) throws -> (
+    Source.Item, SecretsFetchResult
+  ) {
+    let fetchedSecrets: [String: String] = try self.fetchItem(item, keys: keys, configuration: configuration)
 
-      let result: SecretsFetchResult = convertFetchedSecretsToResult(fetchedSecrets: fetchedSecrets, keys: keys)
+    let result: SecretsFetchResult = convertFetchedSecretsToResult(fetchedSecrets: fetchedSecrets, keys: keys)
 
-      return (item, result)
+    return (item, result)
   }
 
   /// Fetches secrets from the provider using the specified sources and configuration.
@@ -143,15 +138,15 @@ extension SecretFetcherProtocol {
     var itemFetchResults: [(Source.Item, SecretsFetchResult)] = []
     for (item, keys) in itemsToFetch {
       let itemFetchResult: (Source.Item, SecretsFetchResult) = {
-        do {
-          return try self.fetchItem(item, keys: keys, configuration: sourceConfiguration)
-        }
+        do { return try self.fetchItem(item, keys: keys, configuration: sourceConfiguration) }
         catch { return (item, SecretsFetchResult(errors: ["all keys": [error]])) }
       }()
       itemFetchResults.append(itemFetchResult)
     }
 
-    let uniqueFetchedResult: [Source.Item: SecretsFetchResult] = try itemFetchResults.reduce(into: [Source.Item: SecretsFetchResult]()) { partialResult, itemResult in
+    let uniqueFetchedResult: [Source.Item: SecretsFetchResult] = try itemFetchResults.reduce(
+      into: [Source.Item: SecretsFetchResult]()
+    ) { partialResult, itemResult in
       let item: Source.Item
       let result: SecretsFetchResult
       (item, result) = itemResult
@@ -164,16 +159,14 @@ extension SecretFetcherProtocol {
 }
 
 extension SecretFetcherAsyncProtocol {
-  func fetchItem(_ item: Source.Item, keys: Set<String>, configuration: Source.Configuration) async throws -> (Source.Item, SecretsFetchResult) {
-      let fetchedSecrets: [String: String] = try await self.fetchItem(
-        item,
-        keys: keys,
-        configuration: configuration
-      )
+  func fetchItem(_ item: Source.Item, keys: Set<String>, configuration: Source.Configuration) async throws -> (
+    Source.Item, SecretsFetchResult
+  ) {
+    let fetchedSecrets: [String: String] = try await self.fetchItem(item, keys: keys, configuration: configuration)
 
-      let result: SecretsFetchResult = convertFetchedSecretsToResult(fetchedSecrets: fetchedSecrets, keys: keys)
+    let result: SecretsFetchResult = convertFetchedSecretsToResult(fetchedSecrets: fetchedSecrets, keys: keys)
 
-      return (item, result)
+    return (item, result)
   }
 }
 
@@ -200,9 +193,7 @@ extension SecretFetcherAsyncProtocol {
     ) { taskGroup in
       for (item, keys) in itemsToFetch {
         taskGroup.addTask { [self, item, keys] in
-          do {
-            return try await self.fetchItem(item, keys: keys, configuration: sourceConfiguration)
-          }
+          do { return try await self.fetchItem(item, keys: keys, configuration: sourceConfiguration) }
           catch { return (item, .init(errors: ["all keys": [error]])) }
         }
       }

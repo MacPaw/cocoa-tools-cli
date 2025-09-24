@@ -22,7 +22,6 @@ private typealias Fetcher = ImportSecrets.Providers.HashiCorpVault.Fetcher
 extension Fetcher: Sendable {}
 
 extension Fetcher: SecretFetcherAsyncProtocol {
-  
   /// Source type for HashiCorp Vault fetcher.
   public typealias Source = ImportSecrets.Providers.HashiCorpVault.Source
 
