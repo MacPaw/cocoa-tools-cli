@@ -72,7 +72,7 @@ public struct MockSecretFetcher: SecretFetcherProtocol {
   ///   - configuration: A source configuration to use when fetching secrets.
   /// - Returns: A map where secret name is a key, and secret value is a value.
   /// - Throws: The configured fetch error if `shouldFailFetch` is `true`.
-  public func fetchItem(_ item: Source.Item, keys: Set<String>, configuration: Source.Configuration) async throws
+  public func fetchItem(_ item: Source.Item, keys: Set<String>, configuration: Source.Configuration) throws
     -> [String: String]
   {
     // Note: In a real implementation, we'd track this call

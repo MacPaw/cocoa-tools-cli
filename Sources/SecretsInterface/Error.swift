@@ -39,6 +39,9 @@ extension SecretsInterface {
 
     /// Thrown when secret declaration in config file has no known sources.
     case secretHasNoKnownSources
+
+    /// Thrown when attempting to run synchronous secrets fetch on async protocol.
+    case syncFetchNotSupported
   }
 }
 

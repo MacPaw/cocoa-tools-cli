@@ -15,4 +15,4 @@ extension ImportSecrets.Providers {
   }
 }
 
-extension ImportSecrets.Providers.HashiCorpVault: SecretProviderProtocol {}
+extension ImportSecrets.Providers.HashiCorpVault: SecretProviderAsyncProtocol {}
