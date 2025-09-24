@@ -2,5 +2,5 @@
 
 #MISE description="Lint source code"
 
-mise tasks run format:swift
-mise tasks run format:shellcheck
+mise tasks run lint:swift
+mise tasks run lint:shellcheck
