@@ -3,6 +3,7 @@ import EnvSubstCommand
 @_exported public import ExportSecrets
 import Foundation
 @_exported public import ImportSecrets
+import SecretsInterface
 import Shell
 
 /// Command-line interface for exporting secrets from various providers to specified destination.

@@ -53,7 +53,7 @@ extension Shell.OnePassword {
   func getItemFields(account: String?, vault: String?, item: String, labels: [String]) throws -> [Shell.OnePassword.Item
     .Field]
   {
-    let arguments: [[String]] = [
+    var arguments: [[String]] = [
       // Command
       ["item"],
       // Subcommand
@@ -63,18 +63,26 @@ extension Shell.OnePassword {
       account.map { ["--account", $0] },
       // Vault
       vault.map { ["--vault", $0] },
-      // Fields
-      ["--fields", labels.map { "label=\($0)" }.joined(separator: ",")],
       // Output format
       ["--format", "json"],
     ]
     .compactMap(\.self)
 
+    if !labels.isEmpty {
+      // Fields
+      arguments += [["--fields", labels.map { "label=\($0)" }.joined(separator: ",")]]
+    }
+
     let jsonData: Data = try run(arguments: arguments.flatMap(\.self))
 
     let fields: [Shell.OnePassword.Item.Field]
+
     do {
-      if labels.count == 1 {
+      if labels.isEmpty {
+        struct ItemResponse: Decodable { var fields: [Shell.OnePassword.Item.Field] }
+        fields = try JSONDecoder().decode(ItemResponse.self, from: jsonData).fields
+      }
+      else if labels.count == 1 {
         let field: Shell.OnePassword.Item.Field = try JSONDecoder()
           .decode(Shell.OnePassword.Item.Field.self, from: jsonData)
         fields = [field]
@@ -106,7 +114,7 @@ extension Shell.OnePassword.Item {
     /// The label/name of the field.
     let label: String
     /// The value stored in the field.
-    let value: String
+    let value: String?
   }
 }
 

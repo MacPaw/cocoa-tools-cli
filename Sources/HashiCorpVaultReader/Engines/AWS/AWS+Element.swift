@@ -7,8 +7,6 @@ extension HashiCorpVaultReader.Engine.AWS {
     public var enginePath: String
     /// Specifies the name of the role to generate credentials against.
     public var role: String
-    /// The key within the credentials to retrieve.
-    public var key: String
   }
 }
 
@@ -18,7 +16,6 @@ extension Element: DecodableWithConfiguration {
   private enum CodingKeys: String, CodingKey {
     case enginePath
     case role
-    case key
   }
 
   /// Initialize element from decoder with configuration.
@@ -42,7 +39,6 @@ extension Element: DecodableWithConfiguration {
     }
     self.enginePath = enginePath
     self.role = try container.decode(String.self, forKey: .role)
-    self.key = try container.decode(String.self, forKey: .key)
   }
 }
 

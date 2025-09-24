@@ -1,4 +1,10 @@
 import Foundation
+import SecretsInterface
+
+extension ImportSecrets {
+  /// Namespace for secret fetcher implementations.
+  public enum SecretFetchers {}
+}
 
 extension ImportSecrets {
   /// The main configuration structure for ImportSecrets.
@@ -13,6 +19,8 @@ extension ImportSecrets {
     public var secrets: [ImportSecrets.Secret]
     /// The registered source providers that can fetch secrets.
     public var sourceProviders: [any SecretProviderProtocol]
+    /// Secret names mapping.
+    public var secretNamesMapping: [String: String]
   }
 }
 
@@ -20,17 +28,6 @@ extension ImportSecrets.Configuration {
   /// Validates the entire configuration for consistency and completeness.
   /// - Throws: ImportSecrets.Error if there are duplicate environment variable names or other validation issues.
   mutating public func validate() throws {
-    // Check for duplicate environment variable names across all secrets
-    // This prevents conflicts where multiple secrets would try to set the same env var
-    let variableNames = secrets.map(\.envVarName)
-    let uniqueEnvVarNames = Set(secrets.map(\.envVarName))
-    if uniqueEnvVarNames.count != secrets.count {
-      // Find which variable names appear more than once
-      let duplicatedEnvVarNames = uniqueEnvVarNames.filter { varName in variableNames.filter { $0 == varName }.count > 1
-      }
-      throw ImportSecrets.Error.duplicatedEnvVarNames(duplicatedEnvVarNames)
-    }
-
     // Validate all source configurations (e.g., 1Password vault settings)
     try sourceConfigurations.validate()
 
@@ -52,34 +49,32 @@ extension ImportSecrets.Configuration: DecodableWithConfiguration {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
     // Decode optional version field for future compatibility checking
-    self.version = try container.decodeIfPresent(Int.self, forKey: .version)
+    let version = try container.decodeIfPresent(Int.self, forKey: .version)
 
     // Decode source configurations first since secrets may reference them during decoding
     // If no configurations are provided, use an empty container
-    self.sourceConfigurations =
+    let sourceConfigurations =
       try container.decodeIfPresent(
         ImportSecrets.SourceConfigurations.self,
         forKey: .sourceConfigurations,
         configuration: configuration,
       ) ?? .init(configurations: [:])
 
-    // Decode secrets using dynamic keys (the YAML keys become the environment variable names)
-    let secretsContainer = try container.nestedContainer(keyedBy: DynamicCodingKey.self, forKey: .secrets)
+    var secretsContainer = try container.nestedUnkeyedContainer(forKey: .secrets)
     var secrets: [ImportSecrets.Secret] = []
+    let decodingConfiguration = ImportSecrets.Secret.DecodingConfiguration(
+      topLevelDecodingConfiguration: configuration,
+      sourcesConfigurations: sourceConfigurations
+    )
 
-    // Decode each secret, using the YAML key as the environment variable name
-    for key in secretsContainer.allKeys {
-      let secretDecoder = try secretsContainer.superDecoder(forKey: key)
-      let secret: ImportSecrets.Secret
+    // Decode secrets, and ignore secretHasNoKnownSources errors.
+    while !secretsContainer.isAtEnd {
       do {
-        secret = try ImportSecrets.Secret(
-          from: secretDecoder,
-          configuration: .init(
-            topLevelDecodingConfiguration: configuration,
-            sourcesConfigurations: sourceConfigurations,
-            secretEnvVarName: key.stringValue,  // YAML key becomes the env var name
-          ),
+        let secret: ImportSecrets.Secret = try secretsContainer.decode(
+          ImportSecrets.Secret.self,
+          configuration: decodingConfiguration
         )
+        secrets.append(secret)
       }
       catch let error as DecodingError {
         switch error {
@@ -88,16 +83,24 @@ extension ImportSecrets.Configuration: DecodableWithConfiguration {
         default: throw error
         }
       }
-      secrets.append(secret)
     }
-    self.secrets = secrets
-    self.sourceProviders = configuration.sourceProviders
+
+    let secretNamesMapping: [String: String] = try container.decodeIfPresent(key: .secretNamesMapping) ?? [:]
+
+    self.init(
+      version: version,
+      sourceConfigurations: sourceConfigurations,
+      secrets: secrets,
+      sourceProviders: configuration.sourceProviders,
+      secretNamesMapping: secretNamesMapping
+    )
   }
 
   private enum CodingKeys: String, CodingKey {
     case version
     case secrets
     case sourceConfigurations
+    case secretNamesMapping
   }
 }
 

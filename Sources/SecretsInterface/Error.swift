@@ -1,10 +1,12 @@
-extension ImportSecrets {
+extension SecretsInterface {
   /// Errors that can occur during secret import operations.
   public enum Error: Swift.Error, Equatable {
     /// Thrown when no secrets are configured to be fetched.
     case noSecretsToFetch
     /// Thrown when some configured secrets could not be fetched from their sources.
     case missingSecrets(Set<String>)
+    /// Thrown when some configured secrets could is fetched but contains no value.
+    case emptySecrets(Set<String>)
     /// Thrown when provider failed to acquire secrets.
     case failedToFetchSecrets([String: [String]])
     /// Thrown when an invalid source type is encountered during processing.
@@ -40,17 +42,17 @@ extension ImportSecrets {
   }
 }
 
-extension ImportSecrets.Error {
-  static func sourceTypeMismatch(expected: any SecretSourceProtocol.Type, got: any SecretSourceProtocol.Type) -> Self {
-    .sourceTypeMismatch(expected: String(describing: expected), got: String(describing: got))
-  }
+extension SecretsInterface.Error {
+  package static func sourceTypeMismatch(expected: any SecretSourceProtocol.Type, got: any SecretSourceProtocol.Type)
+    -> Self
+  { .sourceTypeMismatch(expected: String(describing: expected), got: String(describing: got)) }
 
-  static func configurationTypeMismatch(
+  package static func configurationTypeMismatch(
     expected: any SecretConfigurationProtocol.Type,
     got: any SecretConfigurationProtocol.Type,
   ) -> Self { .configurationTypeMismatch(expected: String(describing: expected), got: String(describing: got)) }
 
-  static func failedToFetchSecrets(_ secretFetchErrors: [String: [any Swift.Error]]) -> Self {
+  package static func failedToFetchSecrets(_ secretFetchErrors: [String: [any Swift.Error]]) -> Self {
     .failedToFetchSecrets(secretFetchErrors.mapValues { $0.map(String.init(describing:)) })
   }
 }
