@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SecretsInterface
 import Testing
 
 @testable import ImportSecrets

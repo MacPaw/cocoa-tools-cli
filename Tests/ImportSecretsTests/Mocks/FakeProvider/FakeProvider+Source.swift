@@ -1,4 +1,5 @@
 import ImportSecrets
+import SecretsInterface
 
 extension ImportSecrets.Providers.FakeProvider {
   final class Source {

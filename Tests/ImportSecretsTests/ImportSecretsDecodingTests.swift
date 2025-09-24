@@ -1,5 +1,6 @@
 import Foundation
 import HashiCorpVaultReader
+import SecretsInterface
 import Testing
 
 @testable import ImportSecrets
