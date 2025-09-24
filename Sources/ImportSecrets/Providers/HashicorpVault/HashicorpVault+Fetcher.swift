@@ -49,9 +49,4 @@ extension Fetcher: SecretFetcherAsyncProtocol {
     keys: Set<String>,
     configuration: HashiCorpVaultReader.Configuration
   ) async throws -> [String: String] { try await reader.fetchItem(item, keys: keys, configuration: configuration) }
-
-  enum FetchError: Error {
-    case failedToFetch(secret: String, labelMissing: String)
-    case configurationNotSet
-  }
 }
