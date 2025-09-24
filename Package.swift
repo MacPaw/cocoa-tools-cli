@@ -113,8 +113,9 @@ enum Targets {
       name: "ImportSecrets",
       dependencies: [
         .target(name: "EnvSubst"), .target(name: "Shell"), .target(name: "HashiCorpVaultReader"),
-        .product(name: "Yams", package: "Yams"),
-      ]
+        .target(name: "SecretsInterface"), .product(name: "Yams", package: "Yams"),
+      ],
+      testsDependencies: [.target(name: "SecretsInterfaceTesting")]
     )
   }
 
@@ -174,8 +175,12 @@ enum Targets {
     targetBundle(name: "SharedLogger", dependencies: [.product(name: "Logging", package: "swift-log")], tests: false)
   }
 
+  static var secretsInterface: [PackageDescription.Target] {
+    targetBundle(name: "SecretsInterface", tests: false) + targetBundle(name: "SecretsInterfaceTesting", tests: false)
+  }
+
   static var hashicorpVaultReader: [PackageDescription.Target] {
-    targetBundle(name: "HashiCorpVaultReader", tests: false)
+    targetBundle(name: "HashiCorpVaultReader", dependencies: [.target(name: "SecretsInterface")], tests: false)
   }
 }
 
@@ -214,7 +219,8 @@ let package = Package(
     .target(name: "Dummy"),
 
   ] + Targets.shell + Targets.envSubst + Targets.exportSecrets + Targets.importSecrets + Targets.obfuscateSecrets
-    + Targets.semanticVersion + Targets.env + Targets.ci + Targets.hashicorpVaultReader + Targets.sharedLogger,
+    + Targets.semanticVersion + Targets.env + Targets.ci + Targets.hashicorpVaultReader + Targets.sharedLogger
+    + Targets.secretsInterface,
 
   swiftLanguageModes: [.version(swiftLanguageVersion)]
 )
