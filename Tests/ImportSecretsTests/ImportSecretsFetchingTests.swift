@@ -102,12 +102,8 @@ struct ImportSecretsFetchingTests {
     await #expect(
       throws: ImportSecrets.Error.failedToFetchSecrets([
         "TEST_MPCT_SECRET6_OP_MISSING_FAKE_MISSING": [
-          String(
-            describing: "ImportSecrets.Providers.OnePassword.Fetcher.FetchError.failedToFetch"
-          ),
-          String(
-            describing: "ImportSecrets.Providers.FakeProvider.Fetcher.FetchError.failedToFetch"
-          ),
+          String(describing: "ImportSecrets.Providers.OnePassword.Fetcher.FetchError.failedToFetch"),
+          String(describing: "ImportSecrets.Providers.FakeProvider.Fetcher.FetchError.failedToFetch"),
         ]
       ])
     ) { try await ImportSecrets.getSecrets(configuration: configuration) }

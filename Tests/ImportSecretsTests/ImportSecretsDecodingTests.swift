@@ -7,13 +7,13 @@ import Testing
 @testable import Shell
 
 final class MockHashiCorpVaultReaderProtocol: HashiCorpVaultReaderProtocol {
-  func initialize(configuration: HashiCorpVaultReader.Configuration) async throws {
+  func initialize(configuration: HashiCorpVaultReader.Configuration) async throws {}
 
-  }
-
-  func fetchItem(_ item: HashiCorpVaultReader.Element.Item, keys: Set<String>, configuration: HashiCorpVaultReader.Configuration) async throws -> [String : String] {
-    [:]
-  }
+  func fetchItem(
+    _ item: HashiCorpVaultReader.Element.Item,
+    keys: Set<String>,
+    configuration: HashiCorpVaultReader.Configuration
+  ) async throws -> [String: String] { [:] }
 }
 
 @Suite("ImportSecrets Decoding Tests")
@@ -29,9 +29,8 @@ struct ImportSecretsDecodingTests {
 
   private static func buildConfiguration() throws -> ImportSecrets.Configuration {
     guard let data = YamlMocks.yamlContent.data(using: .utf8) else { throw TestError.dataConversionFailed }
-    do {
-      return try ImportSecrets.configuration(configurationData: data, sourceProviders: buildProviders())
-    } catch {
+    do { return try ImportSecrets.configuration(configurationData: data, sourceProviders: buildProviders()) }
+    catch {
       #expect(Bool(false), "Got error: \(error)")
       throw error
     }

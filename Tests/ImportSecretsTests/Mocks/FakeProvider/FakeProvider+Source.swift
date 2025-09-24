@@ -5,22 +5,17 @@ extension ImportSecrets.Providers.FakeProvider.Source {
   final class Item: Decodable {
     let path: String
 
-    init(path: String) {
-      self.path = path
-    }
+    init(path: String) { self.path = path }
   }
-
 }
 
 extension ImportSecrets.Providers.FakeProvider.Source.Item: SecretSourceItemProtocol {
-  static func == (lhs: ImportSecrets.Providers.FakeProvider.Source.Item,
-                  rhs: ImportSecrets.Providers.FakeProvider.Source.Item) -> Bool {
-    lhs.path == rhs.path
-  }
+  static func == (
+    lhs: ImportSecrets.Providers.FakeProvider.Source.Item,
+    rhs: ImportSecrets.Providers.FakeProvider.Source.Item
+  ) -> Bool { lhs.path == rhs.path }
 
-  func hash(into hasher: inout Hasher) {
-    hasher.combine(path)
-  }
+  func hash(into hasher: inout Hasher) { hasher.combine(path) }
 }
 
 extension ImportSecrets.Providers.FakeProvider {
@@ -37,23 +32,17 @@ extension ImportSecrets.Providers.FakeProvider {
 }
 
 extension ImportSecrets.Providers.FakeProvider.Source {
-  convenience init(path: String, keys: [String]) {
-      self.init(item: .init(path: path), keys: keys)
-    }
+  convenience init(path: String, keys: [String]) { self.init(item: .init(path: path), keys: keys) }
 
-  convenience init(path: String, key: String) {
-    self.init(path: path, keys: [key])
-    }
+  convenience init(path: String, key: String) { self.init(path: path, keys: [key]) }
 
-    func validate() throws {}
+  func validate() throws {}
 }
 
 private typealias Source = ImportSecrets.Providers.FakeProvider.Source
 
 extension Source: Decodable {
-  enum CodingKeys: String, CodingKey {
-    case keys
-  }
+  enum CodingKeys: String, CodingKey { case keys }
   convenience init(from decoder: any Decoder) throws {
     let item = try Item(from: decoder)
     let keys = try decoder.container(keyedBy: CodingKeys.self).decode([String].self, forKey: .keys)
