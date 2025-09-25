@@ -18,7 +18,7 @@ public protocol HashiCorpVaultReaderProtocol: Sendable {
   /// - Parameter configuration: A HashiCorp Vault Configuration to init this reader with.
   ///
   /// - Throws: An error if initialization failed.
-  mutating func initialize(configuration: HashiCorpVaultReader.Configuration) async throws
+  mutating func initialize(configuration: HashiCorpVaultReader.Configuration?) async throws
 
   /// Fetch secrets from HashiCorp Vault.
   ///
@@ -234,7 +234,8 @@ extension HashiCorpVaultReader: HashiCorpVaultReaderProtocol {
   /// - Parameter configuration: A HashiCorp Vault Configuration to init this reader with.
   ///
   /// - Throws: An error if initialization failed.
-  mutating public func initialize(configuration: Configuration) async throws {
+  mutating public func initialize(configuration: Configuration?) async throws {
+    guard let configuration else { throw Error.noConfigsForItem }
     self.vaultToken = try await authenticate(configuration: configuration)
   }
 

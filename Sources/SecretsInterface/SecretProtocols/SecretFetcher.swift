@@ -34,7 +34,7 @@ public protocol SecretFetcherProtocol: Sendable {
   /// - Parameter configuration: A Secret Configuration to init this fetcher with.
   ///
   /// - Throws: An error if initialization failed.
-  mutating func initialize(configuration: Source.Configuration) async throws
+  mutating func initialize(configuration: Source.Configuration?) async throws
 
   /// Fetches a single source item.
   /// - Parameters:
@@ -52,13 +52,6 @@ public protocol SecretFetcherProtocol: Sendable {
 /// A secret fetcher is responsible for actually retrieving secret values from a provider
 /// using the specified sources and configuration.
 public protocol SecretFetcherAsyncProtocol: SecretFetcherProtocol {
-  /// Initializes fetcher before fetching secrets with a given `configuration`.
-  ///
-  /// - Parameter configuration: A Secret Configuration to init this fetcher with.
-  ///
-  /// - Throws: An error if initialization failed.
-  mutating func initialize(configuration: Source.Configuration) async throws
-
   /// Fetches a single source item.
   /// - Parameters:
   ///   - item: A unique source item.
@@ -131,11 +124,11 @@ extension SecretFetcherProtocol {
 
   /// Fetches secrets from the provider using the specified sources and configuration.
   /// - Parameters:
-  ///   - secrets: A list of secrets source configurations to fetch.
+  ///   - sources: A list of secrets source configurations to fetch.
   ///   - sourceConfiguration: Optional configuration for the secret source provider.
   /// - Returns: A dictionary mapping of the secrets fetch result to the source item.
   /// - Throws: An error if fetching fails.
-  public func fetch(secrets: [Source], sourceConfiguration: Source.Configuration?) throws -> [Source.Item:
+  public func fetch(sources: [Source], sourceConfiguration: Source.Configuration?) throws -> [Source.Item:
     SecretsFetchResult]
   {
     guard let sourceConfiguration else { preconditionFailure("No source configuration provided.") }
@@ -143,7 +136,7 @@ extension SecretFetcherProtocol {
     // Group secrets by unique item (vault + item name) to batch field requests.
     // This optimization allows us to fetch multiple fields from the same item in one API call
     // instead of making separate calls for each field.
-    let itemsToFetch: [Source.Item: Set<String>] = secrets.itemsToFetch
+    let itemsToFetch: [Source.Item: Set<String>] = sources.itemsToFetch
 
     var itemFetchResults: [(Source.Item, SecretsFetchResult)] = []
     for (item, keys) in itemsToFetch {
@@ -183,11 +176,11 @@ extension SecretFetcherAsyncProtocol {
 extension SecretFetcherAsyncProtocol {
   /// Fetches secrets from the provider using the specified sources and configuration.
   /// - Parameters:
-  ///   - secrets: A list of secrets source configurations to fetch.
+  ///   - sources: A list of secrets source configurations to fetch.
   ///   - sourceConfiguration: Optional configuration for the secret source provider.
   /// - Returns: A dictionary mapping of the secrets fetch result to the source item.
   /// - Throws: An error if fetching fails.
-  public func fetch(secrets: [Source], sourceConfiguration: Source.Configuration?) async throws -> [Source.Item:
+  public func fetch(sources: [Source], sourceConfiguration: Source.Configuration?) async throws -> [Source.Item:
     SecretsFetchResult]
   {
     guard let sourceConfiguration else { preconditionFailure("No source configuration provided.") }
@@ -195,7 +188,7 @@ extension SecretFetcherAsyncProtocol {
     // Group secrets by unique item (vault + item name) to batch field requests.
     // This optimization allows us to fetch multiple fields from the same item in one API call
     // instead of making separate calls for each field.
-    let itemsToFetch: [Source.Item: Set<String>] = secrets.itemsToFetch
+    let itemsToFetch: [Source.Item: Set<String>] = sources.itemsToFetch
 
     let uniqueFetchedResult: [Source.Item: SecretsFetchResult] = try await withThrowingTaskGroup(
       of: (Source.Item, SecretsFetchResult).self,

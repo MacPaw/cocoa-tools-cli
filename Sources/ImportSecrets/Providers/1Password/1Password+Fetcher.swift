@@ -28,7 +28,7 @@ extension Fetcher: SecretFetcherProtocol {
   /// - Parameter configuration: A Secret Configuration to init this fetcher with.
   ///
   /// - Throws: An error if initialization failed.
-  public mutating func initialize(configuration: ImportSecrets.Providers.OnePassword.Source.Configuration) async throws
+  public mutating func initialize(configuration: ImportSecrets.Providers.OnePassword.Source.Configuration?) async throws
   {}
 
   /// Fetch a single item from 1Password.

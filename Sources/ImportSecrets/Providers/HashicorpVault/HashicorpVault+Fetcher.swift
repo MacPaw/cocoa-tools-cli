@@ -30,7 +30,7 @@ extension Fetcher: SecretFetcherAsyncProtocol {
   /// - Parameter configuration: A Secret Configuration to init this fetcher with.
   ///
   /// - Throws: An error if initialization failed.
-  public mutating func initialize(configuration: HashiCorpVaultReader.Configuration) async throws {
+  public mutating func initialize(configuration: Source.Configuration?) async throws {
     try await reader.initialize(configuration: configuration)
   }
 

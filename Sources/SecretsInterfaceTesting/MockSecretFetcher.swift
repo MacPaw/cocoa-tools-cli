@@ -57,7 +57,7 @@ public struct MockSecretFetcher: SecretFetcherProtocol {
   ///
   /// - Parameter configuration: A Secret Configuration to init this fetcher with.
   /// - Throws: The configured initialization error if `shouldFailInitialization` is `true`.
-  public mutating func initialize(configuration: Source.Configuration) async throws {
+  public mutating func initialize(configuration: Source.Configuration?) async throws {
     if shouldFailInitialization {
       guard let initializationError else { throw MockError.initializationFailed }
       throw MockError.initializationFailedWithMessage(initializationError)

@@ -1,30 +1,22 @@
 import SecretsInterface
 
 extension SecretProviderProtocol {
-  func fetch(secrets: [ImportSecrets.Secret], sourceConfiguration: (any SecretConfigurationProtocol)?) async throws
-    -> SecretsFetchResult
-  {
-    // Cast the type-erased configuration to our specific configuration type
-    let sourceConfiguration: Source.Configuration? = try Self.getSourceConfiguration(sourceConfiguration)
-
-    // Extract the source configurations from each secret for this provider
-    // This converts from Secret objects to provider-specific Source objects
-    let secretsToFetch: [Source] = try secrets.reduce(into: []) { accum, secret in
+  fileprivate func sourcesToFetch(from secrets: [ImportSecrets.Secret]) throws -> [Source] {
+    try secrets.reduce(into: []) { accum, secret in
       guard let source: Source = try secret.getSource(for: Self.configurationKey) else { return }
       accum.append(source)
     }
+  }
 
-    // Delegate to the typed fetch method
-    let results: [Source.Item: SecretsFetchResult] = try await self.fetch(
-      secrets: secretsToFetch,
-      sourceConfiguration: sourceConfiguration
-    )
-
+  fileprivate func buildResultFrom(
+    sourceFetchResults: [Source.Item: SecretsFetchResult],
+    for secrets: [ImportSecrets.Secret]
+  ) throws -> SecretsFetchResult {
     var result: SecretsFetchResult = .init()
 
     for secret in secrets {
       guard let source: Source = try secret.getSource(for: Self.configurationKey) else { continue }
-      guard let secretFetchResult = results[source.item] else {
+      guard let secretFetchResult = sourceFetchResults[source.item] else {
         preconditionFailure("Failed to find a result for \(source)")
       }
 
@@ -45,6 +37,50 @@ extension SecretProviderProtocol {
       try result.addFetchedSecrets(fetchedSecrets)
       result.addErrors(fetchErrors)
     }
+
+    return result
+  }
+
+  func fetch(secrets: [ImportSecrets.Secret], sourceConfiguration: (any SecretConfigurationProtocol)?) throws
+    -> SecretsFetchResult
+  {
+    // Cast the type-erased configuration to our specific configuration type
+    let sourceConfiguration: Source.Configuration? = try Self.getSourceConfiguration(sourceConfiguration)
+
+    // Extract the source configurations from each secret for this provider
+    // This converts from Secret objects to provider-specific Source objects
+    let sourcesToFetch: [Source] = try sourcesToFetch(from: secrets)
+
+    // Delegate to the typed fetch method
+    let results: [Source.Item: SecretsFetchResult] = try self.fetch(
+      sources: sourcesToFetch,
+      sourceConfiguration: sourceConfiguration
+    )
+
+    let result: SecretsFetchResult = try buildResultFrom(sourceFetchResults: results, for: secrets)
+
+    return result
+  }
+}
+
+extension SecretProviderAsyncProtocol {
+  func fetch(secrets: [ImportSecrets.Secret], sourceConfiguration: (any SecretConfigurationProtocol)?) async throws
+    -> SecretsFetchResult
+  {
+    // Cast the type-erased configuration to our specific configuration type
+    let sourceConfiguration: Source.Configuration? = try Self.getSourceConfiguration(sourceConfiguration)
+
+    // Extract the source configurations from each secret for this provider
+    // This converts from Secret objects to provider-specific Source objects
+    let sourcesToFetch: [Source] = try sourcesToFetch(from: secrets)
+
+    // Delegate to the typed fetch method
+    let results: [Source.Item: SecretsFetchResult] = try await self.fetch(
+      sources: sourcesToFetch,
+      sourceConfiguration: sourceConfiguration
+    )
+
+    let result: SecretsFetchResult = try buildResultFrom(sourceFetchResults: results, for: secrets)
 
     return result
   }

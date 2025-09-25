@@ -171,28 +171,22 @@ public struct ImportSecrets {
 
     // Fetch secrets from each provider sequentially
     // Note: This could be parallelized in the future for better performance
-    for sourceProvider in sourceProviders {
+    for var sourceProvider in sourceProviders {
       let configurationKey = type(of: sourceProvider).configurationKey
       // Skip providers that don't have any secrets to fetch
-      guard let sourceSecrets = secretsBySource[configurationKey] else { continue }
+      guard let sourceSecrets: [ImportSecrets.Secret] = secretsBySource[configurationKey] else { continue }
 
       let sourceConfiguration: (any SecretConfigurationProtocol)? = sourceConfigurations.getConfiguration(
         for: configurationKey
       )
 
+      try await sourceProvider.initialize(configuration: sourceConfiguration)
+
       let fetchedSecretsResult: SecretsFetchResult =
         if let sourceProvider = sourceProvider as? any SecretProviderAsyncProtocol {
-          try await sourceProvider.fetch(
-            secrets: sourceSecrets as [ImportSecrets.Secret],
-            sourceConfiguration: sourceConfiguration,
-          )
+          try await sourceProvider.fetch(secrets: sourceSecrets, sourceConfiguration: sourceConfiguration, )
         }
-        else {
-          try await sourceProvider.fetch(
-            secrets: sourceSecrets as [ImportSecrets.Secret],
-            sourceConfiguration: sourceConfiguration,
-          )
-        }
+        else { try sourceProvider.fetch(secrets: sourceSecrets, sourceConfiguration: sourceConfiguration, ) }
 
       // Merge the fetched secrets, preferring new values over existing ones
       try result.addFetchedSecrets(fetchedSecretsResult.fetchedSecrets)
