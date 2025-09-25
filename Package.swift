@@ -176,7 +176,8 @@ enum Targets {
   }
 
   static var secretsInterface: [PackageDescription.Target] {
-    targetBundle(name: "SecretsInterface", tests: false) + targetBundle(name: "SecretsInterfaceTesting", dependencies: [.target(name: "SecretsInterface")], tests: false)
+    targetBundle(name: "SecretsInterface", tests: false)
+      + targetBundle(name: "SecretsInterfaceTesting", dependencies: [.target(name: "SecretsInterface")], tests: false)
   }
 
   static var hashicorpVaultReader: [PackageDescription.Target] {

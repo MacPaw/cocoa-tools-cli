@@ -180,10 +180,19 @@ public struct ImportSecrets {
         for: configurationKey
       )
 
-      let fetchedSecretsResult: SecretsFetchResult = try await sourceProvider.fetch(
-        secrets: sourceSecrets as [ImportSecrets.Secret],
-        sourceConfiguration: sourceConfiguration,
-      )
+      let fetchedSecretsResult: SecretsFetchResult =
+        if let sourceProvider = sourceProvider as? any SecretProviderAsyncProtocol {
+          try await sourceProvider.fetch(
+            secrets: sourceSecrets as [ImportSecrets.Secret],
+            sourceConfiguration: sourceConfiguration,
+          )
+        }
+        else {
+          try await sourceProvider.fetch(
+            secrets: sourceSecrets as [ImportSecrets.Secret],
+            sourceConfiguration: sourceConfiguration,
+          )
+        }
 
       // Merge the fetched secrets, preferring new values over existing ones
       try result.addFetchedSecrets(fetchedSecretsResult.fetchedSecrets)
