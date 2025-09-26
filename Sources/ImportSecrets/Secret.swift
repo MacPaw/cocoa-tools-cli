@@ -1,4 +1,5 @@
 import Foundation
+import SecretsInterface
 
 extension ImportSecrets {
   /// Represents a secret to be imported from one or more sources.
@@ -6,8 +7,8 @@ extension ImportSecrets {
   /// A secret defines the environment variable name and the sources from which
   /// the secret value can be retrieved.
   public struct Secret {
-    /// The environment variable name to import the secret to.
-    public var envVarName: String
+    /// A prefix to add to the environment variable name to import the secret to.
+    public var prefix: String
     /// Typed secret sources for extensible secret sources.
     ///
     /// Maps source keys to their corresponding source configurations.
@@ -15,10 +16,10 @@ extension ImportSecrets {
 
     /// Creates a new secret with the specified environment variable name and sources.
     /// - Parameters:
-    ///   - envVarName: The environment variable name to import the secret to.
+    ///   - prefix: A prefix to add to the environment variable name to import the secret to.
     ///   - sources: Array of secret sources that can provide the secret value.
     /// - Throws: ImportSecrets.Error.secretSourceWithSameKeyAlreadyExists if multiple sources have the same configuration key.
-    public init(envVarName: String, sources: [any SecretSourceProtocol]) throws {
+    public init(prefix: String, sources: [any SecretSourceProtocol]) throws {
       // Convert array of sources to dictionary, ensuring no duplicate configuration keys
       // This prevents conflicts where multiple sources have the same provider type
       let sources = try sources.reduce(into: [String: any SecretSourceProtocol]()) { accum, source in
@@ -28,15 +29,15 @@ extension ImportSecrets {
         }
         accum[configurationKey] = source
       }
-      self.init(envVarName: envVarName, sources: sources)
+      self.init(prefix: prefix, sources: sources)
     }
 
     /// Internal initializer for creating a secret with a pre-validated sources dictionary.
     /// - Parameters:
-    ///   - envVarName: The environment variable name to import the secret to.
+    ///   - prefix: A prefix to add to the environment variable name to import the secret to.
     ///   - sources: Dictionary mapping configuration keys to their corresponding sources.
-    init(envVarName: String, sources: [String: any SecretSourceProtocol]) {
-      self.envVarName = envVarName
+    init(prefix: String, sources: [String: any SecretSourceProtocol]) {
+      self.prefix = prefix
       self.sources = sources
     }
 
@@ -101,10 +102,12 @@ extension ImportSecrets.Secret: DecodableWithConfiguration {
   public struct DecodingConfiguration {
     let topLevelDecodingConfiguration: ImportSecrets.Configuration.DecodingConfiguration
     let sourcesConfigurations: ImportSecrets.SourceConfigurations
-    let secretEnvVarName: String
   }
 
-  internal enum CodingKeys: String, CodingKey { case sources }
+  internal enum CodingKeys: String, CodingKey {
+    case prefix
+    case sources
+  }
 
   /// Initializes a secret from a decoder with the given decoding configuration.
   ///
@@ -115,8 +118,7 @@ extension ImportSecrets.Secret: DecodableWithConfiguration {
   public init(from decoder: any Decoder, configuration: DecodingConfiguration) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
-    // The environment variable name comes from the YAML key, not from the decoded content
-    self.envVarName = configuration.secretEnvVarName
+    let prefix: String = try container.decodeIfPresent(String.self, forKey: .prefix) ?? ""
 
     // Get the nested container for the 'sources' field in the YAML
     let sourcesContainer = try container.nestedContainer(keyedBy: DynamicCodingKey.self, forKey: .sources)
@@ -149,13 +151,13 @@ extension ImportSecrets.Secret: DecodableWithConfiguration {
       throw DecodingError.dataCorrupted(
         DecodingError.Context(
           codingPath: container.codingPath + [CodingKeys.sources],
-          debugDescription: "No known sources specified for \(configuration.secretEnvVarName) secret",
+          debugDescription: "No known sources specified for the secret",
           underlyingError: ImportSecrets.Error.secretHasNoKnownSources
         )
       )
     }
 
-    self.sources = sources
+    self.init(prefix: prefix, sources: sources)
   }
 
   /// Validates the secret and applies default configurations from source configurations.

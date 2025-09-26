@@ -414,7 +414,7 @@ extension SemanticVersion {
 extension SemanticVersion {
   /// Swift Code expression to use in macro and build plugin.
   package var codeExpression: String {
-    var params: [String] = ["\(String(major))", "\(String(minor))", "\(String(patch))"]
+    var params: [String] = [major, minor, patch].map(String.init(describing:))
     if !prereleaseIdentifiers.isEmpty {
       params.append("prereleaseIdentifiers: [\(prereleaseIdentifiers.map { "\"\($0)\"" }.joined(separator: ", "))]")
     }

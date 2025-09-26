@@ -17,34 +17,127 @@ The ImportSecrets module provides a unified interface for managing secrets acros
 
 ## Quick Start
 
-### Basic Configuration
+### `.import-secrets.yaml` scheme
+```yaml
+version: <Int>
+
+# Source configurations with default parameters.
+sourceConfigurations:
+  # Keys are the secret source provider keys: `op` or `vault`.
+  op: 
+  vault:
+
+# An array of secrets.
+secrets:
+   
+  - # Prefix is optional string for the fetched secret.
+    prefix: <String>
+    # An object that contains source configuration for secret providers.
+    # When two providers are given:
+    #   * When two `--source` params are given to the CLI, or configuration: tries to resolve with the first one, and when failed tries another one.
+    #   * When one `--source` parameter is given to the CLI, or configuration: will use only one source.
+    #
+    # You can provide two sources `op` and `vault` and use `op` locally and `vault` remotely.
+    # In this case the lables in `op` and keys in `vault` must match.
+    # If they don't match - you can do two secrets with different sources, and map in the `secretNamesMapping`.
+    sources:
+      # Keys are the secret source provider keys: `op` or `vault`.
+      # For the configuration, please see the corresponding docs below.
+      op: 
+      vault:
+
+  - ...
+
+# Secret names mapping.
+# Maps fetched secrets varaible names to a new ones.
+secretNamesMapping:
+  # The key is prefixed key, if prefix provided for a secret.
+  # The value is the new name of the variable containig a secrets.
+  <prefixd-key>: <String>
+
+```
+
+### Configuration
 
 Create a `.import-secrets.yaml` file:
 
 ```yaml
-version: "1.0"
+version: 1
 
 # Global provider configurations
 sourceConfigurations:
-  op:  # 1Password configuration
+  # 1Password configuration
+  op:  
     account: myacc        # Default account
     vault: "Development"  # Default vault
+  # HashiCorp Vault configuration
+  vault: 
+    # Vault address.
+    vaultAddress: ${VAULT_ADDR:-"https://vault.example.com:8200"}
+      # Vault API version. Default is v1.
+      apiVersion: v1
+      # Vault Authentication method.
+      # Supported values: 'token', 'appRole'.
+      authenticationMethod: ${VAULT_AUTH_METHOD:-token}
+      # Authentication credentials for the given authenticationMethod.
+      authenticationCredentials:
+        # A simple Vault authentication.
+        token:
+          vaultToken: ${VAULT_TOKEN}
+        # Authentication with appRole credentials.
+        appRole:
+          roleId: ${VAULT_ROLE_ID}
+          secretId: ${VAULT_SECRET_ID}
+      # Default engines configurations.
+      engines:
+        # Key value engine configuration.
+        keyValue:
+          defaultSecretMountPath: secret
+        # AWS engine configuration.
+        aws:
+          defaultEnginePath: production
 
 # Secrets to import
 secrets:
-  DATABASE_URL:
+  - prefix: DB_
     sources:
       op:
         item: "Database Config"
-        label: "connection_string"
+        labels: 
+          - "connection-string"
+          - "admin-username"
   
-  API_KEY:
+  - prefix: AWS_STAGING_
     sources:
+      vault:
+        keyValue:
+          path: /staging/secrets
+          keys:
+            - my-key
       op:
-        item: "API Keys"
-        label: "production_key"
-        account: "another_acc"  # Override default account
-        vault: "Production"     # Override default vault
+        item: staging keys
+        labels:
+          - my-key
+  
+  - prefix: AWS_PROD_
+    sources:
+      vault:
+        aws:
+          role: product
+
+- sources:
+    op:
+      account: "another_acc"  # Override default account
+      vault: "Production"     # Override default vault
+      item: "API Keys"
+      labels: 
+        - production_key
+
+# Secret names mapping.
+secretNamesMapping:
+  DB_connection-string: DB_ADRESS
+  DB_admin-username: DB_USERNAME
+  production_key: SERVICE_A_PRODUCTION_KEY
 ```
 
 ### Import Secrets
@@ -63,64 +156,6 @@ let secrets = try await ImportSecrets.getSecrets(
     configurationURL: URL(fileURLWithPath: ".import-secrets.yaml"),
     sourceProviders: providers
 )
-
-// Result: ["DATABASE_URL": "postgres://...", "API_KEY": "sk-..."]
-```
-
-## Configuration Format
-
-### Complete Configuration Example
-
-```yaml
-version: "1.0"
-
-# Global configurations for secret providers
-sourceConfigurations:
-  op:  # 1Password
-    vault: "Development"  # Default vault for all secrets
-  
-  vault:  # HashiCorp Vault
-    vaultAddress: "https://vault.example.com:8200"
-    authenticationMethod: "token"
-    authenticationCredentials:
-      token:
-        vaultToken: "${VAULT_TOKEN}"
-    defaultEngineConfigurations:
-      keyValue:
-        defaultSecretMountPath: "secret"
-
-# Individual secrets configuration
-secrets:
-  # Database connection string from 1Password
-  DATABASE_URL:
-    sources:
-      op:
-        item: "Database Config"
-        label: "connection_string"
-  
-  # API key from 1Password with vault override
-  API_KEY:
-    sources:
-      op:
-        item: "API Keys"
-        label: "production_key"
-        vault: "Production"  # Override default vault
-  
-  # Application secret from HashiCorp Vault
-  APP_SECRET:
-    sources:
-      vault:
-        keyValue:
-          path: "myapp/secrets"
-          key: "app_secret"
-  
-  # AWS credentials from HashiCorp Vault
-  AWS_ACCESS_KEY_ID:
-    sources:
-      vault:
-        aws:
-          role: "myapp-role"
-          key: "accessKey"
 ```
 
 ### Environment Variable Substitution
@@ -137,7 +172,8 @@ secrets:
     sources:
       op:
         item: "${DB_ITEM_NAME}"
-        label: "${DB_FIELD_NAME:-connection_string}"
+        labels: 
+          - "${DB_FIELD_NAME:-connection-string}"
 ```
 
 Use with substitution:
@@ -172,17 +208,17 @@ let customProvider = ImportSecrets.Providers.OnePassword(
 ```yaml
 sourceConfigurations:
   op:
-    account: "myacc"   # Default account shorthand, sign-in address, account ID, or user ID
-    vault: "My Vault"  # Default vault name or ID
+    account: "myacc"   # Default account shorthand, sign-in address, account ID, or user ID.
+    vault: "My Vault"  # Default vault name or ID.
 
 secrets:
-  SECRET_NAME:
-    sources:
+  - sources:
       op:
-        item: "Item Name or ID"      # Required: 1Password item
-        label: "field_label"         # Required: Field label in the item
-        account: "another_acc"       # Optional: Override default account
-        vault: "Specific Vault"      # Optional: Override default vault
+        account: "another_acc"       # Optional: Override default account.
+        vault: "Specific Vault"      # Optional: Override default vault.
+        item: "Item Name or ID"      # Required: 1Password item (name, id or URL).
+        labels:                      # Optional: A list of field labels to fetch secrets from.
+          - "field_label"            #           If not provided, or empty - will fetch all fields from the item.
 ```
 
 ### HashiCorp Vault Provider
@@ -218,15 +254,18 @@ sourceConfigurations:
     authenticationCredentials:
       # For token authentication
       token:
-        vaultToken: "..."
+        # Required: An authorization token
+        vaultToken: "..." 
       
       # For AppRole authentication (alternative to token)
       appRole:
+        # Required: A role ID
         roleId: "role-id-here"
+        # Required: A secret ID
         secretId: "secret-id-here"
     
     # Optional: Default engine configurations
-    defaultEngineConfigurations:
+    engines:
       # KeyValue engine defaults
       keyValue:
         defaultSecretMountPath: "secret"  # Default mount path
@@ -237,32 +276,27 @@ sourceConfigurations:
 
 secrets:
   # KeyValue engine secret
-  DATABASE_PASSWORD:
+  - prefix: DATABASE_PASSWORD_
     sources:
       vault:
         keyValue:
-          secretMountPath: "secret"        # Optional: Override default
-          path: "myapp/database"           # Required: Secret path
-          key: "password"                  # Required: Key within secret
           version: 2                       # Optional: Specific version (If not specified or value less than 1 the latest version will be used)
+          secretMountPath: "secret"        # Optional: Override the defaultSecretMountPath
+          path: "myapp/database"           # Required: Secret path
+          keys:                            # Optional: Secret keys within `path` to fetch
+            - "password"                   #           If not provided, or empty - will fetch all fields from the item.
   
-  # AWS engine secret (access key)
-  AWS_ACCESS_KEY:
+  # AWS engine creds
+  - prefix: AWS_CREDS_
     sources:
       vault:
         aws:
-          enginePath: "aws"               # Optional: Override default
+          enginePath: "aws"               # Optional: Override defaultEnginePath
           role: "my-role"                 # Required: AWS role name
-          key: "accessKey"                # Required: "accessKey" or "secretKey"
+          keys:                           # Optional: Secret key names to fetch
+            - "access_key"                #           If not provided, or empty - will fetch all fields from the item.
+            - "secret_key"
   
-  # AWS engine secret (secret key)
-  AWS_SECRET_KEY:
-    sources:
-      vault:
-        aws:
-          enginePath: "aws"
-          role: "my-role"
-          key: "secretKey"
 ```
 
 #### Authentication Methods
@@ -414,40 +448,13 @@ The module automatically optimizes API calls by batching requests to the same pr
 // These secrets will be fetched in a single 1Password API call
 // if they reference the same item
 secrets:
-  DB_HOST:
+  - prefix: DB_HOST_
     sources:
-      op: { item: "Database", label: "host" }
-  DB_PORT:
+      op: { item: "Database", labels: ["host"] }
+  - prefix: DB_PORT_
     sources:
-      op: { item: "Database", label: "port" }
-  DB_NAME:
+      op: { item: "Database", labels: ["port"] }
+  - prefix: DB_NAME_
     sources:
-      op: { item: "Database", label: "database" }
+      op: { item: "Database", label: ["database"] }
 ```
-
-## Best Practices
-
-1. **Use Specific Vault Names**: Specify exact vault names rather than relying on defaults
-2. **Validate Configurations**: Always validate configurations before fetching
-3. **Handle Errors Gracefully**: Implement proper error handling for missing secrets
-4. **Use Environment Variable Substitution**: Make configurations flexible with environment variables
-5. **Batch Related Secrets**: Group secrets from the same source for better performance
-6. **Test with Mock Providers**: Use mock providers for unit testing
-7. **Secure Configuration Files**: Keep configuration files secure and don't commit them with sensitive data
-8. **HashiCorp Vault Security**: Use appropriate authentication methods (prefer AppRole for applications)
-9. **Version Management**: Use specific versions for critical secrets in HashiCorp Vault KV engine
-10. **Engine Path Organization**: Organize HashiCorp Vault secrets with clear mount paths and role naming
-
-
-## Security Considerations
-
-1. **Configuration File Security**: Don't commit configuration files with sensitive information
-2. **Environment Variable Exposure**: Be careful with environment variables in CI/CD
-3. **Provider Authentication**: Ensure proper authentication setup for secret providers
-4. **Error Message Sanitization**: Avoid exposing sensitive information in error messages
-5. **Temporary File Handling**: The module handles temporary files securely during processing
-6. **HashiCorp Vault Token Security**: Store vault tokens securely and rotate them regularly
-7. **AppRole Credentials**: Use AppRole authentication for applications and secure role/secret IDs
-8. **Network Security**: Ensure HashiCorp Vault communication uses HTTPS and proper certificates
-9. **Access Policies**: Implement least-privilege access policies in HashiCorp Vault
-10. **Audit Logging**: Enable audit logging in HashiCorp Vault for security monitoring

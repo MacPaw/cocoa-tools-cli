@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+#MISE description="Build release Linux binary with Docker container"
+
+./scripts/tools/docker/docker.sh --build "${@}"

@@ -1,0 +1,4 @@
+# We are copiyng Package.swift to this folder to format it with swift-format.
+# And those files should be ignored.
+Package.swift
+Package*.swift

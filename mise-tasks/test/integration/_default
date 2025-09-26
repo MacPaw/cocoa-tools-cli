@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+#MISE description="Run integration tests locally"
+
+mise tasks run test:integration:op "${@}"

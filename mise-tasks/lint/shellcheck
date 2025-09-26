@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+#MISE description="Lint shell scripts code (shellcheck)"
+
+./scripts/tools/shellcheck/shellcheck.sh --lint

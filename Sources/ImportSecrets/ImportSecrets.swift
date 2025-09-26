@@ -1,5 +1,6 @@
 import EnvSubst
 import Foundation
+import SecretsInterface
 import Shell
 import Yams
 
@@ -8,6 +9,9 @@ import Yams
 /// ImportSecrets provides a unified interface for loading secret configurations,
 /// fetching secrets from different providers, and managing the import process.
 public struct ImportSecrets {
+  /// A type alias for the `SecretsInterface.Error`.
+  public typealias Error = SecretsInterface.Error
+
   /// Creates a configuration from a YAML file.
   /// - Parameters:
   ///   - configurationURL: URL to the YAML configuration file.
@@ -147,6 +151,7 @@ public struct ImportSecrets {
       secrets: configuration.secrets,
       sourceProviders: configuration.sourceProviders,
       sourceConfigurations: configuration.sourceConfigurations,
+      secretNamesMapping: configuration.secretNamesMapping,
     )
   }
 
@@ -154,12 +159,9 @@ public struct ImportSecrets {
     secrets: [ImportSecrets.Secret],
     sourceProviders: [any SecretProviderProtocol],
     sourceConfigurations: ImportSecrets.SourceConfigurations,
+    secretNamesMapping: [String: String],
   ) async throws -> [String: String] {
     guard !secrets.isEmpty else { throw Error.noSecretsToFetch }
-
-    // Track all fetched secrets and which ones are still missing
-    var allFetchedSecrets: [String: String] = [:]
-    var missingSecrets: Set<String> = Set(secrets.map(\.envVarName))
 
     // Group secrets by provider type for efficient fetching - this allows us to batch requests
     // to the same provider instead of making individual calls for each secret
@@ -169,39 +171,45 @@ public struct ImportSecrets {
 
     // Fetch secrets from each provider sequentially
     // Note: This could be parallelized in the future for better performance
-    for sourceProvider in sourceProviders {
+    for var sourceProvider in sourceProviders {
       let configurationKey = type(of: sourceProvider).configurationKey
       // Skip providers that don't have any secrets to fetch
-      guard let sourceSecrets = secretsBySource[configurationKey] else { continue }
+      guard let sourceSecrets: [ImportSecrets.Secret] = secretsBySource[configurationKey] else { continue }
 
       let sourceConfiguration: (any SecretConfigurationProtocol)? = sourceConfigurations.getConfiguration(
         for: configurationKey
       )
 
-      let fetchedSecretsResult: SecretsFetchResult = try await sourceProvider.fetch(
-        secrets: sourceSecrets as [ImportSecrets.Secret],
-        sourceConfiguration: sourceConfiguration,
-      )
+      try await sourceProvider.initialize(configuration: sourceConfiguration)
+
+      let fetchedSecretsResult: SecretsFetchResult =
+        if let sourceProvider = sourceProvider as? any SecretProviderAsyncProtocol {
+          try await sourceProvider.fetch(secrets: sourceSecrets, sourceConfiguration: sourceConfiguration, )
+        }
+        else { try sourceProvider.fetch(secrets: sourceSecrets, sourceConfiguration: sourceConfiguration, ) }
 
       // Merge the fetched secrets, preferring new values over existing ones
-      result.fetchedSecrets.merge(fetchedSecretsResult.fetchedSecrets) { $1 }
+      try result.addFetchedSecrets(fetchedSecretsResult.fetchedSecrets)
 
       // Accumulate errors from all providers, combining error arrays for the same secret
-      result.errors.merge(fetchedSecretsResult.errors) { $0 + $1 }
+      result.addErrors(fetchedSecretsResult.errors)
 
       // Clear errors for secrets that were successfully fetched
       for secretName in fetchedSecretsResult.fetchedSecrets.keys { result.errors[secretName] = nil }
-
-      // Update our tracking collections
-      allFetchedSecrets.merge(fetchedSecretsResult.fetchedSecrets) { $1 }
-      missingSecrets.subtract(fetchedSecretsResult.fetchedSecrets.keys)
     }
 
     // Fail if any secrets had errors during fetching
     guard result.errors.isEmpty else { throw Error.failedToFetchSecrets(result.errors) }
 
-    // Fail if any secrets are still missing (couldn't be fetched from any provider)
-    guard missingSecrets.isEmpty else { throw Error.missingSecrets(Set(missingSecrets)) }
+    var allFetchedSecrets: [String: String] = [:]
+    for (secretName, secretValue) in result.fetchedSecrets {
+      if let mappedSecretName = secretNamesMapping[secretName] {
+        allFetchedSecrets[mappedSecretName] = secretValue
+      }
+      else {
+        allFetchedSecrets[secretName.normalizedSecretName()] = secretValue
+      }
+    }
 
     return allFetchedSecrets
   }

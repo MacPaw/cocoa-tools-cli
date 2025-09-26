@@ -24,3 +24,12 @@ public protocol HashiCorpVaultEngineAPIProtocol: Equatable, Hashable, Sendable {
   /// - Throws: DecodingError if decoding fails.
   func decodeGetSecretsResult(data: Data) throws -> [String: String]
 }
+
+extension HashiCorpVaultEngineAPIProtocol {
+  func decodeGetSecretsResult<GetSecretsResult: HashiCorpVaultEngineGetSecretsResultProtocol>(
+    data: Data,
+    type: GetSecretsResult.Type
+  ) throws -> [String: String] {
+    try JSONDecoder().decode(HashiCorpVaultReader.SecretsFetchResult<GetSecretsResult>.self, from: data).data.secrets
+  }
+}

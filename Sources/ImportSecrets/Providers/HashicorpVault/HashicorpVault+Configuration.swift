@@ -1,4 +1,5 @@
 import HashiCorpVaultReader
+import SecretsInterface
 
 extension ImportSecrets.Providers.HashiCorpVault.Source {
   /// HashiCorp Vault source configuration.

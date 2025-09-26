@@ -1,4 +1,4 @@
-// swift-tools-version: 6.1
+// swift-tools-version: 6.2
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import CompilerPluginSupport
@@ -68,6 +68,8 @@ enum Targets {
     tests: Bool = true,
     testsDependencies: [PackageDescription.Target.Dependency] = []
   ) -> [PackageDescription.Target] {
+    var dependencies = dependencies
+    if name != "SharedLogger" { dependencies.append(.target(name: "SharedLogger")) }
     var targets: [PackageDescription.Target] = [.target(name: name, dependencies: dependencies, plugins: plugins)]
 
     if tests {
@@ -107,20 +109,25 @@ enum Targets {
   }
 
   static var importSecrets: [PackageDescription.Target] {
-    commandBundle(
+    targetBundle(
       name: "ImportSecrets",
       dependencies: [
         .target(name: "EnvSubst"), .target(name: "Shell"), .target(name: "HashiCorpVaultReader"),
-        .product(name: "Yams", package: "Yams"),
+        .target(name: "SecretsInterface"), .product(name: "Yams", package: "Yams"),
       ],
-      commandDependencies: [
-        .target(name: "EnvSubstCommand"), .target(name: "ExportSecrets"), .target(name: "HashiCorpVaultReader"),
-      ]
+      testsDependencies: [.target(name: "SecretsInterfaceTesting")]
     )
   }
 
   static var exportSecrets: [PackageDescription.Target] {
-    targetBundle(name: "ExportSecrets", dependencies: [.target(name: "Shell")])
+    commandBundle(
+      name: "ExportSecrets",
+      dependencies: [.target(name: "Shell"), .target(name: "CI")],
+      commandDependencies: [
+        .target(name: "EnvSubstCommand"), .target(name: "HashiCorpVaultReader"), .target(name: "CI"),
+        .target(name: "ImportSecrets"),
+      ]
+    )
   }
 
   static var obfuscateSecrets: [PackageDescription.Target] {
@@ -131,7 +138,7 @@ enum Targets {
         .product(name: "ConfidentialKit", package: "swift-confidential", condition: .when(platforms: [.macOS])),
         swiftConfidentialSource.targetDependency,
       ],
-      commandDependencies: [.target(name: "EnvSubstCommand"), .target(name: "ImportSecretsCommand")]
+      commandDependencies: [.target(name: "EnvSubstCommand"), .target(name: "ExportSecretsCommand")]
     )
   }
 
@@ -147,7 +154,6 @@ enum Targets {
           dependencies: [
             .target(name: "SemanticVersion"), .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
             .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
-            .product(name: "SwiftSyntax", package: "swift-syntax"),
           ]
         ),
         .plugin(
@@ -164,14 +170,23 @@ enum Targets {
       ]
   }
 
+  static var sharedLogger: [PackageDescription.Target] {
+    targetBundle(name: "SharedLogger", dependencies: [.product(name: "Logging", package: "swift-log")], tests: false)
+  }
+
+  static var secretsInterface: [PackageDescription.Target] {
+    targetBundle(name: "SecretsInterface", tests: false)
+      + targetBundle(name: "SecretsInterfaceTesting", dependencies: [.target(name: "SecretsInterface")], tests: false)
+  }
+
   static var hashicorpVaultReader: [PackageDescription.Target] {
-    targetBundle(name: "HashiCorpVaultReader", tests: false)
+    targetBundle(name: "HashiCorpVaultReader", dependencies: [.target(name: "SecretsInterface")], tests: false)
   }
 }
 
 let package = Package(
   name: "cocoa-tools",
-  platforms: [.macOS(.v14)],
+  platforms: [.macOS(.v15)],
   products: [
     .executable(name: "mpct", targets: ["mpct"]), .library(name: "EnvSubst", targets: ["EnvSubst"]),
     .library(name: "Shell", targets: ["Shell"]), .library(name: "ImportSecrets", targets: ["ImportSecrets"]),
@@ -180,11 +195,14 @@ let package = Package(
     .library(name: "HashiCorpVaultReader", targets: ["HashiCorpVaultReader"]),
     .plugin(name: "SemanticVersionBuildToolPlugin", targets: ["SemanticVersionBuildToolPlugin"]),
     .library(name: "ENV", targets: ["ENV"]), .library(name: "CI", targets: ["CI"]),
+    .library(name: "SecretsInterfaceTesting", targets: ["SecretsInterfaceTesting"]),
+    .library(name: "SecretsInterface", targets: ["SecretsInterface"]),
   ],
   dependencies: [
     .package(url: "https://github.com/apple/swift-argument-parser.git", .upToNextMajor(from: "1.6.1")),
-    .package(url: "https://github.com/swiftlang/swift-format.git", .upToNextMajor(from: "601.0.0")),
-    .package(url: "https://github.com/swiftlang/swift-syntax.git", "509.1.1"..<"602.0.0"),
+    .package(url: "https://github.com/swiftlang/swift-format.git", .upToNextMajor(from: "602.0.0")),
+    .package(url: "https://github.com/swiftlang/swift-syntax.git", "602.0.0"..<"603.0.0"),
+    .package(url: "https://github.com/apple/swift-log.git", .upToNextMajor(from: "1.6.4")),
     swiftConfidentialSource.packageDependency, yamsSource.packageDependency,
   ],
   targets: [
@@ -193,7 +211,7 @@ let package = Package(
       dependencies: [
         .product(name: "ArgumentParser", package: "swift-argument-parser"), .target(name: "EnvSubstCommand"),
         .target(name: "ObfuscateSecretsCommand", condition: .when(platforms: [.macOS])),
-        .target(name: "ImportSecretsCommand"), .target(name: "SemanticVersion"), .target(name: "SemanticVersionMacro"),
+        .target(name: "ExportSecretsCommand"), .target(name: "SemanticVersion"), .target(name: "SemanticVersionMacro"),
       ],
       packageAccess: true,
       plugins: [.plugin(name: "SemanticVersionBuildToolPlugin")]
@@ -203,7 +221,8 @@ let package = Package(
     .target(name: "Dummy"),
 
   ] + Targets.shell + Targets.envSubst + Targets.exportSecrets + Targets.importSecrets + Targets.obfuscateSecrets
-    + Targets.semanticVersion + Targets.env + Targets.ci + Targets.hashicorpVaultReader,
+    + Targets.semanticVersion + Targets.env + Targets.ci + Targets.hashicorpVaultReader + Targets.sharedLogger
+    + Targets.secretsInterface,
 
   swiftLanguageModes: [.version(swiftLanguageVersion)]
 )

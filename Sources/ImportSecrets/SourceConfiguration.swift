@@ -1,4 +1,5 @@
 import Foundation
+import SecretsInterface
 
 extension ImportSecrets {
   /// Container for source configurations used by secret providers.

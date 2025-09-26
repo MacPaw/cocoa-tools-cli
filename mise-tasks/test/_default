@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+#MISE description="Run tests on local machine"
+
+mise tasks run test:swift "${@}"

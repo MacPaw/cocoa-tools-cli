@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+#MISE description="Format source code"
+
+mise tasks run format:swift
+mise tasks run format:shellcheck
+mise tasks run format:shfmt

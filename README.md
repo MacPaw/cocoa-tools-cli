@@ -27,7 +27,7 @@ mpct is a modular Swift CLI project targeting macOS 15+ that helps engineers wit
 mpct
 ├── envsubst              # Environment variable substitution
 └── secrets               # Secret management commands
-    ├── import            # Import secrets from providers
+    ├── export            # Export secrets from providers
     └── obfuscate         # Generate obfuscated Swift code
 ```
 
@@ -44,15 +44,16 @@ mpct envsubst --input template.txt --output config.txt
 - Stdin/stdout processing
 - Strict validation options
 
-### [secrets import](docs/Commands/ImportSecretsCommand.md)
+### [secrets export](docs/Commands/ExportSecretsCommand.md)
 Import secrets from various providers.
 
 ```bash
-mpct secrets import --config secrets.yaml --source op --destination mise
+mpct secrets export --config secrets.yaml --source op --destination mise
 ```
 
 **Key Features:**
 - 1Password CLI integration
+- HashiCorp Vault integration
 - Multiple export formats (dotenv, mise, stdout)
 - YAML-based configuration
 - Environment variable substitution in configs
@@ -122,8 +123,8 @@ Shell command execution utilities with mise integration.
 ```
 mpct (executable)
 ├── EnvSubstCommand → EnvSubst
-├── ImportSecretsCommand → ImportSecrets → EnvSubst, Shell
-└── ObfuscateSecretsCommand → ObfuscateSecrets → EnvSubst, ImportSecrets
+├── ExportSecretsCommand → ExportSecrets -> ImportSecrets, EnvSubst, Shell
+└── ObfuscateSecretsCommand → ObfuscateSecrets → EnvSubst, ExportSecrets
 ```
 
 ## 🔧 Development
@@ -134,7 +135,7 @@ See the [docs/DEVELOPMENT.md](./docs/DEVELOPMENT.md) file.
 
 ### Commands
 - [EnvSubstCommand](docs/Commands/EnvSubstCommand.md) - Environment variable substitution
-- [ImportSecretsCommand](docs/Commands/ImportSecretsCommand.md) - Secret importing
+- [ExportSecretsCommand](docs/Commands/ExportSecretsCommand.md) - Secret importing
 - [ObfuscateSecretsCommand](docs/Commands/ObfuscateSecretsCommand.md) - Secret obfuscation
 
 ### Modules

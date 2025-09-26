@@ -1,9 +1,9 @@
 import ArgumentParser
 @_exported public import EnvSubst
 @_exported public import EnvSubstCommand
+@_exported public import ExportSecretsCommand
 import Foundation
 @_exported public import ImportSecrets
-@_exported public import ImportSecretsCommand
 
 #if canImport(ObfuscateSecrets)
   import ObfuscateSecrets
@@ -68,7 +68,7 @@ import Foundation
       {
         let secrets = try await ImportSecrets.getSecrets(
           configurationURL: importSecretsConfigurationURL,
-          sourceProviders: ImportSecretsCommand.Options.sourceProviders(sources: importSecretsOptions.sources),
+          sourceProviders: ExportSecretsCommand.Options.sourceProviders(sources: importSecretsOptions.sources),
           envSubstOptions: envSusbstOptions.options,
         )
         environment.merge(secrets) { old, new in importSecretsOptions.overwriteExistingEnv ? new : old }

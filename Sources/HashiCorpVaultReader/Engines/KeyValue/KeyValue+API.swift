@@ -36,7 +36,7 @@ extension API: HashiCorpVaultEngineAPIProtocol {
     try self.decodeGetSecretsResult(data: data, type: GetSecretsResult.self)
   }
 
-  private func adaptURL(url: URL?, for element: any HashiCorpVaultReaderKeyValueUniqueElement) throws -> URL {
+  private func adaptURL(url: URL?, for element: HashiCorpVaultReader.Engine.KeyValue.Element) throws -> URL {
     guard var url = url else { throw HashiCorpVaultReader.Error.urlIsNotSet }
     url.append(path: element.secretMountPath, directoryHint: .isDirectory)
     url.append(component: "data", directoryHint: .isDirectory)
@@ -64,7 +64,7 @@ extension API: HashiCorpVaultEngineAPIProtocol {
   ///   - element: The KeyValue element to adapt the request for.
   /// - Returns: The adapted URL request.
   /// - Throws: Various errors related to URL construction.
-  public func adaptURLRequest(urlRequest: URLRequest, for element: any HashiCorpVaultReaderKeyValueUniqueElement) throws
+  public func adaptURLRequest(urlRequest: URLRequest, for element: HashiCorpVaultReader.Engine.KeyValue.Element) throws
     -> URLRequest
   {
     var urlRequest = urlRequest

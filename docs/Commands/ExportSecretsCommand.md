@@ -1,15 +1,15 @@
-# ImportSecretsCommand
+# ExportSecretsCommand
 
 Command-line interface for importing secrets from various providers and exporting them to different destinations.
 
 ## Overview
 
-The ImportSecretsCommand provides a CLI wrapper around the ImportSecrets module, allowing users to fetch secrets from different sources (like 1Password) and export them to various destinations such as environment files, mise configurations, or standard output.
+The ExportSecretsCommand provides a CLI wrapper around the ImportSecrets module, allowing users to fetch secrets from different sources (like 1Password) and export them to various destinations such as environment files, mise configurations, or standard output.
 
 ## Usage
 
 ```bash
-mpct secrets import --config <config> --destination <destination> [--file <file>] [--no-unset] [--no-empty] [--fail-fast] --source <source> ...
+mpct secrets export --config <config> --destination <destination> [--file <file>] [--no-unset] [--no-empty] [--fail-fast] --source <source> ...
 ```
 
 ## Arguments
@@ -18,7 +18,7 @@ mpct secrets import --config <config> --destination <destination> [--file <file>
 |----------|----------|-------------|
 | `--config`, `-c` | Yes | Path to the YAML configuration file that defines which secrets to import.<br><br>The configuration file specifies:<br>• Which secrets to fetch from which providers<br>• How they should be mapped to environment variable names<br>• Source-specific configuration options |
 | `--source` | Yes | Source provider to use for fetching secrets. Can be specified multiple times to use multiple sources.<br><br>**Available sources:**<br>• `op` - Import secrets from 1Password using the 1Password CLI<br><br>When multiple sources are provided for the CLI command, it will try to fetch missing secrets from all passed sources. |
-| `--destination` | Yes | Destination to export the fetched secrets to.<br><br>**Available destinations:**<br>• `stdout` - Export to standard output in KEY=VALUE format<br>• `mise` - Export to a mise configuration file (default: `mise.local.toml`)<br>• `dotenv` - Export to a .env file format (default: `.env.local`) |
+| `--destination` | Yes | Destination to export the fetched secrets to.<br><br>**Available destinations:**<br>• `stdout` - Export to standard output in KEY=VALUE format<br>• `mise` - Export to a mise configuration file (default: `mise.local.toml`)<br>• `dotenv` - Export to a .env file format (default: `.env.local`)<br>• `ci` - Export to a CI secrets. Supporded CIs: Azure Pipelines, GitHub Actions |
 | `--file` | No | Destination file path for file-based destinations (mise, dotenv).<br><br>If not specified, default file names will be used:<br>• `mise`: `mise.local.toml`<br>• `dotenv`: `.env.local` |
 | `--no-unset` | No | Fail if a referenced variable is not set in the environment. By default, unset variables are replaced with empty strings. |
 | `--no-empty` | No | Fail if a referenced variable is set but contains an empty value. By default, empty variables are allowed. |
@@ -34,39 +34,38 @@ sourceConfigurations:
   op:
     vault: personal
 secrets:
-  API_KEY:
-    sources:
+  - sources:
       op:
         item: item-name-or-id
         label: field
 ```
 
-More info on the configuration file structure and avaulable secret sources configurations is available in the [Configuration Format](./../Products/ImportSecrets.md#configuration-format) and [Suported providers](./../Products/ImportSecrets.md#supported-providers).
+More info on the configuration file structure and avaulable secret sources configurations is available in the [Configuration Format](./../Products/ImportSecrets.md#configuration) and [Suported providers](./../Products/ImportSecrets.md#supported-providers).
 
 ## Examples
 
 ### Basic Usage
 Import secrets from 1Password and export to stdout:
 ```bash
-mpct secrets import --config secrets.yaml --source op --destination stdout --no-unset --no-empty
+mpct secrets export --config secrets.yaml --source op --destination stdout --no-unset --no-empty
 ```
 
 ### Export to mise configuration
 Import secrets and save to mise configuration file:
 ```bash
-mpct secrets import --config secrets.yaml --source op --destination mise
+mpct secrets export --config secrets.yaml --source op --destination mise
 ```
 
 ### Multiple sources
 Import from multiple sources (if supported):
 ```bash
-mpct secrets import --config secrets.yaml --source op --source vault --destination stdout
+mpct secrets export --config secrets.yaml --source op --source vault --destination stdout
 ```
 
 ### With environment variable substitution options
 Import with strict variable validation:
 ```bash
-mpct secrets import --config secrets.yaml --source op --destination stdout --no-unset --fail-fast
+mpct secrets export --config secrets.yaml --source op --destination stdout --no-unset --fail-fast
 ```
 
 ## Error Handling

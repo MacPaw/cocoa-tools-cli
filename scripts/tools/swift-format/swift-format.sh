@@ -9,7 +9,16 @@ swift_format_format() {
   cp Package*.swift Sources/Dummy
 
   # Format .swift files.
-  swift package plugin --allow-writing-to-package-directory --package swift-format format-source-code
+  swift package plugin \
+    --allow-writing-to-package-directory \
+    --allow-writing-to-directory . \
+    --package swift-format \
+    format-source-code \
+    --in-place \
+    --recursive \
+    --parallel \
+    --color-diagnostics \
+    .
 
   # Move formatted Package.swift back to the root folder.
   mv Sources/Dummy/Package*.swift .
@@ -17,7 +26,14 @@ swift_format_format() {
 
 swift_format_lint() {
   echo "Linting Swift source code with swift-format..."
-  swift package plugin --allow-writing-to-package-directory --package swift-format lint-source-code
+  swift package plugin \
+    --package swift-format \
+    lint-source-code \
+    --recursive \
+    --parallel \
+    --color-diagnostics \
+    --strict \
+    .
 }
 
 die() {

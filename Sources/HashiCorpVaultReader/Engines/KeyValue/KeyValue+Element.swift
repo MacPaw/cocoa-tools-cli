@@ -20,8 +20,6 @@ extension HashiCorpVaultReader.Engine.KeyValue {
     ///
     /// If not set or the value is not positive integer (`<= 0`), the latest version is returned.
     public var version: Int
-    /// The key within the secret to retrieve.
-    public var key: String
   }
 }
 
@@ -31,7 +29,6 @@ extension Element: DecodableWithConfiguration {
   private enum CodingKeys: String, CodingKey {
     case secretMountPath
     case path
-    case key
     case version
   }
 
@@ -61,7 +58,6 @@ extension Element: DecodableWithConfiguration {
     self.secretMountPath = secretMountPath
     self.path = try container.decode(String.self, forKey: .path)
     self.version = try container.decodeIfPresent(Int.self, forKey: .version) ?? 0
-    self.key = try container.decode(String.self, forKey: .key)
   }
 }
 

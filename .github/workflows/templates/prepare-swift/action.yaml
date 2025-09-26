@@ -22,10 +22,29 @@ inputs:
   use-build-cache:
     description: 'Use build cache'
     required: false
-    default: true
+    default: 'true'
 runs:
   using: 'composite'
   steps:
+    - name: Install dependencies
+      shell: bash
+      if: ${{ runner.os == 'Linux' }}
+      run: |
+        # Install curl and zip if they are missing
+        # This happens all the time in the swift container
+        apt-get update
+
+        if ! which curl > /dev/null 2>&1; then
+          apt-get install -y curl
+        fi
+
+        if ! which zip > /dev/null 2>&1; then
+          apt-get install -y zip
+        fi
+
+    - name: Install mise tools
+      uses: jdx/mise-action@5ac50f778e26fac95da98d50503682459e86d566
+
     - name: Select Swift Version
       uses: ./.github/workflows/templates/select-swift-version/
       with:

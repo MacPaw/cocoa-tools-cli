@@ -2,6 +2,7 @@
   "fileScopedDeclarationPrivacy" : {
     "accessLevel" : "private"
   },
+  "indentBlankLines" : false,
   "indentConditionalCompilationBlocks" : true,
   "indentSwitchCaseLabels" : false,
   "indentation" : {
@@ -22,10 +23,8 @@
     ]
   },
   "prioritizeKeepingFunctionOutputTogether" : false,
-  "reflowMultilineStringLiterals" : {
-    "never" : {}
-  },
   "respectsExistingLineBreaks" : false,
+  "reflowMultilineStringLiterals" : "never",
   "rules" : {
     "AllPublicDeclarationsHaveDocumentation" : true,
     "AlwaysUseLiteralForEmptyCollectionInit" : true,

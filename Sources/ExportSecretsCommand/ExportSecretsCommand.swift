@@ -3,20 +3,21 @@ import EnvSubstCommand
 @_exported public import ExportSecrets
 import Foundation
 @_exported public import ImportSecrets
+import SecretsInterface
 import Shell
 
-/// Command-line interface for importing secrets from various providers.
+/// Command-line interface for exporting secrets from various providers to specified destination.
 ///
 /// This command provides a CLI wrapper around the ImportSecrets module, allowing users to
 /// fetch secrets from different sources (like 1Password) and export them to various destinations
 /// such as environment files, mise configurations, or standard output.
-public struct ImportSecretsCommand {
+public struct ExportSecretsCommand {
   /// Configuration for the ArgumentParser command.
   public static let configuration = CommandConfiguration(
-    commandName: "import",
-    abstract: "Import secrets",
+    commandName: "export",
+    abstract: "Export secrets",
     discussion: """
-      Imports secrets from various sources, such as 1Password.
+      Exports secrets to various destinations, such as environment files, mise configurations, or standard output.
       """,
   )
 
@@ -29,11 +30,11 @@ public struct ImportSecretsCommand {
   /// Set during the validate() phase and used during run().
   var configuration: ImportSecrets.Configuration? = .none
 
-  /// Creates a new ImportSecretsCommand instance.
+  /// Creates a new ExportSecretsCommand instance.
   public init() {}
 }
 
-extension ImportSecretsCommand {
+extension ExportSecretsCommand {
   /// Creates an export destination based on the provided options.
   ///
   /// - Parameter options: Command options containing destination configuration.
@@ -44,28 +45,29 @@ extension ImportSecretsCommand {
     case .stdout: ExportSecrets.Destinations.Stdout()
     case .mise: try ExportSecrets.Destinations.Mise(file: options.destinationArguments.destination.file)
     case .dotenv: ExportSecrets.Destinations.DotEnv(file: options.destinationArguments.destination.file)
+    case .ci: ExportSecrets.Destinations.CI()
     }
   }
 }
 
-extension ImportSecretsCommand {
+extension ExportSecretsCommand {
   /// Creates source providers based on the specified source options.
   ///
   /// - Parameter options: Command options containing source provider configuration.
   /// - Returns: Array of configured secret providers that can fetch secrets.
   /// - Throws: Configuration errors if providers cannot be created.
-  private func sourceProviders(options: ImportSecretsCommand.Options) throws -> [any SecretProviderProtocol] {
-    try ImportSecretsCommand.Options.sourceProviders(sources: options.sources)
+  private func sourceProviders(options: ExportSecretsCommand.Options) throws -> [any SecretProviderProtocol] {
+    try ExportSecretsCommand.Options.sourceProviders(sources: options.sources)
   }
 }
 
-extension ImportSecretsCommand.Options {
+extension ExportSecretsCommand.Options {
   /// Creates source providers from the specified source types.
   ///
   /// - Parameter sources: Array of source types to create providers for.
   /// - Returns: Array of configured secret providers.
   /// - Throws: Configuration errors if providers cannot be created.
-  public static func sourceProviders(sources: [ImportSecretsCommand.Options.Source]) throws
+  public static func sourceProviders(sources: [ExportSecretsCommand.Options.Source]) throws
     -> [any SecretProviderProtocol]
   {
     sources.map {
@@ -77,7 +79,7 @@ extension ImportSecretsCommand.Options {
   }
 }
 
-extension ImportSecretsCommand: AsyncParsableCommand {
+extension ExportSecretsCommand: AsyncParsableCommand {
   /// Validates the command configuration and loads the secrets configuration file.
   ///
   /// This method is called by ArgumentParser before run() to ensure all options are valid
@@ -122,8 +124,8 @@ extension ImportSecretsCommand: AsyncParsableCommand {
   }
 }
 
-extension ImportSecretsCommand {
-  /// Validation errors specific to the ImportSecretsCommand.
+extension ExportSecretsCommand {
+  /// Validation errors specific to the ExportSecretsCommand.
   enum ValidationError: Error {
     /// Thrown when run() is called before validate() has been successfully executed.
     case configurationNotValidated

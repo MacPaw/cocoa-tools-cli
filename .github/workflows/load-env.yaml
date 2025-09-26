@@ -24,12 +24,12 @@ on:
         description: 'Xcode version'
         type: string
         required: false
-        default: '16.4'
+        default: '26.0'
       macOS-runner-os:
         description: 'macOS runner OS (macos-15, macos-latest)'
         type: string
         required: false
-        default: 'macos-15'
+        default: 'macos-26'
     outputs:
       package-name:
         description: 'Swift package name'

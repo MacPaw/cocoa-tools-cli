@@ -50,7 +50,7 @@ function update_trust_info() {
       echo "    Fingerprint: ${PACKAGE_FINGERPRINT}" >&2
     fi
 
-    if [[ "${EXISTING_FINGERPRINT}" != "${PACKAGE_FINGERPRINT}" ]]; then
+    if [[ ${EXISTING_FINGERPRINT} != "${PACKAGE_FINGERPRINT}" ]]; then
       echo "    Fingerprint for target ${TARGET_NAME} in package ${PACKAGE_NAME} is different, updating..." >&2
       FINGERPRINT="$PACKAGE_FINGERPRINT"
       INDICES_TO_REMOVE+=("${INDEX}")
@@ -105,7 +105,7 @@ needs_arg() { if [ -z "${OPTARG}" ]; then die "No arg for --${OPTSPEC} option"; 
 while getopts "t:u:-:" OPTSPEC; do
 
   # support long options: https://stackoverflow.com/a/28466267/519360
-  if [ "${OPTSPEC}" = "-" ]; then   # long option: reformulate OPT and OPTARG
+  if [ "${OPTSPEC}" = "-" ]; then # long option: reformulate OPT and OPTARG
     OPTSPEC="${OPTARG%%=*}"       # extract long option name
     OPTARG="${OPTARG#"$OPTSPEC"}" # extract long option argument (may be empty)
     OPTARG="${OPTARG#=}"          # if long option argument, remove assigning `=`

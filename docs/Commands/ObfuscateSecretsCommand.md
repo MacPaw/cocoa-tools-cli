@@ -8,7 +8,7 @@ The ObfuscateSecretsCommand is using [swift-confidential](https://github.com/sec
 
 The added functionality:
 - Support [`envsusbt`](./EnvSubstCommand.md) to substitute environment variables in configuration file (`${VAR}`) with actual values
-- Supports [`secrets import`](./ImportSecretsCommand.md) to fetch secrets from various secret sources (1Password)
+- Supports [`secrets export`](./ExportSecretsCommand.md) to fetch secrets from various secret sources (1Password)
 
 ## Usage
 
@@ -22,7 +22,7 @@ mpct secrets obfuscate --swift-confidential-config <swift-confidential-config> [
 |----------|----------|-------------|
 | `--swift-confidential-config` | Yes | Path to the swift-confidential configuration file that defines how secrets should be obfuscated and organized in the generated Swift code. |
 | `--output`, `-o` | Yes | Path to the output Swift source file where the generated code will be written. |
-| `--import-secrets-config` | No | Path to a secrets import configuration file (same format as used by ImportSecretsCommand). |
+| `--import-secrets-config` | No | Path to a secrets import configuration file (same format as used by ExportSecretsCommand). |
 | `--secrets-source` | No | Source provider to import secrets from. Can be specified multiple times.<br><br>**Available sources:**<br>• `op` - Import secrets from 1Password using the 1Password CLI |
 | `--overwrite-existing` | No | Flag to overwrite existing environment variables with fetched secrets. By default, existing environment variables take precedence. |
 | `--no-unset` | No | Fail if a referenced variable is not set in the environment. |
@@ -38,7 +38,7 @@ Defines how secrets should be obfuscated and structured in the generated Swift c
 - Obfuscation parameters
 
 ### Secrets Import Configuration (Optional)
-When using secret import options, this YAML file defines which secrets to fetch from external sources, following the same format as ImportSecretsCommand.
+When using secret import options, this YAML file defines which secrets to fetch from external sources, following the same format as ExportSecretsCommand.
 
 ## Examples
 
@@ -98,7 +98,7 @@ The command will fail if:
 
 ## Related Commands
 
-- [`secrets import`](./ImportSecretsCommand.md) - For standalone secret importing
+- [`secrets export`](./ExportSecretsCommand.md) - For standalone secret importing
 - [`envsubst`](./EnvSubstCommand.md) - For environment variable substitution
 
 ## Dependencies

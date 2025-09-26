@@ -44,6 +44,8 @@ jobs:
     uses: ./.github/workflows/load-env.yaml
 
   detect-changes:
+    needs:
+      - load-env
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -53,6 +55,10 @@ jobs:
       workflows-changed: ${{ steps.changes.outputs.workflows }}
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
       - name: Detect file changes
         uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36
         id: changes
@@ -76,7 +82,9 @@ jobs:
           fi
 
           if [[ "${{ steps.changes.outputs.swift }}" == "true" ]]; then
-            matrix_include="$(echo "$matrix_include" | jq -c '. += [{"language": "swift", "build-mode": "manual"}]')"
+            # Turning off CodeQL for a while, since it's doesn't work with Swift 6.2.0
+            # matrix_include="$(echo "$matrix_include" | jq -c '. += [{"language": "swift", "build-mode": "manual"}]')"
+            printf ''
           fi
 
           echo "matrix={\"include\":$matrix_include}" >> $GITHUB_OUTPUT
@@ -97,7 +105,8 @@ jobs:
     #   - https://gh.io/supported-runners-and-hardware-resources
     #   - https://gh.io/using-larger-runners (GitHub.com only)
     # Consider using larger runners or machines with greater resources for possible analysis time improvements.
-    runs-on: ${{ (matrix.language == 'swift' && format('{0}-large', needs.load-env.outputs.macOS-runner-os)) || 'ubuntu-latest' }}
+    runs-on: ${{ (matrix.language == 'swift' && format('{0}', needs.load-env.outputs.macOS-runner-os)) || 'ubuntu-latest' }}
+
     permissions:
       # required for all workflows
       security-events: write
@@ -157,7 +166,7 @@ jobs:
         if: matrix.language == 'swift' && matrix.build-mode == 'manual'
         env:
           PACKAGE_NAME: ${{ env.package_name }}
-        run: ./scripts/tools/xcodebuild/xcodebuild.sh --package-name="${PACKAGE_NAME}" --action=build-for-testing
+        run: mise tasks run build:xcodebuild
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3

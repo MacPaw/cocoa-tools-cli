@@ -1,5 +1,6 @@
 import Foundation
 import ImportSecrets
+import SecretsInterface
 
 extension ImportSecrets.Providers.FakeProvider.Source {
   final class Configuration {

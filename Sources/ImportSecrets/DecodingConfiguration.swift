@@ -1,4 +1,5 @@
 import Foundation
+import SecretsInterface
 
 extension ImportSecrets.Configuration {
   /// Configuration used for decoding YAML configurations with registered providers.

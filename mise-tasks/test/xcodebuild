@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+#MISE description="Run tests on local machine (xcodebuild)"
+
+PACKAGE_NAME="${PACKAGE_NAME:-"cocoa-tools"}"
+
+./scripts/tools/xcodebuild/xcodebuild.sh --package-name="${PACKAGE_NAME}" --action=test-without-building "${@}"

@@ -36,11 +36,13 @@ jobs:
           - os: ubuntu-latest
             build-system: swift
             swift-version: ${{ needs.load-env.outputs.swift-version }}
+            container: swift:${{ needs.load-env.outputs.swift-version }}
           - os: ${{ needs.load-env.outputs.macOS-runner-os }}
             build-system: xcodebuild
             xcode-version: ${{ needs.load-env.outputs.xcode-version }}
 
     runs-on: ${{ matrix.os }}
+    container: ${{ matrix.container }}
 
     steps:
       - name: Checkout repository
@@ -56,37 +58,21 @@ jobs:
           build-system: ${{ matrix.build-system }}
           configuration: debug
 
-      - name: Build with Swift Package Manager
-        if: matrix.build-system == 'swift'
-        run: ./scripts/tools/swift/swift.sh --action=build
-
-      - name: Build with Xcodebuild
-        if: matrix.build-system == 'xcodebuild'
+      - name: Build with ${{ matrix.build-system }}
+        run: mise tasks run build:${BUILD_SYSTEM} --configuration=debug
         env:
-          PACKAGE_NAME: ${{ env.package_name }}
-        run: ./scripts/tools/xcodebuild/xcodebuild.sh --package-name="${PACKAGE_NAME}" --action=build-for-testing
+          BUILD_SYSTEM: ${{ matrix.build-system }}
 
-      - name: Install mise tools
-        uses: jdx/mise-action@5ac50f778e26fac95da98d50503682459e86d566
-        with:
-          mise_toml: |
-            [tools]
-            "ubi:securevale/swift-confidential" = "0.4.1"
-
-      - name: Test with Swift Package Manager
-        if: matrix.build-system == 'swift'
-        run: ./scripts/tools/swift/swift.sh --action=test
-
-      - name: Test with Xcodebuild
-        if: matrix.build-system == 'xcodebuild'
+      - name: Test with ${{ matrix.build-system }}
+        run: mise tasks run test:${BUILD_SYSTEM} --configuration=debug
         env:
-          PACKAGE_NAME: ${{ env.package_name }}
-        run: ./scripts/tools/xcodebuild/xcodebuild.sh --package-name="${PACKAGE_NAME}" --action=test-without-building
+          BUILD_SYSTEM: ${{ matrix.build-system }}
 
   lint:
     needs:
       - load-env
     runs-on: ubuntu-latest
+    container: swift:${{ needs.load-env.outputs.swift-version }}
 
     steps:
       - name: Checkout repository
@@ -102,9 +88,6 @@ jobs:
           build-system: swift
           configuration: debug
           use-build-cache: false
-
-      - name: Install mise tools
-        uses: jdx/mise-action@5ac50f778e26fac95da98d50503682459e86d566
 
       - name: Lint
         run: mise tasks run lint

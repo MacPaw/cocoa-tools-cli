@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+#MISE description="Format Swift source code"
+
+./scripts/tools/swift-format/swift-format.sh --lint

@@ -1,4 +1,5 @@
 import HashiCorpVaultReader
+import SecretsInterface
 import Shell
 
 extension ImportSecrets.Providers.HashiCorpVault {
@@ -20,31 +21,32 @@ private typealias Fetcher = ImportSecrets.Providers.HashiCorpVault.Fetcher
 
 extension Fetcher: Sendable {}
 
-extension Fetcher: SecretFetcherProtocol {
+extension Fetcher: SecretFetcherAsyncProtocol {
   /// Source type for HashiCorp Vault fetcher.
   public typealias Source = ImportSecrets.Providers.HashiCorpVault.Source
 
-  /// Fetches secrets from HashiCorp Vault using the configured reader.
+  /// Initializes fetcher before fetching secrets with a given `configuration`.
   ///
+  /// - Parameter configuration: A Secret Configuration to init this fetcher with.
+  ///
+  /// - Throws: An error if initialization failed.
+  public mutating func initialize(configuration: Source.Configuration?) async throws {
+    try await reader.initialize(configuration: configuration)
+  }
+
+  /// Fetches a single source item.
   /// - Parameters:
-  ///   - secrets: Dictionary mapping secret names to their HashiCorp Vault source configurations.
-  ///   - sourceConfiguration: Configuration containing default account and vault settings.
-  /// - Returns: Result containing successfully fetched secrets and any errors encountered.
-  /// - Throws: Error if the HashiCorp Vault cannot be initialized, configured or throws error during fetching.
-  public func fetch(
-    secrets: [String: ImportSecrets.Providers.HashiCorpVault.Source],
-    sourceConfiguration: ImportSecrets.Providers.HashiCorpVault.Source.Configuration?,
-  ) async throws -> SecretsFetchResult {
-    guard !secrets.isEmpty else { return .init() }
-    guard let sourceConfiguration else { throw FetchError.configurationNotSet }
-
-    let result = try await reader.fetch(secrets: secrets, configuration: sourceConfiguration)
-
-    return SecretsFetchResult(fetchedSecrets: result, errors: [:])
-  }
-
-  enum FetchError: Error {
-    case failedToFetch(secret: String, labelMissing: String)
-    case configurationNotSet
-  }
+  ///   - item: A unique source item.
+  ///   - keys: A set of keys to fetch. If set is empty it will fetch all keys from a given `item`.
+  ///   - configuration: A source configuration to use when fetching secrets.
+  ///
+  /// - Note: There is no need to filter fetched secrets by passed keys in the implementation.
+  ///
+  /// - Returns: A map where secret name is a key, and secret value is a value.
+  /// - Throws: If error occurred during item fetch.
+  public func fetchItem(
+    _ item: HashiCorpVaultReader.Element.Item,
+    keys: Set<String>,
+    configuration: HashiCorpVaultReader.Configuration
+  ) async throws -> [String: String] { try await reader.fetchItem(item, keys: keys, configuration: configuration) }
 }

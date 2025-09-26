@@ -7,18 +7,24 @@ public protocol SecretSourceProtocol: Sendable {
   /// This defines the parameters needed to configure the source provider.
   associatedtype Configuration: SecretConfigurationProtocol
 
+  /// A unique Secret Source item in the source provider.
+  ///
+  /// The Secret Source type itself can be extended with extra info (e.g. labels, fields, paths),
+  /// but the `Item` represents one item in the provider and that can contain several secret values.
+  associatedtype Item: SecretSourceItemProtocol
+
+  /// A unique Secret Source item in the source provider.
+  var item: Item { get }
+
+  /// A list of keys to fetch from the secret source item.
+  var keys: [String] { get }
+
   /// Validates the secret source configuration.
   /// - Throws: An error if the source configuration is invalid or incomplete.
   mutating func validate(with configuration: Configuration?) throws
 }
 
 extension SecretSourceProtocol {
-  mutating func validate(with sourceConfigurations: ImportSecrets.SourceConfigurations) throws {
-    let configuration: Configuration? = try sourceConfigurations.getConfiguration(for: Self.configurationKey)
-
-    try validate(with: configuration)
-  }
-
   /// Default implementation of validate that performs no validation.
   ///
   /// - Parameter configuration: Optional configuration to validate against.
@@ -28,5 +34,7 @@ extension SecretSourceProtocol {
 
 extension SecretSourceProtocol {
   /// The configuration key used in YAML to identify this secret source.
-  static var configurationKey: String { Configuration.configurationKey }
+  @inlinable
+  @inline(__always)
+  package static var configurationKey: String { Configuration.configurationKey }
 }

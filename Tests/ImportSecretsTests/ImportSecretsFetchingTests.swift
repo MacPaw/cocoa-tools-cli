@@ -1,4 +1,5 @@
 import Foundation
+import SecretsInterface
 import Testing
 
 @testable import ImportSecrets
@@ -41,10 +42,10 @@ struct ImportSecretsFetchingTests {
     // Remove specified secrets from the configuration
     configuration.secrets = configuration.secrets.filter { secret in
       if let includeSecrets {
-        includeSecrets.contains(secret.envVarName)
+        includeSecrets.contains(secret.prefix)
       }
       else if let removeSecrets {
-        !removeSecrets.contains(secret.envVarName)
+        !removeSecrets.contains(secret.prefix)
       }
       else {
         true
@@ -59,35 +60,35 @@ struct ImportSecretsFetchingTests {
   func test_importSecrets_fetchesSecretsOnlyFromProvidedSources() async throws {
     // GIVEN: Full configuration from YamlMocks, excluding secrets with multiple sources and missing secret
     let configuration = try buildConfiguration(includeSecrets: [
-      "TEST_MPCT_SECRET1_OP_ONLY", "TEST_MPCT_SECRET4_FAKE_ONLY",
+      "TEST_MPCT_SECRET1_OP_ONLY_", "TEST_MPCT_SECRET4_FAKE_ONLY_",
     ])
 
     // WHEN: Getting secrets from configuration
     let result = try await ImportSecrets.getSecrets(configuration: configuration)
 
     // THEN: All available secrets are fetched successfully
-    #expect(result["TEST_MPCT_SECRET1_OP_ONLY"] == "shared-item-secret-value")
-    #expect(result["TEST_MPCT_SECRET4_FAKE_ONLY"] == "/test/mpct/item4/secret.key")
+    #expect(result["TEST_MPCT_SECRET1_OP_ONLY_ITEM1_SECRET"] == "shared-item-secret-value")
+    #expect(result["TEST_MPCT_SECRET4_FAKE_ONLY_key"] == "/test/mpct/item4/secret.key")
     #expect(result.count == 2)
 
     #expect(opCLIMock.getItemFieldsCalls.count == 1)
-    #expect(self.fakeProviderFetcher.fetchSecretsCalls.count == 1)
+    #expect(self.fakeProviderFetcher.fetchItemCalls.count == 1)
   }
 
   @Test("ImportSecrets fallbacks to other secret fetchers")
   func test_importSecrets_fetchesFallbacksToOtherSecretFetchers() async throws {
     // GIVEN: Full configuration from YamlMocks, excluding secrets with multiple sources and missing secret
-    let configuration = try buildConfiguration(includeSecrets: ["TEST_MPCT_SECRET5_OP_MISSING_FAKE_EXISTS"])
+    let configuration = try buildConfiguration(includeSecrets: ["TEST_MPCT_SECRET5_OP_MISSING_FAKE_EXISTS_"])
 
     // WHEN: Getting secrets from configuration
     let result = try await ImportSecrets.getSecrets(configuration: configuration)
 
     // THEN: All available secrets are fetched successfully
-    #expect(result["TEST_MPCT_SECRET5_OP_MISSING_FAKE_EXISTS"] == "/test/mpct/item5/secret.key")
+    #expect(result["TEST_MPCT_SECRET5_OP_MISSING_FAKE_EXISTS_item5_secret"] == "/test/mpct/item5/secret.item5-secret")
     #expect(result.count == 1)
 
     #expect(opCLIMock.getItemFieldsCalls.count == 1)
-    #expect(self.fakeProviderFetcher.fetchSecretsCalls.count == 1)
+    #expect(self.fakeProviderFetcher.fetchItemCalls.count == 1)
   }
 
   // MARK: - Error Scenarios Based on YamlMocks Comments
@@ -95,24 +96,21 @@ struct ImportSecretsFetchingTests {
   @Test("ImportSecrets throws error when both 1Password and fake provider fail")
   func test_importSecrets_throwsErrorWhenBoth1PasswordAndFakeProviderFail() async throws {
     // GIVEN: Configuration with TEST_MPCT_SECRET6_OP_MISSING_FAKE_MISSING that fails on both providers
-    let configuration = try buildConfiguration(includeSecrets: ["TEST_MPCT_SECRET6_OP_MISSING_FAKE_MISSING"])
+    let configuration = try buildConfiguration(includeSecrets: ["TEST_MPCT_SECRET6_OP_MISSING_FAKE_MISSING_"])
 
     // WHEN/THEN: Getting secrets throws error when both providers fail
     await #expect(
       throws: ImportSecrets.Error.failedToFetchSecrets([
-        "TEST_MPCT_SECRET6_OP_MISSING_FAKE_MISSING": [
-          String(
-            describing: ImportSecrets.Providers.OnePassword.Fetcher.FetchError.failedToFetch(
-              secret: "TEST_MPCT_SECRET6_OP_MISSING_FAKE_MISSING",
-              labelMissing: "item6-secret",
-            )
-          ),
+        "TEST_MPCT_SECRET6_OP_MISSING_FAKE_MISSING_all keys": [
           String(
             describing: ImportSecrets.Providers.FakeProvider.Fetcher.FetchError.failedToFetch(
               keyMissing: "/test/mpct/item6/secret.missing"
             )
-          ),
-        ]
+          )
+        ],
+        "TEST_MPCT_SECRET6_OP_MISSING_FAKE_MISSING_item6-secret": [
+          String(describing: SecretsInterface.Error.missingSecrets(["item6-secret"]))
+        ],
       ])
     ) { try await ImportSecrets.getSecrets(configuration: configuration) }
   }
@@ -134,11 +132,12 @@ struct ImportSecretsFetchingTests {
         unsupported-provider:
           url: https://example.com
       secrets:
-        TEST_SECRET:
+        - prefix: TEST_SECRET_
           sources:
             unsupported-provider:
               path: /test/path
-              key: key
+              keys: 
+                - key
       """
     // WHEN/THEN: Getting secrets throws unsupportedSecretSource error
     let data = yamlConfig.data(using: .utf8)!

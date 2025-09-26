@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+#MISE description="Lint source code"
+
+mise tasks run lint:swift
+mise tasks run lint:shellcheck

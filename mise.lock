@@ -15,5 +15,8 @@ version = "3.12.0"
 backend = "aqua:mvdan/sh"
 
 [[tools."ubi:securevale/swift-confidential"]]
-version = "0.4.1"
+version = "0.4.2"
 backend = "ubi:securevale/swift-confidential"
+
+[tools."ubi:securevale/swift-confidential".platforms.macos-arm64-swift-confidential]
+checksum = "blake3:fba4f4ac242d8c5b991961e45662d71a14ada2e4dca556b71d3d22f58d25cd25"

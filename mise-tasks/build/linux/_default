@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+#MISE description="Build release Linux binary with default container"
+
+mise task run build:linux:docker "${@}"

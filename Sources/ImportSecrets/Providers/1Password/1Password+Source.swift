@@ -1,51 +1,121 @@
+import Foundation
+import SecretsInterface
+
 extension ImportSecrets.Providers.OnePassword {
   /// Represents a specific secret source within 1Password.
   ///
   /// This defines the vault, item, and field label needed to locate a secret.
   public struct Source {
-    /// The account shorthand, sign-in address, account ID, or user ID.
-    public var account: String?
-    /// The vault name or ID.
-    ///
-    /// If nil, searches all accessible vaults.
-    public var vault: String?
+    /// The unique 1Password item.
+    public var item: Item
 
-    /// The item name or ID containing the secret.
-    public var item: String
-    /// The field label within the item that contains the secret value.
-    public var label: String
+    /// The field labels within the item that contains the secret values.
+    public var labels: [String]
 
     /// Creates a new 1Password source.
     /// - Parameters:
-    ///   - account: Optional account shorthand, sign-in address, account ID, or user ID.
-    ///   - vault: Optional vault name or ID. If nil, searches all accessible vaults.
-    ///   - item: The item name or ID containing the secret.
-    ///   - label: The field label within the item that contains the secret value.
-    public init(account: String? = .none, vault: String? = .none, item: String, label: String) {
-      self.account = account
-      self.vault = vault
+    ///   - item: The unique 1Password item.
+    ///   - labels: The field labels within the item that contains the secret values.
+    public init(item: Item, labels: [String]) {
       self.item = item
-      self.label = label
+      self.labels = labels
     }
   }
 }
 
 private typealias Source = ImportSecrets.Providers.OnePassword.Source
 
+extension Source {
+  /// A unique 1Password item.
+  public struct Item {
+    /// The account shorthand, sign-in address, account ID, or user ID.
+    public var account: String?
+    /// The vault name or ID.
+    ///
+    /// If nil, searches all accessible vaults.
+    public var vault: String
+
+    /// The item name or ID containing the secret.
+    public var item: String
+  }
+}
+extension Source.Item: Sendable {}
+extension Source.Item: Equatable {}
+extension Source.Item: Hashable {}
+extension Source.Item: SecretSourceItemProtocol {}
+
+extension Source.Item: DecodableWithConfiguration {
+  private enum CodingKeys: String, CodingKey {
+    case account
+    case vault
+    case item
+  }
+
+  /// Initialize element from decoder with configuration.
+  ///
+  /// - Parameters:
+  ///   - decoder: The decoder to read data from.
+  ///   - configuration: The configuration for default values.
+  /// - Throws: DecodingError if decoding fails.
+  public init(from decoder: any Decoder, configuration: ImportSecrets.Providers.OnePassword.Source.Configuration) throws
+  {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    let account: String? = try container.decodeIfPresent(key: .account) ?? configuration.account
+    let vault: String = try container.decode(key: .vault, or: configuration.vault)
+    let item = try container.decode(String.self, forKey: .item)
+
+    self.init(account: account, vault: vault, item: item)
+  }
+}
+
+extension Source {
+  enum Error: Swift.Error { case itemDoestMatch }
+  mutating func merge(with other: Self?) throws {
+    guard let other else { return }
+    guard self.item == other.item else { throw Error.itemDoestMatch }
+    guard !self.labels.isEmpty else { return }
+    if other.labels.isEmpty {
+      self.labels.removeAll()
+    }
+    else {
+      self.labels.append(contentsOf: other.labels)
+    }
+  }
+
+  func merging(with other: Self?) throws -> Self {
+    var result = self
+    try result.merge(with: other)
+    return result
+  }
+}
+
 extension Source: Equatable {}
-extension Source: Decodable {}
+extension Source: DecodableWithConfiguration {
+  private enum CodingKeys: String, CodingKey { case labels }
+
+  /// Initialize element from decoder with configuration.
+  ///
+  /// - Parameters:
+  ///   - decoder: The decoder to read data from.
+  ///   - configuration: The configuration for default values.
+  /// - Throws: DecodingError if decoding fails.
+  public init(from decoder: any Decoder, configuration: ImportSecrets.Providers.OnePassword.Source.Configuration) throws
+  {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    let item = try Item(from: decoder, configuration: configuration)
+    let labels: [String] = try container.decodeIfPresent(key: .labels) ?? []
+
+    self.init(item: item, labels: labels)
+  }
+}
 extension Source: Sendable {}
 
 extension Source: SecretSourceProtocol {
   /// Configuration key used to identify this provider in YAML.
   public static let configurationKey: String = "op"
 
-  /// Validates and applies default configuration values.
-  ///
-  /// - Parameter configuration: Optional configuration containing default values for account and vault.
-  /// - Throws: Validation errors if the source configuration is invalid.
-  public mutating func validate(with configuration: Configuration?) throws {
-    account = account ?? configuration?.account
-    vault = vault ?? configuration?.vault
-  }
+  /// A list of keys to fetch from the secret source item.
+  @inlinable
+  @inline(__always)
+  public var keys: [String] { labels }
 }

@@ -1,7 +1,7 @@
 import ArgumentParser
 import EnvSubstCommand
+import ExportSecretsCommand
 import Foundation
-import ImportSecretsCommand
 import SemanticVersion
 import SemanticVersionMacro
 
@@ -19,8 +19,6 @@ struct MPCT: AsyncParsableCommand {
 
   @OptionGroup(visibility: .default)
   var commonOptions: CommonOptions
-
-  func run() async throws {}
 }
 
 struct CommonOptions: ParsableArguments, Decodable {
@@ -37,6 +35,6 @@ struct SecretsCommand: ParsableCommand {
   static let configuration: CommandConfiguration = CommandConfiguration(
     commandName: "secrets",
     abstract: "Secrets manipulation",
-    subcommands: obfuscate + [ImportSecretsCommand.self],
+    subcommands: obfuscate + [ExportSecretsCommand.self],
   )
 }
