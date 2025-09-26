@@ -2,9 +2,8 @@ import Foundation
 import SharedLogger
 
 #if canImport(FoundationNetworking)
-import FoundationNetworking
+  import FoundationNetworking
 #endif
-
 
 /// Protocol for HashiCorp Vault engine get secrets result.
 public protocol HashiCorpVaultEngineGetSecretsResultProtocol: Decodable {

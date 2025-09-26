@@ -50,7 +50,6 @@ public struct HashiCorpVaultReader {
 extension HashiCorpVaultReader: Sendable {}
 
 extension HashiCorpVaultReader: HashiCorpVaultReaderProtocol {
-
   /// Initializes HashiCorp Vault reader for fetching secrets with a given `configuration`.
   ///
   /// - Parameter configuration: A HashiCorp Vault Configuration to init this reader with.
