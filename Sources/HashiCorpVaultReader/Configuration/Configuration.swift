@@ -52,7 +52,7 @@ extension HashiCorpVaultReader.Configuration: Decodable {
     case apiVersion
     case authenticationCredentials
     case authenticationMethod
-    case engineContexts
+    case engines
   }
 
   /// Initialize configuration from decoder.
@@ -61,18 +61,28 @@ extension HashiCorpVaultReader.Configuration: Decodable {
   /// - Throws: DecodingError if decoding fails.
   public init(from decoder: any Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
-    self.vaultAddress = try container.decode(URL.self, forKey: .vaultAddress)
-    self.apiVersion = try container.decodeIfPresent(String.self, forKey: .apiVersion) ?? "v1"
-    self.authenticationCredentials = try container.decode(
+    let vaultAddress: URL = try container.decode(URL.self, forKey: .vaultAddress)
+    let apiVersion = try container.decodeIfPresent(String.self, forKey: .apiVersion) ?? "v1"
+    let authenticationCredentials = try container.decode(
       HashiCorpVaultReader.Configuration.AuthenticationCredentials.self,
       forKey: .authenticationCredentials
     )
-    self.authenticationMethod = try container.decode(
+    let authenticationMethod = try container.decode(
       HashiCorpVaultReader.Configuration.AuthenticationMethod.self,
       forKey: .authenticationMethod
     )
-    self.defaultEngineConfigurations = try .init(from: decoder)
-    // self.engineContexts = try container.decode([String: any HashiCorpVaultEngineContextProtocol].self, forKey: .engineContexts)
+    let defaultEngineConfigurations: HashiCorpVaultReader.Configuration.EngineConfigurations = try container.decode(
+      HashiCorpVaultReader.Configuration.EngineConfigurations.self,
+      forKey: .engines
+    )
+
+    self.init(
+      vaultAddress: vaultAddress,
+      apiVersion: apiVersion,
+      defaultEngineConfigurations: defaultEngineConfigurations,
+      authenticationCredentials: authenticationCredentials,
+      authenticationMethod: authenticationMethod
+    )
   }
 }
 

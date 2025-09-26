@@ -15,12 +15,3 @@ public protocol HashiCorpVaultEngineProtocol {
   /// - Throws: Various errors related to secret retrieval.
   func readSecrets(api: API) async throws -> [String: String]
 }
-
-extension HashiCorpVaultEngineAPIProtocol {
-  func decodeGetSecretsResult<GetSecretsResult: HashiCorpVaultEngineGetSecretsResultProtocol>(
-    data: Data,
-    type: GetSecretsResult.Type
-  ) throws -> [String: String] {
-    try JSONDecoder().decode(HashiCorpVaultReader.SecretsFetchResult<GetSecretsResult>.self, from: data).data.secrets
-  }
-}

@@ -60,15 +60,28 @@ extension API: HashiCorpVaultEngineAPIProtocol {
 extension API {
   /// Result structure for AWS get secrets operations.
   public struct GetSecretsResult {
+    // swift-format-ignore: AlwaysUseLowerCamelCase
     /// The AWS access key.
-    public let accessKey: String
+    public let access_key: String
+    // swift-format-ignore: AlwaysUseLowerCamelCase
     /// The AWS secret key.
-    public let secretKey: String
+    public let secret_key: String
+    // swift-format-ignore: AlwaysUseLowerCamelCase
+    /// AWS temporary session token.
+    public let session_token: String?
+    /// AWS resource Name.
+    public let arn: String?
   }
 }
 
 extension API.GetSecretsResult: Decodable {}
 extension API.GetSecretsResult: HashiCorpVaultEngineGetSecretsResultProtocol {
   /// The secrets dictionary from the result.
-  public var secrets: [String: String] { ["accessKey": accessKey, "secretKey": secretKey] }
+  public var secrets: [String: String] {
+    var secrets: [String: String] = ["access_key": access_key, "secret_key": secret_key]
+    secrets["session_token"] = session_token
+    secrets["arn"] = arn
+
+    return secrets
+  }
 }
