@@ -69,7 +69,7 @@ import Foundation
         let secrets = try await ImportSecrets.getSecrets(
           configurationURL: importSecretsConfigurationURL,
           sourceProviders: ExportSecretsCommand.Options.sourceProviders(sources: importSecretsOptions.sources),
-          envSubstOptions: envSusbstOptions.options,
+          envSubstOptions: .relaxed,  // Don't enforce EnvSubst options to the ImportSecrets.
         )
         environment.merge(secrets) { old, new in importSecretsOptions.overwriteExistingEnv ? new : old }
       }

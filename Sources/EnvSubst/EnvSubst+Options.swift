@@ -27,11 +27,16 @@ extension EnvSubst {
 extension EnvSubst.Options {
   /// Default options.
   ///
-  /// No checks for unset and empty variables. Similar to the `eval` command behavior.
-  public static let `default`: Self = .init()
+  /// No checks for unset and empty variables. Equals to `.relaxed`. Similar to the `eval` command behavior.
+  public static let `default`: Self = .relaxed
 
   /// Strict validation options.
   ///
   /// No unset and empty variables.
   public static let strict: Self = .init(noUnset: true, noEmpty: true)
+
+  /// Relaxed validation options.
+  ///
+  ///  No checks for unset and empty variables. Similar to the `eval` command behavior.
+  public static let relaxed: Self = .init(noUnset: false, noEmpty: false)
 }
