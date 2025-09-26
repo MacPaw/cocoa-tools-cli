@@ -7,7 +7,7 @@ import Testing
 @testable import Shell
 
 final class MockHashiCorpVaultReaderProtocol: HashiCorpVaultReaderProtocol {
-  func initialize(configuration: HashiCorpVaultReader.Configuration) async throws {}
+  func initialize(configuration: HashiCorpVaultReader.Configuration?) async throws {}
 
   func fetchItem(
     _ item: HashiCorpVaultReader.Element.Item,

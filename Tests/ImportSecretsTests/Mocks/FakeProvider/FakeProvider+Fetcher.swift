@@ -10,9 +10,9 @@ extension ImportSecrets.Providers.FakeProvider {
 private typealias Fetcher = ImportSecrets.Providers.FakeProvider.Fetcher
 
 extension Fetcher: SecretFetcherProtocol {
-  typealias Source = ImportSecrets.Providers.FakeProvider.Source
+  func initialize(configuration: ImportSecrets.Providers.FakeProvider.Source.Configuration?) async throws {}
 
-  func initialize(configuration: Source.Configuration) async throws {}
+  typealias Source = ImportSecrets.Providers.FakeProvider.Source
 
   func fetchItem(_ item: Source.Item, keys: Set<String>, configuration: Source.Configuration) throws -> [String: String]
   {
