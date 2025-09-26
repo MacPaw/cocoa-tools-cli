@@ -3,15 +3,19 @@ import Foundation
 extension HashiCorpVaultReader.Element {
   /// A unique Vault item.
   public enum Item {
+    /// Key Value engine element.
     case keyValue(HashiCorpVaultReader.Engine.KeyValue.Element)
+    /// AWS engine element.
     case aws(HashiCorpVaultReader.Engine.AWS.Element)
   }
 }
 
-extension HashiCorpVaultReader.Element.Item: Sendable {}
-extension HashiCorpVaultReader.Element.Item: Equatable {}
-extension HashiCorpVaultReader.Element.Item: Hashable {}
-extension HashiCorpVaultReader.Element.Item: DecodableWithConfiguration {
+private typealias Item = HashiCorpVaultReader.Element.Item
+
+extension Item: Sendable {}
+extension Item: Equatable {}
+extension Item: Hashable {}
+extension Item: DecodableWithConfiguration {
   private enum CodingKeys: String, CodingKey {
     case keyValue
     case aws

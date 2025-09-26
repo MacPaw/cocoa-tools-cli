@@ -57,10 +57,10 @@ extension ExportSecretsCommand.Options.Destination.DestinationType: ExpressibleB
   /// - Returns: A description string explaining what the destination type does.
   public var defaultValueDescription: String {
     switch self {
-    case .stdout: "Export to standard output"
+    case .stdout: "Export to standard output."
     case .mise: "Export to a mise config file. Default --file option value is mise.local.toml."
     case .dotenv: "Export to a .env file. Default --file option value is .env.local."
-    case .ci: "Export to a CI environment"
+    case .ci: "Export to a CI environment."
     }
   }
 }

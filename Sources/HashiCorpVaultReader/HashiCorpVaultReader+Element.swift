@@ -20,7 +20,9 @@ extension HashiCorpVaultReader {
   }
 }
 
-extension HashiCorpVaultReader.Element: DecodableWithConfiguration {
+private typealias Element = HashiCorpVaultReader.Element
+
+extension Element: DecodableWithConfiguration {
   private enum CodingKeys: String, CodingKey { case keys }
   /// Initialize element from decoder with configuration.
   ///
@@ -37,6 +39,6 @@ extension HashiCorpVaultReader.Element: DecodableWithConfiguration {
   }
 }
 
-extension HashiCorpVaultReader.Element: Sendable {}
-extension HashiCorpVaultReader.Element: Equatable {}
-extension HashiCorpVaultReader.Element: Hashable {}
+extension Element: Sendable {}
+extension Element: Equatable {}
+extension Element: Hashable {}
