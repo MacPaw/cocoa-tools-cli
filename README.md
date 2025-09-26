@@ -27,7 +27,7 @@ mpct is a modular Swift CLI project targeting macOS 15+ that helps engineers wit
 mpct
 ├── envsubst              # Environment variable substitution
 └── secrets               # Secret management commands
-    ├── import            # Import secrets from providers
+    ├── export            # Export secrets from providers
     └── obfuscate         # Generate obfuscated Swift code
 ```
 
@@ -53,6 +53,7 @@ mpct secrets export --config secrets.yaml --source op --destination mise
 
 **Key Features:**
 - 1Password CLI integration
+- HashiCorp Vault integration
 - Multiple export formats (dotenv, mise, stdout)
 - YAML-based configuration
 - Environment variable substitution in configs
@@ -122,8 +123,8 @@ Shell command execution utilities with mise integration.
 ```
 mpct (executable)
 ├── EnvSubstCommand → EnvSubst
-├── ExportSecretsCommand → ImportSecrets → EnvSubst, Shell
-└── ObfuscateSecretsCommand → ObfuscateSecrets → EnvSubst, ImportSecrets
+├── ExportSecretsCommand → ExportSecrets -> ImportSecrets, EnvSubst, Shell
+└── ObfuscateSecretsCommand → ObfuscateSecrets → EnvSubst, ExportSecrets
 ```
 
 ## 🔧 Development
