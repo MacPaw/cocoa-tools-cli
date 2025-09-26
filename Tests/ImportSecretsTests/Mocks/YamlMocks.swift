@@ -12,10 +12,11 @@ enum YamlMocks {
         authenticationMethod: token
         authenticationCredentials:
           token: token
-        keyValue:
-          defaultSecretMountPath: secret
-        aws:
-          defaultEnginePath: aws
+        engines:
+          keyValue:
+            defaultSecretMountPath: secret
+          aws:
+            defaultEnginePath: aws
     secrets:
       - prefix: TEST_MPCT_SECRET1_OP_ONLY_
         sources:
