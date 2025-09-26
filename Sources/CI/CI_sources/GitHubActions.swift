@@ -54,7 +54,7 @@ extension CI.GitHubActions.Environment {
     let newContents =
       if value.contains("\n") { "\(name)<<EOF\n\(value)\nEOF\n" }
       else { "\(name)=\(value)\n" }
-    if fileManager.fileExists(atPath: envFileURL.path) {
+    if fileManager.isReadableFile(atPath: envFileURL.path) {
       let fileContents = try String(contentsOf: envFileURL, encoding: .utf8)
       let newContents = fileContents.appending(newContents)
       try newContents.write(to: envFileURL, atomically: true, encoding: .utf8)
