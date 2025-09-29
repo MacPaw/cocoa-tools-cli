@@ -36,7 +36,18 @@ extension API: HashiCorpVaultEngineAPIProtocol {
     try self.decodeGetSecretsResult(data: data, type: GetSecretsResult.self)
   }
 
-  private func adaptURL(url: URL?, for element: HashiCorpVaultReader.Engine.KeyValue.Element) throws -> URL {
+  private func adaptURLV1(url: URL?, for element: HashiCorpVaultReader.Engine.KeyValue.Element) throws -> URL {
+    // URL: /:secret-mount-path/:path
+    // https://developer.hashicorp.com/vault/api-docs/secret/kv/kv-v1#read-secret
+    guard var url = url else { throw HashiCorpVaultReader.Error.urlIsNotSet }
+    url.append(path: element.secretMountPath, directoryHint: .isDirectory)
+    url.append(path: element.path, directoryHint: .notDirectory)
+    return url
+  }
+
+  private func adaptURLV2(url: URL?, for element: HashiCorpVaultReader.Engine.KeyValue.Element) throws -> URL {
+    // URL: /:secret-mount-path/data/:path?version=:version-number
+    // https://developer.hashicorp.com/vault/api-docs/secret/kv/kv-v2#read-secret-version
     guard var url = url else { throw HashiCorpVaultReader.Error.urlIsNotSet }
     url.append(path: element.secretMountPath, directoryHint: .isDirectory)
     url.append(component: "data", directoryHint: .isDirectory)
@@ -55,6 +66,13 @@ extension API: HashiCorpVaultEngineAPIProtocol {
     }
 
     return url
+  }
+
+  private func adaptURL(url: URL?, for element: HashiCorpVaultReader.Engine.KeyValue.Element) throws -> URL {
+    switch element.engineVersion {
+    case .v1: try adaptURLV1(url: url, for: element)
+    case .v2: try adaptURLV2(url: url, for: element)
+    }
   }
 
   /// Adapt a URL request for KeyValue engine operations.
