@@ -7,7 +7,7 @@ import Foundation
 /// Protocol for HashiCorp Vault engine API functionality.
 public protocol HashiCorpVaultEngineAPIProtocol: Equatable, Hashable, Sendable {
   /// The element type this API works with.
-  associatedtype Element
+  associatedtype Element: HashiCorpVaultEngineElement
   /// Adapt a URL request for a specific element.
   ///
   /// - Parameters:
@@ -19,10 +19,12 @@ public protocol HashiCorpVaultEngineAPIProtocol: Equatable, Hashable, Sendable {
 
   /// Decode the get secrets result from response data.
   ///
-  /// - Parameter data: The response data to decode.
+  /// - Parameters:
+  ///   - data: The response data to decode.
+  ///   - element: The element decode data for.
   /// - Returns: Dictionary of secrets.
   /// - Throws: DecodingError if decoding fails.
-  func decodeGetSecretsResult(data: Data) throws -> [String: String]
+  func decodeGetSecretsResult(data: Data, for element: Element) throws -> [String: String]
 }
 
 extension HashiCorpVaultEngineAPIProtocol {
@@ -33,3 +35,6 @@ extension HashiCorpVaultEngineAPIProtocol {
     try JSONDecoder().decode(HashiCorpVaultReader.SecretsFetchResult<GetSecretsResult>.self, from: data).data.secrets
   }
 }
+
+/// Protocol describing HashiCorp Vault engine element (KeyValue or AWS).
+public protocol HashiCorpVaultEngineElement: Sendable {}

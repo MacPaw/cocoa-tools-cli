@@ -27,12 +27,14 @@ extension API: Sendable {}
 extension API: HashiCorpVaultEngineAPIProtocol {
   /// Decode the get secrets result from response data.
   ///
-  /// - Parameter data: The response data to decode.
+  /// - Parameters:
+  ///   - data: The response data to decode.
+  ///   - element: The element decode data for.
   /// - Returns: Dictionary of secrets.
   /// - Throws: DecodingError if decoding fails.
-  public func decodeGetSecretsResult(data: Data) throws -> [String: String] {
-    try self.decodeGetSecretsResult(data: data, type: GetSecretsResult.self)
-  }
+  public func decodeGetSecretsResult(data: Data, for element: HashiCorpVaultReader.Engine.AWS.Element) throws
+    -> [String: String]
+  { try self.decodeGetSecretsResult(data: data, type: GetSecretsResult.self) }
 
   private func adaptURL(url: URL?, for element: HashiCorpVaultReader.Engine.AWS.Element) throws -> URL {
     guard var url = url else { throw HashiCorpVaultReader.Error.urlIsNotSet }

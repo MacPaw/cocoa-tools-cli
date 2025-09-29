@@ -20,11 +20,13 @@ extension HashiCorpVaultReader {
     case wrongStatusCode(Int)
   }
 
-  func fetch(urlRequest: URLRequest, api: any HashiCorpVaultEngineAPIProtocol) async throws -> [String: String] {
+  func fetch<API: HashiCorpVaultEngineAPIProtocol>(urlRequest: URLRequest, api: API, item: API.Element) async throws
+    -> [String: String]
+  {
     let (data, response) = try await urlSession.data(for: urlRequest)
     guard let response = response as? HTTPURLResponse else { throw HTTPError.responseNotHTTP(response) }
     guard (200..<300).contains(response.statusCode) else { throw HTTPError.wrongStatusCode(response.statusCode) }
-    let result = try api.decodeGetSecretsResult(data: data)
+    let result = try api.decodeGetSecretsResult(data: data, for: item)
     return result
   }
 

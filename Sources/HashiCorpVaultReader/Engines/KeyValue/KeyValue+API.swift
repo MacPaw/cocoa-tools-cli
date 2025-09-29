@@ -1,4 +1,5 @@
 import Foundation
+import SharedLogger
 
 #if canImport(FoundationNetworking)
   import FoundationNetworking
@@ -29,11 +30,18 @@ extension API: Sendable {}
 extension API: HashiCorpVaultEngineAPIProtocol {
   /// Decode the get secrets result from response data.
   ///
-  /// - Parameter data: The response data to decode.
+  /// - Parameters:
+  ///   - data: The response data to decode.
+  ///   - item: The element decode data for.
   /// - Returns: Dictionary of secrets.
   /// - Throws: DecodingError if decoding fails.
-  public func decodeGetSecretsResult(data: Data) throws -> [String: String] {
-    try self.decodeGetSecretsResult(data: data, type: GetSecretsResult.self)
+  public func decodeGetSecretsResult(data: Data, for item: HashiCorpVaultReader.Engine.KeyValue.Element) throws
+    -> [String: String]
+  {
+    switch item.engineVersion {
+    case .v1: try self.decodeGetSecretsResult(data: data, type: [String: String].self)
+    case .v2: try self.decodeGetSecretsResult(data: data, type: GetSecretsResult.self)
+    }
   }
 
   private func adaptURLV1(url: URL?, for element: HashiCorpVaultReader.Engine.KeyValue.Element) throws -> URL {
@@ -69,10 +77,15 @@ extension API: HashiCorpVaultEngineAPIProtocol {
   }
 
   private func adaptURL(url: URL?, for element: HashiCorpVaultReader.Engine.KeyValue.Element) throws -> URL {
-    switch element.engineVersion {
-    case .v1: try adaptURLV1(url: url, for: element)
-    case .v2: try adaptURLV2(url: url, for: element)
-    }
+    let url =
+      switch element.engineVersion {
+      case .v1: try adaptURLV1(url: url, for: element)
+      case .v2: try adaptURLV2(url: url, for: element)
+      }
+
+    log.debug("URL: \(url)")
+
+    return url
   }
 
   /// Adapt a URL request for KeyValue engine operations.
@@ -103,4 +116,11 @@ extension API.GetSecretsResult: Decodable {}
 extension API.GetSecretsResult: HashiCorpVaultEngineGetSecretsResultProtocol {
   /// The secrets dictionary from the result.
   public var secrets: [String: String] { self.data }
+}
+
+extension [String: String]: HashiCorpVaultEngineGetSecretsResultProtocol {
+  /// The secrets dictionary from the result.
+  @inlinable
+  @inline(__always)
+  public var secrets: [String: String] { self }
 }
