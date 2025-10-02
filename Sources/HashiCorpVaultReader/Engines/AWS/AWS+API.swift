@@ -25,21 +25,21 @@ private typealias API = HashiCorpVaultReader.Engine.AWS.API
 extension API: Sendable {}
 
 extension API: HashiCorpVaultEngineAPIProtocol {
-  /// Decode the get secrets result from response data.
+  private enum CodingKeys: String, CodingKey { case data }
+  /// Decode  the response `Data` and return fetched secrets for a given `item`.
   ///
   /// - Parameters:
   ///   - data: The response data to decode.
-  ///   - element: The element decode data for.
+  ///   - item: The item to decode data for.
   /// - Returns: Dictionary of secrets.
   /// - Throws: DecodingError if decoding fails.
-  public func decodeGetSecretsResult(data: Data, for element: HashiCorpVaultReader.Engine.AWS.Element) throws
-    -> [String: String]
-  { try self.decodeGetSecretsResult(data: data, type: GetSecretsResult.self) }
+  public func secretsFromResponse(_ data: Data, for item: HashiCorpVaultReader.Engine.AWS.Item) throws -> [String: Any]
+  { try getDataObjectFromResponse(data) }
 
-  private func adaptURL(url: URL?, for element: HashiCorpVaultReader.Engine.AWS.Element) throws -> URL {
+  private func adaptURL(url: URL?, for item: HashiCorpVaultReader.Engine.AWS.Item) throws -> URL {
     guard var url = url else { throw HashiCorpVaultReader.Error.urlIsNotSet }
-    url.append(path: element.enginePath, directoryHint: .isDirectory)
-    url.append(components: "creds", element.role, directoryHint: .notDirectory)
+    url.append(path: item.enginePath, directoryHint: .isDirectory)
+    url.append(components: "creds", item.role, directoryHint: .notDirectory)
     return url
   }
 
@@ -47,14 +47,14 @@ extension API: HashiCorpVaultEngineAPIProtocol {
   ///
   /// - Parameters:
   ///   - urlRequest: The base URL request to adapt.
-  ///   - element: The AWS element to adapt the request for.
+  ///   - item: The AWS item to adapt the request for.
   /// - Returns: The adapted URL request.
   /// - Throws: Various errors related to URL construction.
-  public func adaptURLRequest(urlRequest: URLRequest, for element: HashiCorpVaultReader.Engine.AWS.Element) throws
+  public func adaptURLRequest(urlRequest: URLRequest, for item: HashiCorpVaultReader.Engine.AWS.Item) throws
     -> URLRequest
   {
     var urlRequest = urlRequest
-    urlRequest.url = try adaptURL(url: urlRequest.url, for: element)
+    urlRequest.url = try adaptURL(url: urlRequest.url, for: item)
     return urlRequest
   }
 }
@@ -73,17 +73,5 @@ extension API {
     public let session_token: String?
     /// AWS resource Name.
     public let arn: String?
-  }
-}
-
-extension API.GetSecretsResult: Decodable {}
-extension API.GetSecretsResult: HashiCorpVaultEngineGetSecretsResultProtocol {
-  /// The secrets dictionary from the result.
-  public var secrets: [String: String] {
-    var secrets: [String: String] = ["access_key": access_key, "secret_key": secret_key]
-    secrets["session_token"] = session_token
-    secrets["arn"] = arn
-
-    return secrets
   }
 }

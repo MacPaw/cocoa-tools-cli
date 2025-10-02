@@ -180,7 +180,7 @@ enum Targets {
   }
 
   static var hashicorpVaultReader: [PackageDescription.Target] {
-    targetBundle(name: "HashiCorpVaultReader", dependencies: [.target(name: "SecretsInterface")], tests: false)
+    targetBundle(name: "HashiCorpVaultReader", dependencies: [.target(name: "SecretsInterface")], tests: true)
   }
 }
 

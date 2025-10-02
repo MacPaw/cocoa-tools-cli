@@ -14,55 +14,46 @@ struct HashiCorpVaultReaderTests {
   @Test("Element initialization with KeyValue engine")
   func test_element_initWithKeyValue() {
     // GIVEN: KeyValue element configuration
-    let keyValueElement = HashiCorpVaultReader.Engine.KeyValue.Element(
+    let keyValueElement = HashiCorpVaultReader.Engine.KeyValue.Item(
+      engineVersion: .default,
       secretMountPath: "secret",
       path: "myapp/database",
       version: 1,
-      key: "password"
     )
 
     // WHEN: Creating Element with KeyValue configuration
-    let sut = HashiCorpVaultReader.Element(keyValue: keyValueElement)
+    let sut = HashiCorpVaultReader.Element.init(item: .keyValue(keyValueElement), keys: ["password"])
 
     // THEN: Element is configured correctly
-    #expect(sut.keyValue != nil)
-    #expect(sut.aws == nil)
-    #expect(sut.keyValue?.secretMountPath == "secret")
-    #expect(sut.keyValue?.path == "myapp/database")
-    #expect(sut.keyValue?.version == 1)
-    #expect(sut.keyValue?.key == "password")
+    #expect(sut.keys == ["password"])
+    #expect(sut.item == .keyValue(keyValueElement))
   }
 
   @Test("Element initialization with AWS engine")
   func test_element_initWithAWS() {
     // GIVEN: AWS element configuration
-    let awsElement = HashiCorpVaultReader.Engine.AWS.Element(enginePath: "aws", role: "my-role", key: "accessKey")
+    let awsElement = HashiCorpVaultReader.Engine.AWS.Item(enginePath: "aws", role: "my-role")
 
     // WHEN: Creating Element with AWS configuration
-    let sut = HashiCorpVaultReader.Element(aws: awsElement)
+    let sut = HashiCorpVaultReader.Element(item: .aws(awsElement))
 
     // THEN: Element is configured correctly
-    #expect(sut.aws != nil)
-    #expect(sut.keyValue == nil)
-    #expect(sut.aws?.enginePath == "aws")
-    #expect(sut.aws?.role == "my-role")
-    #expect(sut.aws?.key == "accessKey")
+    #expect(sut.item == .aws(awsElement))
   }
 
   @Test("Element initialization with both engines fails validation")
   func test_element_initWithBothEngines_failsValidation() async throws {
     // GIVEN: Both KeyValue and AWS element configurations
-    let keyValueElement = HashiCorpVaultReader.Engine.KeyValue.Element(
+    let keyValueElement = HashiCorpVaultReader.Engine.KeyValue.Item(
+      engineVersion: .v2,
       secretMountPath: "secret",
       path: "myapp/database",
       version: 1,
-      key: "password"
     )
-    let awsElement = HashiCorpVaultReader.Engine.AWS.Element(enginePath: "aws", role: "my-role", key: "accessKey")
     let configuration = try createMockConfiguration()
 
     // WHEN: Creating Element with both configurations
-    let _ = HashiCorpVaultReader.Element(keyValue: keyValueElement, aws: awsElement)
+    let _ = HashiCorpVaultReader.Element(item: .keyValue(keyValueElement))
 
     // THEN: Decoding should fail with validation error
     let jsonData = """

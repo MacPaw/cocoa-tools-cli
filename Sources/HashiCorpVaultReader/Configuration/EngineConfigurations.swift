@@ -21,20 +21,11 @@ extension HashiCorpVaultReader.Configuration {
     ///   - keyValue: Optional KeyValue engine default configuration.
     ///   - aws: Optional AWS engine default configuration.
     public init(
-      keyValue: HashiCorpVaultReader.Engine.KeyValue.DefaultConfiguration? = nil,
-      aws: HashiCorpVaultReader.Engine.AWS.DefaultConfiguration? = nil
+      keyValue: HashiCorpVaultReader.Engine.KeyValue.DefaultConfiguration? = .init(),
+      aws: HashiCorpVaultReader.Engine.AWS.DefaultConfiguration? = .init()
     ) {
       self.keyValue = keyValue
       self.aws = aws
-    }
-
-    func configuration(for engine: HashiCorpVaultReader.Engine) -> (
-      any HashiCorpVaultEngineDefaultConfigurationProtocol
-    )? {
-      switch engine {
-      case .keyValue: return keyValue
-      case .aws: return aws
-      }
     }
   }
 }

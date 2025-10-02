@@ -71,10 +71,9 @@ extension HashiCorpVaultReader.Configuration: Decodable {
       HashiCorpVaultReader.Configuration.AuthenticationMethod.self,
       forKey: .authenticationMethod
     )
-    let defaultEngineConfigurations: HashiCorpVaultReader.Configuration.EngineConfigurations = try container.decode(
-      HashiCorpVaultReader.Configuration.EngineConfigurations.self,
-      forKey: .engines
-    )
+    let defaultEngineConfigurations: HashiCorpVaultReader.Configuration.EngineConfigurations =
+      try container.decodeIfPresent(HashiCorpVaultReader.Configuration.EngineConfigurations.self, forKey: .engines)
+      ?? .init()
 
     self.init(
       vaultAddress: vaultAddress,

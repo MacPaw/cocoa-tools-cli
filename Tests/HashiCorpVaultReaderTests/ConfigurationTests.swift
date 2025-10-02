@@ -76,11 +76,13 @@ struct ConfigurationTests {
           }
         },
         "authenticationMethod": "token",
-        "keyValue": {
-          "defaultSecretMountPath": "secret"
-        },
-        "aws": {
-          "defaultEnginePath": "aws"
+        "engines": {
+          "keyValue": {
+            "defaultSecretMountPath": "secret"
+          },
+          "aws": {
+            "defaultEnginePath": "aws"
+          }
         }
       }
       """
@@ -128,7 +130,7 @@ struct ConfigurationTests {
   @Test("buildBaseURL with default path")
   func test_buildBaseURL_withDefaultPath() throws {
     // GIVEN: Configuration with vault address
-    let sut = createMockConfiguration()
+    let sut = try createMockConfiguration()
 
     // WHEN: Building base URL with default path
     let result = try sut.buildBaseURL()
@@ -140,7 +142,7 @@ struct ConfigurationTests {
   @Test("buildBaseURL with custom path")
   func test_buildBaseURL_withCustomPath() throws {
     // GIVEN: Configuration with vault address
-    let sut = createMockConfiguration()
+    let sut = try createMockConfiguration()
 
     // WHEN: Building base URL with custom path
     let result = try sut.buildBaseURL(path: "/auth/approle/login")
@@ -152,7 +154,7 @@ struct ConfigurationTests {
   @Test("buildBaseURL with different API version")
   func test_buildBaseURL_withDifferentAPIVersion() throws {
     // GIVEN: Configuration with custom API version
-    var sut = createMockConfiguration()
+    var sut = try createMockConfiguration()
     sut = HashiCorpVaultReader.Configuration(
       vaultAddress: sut.vaultAddress,
       apiVersion: "v2",
@@ -171,7 +173,7 @@ struct ConfigurationTests {
   @Test("buildURLRequest with default parameters")
   func test_buildURLRequest_withDefaultParameters() throws {
     // GIVEN: Configuration and vault token
-    let sut = createMockConfiguration()
+    let sut = try createMockConfiguration()
     let vaultToken = "hvs.test-token"
 
     // WHEN: Building URL request
@@ -187,7 +189,7 @@ struct ConfigurationTests {
   @Test("buildURLRequest with custom HTTP method")
   func test_buildURLRequest_withCustomHTTPMethod() throws {
     // GIVEN: Configuration and vault token
-    let sut = createMockConfiguration()
+    let sut = try createMockConfiguration()
     let vaultToken = "hvs.test-token"
 
     // WHEN: Building URL request with POST method
@@ -311,22 +313,6 @@ struct ConfigurationTests {
     #expect(sut.aws?.defaultEnginePath == "aws-prod")
   }
 
-  @Test("EngineConfigurations configuration for engine")
-  func test_engineConfigurations_configurationForEngine() {
-    // GIVEN: Engine configurations
-    let keyValueConfig = HashiCorpVaultReader.Engine.KeyValue.DefaultConfiguration(defaultSecretMountPath: "kv")
-    let awsConfig = HashiCorpVaultReader.Engine.AWS.DefaultConfiguration(defaultEnginePath: "aws-prod")
-    let sut = HashiCorpVaultReader.Configuration.EngineConfigurations(keyValue: keyValueConfig, aws: awsConfig)
-
-    // WHEN: Getting configuration for specific engines
-    let keyValueResult = sut.configuration(for: .keyValue)
-    let awsResult = sut.configuration(for: .aws)
-
-    // THEN: Correct configurations are returned
-    #expect(keyValueResult != nil)
-    #expect(awsResult != nil)
-  }
-
   @Test("EngineConfigurations decoding from JSON")
   func test_engineConfigurations_decodingFromJSON() throws {
     // GIVEN: JSON engine configurations data
@@ -428,23 +414,21 @@ struct ConfigurationTests {
   // MARK: - Configuration Equality Tests
 
   @Test("Configuration equality comparison")
-  func test_configuration_equalityComparison() {
+  func test_configuration_equalityComparison() throws {
     // GIVEN: Two identical configurations
-    let config1 = createMockConfiguration()
-    let config2 = createMockConfiguration()
+    let config1 = try createMockConfiguration()
+    let config2 = try createMockConfiguration()
 
     // WHEN: Comparing configurations
-    let areEqual = config1 == config2
-
     // THEN: Configurations are equal
-    #expect(areEqual)
+    #expect(config1 == config2)
   }
 
   @Test("Configuration inequality with different vault address")
-  func test_configuration_inequalityWithDifferentVaultAddress() {
+  func test_configuration_inequalityWithDifferentVaultAddress() throws {
     // GIVEN: Two configurations with different vault addresses
-    let config1 = createMockConfiguration()
-    var config2 = createMockConfiguration()
+    let config1 = try createMockConfiguration()
+    var config2 = try createMockConfiguration()
     config2 = HashiCorpVaultReader.Configuration(
       vaultAddress: URL(string: "https://different-vault.example.com")!,
       defaultEngineConfigurations: config2.defaultEngineConfigurations,
@@ -453,16 +437,14 @@ struct ConfigurationTests {
     )
 
     // WHEN: Comparing configurations
-    let areEqual = config1 == config2
-
     // THEN: Configurations are not equal
-    #expect(!areEqual)
+    #expect(config1 != config2)
   }
 
   // MARK: - Helper Methods
 
   private func createMockConfiguration() throws -> HashiCorpVaultReader.Configuration {
-    HashiCorpVaultReader.Configuration(
+    try HashiCorpVaultReader.Configuration(
       vaultAddress: #require(URL(string: "https://vault.example.com")),
       defaultEngineConfigurations: .init(
         keyValue: .init(defaultSecretMountPath: "secret"),

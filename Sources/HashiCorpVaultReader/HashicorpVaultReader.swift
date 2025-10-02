@@ -82,10 +82,6 @@ extension HashiCorpVaultReader: HashiCorpVaultReaderProtocol {
     let keyValueAPI = HashiCorpVaultReader.Engine.KeyValue.API()
     let awsAPI = HashiCorpVaultReader.Engine.AWS.API()
 
-    let urlRequest: URLRequest
-    let api: any HashiCorpVaultEngineAPIProtocol
-    let innerItem: any HashiCorpVaultEngineElement
-
     let fetchedSecrets =
       switch item {
       case .keyValue(let keyValue):

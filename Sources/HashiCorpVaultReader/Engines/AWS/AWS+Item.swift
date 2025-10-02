@@ -2,7 +2,7 @@ import Foundation
 
 extension HashiCorpVaultReader.Engine.AWS {
   /// Element configuration for AWS engine operations.
-  public struct Element {
+  public struct Item {
     /// The path to the AWS engine to use, such as `aws`.
     public var enginePath: String
     /// Specifies the name of the role to generate credentials against.
@@ -10,9 +10,9 @@ extension HashiCorpVaultReader.Engine.AWS {
   }
 }
 
-private typealias Element = HashiCorpVaultReader.Engine.AWS.Element
+private typealias Item = HashiCorpVaultReader.Engine.AWS.Item
 
-extension Element: DecodableWithConfiguration {
+extension Item: DecodableWithConfiguration {
   private enum CodingKeys: String, CodingKey {
     case enginePath
     case role
@@ -42,7 +42,7 @@ extension Element: DecodableWithConfiguration {
   }
 }
 
-extension Element: Equatable {}
-extension Element: Sendable {}
-extension Element: Hashable {}
-extension Element: HashiCorpVaultEngineElement {}
+extension Item: Equatable {}
+extension Item: Sendable {}
+extension Item: Hashable {}
+extension Item: HashiCorpVaultEngineItem {}

@@ -1,16 +1,9 @@
-//
-//  File.swift
-//  cocoa-tools
-//
-//  Created by Vitalii Budnik on 9/8/25.
-//
-
 import Foundation
 import SecretsInterface
 
 extension HashiCorpVaultReader.Engine.KeyValue {
   /// Element configuration for KeyValue engine operations.
-  public struct Element {
+  public struct Item {
     /// The Key Value engine version.
     public var engineVersion: HashiCorpVaultReader.Engine.KeyValue.EngineVersion
     /// The path to the KV mount to config, such as `secret`.
@@ -26,9 +19,9 @@ extension HashiCorpVaultReader.Engine.KeyValue {
   }
 }
 
-private typealias Element = HashiCorpVaultReader.Engine.KeyValue.Element
+private typealias Item = HashiCorpVaultReader.Engine.KeyValue.Item
 
-extension Element: DecodableWithConfiguration {
+extension Item: DecodableWithConfiguration {
   private enum CodingKeys: String, CodingKey {
     case engineVersion
     case secretMountPath
@@ -59,7 +52,7 @@ extension Element: DecodableWithConfiguration {
   }
 }
 
-extension Element: Equatable {}
-extension Element: Sendable {}
-extension Element: Hashable {}
-extension Element: HashiCorpVaultEngineElement {}
+extension Item: Equatable {}
+extension Item: Sendable {}
+extension Item: Hashable {}
+extension Item: HashiCorpVaultEngineItem {}

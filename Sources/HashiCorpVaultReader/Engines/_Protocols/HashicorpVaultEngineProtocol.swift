@@ -4,10 +4,10 @@ import Foundation
 public protocol HashiCorpVaultEngineProtocol {
   /// The default configuration type for this engine.
   associatedtype DefaultConfiguration: HashiCorpVaultEngineDefaultConfigurationProtocol
-  /// The element type this engine works with.
-  associatedtype Element
+  /// The item type this engine works with.
+  associatedtype Item
   /// The API type this engine uses.
-  associatedtype API: HashiCorpVaultEngineAPIProtocol where API.Element == Element
+  associatedtype API: HashiCorpVaultEngineAPIProtocol where API.Item == Item
   /// Read secrets using the provided API.
   ///
   /// - Parameter api: The API instance to use for reading secrets.
