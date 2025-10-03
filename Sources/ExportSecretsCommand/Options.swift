@@ -82,6 +82,10 @@ extension ExportSecretsCommand.Options {
     @Option(name: .customLong("file"), help: "Destination file. Applicable for mise and dotenv destinations.")
     var destinationFile: String?
 
+    /// A `Bool` idicating if secrets must be exporteed to be usable in the dependent jobs.
+    @Flag(help: "Mark exported CI secrets as output, so they can be used from dependent jobs.")
+    var isOutput: Bool = false
+
     /// Creates a new DestinationArguments instance with default values.
     public init() {}
   }
