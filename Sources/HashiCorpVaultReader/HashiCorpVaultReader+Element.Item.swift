@@ -4,9 +4,9 @@ extension HashiCorpVaultReader.Element {
   /// A unique Vault item.
   public enum Item {
     /// Key Value engine element.
-    case keyValue(HashiCorpVaultReader.Engine.KeyValue.Element)
+    case keyValue(HashiCorpVaultReader.Engine.KeyValue.Item)
     /// AWS engine element.
-    case aws(HashiCorpVaultReader.Engine.AWS.Element)
+    case aws(HashiCorpVaultReader.Engine.AWS.Item)
   }
 }
 
@@ -31,13 +31,13 @@ extension Item: DecodableWithConfiguration {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
     let keyValue = try container.decodeIfPresent(
-      HashiCorpVaultReader.Engine.KeyValue.Element.self,
+      HashiCorpVaultReader.Engine.KeyValue.Item.self,
       forKey: .keyValue,
       configuration: configuration
     )
 
     let aws = try container.decodeIfPresent(
-      HashiCorpVaultReader.Engine.AWS.Element.self,
+      HashiCorpVaultReader.Engine.AWS.Item.self,
       forKey: .aws,
       configuration: configuration
     )

@@ -1,5 +1,5 @@
 {
-  "originHash" : "2dc76c18fc10fbec37690258b89178f71fde4814bcb65c6d917044dcedee185c",
+  "originHash" : "d8e3b0f50c97b6c2104c325bcb939630ed15a30b91c2ac0e911d6b572996faf0",
   "pins" : [
     {
       "identity" : "swift-argument-parser",
@@ -60,8 +60,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-markdown.git",
       "state" : {
-        "revision" : "d8cf111c276ed18cff82d3cad563d2ca5903b982",
-        "version" : "0.7.1"
+        "revision" : "6151fbf2be23b24318cf88617dad5f633820d387",
+        "version" : "0.7.2"
       }
     },
     {
@@ -87,8 +87,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/xctest-dynamic-overlay",
       "state" : {
-        "revision" : "b2ed9eabefe56202ee4939dd9fc46b6241c88317",
-        "version" : "1.6.1"
+        "revision" : "4c27acf5394b645b70d8ba19dc249c0472d5f618",
+        "version" : "1.7.0"
       }
     },
     {

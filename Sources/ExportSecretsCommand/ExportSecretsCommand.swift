@@ -45,7 +45,7 @@ extension ExportSecretsCommand {
     case .stdout: ExportSecrets.Destinations.Stdout()
     case .mise: try ExportSecrets.Destinations.Mise(file: options.destinationArguments.destination.file)
     case .dotenv: ExportSecrets.Destinations.DotEnv(file: options.destinationArguments.destination.file)
-    case .ci: ExportSecrets.Destinations.CI()
+    case .ci: ExportSecrets.Destinations.CI(isOutput: options.destinationArguments.isOutput)
     }
   }
 }

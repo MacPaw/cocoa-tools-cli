@@ -112,8 +112,8 @@ secrets:
       vault:
         keyValue:
           path: /staging/secrets
-          keys:
-            - my-key
+        keys:
+          - my-key
       op:
         item: staging keys
         labels:
@@ -283,8 +283,8 @@ secrets:
           version: 2                       # Optional: Specific version (If not specified or value less than 1 the latest version will be used)
           secretMountPath: "secret"        # Optional: Override the defaultSecretMountPath
           path: "myapp/database"           # Required: Secret path
-          keys:                            # Optional: Secret keys within `path` to fetch
-            - "password"                   #           If not provided, or empty - will fetch all fields from the item.
+        keys:                            # Optional: Secret keys within `path` to fetch
+          - "password"                   #           If not provided, or empty - will fetch all fields from the item.
   
   # AWS engine creds
   - prefix: AWS_CREDS_
@@ -293,9 +293,9 @@ secrets:
         aws:
           enginePath: "aws"               # Optional: Override defaultEnginePath
           role: "my-role"                 # Required: AWS role name
-          keys:                           # Optional: Secret key names to fetch
-            - "access_key"                #           If not provided, or empty - will fetch all fields from the item.
-            - "secret_key"
+        keys:                           # Optional: Secret key names to fetch
+          - "access_key"                #           If not provided, or empty - will fetch all fields from the item.
+          - "secret_key"
   
 ```
 

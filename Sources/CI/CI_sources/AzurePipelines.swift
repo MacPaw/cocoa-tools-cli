@@ -49,7 +49,7 @@ extension CI.AzurePipelines {
 
 extension CI.AzurePipelines.Environment: CIEnvInterface {
   private func _setVariable(name: String, value: String, isSecret: Bool, isOutput: Bool) {
-    print("Setting variable \(name)")
+    print("Setting variable '\(name)' (isSecret: \(isSecret), isOutput: \(isOutput))")
     print("##vso[task.setvariable variable=\(name);issecret=\(isSecret);isoutput=\(isOutput)]\(value)")
   }
 

@@ -5,12 +5,6 @@ import SharedLogger
   import FoundationNetworking
 #endif
 
-/// Protocol for HashiCorp Vault engine get secrets result.
-public protocol HashiCorpVaultEngineGetSecretsResultProtocol: Decodable {
-  /// The secrets dictionary containing key-value pairs.
-  var secrets: [String: String] { get }
-}
-
 extension HashiCorpVaultReader {
   /// HTTP-related errors that can occur during vault operations.
   enum HTTPError: Swift.Error {
@@ -20,11 +14,16 @@ extension HashiCorpVaultReader {
     case wrongStatusCode(Int)
   }
 
-  func fetch(urlRequest: URLRequest, api: any HashiCorpVaultEngineAPIProtocol) async throws -> [String: String] {
+  func fetch<API: HashiCorpVaultEngineAPIProtocol>(urlRequest: URLRequest, api: API, item: API.Item) async throws
+    -> [String: String]
+  {
     let (data, response) = try await urlSession.data(for: urlRequest)
     guard let response = response as? HTTPURLResponse else { throw HTTPError.responseNotHTTP(response) }
-    guard (200..<300).contains(response.statusCode) else { throw HTTPError.wrongStatusCode(response.statusCode) }
-    let result = try api.decodeGetSecretsResult(data: data)
+    guard (200..<300).contains(response.statusCode) else {
+      if let string = String.init(data: data, encoding: .utf8) { log.error("\(string)") }
+      throw HTTPError.wrongStatusCode(response.statusCode)
+    }
+    let result = try api.secretsFromResponse(data, for: item).mapValues(String.init(describing:))
     return result
   }
 
@@ -68,9 +67,4 @@ extension HashiCorpVaultReader {
     case .appRole: return try await authenticateWithAppRole(configuration: configuration)
     }
   }
-}
-
-extension HashiCorpVaultReader {
-  /// A box container for HashiCorp Vault API responses.
-  struct SecretsFetchResult<ContainedData: Decodable>: Decodable { let data: ContainedData }
 }

@@ -33,9 +33,14 @@ extension Element: DecodableWithConfiguration {
   public init(from decoder: any Decoder, configuration: HashiCorpVaultReader.Configuration) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
-    self.keys = try container.decodeIfPresent([String].self, forKey: .keys) ?? []
+    let keys: [String] = try container.decodeIfPresent([String].self, forKey: .keys) ?? []
 
-    self.item = try HashiCorpVaultReader.Element.Item(from: decoder, configuration: configuration)
+    let item: HashiCorpVaultReader.Element.Item = try HashiCorpVaultReader.Element.Item(
+      from: decoder,
+      configuration: configuration
+    )
+
+    self.init(item: item, keys: keys)
   }
 }
 

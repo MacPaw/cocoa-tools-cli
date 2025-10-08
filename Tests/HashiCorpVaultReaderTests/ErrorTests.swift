@@ -48,7 +48,8 @@ struct ErrorTests {
     // GIVEN: Secret name and item
     let secretName = "DATABASE_PASSWORD"
     let item = HashiCorpVaultReader.Element(
-      keyValue: .init(secretMountPath: "secret", path: "myapp/database", version: 1, key: "password")
+      item: .keyValue(.init(engineVersion: .v2, secretMountPath: "secret", path: "myapp/database", version: 1)),
+      keys: ["password"]
     )
 
     // WHEN: Creating noSecretsFetched error
@@ -58,8 +59,10 @@ struct ErrorTests {
     switch sut {
     case .noSecretsFetched(let errorSecretName, let errorItem):
       #expect(errorSecretName == secretName)
-      #expect(errorItem.keyValue?.secretMountPath == "secret")
-      #expect(errorItem.keyValue?.path == "myapp/database")
+      #expect(
+        errorItem.item
+          == .keyValue(.init(engineVersion: .v2, secretMountPath: "secret", path: "myapp/database", version: 1))
+      )
     default: #expect(Bool(false), "Expected noSecretsFetched case")
     }
   }
@@ -70,7 +73,8 @@ struct ErrorTests {
     let secretName = "DATABASE_PASSWORD"
     let key = "password"
     let item = HashiCorpVaultReader.Element(
-      keyValue: .init(secretMountPath: "secret", path: "myapp/database", version: 1, key: key)
+      item: .keyValue(.init(engineVersion: .v2, secretMountPath: "secret", path: "myapp/database", version: 1)),
+      keys: [key]
     )
 
     // WHEN: Creating noSecretValueForItemKey error
@@ -81,7 +85,7 @@ struct ErrorTests {
     case .noSecretValueForItemKey(let errorSecretName, let errorItem, let errorKey):
       #expect(errorSecretName == secretName)
       #expect(errorKey == key)
-      #expect(errorItem.keyValue?.key == key)
+      #expect(errorItem == item)
     default: #expect(Bool(false), "Expected noSecretValueForItemKey case")
     }
   }
