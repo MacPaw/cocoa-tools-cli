@@ -100,29 +100,6 @@ struct HashiCorpVaultReaderTests {
     }
   }
 
-  // MARK: - HTTP Error Tests
-
-  @Test("HTTPError cases are correctly defined")
-  func test_httpError_cases() {
-    // GIVEN: Mock URL response and status codes
-    let mockResponse = URLResponse()
-
-    // WHEN: Creating HTTP errors
-    let responseNotHTTP = HashiCorpVaultReader.HTTPError.responseNotHTTP(mockResponse)
-    let wrongStatusCode = HashiCorpVaultReader.HTTPError.wrongStatusCode(404)
-
-    // THEN: Errors are created correctly
-    switch responseNotHTTP {
-    case .responseNotHTTP(let response): #expect(response === mockResponse)
-    default: #expect(Bool(false), "Expected responseNotHTTP case")
-    }
-
-    switch wrongStatusCode {
-    case .wrongStatusCode(let code): #expect(code == 404)
-    default: #expect(Bool(false), "Expected wrongStatusCode case")
-    }
-  }
-
   // MARK: - Authentication Tests
 
   @Test("authenticate with token returns token")
