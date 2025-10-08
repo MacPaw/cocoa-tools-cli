@@ -3,8 +3,13 @@ version = "2.32.0"
 backend = "aqua:1password/cli"
 
 [[tools.container]]
-version = "0.4.1"
+version = "0.5.0"
 backend = "aqua:apple/container"
+
+[tools.container.platforms.macos-arm64]
+checksum = "blake3:6363fe6d4aa8391c4c95b203ae2df87e1a6befe5ee6b82661d346965706c28ad"
+size = 53214061
+url = "https://github.com/apple/container/releases/download/0.5.0/container-0.5.0-installer-signed.pkg"
 
 [[tools.shellcheck]]
 version = "0.11.0"
