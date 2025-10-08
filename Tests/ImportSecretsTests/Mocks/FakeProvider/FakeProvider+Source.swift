@@ -22,19 +22,25 @@ extension ImportSecrets.Providers.FakeProvider {
   final class Source {
     var path: String { item.path }
     let keys: [String]
+    let keysMap: [String: String]
     let item: Item
 
-    init(item: Item, keys: [String]) {
+    init(item: Item, keys: [String], keysMap: [String: String]) {
       self.item = item
       self.keys = keys
+      self.keysMap = keysMap
     }
   }
 }
 
 extension ImportSecrets.Providers.FakeProvider.Source {
-  convenience init(path: String, keys: [String]) { self.init(item: .init(path: path), keys: keys) }
+  convenience init(path: String, keys: [String], keysMap: [String: String]) {
+    self.init(item: .init(path: path), keys: keys, keysMap: keysMap)
+  }
 
-  convenience init(path: String, key: String) { self.init(path: path, keys: [key]) }
+  convenience init(path: String, key: String, keysMap: [String: String]) {
+    self.init(path: path, keys: [key], keysMap: keysMap)
+  }
 
   func validate() throws {}
 }
@@ -42,11 +48,13 @@ extension ImportSecrets.Providers.FakeProvider.Source {
 private typealias Source = ImportSecrets.Providers.FakeProvider.Source
 
 extension Source: Decodable {
-  enum CodingKeys: String, CodingKey { case keys }
+  enum CodingKeys: String, CodingKey { case keys, keysMap }
   convenience init(from decoder: any Decoder) throws {
-    let item = try Item(from: decoder)
-    let keys = try decoder.container(keyedBy: CodingKeys.self).decode([String].self, forKey: .keys)
-    self.init(item: item, keys: keys)
+    let item: Item = try Item(from: decoder)
+    let keys: [String] = try decoder.container(keyedBy: CodingKeys.self).decode([String].self, forKey: .keys)
+    let keysMap: [String: String] =
+      try decoder.container(keyedBy: CodingKeys.self).decodeIfPresent([String: String].self, forKey: .keysMap) ?? [:]
+    self.init(item: item, keys: keys, keysMap: keysMap)
   }
 }
 

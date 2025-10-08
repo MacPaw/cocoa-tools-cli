@@ -49,7 +49,8 @@ struct ErrorTests {
     let secretName = "DATABASE_PASSWORD"
     let item = HashiCorpVaultReader.Element(
       item: .keyValue(.init(engineVersion: .v2, secretMountPath: "secret", path: "myapp/database", version: 1)),
-      keys: ["password"]
+      keys: ["password"],
+      keysMap: [:]
     )
 
     // WHEN: Creating noSecretsFetched error
@@ -74,7 +75,8 @@ struct ErrorTests {
     let key = "password"
     let item = HashiCorpVaultReader.Element(
       item: .keyValue(.init(engineVersion: .v2, secretMountPath: "secret", path: "myapp/database", version: 1)),
-      keys: [key]
+      keys: [key],
+      keysMap: [:]
     )
 
     // WHEN: Creating noSecretValueForItemKey error

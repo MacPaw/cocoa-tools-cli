@@ -42,6 +42,9 @@ extension SecretsInterface {
 
     /// Thrown when attempting to run synchronous secrets fetch on async protocol.
     case syncFetchNotSupported
+
+    /// Thrown when several source keys are mapped to the same renamed key.
+    case multipleSourceKeysLeadsToOneReslutingKey(provider: String, keys: [String], newKey: String)
   }
 }
 

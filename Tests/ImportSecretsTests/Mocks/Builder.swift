@@ -65,7 +65,7 @@ enum MocksBuilder {
 
   static func onePasswordSecret(prefix: String, item: String, label: String) throws -> ImportSecrets.Secret {
     let item = ImportSecrets.Providers.OnePassword.Source.Item.init(vault: "some-vault", item: item)
-    let opSecretSource = ImportSecrets.Providers.OnePassword.Source(item: item, labels: [label])
+    let opSecretSource = ImportSecrets.Providers.OnePassword.Source(item: item, labels: [label], labelsMap: [:])
     let secret = try ImportSecrets.Secret(prefix: prefix, sources: [opSecretSource])
     return secret
   }

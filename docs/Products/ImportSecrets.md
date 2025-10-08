@@ -106,6 +106,8 @@ secrets:
         labels: 
           - "connection-string"
           - "admin-username"
+        labelsMap:
+          admin-username: USERNAME # Will result in DB_USERNAME because of prefix.
   
   - prefix: AWS_STAGING_
     sources:
@@ -133,10 +135,9 @@ secrets:
       labels: 
         - production_key
 
-# Secret names mapping.
+# Global secret names mapping.
 secretNamesMapping:
   DB_connection-string: DB_ADRESS
-  DB_admin-username: DB_USERNAME
   production_key: SERVICE_A_PRODUCTION_KEY
 ```
 
@@ -219,6 +220,8 @@ secrets:
         item: "Item Name or ID"      # Required: 1Password item (name, id or URL).
         labels:                      # Optional: A list of field labels to fetch secrets from.
           - "field_label"            #           If not provided, or empty - will fetch all fields from the item.
+        lablesMap:                   # Optional. Labels mapping
+          field_label: USER_NAME     #           Maps `field_label` to the `USER_NAME`
 ```
 
 ### HashiCorp Vault Provider
@@ -283,9 +286,12 @@ secrets:
           version: 2                       # Optional: Specific version (If not specified or value less than 1 the latest version will be used)
           secretMountPath: "secret"        # Optional: Override the defaultSecretMountPath
           path: "myapp/database"           # Required: Secret path
-        keys:                            # Optional: Secret keys within `path` to fetch
-          - "password"                   #           If not provided, or empty - will fetch all fields from the item.
-  
+        keys:                              # Optional: Secret keys within `path` to fetch
+          - "password"                     #           If not provided, or empty - will fetch all fields from the item.
+          - "username"
+        keysMap:                           # Optional. Keys mapping
+          username: USER_NAME              #           Maps `username` to the `USER_NAME`
+
   # AWS engine creds
   - prefix: AWS_CREDS_
     sources:
@@ -293,9 +299,11 @@ secrets:
         aws:
           enginePath: "aws"               # Optional: Override defaultEnginePath
           role: "my-role"                 # Required: AWS role name
-        keys:                           # Optional: Secret key names to fetch
-          - "access_key"                #           If not provided, or empty - will fetch all fields from the item.
+        keys:                             # Optional: Secret key names to fetch
+          - "access_key"                  #           If not provided, or empty - will fetch all fields from the item.
           - "secret_key"
+        keysMap:                          # Optional. Keys mapping
+          access_key: ACCESS_KEY          #           Maps `access_key` to the `ACCESS_KEY`
   
 ```
 

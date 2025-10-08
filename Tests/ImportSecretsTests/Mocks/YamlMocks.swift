@@ -25,6 +25,8 @@ enum YamlMocks {
             item: "[TEST] mpct.import-secrets.shared-item"
             labels: 
               - item1-secret
+            labelsMap:
+              item1-secret: ITEM1_SECRET
       - prefix: TEST_MPCT_SECRET2_MULTILINE_
         sources:
           # Test: Must get value from FakeProvider first and not call OnePassword
@@ -32,10 +34,14 @@ enum YamlMocks {
             path: /test/mpct/item1/multiline
             keys: 
               - item1-multiline
+            keysMap:
+              item1-multiline: ITEM1_MULTILINE
           op:
             item: '[TEST] mpct.import-secrets.shared-item'
             labels: 
               - item1-multiline
+            keysMap:
+              item1-multiline: ITEM1_MULTILINE
       - prefix: TEST_MPCT_SECRET3_OP_AND_FAKE_
         sources:
           # Test: Must get value from OnePassword provider first and not call FakeProvider
@@ -98,8 +104,6 @@ enum YamlMocks {
               keys:
                 - key2
     secretNamesMapping:
-      TEST_MPCT_SECRET1_OP_ONLY_item1-secret: TEST_MPCT_SECRET1_OP_ONLY_ITEM1_SECRET
-      TEST_MPCT_SECRET2_MULTILINE_item1-multiline: TEST_MPCT_SECRET2_MULTILINE_ITEM1_MULTILINE
       TEST_MPCT_SECRET3_OP_AND_FAKE_item2-secret: TEST_MPCT_SECRET3_OP_AND_FAKE_ITEM2_SECRET
     """
 }

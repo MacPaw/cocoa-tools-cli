@@ -8,14 +8,19 @@ extension HashiCorpVaultReader {
     /// Keys within the secret to retrieve.
     public var keys: [String]
 
+    /// A map of fetched secret keys to a new ones.
+    public var keysMap: [String: String]
+
     /// Initialize a new vault element.
     ///
     /// - Parameters:
     ///   - item: A unique Element item.
     ///   - keys: A list of key to fetch. Optional. Default value is empty list.
-    public init(item: Item, keys: [String] = []) {
+    ///   - keysMap: A map of fetched secret keys to a new ones.
+    public init(item: Item, keys: [String] = [], keysMap: [String: String]) {
       self.item = item
       self.keys = keys
+      self.keysMap = keysMap
     }
   }
 }
@@ -23,7 +28,10 @@ extension HashiCorpVaultReader {
 private typealias Element = HashiCorpVaultReader.Element
 
 extension Element: DecodableWithConfiguration {
-  private enum CodingKeys: String, CodingKey { case keys }
+  private enum CodingKeys: String, CodingKey {
+    case keys
+    case keysMap
+  }
   /// Initialize element from decoder with configuration.
   ///
   /// - Parameters:
@@ -34,13 +42,14 @@ extension Element: DecodableWithConfiguration {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
     let keys: [String] = try container.decodeIfPresent([String].self, forKey: .keys) ?? []
+    let keysMap: [String: String] = try container.decodeIfPresent([String: String].self, forKey: .keysMap) ?? [:]
 
     let item: HashiCorpVaultReader.Element.Item = try HashiCorpVaultReader.Element.Item(
       from: decoder,
       configuration: configuration
     )
 
-    self.init(item: item, keys: keys)
+    self.init(item: item, keys: keys, keysMap: keysMap)
   }
 }
 
