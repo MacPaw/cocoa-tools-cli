@@ -128,8 +128,8 @@ extension ImportSecrets.Secret: DecodableWithConfiguration {
 
     // Try to decode a source for each registered provider
     for sourceProvider in configuration.topLevelDecodingConfiguration.sourceProviders {
-      let sourceConfigurationKey = type(of: sourceProvider).configurationKey
-      let providerKey = DynamicCodingKey(stringValue: sourceConfigurationKey)
+      let sourceConfigurationKey: String = type(of: sourceProvider).configurationKey
+      let providerKey: DynamicCodingKey = DynamicCodingKey(stringValue: sourceConfigurationKey)
 
       // Skip providers that don't have configuration in this secret's YAML
       guard sourcesContainer.contains(providerKey) else { continue }
@@ -139,8 +139,29 @@ extension ImportSecrets.Secret: DecodableWithConfiguration {
         .getConfiguration(for: sourceConfigurationKey)
 
       // Decode the source-specific configuration (e.g., specific item and field for this secret)
-      let sourceDecoder = try sourcesContainer.superDecoder(forKey: providerKey)
-      let source = try sourceProvider.decodeSource(from: sourceDecoder, sourceConfiguration: sourceConfiguration)
+      let sourceDecoder: any Decoder = try sourcesContainer.superDecoder(forKey: providerKey)
+      let source: any SecretSourceProtocol = try sourceProvider.decodeSource(
+        from: sourceDecoder,
+        sourceConfiguration: sourceConfiguration
+      )
+
+      // Check that there are no duplicates in the keysMap.
+      // Fail early, so the coding path is accessible.
+      if !source.keysMap.isEmpty {
+        var valuesCounts: [String: Int] = [:]
+        for value in source.keysMap.values { valuesCounts[value, default: 0] += 1 }
+        for (value, count) in valuesCounts where count > 1 {
+          let duplicateKeys: String = source.keys.filter { source.keysMap[$0] == value }.joined(separator: ", ")
+          throw DecodingError.dataCorrupted(
+            DecodingError.Context(
+              codingPath: container.codingPath + [CodingKeys.sources, providerKey],
+              debugDescription:
+                "Multiple keys in the keyMap \(duplicateKeys) map to the same value for the resulting key '\(value)'. This is not allowed.",
+              underlyingError: nil
+            )
+          )
+        }
+      }
 
       sources[sourceConfigurationKey] = source
     }
@@ -167,6 +188,23 @@ extension ImportSecrets.Secret: DecodableWithConfiguration {
   mutating public func validate(with sourceConfigurations: ImportSecrets.SourceConfigurations) throws {
     // Validate each source, allowing them to apply default configurations
     // For example, 1Password sources can inherit default vault from global config
-    for key in sources.keys { try sources[key]?.validate(with: sourceConfigurations) }
+    for (sourceProviderKey, source) in sources {
+      // swift-format-ignore: NeverForceUnwrap
+      try sources[sourceProviderKey]!.validate(with: sourceConfigurations)
+
+      // Check that there are no duplicates in the keysMap
+      if !source.keysMap.isEmpty {
+        var valuesCounts: [String: Int] = [:]
+        for value in source.keysMap.values { valuesCounts[value, default: 0] += 1 }
+        for (value, count) in valuesCounts where count > 1 {
+          let duplicateKeys: [String] = source.keys.filter { source.keysMap[$0] == value }
+          throw SecretsInterface.Error.multipleSourceKeysLeadsToOneReslutingKey(
+            provider: sourceProviderKey,
+            keys: duplicateKeys,
+            newKey: value
+          )
+        }
+      }
+    }
   }
 }

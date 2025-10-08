@@ -16,23 +16,24 @@ extension SecretProviderProtocol {
 
     for secret in secrets {
       guard let source: Source = try secret.getSource(for: Self.configurationKey) else { continue }
-      guard let secretFetchResult = sourceFetchResults[source.item] else {
+      guard let secretFetchResult: SecretsFetchResult = sourceFetchResults[source.item] else {
         preconditionFailure("Failed to find a result for \(source)")
       }
 
-      var filteredSecrets = secretFetchResult.fetchedSecrets
+      var filteredSecrets: [String: String] = secretFetchResult.fetchedSecrets
       if !source.keys.isEmpty { filteredSecrets = filteredSecrets.filter { key, _ in source.keys.contains(key) } }
 
-      var fetchedSecrets: [String: String] = [:]
-      if !secret.prefix.isEmpty {
-        for (key, value) in filteredSecrets { fetchedSecrets["\(secret.prefix)\(key)"] = value }
-      }
-      else {
-        fetchedSecrets = secretFetchResult.fetchedSecrets
+      let newKey: (_ sourceSecretKey: String) -> String = { [secret, source] sourceSecretKey in
+        let key: String = source.keysMap[sourceSecretKey] ?? sourceSecretKey
+        guard !secret.prefix.isEmpty else { return key }
+        return "\(secret.prefix)\(key)"
       }
 
+      var fetchedSecrets: [String: String] = [:]
+      for (sourceSecretKey, value) in filteredSecrets { fetchedSecrets[newKey(sourceSecretKey)] = value }
+
       var fetchErrors: [String: [any Swift.Error]] = [:]
-      for (key, value) in secretFetchResult.errors { fetchErrors["\(secret.prefix)\(key)"] = value }
+      for (sourceSecretKey, value) in secretFetchResult.errors { fetchErrors[newKey(sourceSecretKey)] = value }
 
       try result.addFetchedSecrets(fetchedSecrets)
       result.addErrors(fetchErrors)

@@ -12,13 +12,18 @@ extension ImportSecrets.Providers.OnePassword {
     /// The field labels within the item that contains the secret values.
     public var labels: [String]
 
+    /// A map of fetched secret key labels to a new ones.
+    public var labelsMap: [String: String]
+
     /// Creates a new 1Password source.
     /// - Parameters:
     ///   - item: The unique 1Password item.
     ///   - labels: The field labels within the item that contains the secret values.
-    public init(item: Item, labels: [String]) {
+    ///   - labelsMap: A map of fetched secret key labels to a new ones.
+    public init(item: Item, labels: [String], labelsMap: [String: String]) {
       self.item = item
       self.labels = labels
+      self.labelsMap = labelsMap
     }
   }
 }
@@ -91,7 +96,10 @@ extension Source {
 
 extension Source: Equatable {}
 extension Source: DecodableWithConfiguration {
-  private enum CodingKeys: String, CodingKey { case labels }
+  private enum CodingKeys: String, CodingKey {
+    case labels
+    case labelsMap
+  }
 
   /// Initialize element from decoder with configuration.
   ///
@@ -104,8 +112,9 @@ extension Source: DecodableWithConfiguration {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     let item = try Item(from: decoder, configuration: configuration)
     let labels: [String] = try container.decodeIfPresent(key: .labels) ?? []
+    let labelsMap: [String: String] = try container.decodeIfPresent(key: .labelsMap) ?? [:]
 
-    self.init(item: item, labels: labels)
+    self.init(item: item, labels: labels, labelsMap: labelsMap)
   }
 }
 extension Source: Sendable {}
@@ -118,4 +127,9 @@ extension Source: SecretSourceProtocol {
   @inlinable
   @inline(__always)
   public var keys: [String] { labels }
+
+  /// A map of fetched secret key labels to a new ones.
+  @inlinable
+  @inline(__always)
+  public var keysMap: [String: String] { labelsMap }
 }

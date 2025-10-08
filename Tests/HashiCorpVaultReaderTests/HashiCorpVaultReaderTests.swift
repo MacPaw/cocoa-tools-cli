@@ -22,11 +22,16 @@ struct HashiCorpVaultReaderTests {
     )
 
     // WHEN: Creating Element with KeyValue configuration
-    let sut = HashiCorpVaultReader.Element.init(item: .keyValue(keyValueElement), keys: ["password"])
+    let sut = HashiCorpVaultReader.Element.init(
+      item: .keyValue(keyValueElement),
+      keys: ["password"],
+      keysMap: ["a": "b"]
+    )
 
     // THEN: Element is configured correctly
     #expect(sut.keys == ["password"])
     #expect(sut.item == .keyValue(keyValueElement))
+    #expect(sut.keysMap == ["a": "b"])
   }
 
   @Test("Element initialization with AWS engine")
@@ -35,27 +40,16 @@ struct HashiCorpVaultReaderTests {
     let awsElement = HashiCorpVaultReader.Engine.AWS.Item(enginePath: "aws", role: "my-role")
 
     // WHEN: Creating Element with AWS configuration
-    let sut = HashiCorpVaultReader.Element(item: .aws(awsElement))
+    let sut = HashiCorpVaultReader.Element(item: .aws(awsElement), keysMap: ["a": "b"])
 
     // THEN: Element is configured correctly
     #expect(sut.item == .aws(awsElement))
+    #expect(sut.keysMap == ["a": "b"])
   }
 
   @Test("Element initialization with both engines fails validation")
   func test_element_initWithBothEngines_failsValidation() async throws {
     // GIVEN: Both KeyValue and AWS element configurations
-    let keyValueElement = HashiCorpVaultReader.Engine.KeyValue.Item(
-      engineVersion: .v2,
-      secretMountPath: "secret",
-      path: "myapp/database",
-      version: 1,
-    )
-    let configuration = try createMockConfiguration()
-
-    // WHEN: Creating Element with both configurations
-    let _ = HashiCorpVaultReader.Element(item: .keyValue(keyValueElement))
-
-    // THEN: Decoding should fail with validation error
     let jsonData = """
       {
         "keyValue": {
@@ -72,6 +66,11 @@ struct HashiCorpVaultReaderTests {
       }
       """
       .data(using: .utf8)!
+
+    let configuration = try createMockConfiguration()
+
+    // WHEN: Decoding Element with both configurations
+    // THEN: Decoding should fail with validation error
 
     let decoder = JSONDecoder()
 

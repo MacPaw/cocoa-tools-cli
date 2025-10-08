@@ -19,6 +19,9 @@ public protocol SecretSourceProtocol: Sendable {
   /// A list of keys to fetch from the secret source item.
   var keys: [String] { get }
 
+  /// A map of fetched secret keys to a new ones.
+  var keysMap: [String: String] { get }
+
   /// Validates the secret source configuration.
   /// - Throws: An error if the source configuration is invalid or incomplete.
   mutating func validate(with configuration: Configuration?) throws

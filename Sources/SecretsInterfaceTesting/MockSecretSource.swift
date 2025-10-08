@@ -16,6 +16,9 @@ public struct MockSecretSource: SecretSourceProtocol {
   /// A list of keys to fetch from the secret source item.
   public let keys: [String]
 
+  /// A map of fetched secret keys to a new ones.
+  public let keysMap: [String: String]
+
   /// Flag to control whether validation should throw an error.
   public var shouldFailValidation: Bool
 
@@ -27,17 +30,20 @@ public struct MockSecretSource: SecretSourceProtocol {
   /// - Parameters:
   ///   - item: The source item. Defaults to a new mock item.
   ///   - keys: The keys to fetch. Defaults to an empty array.
+  ///   - keysMap: A map of fetched secret keys to a new ones.
   ///   - shouldFailValidation: Whether validation should fail. Defaults to `false`.
   ///   - validationError: Custom error message to throw during validation. If `nil` and `shouldFailValidation` is `true`,
   ///                      a default error will be thrown.
   public init(
     item: Item = MockSecretSourceItem(),
     keys: [String] = [],
+    keysMap: [String: String] = [:],
     shouldFailValidation: Bool = false,
     validationError: String? = nil
   ) {
     self.item = item
     self.keys = keys
+    self.keysMap = keysMap
     self.shouldFailValidation = shouldFailValidation
     self.validationError = validationError
   }

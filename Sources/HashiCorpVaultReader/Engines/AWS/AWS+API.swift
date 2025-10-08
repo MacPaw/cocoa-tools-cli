@@ -58,20 +58,3 @@ extension API: HashiCorpVaultEngineAPIProtocol {
     return urlRequest
   }
 }
-
-extension API {
-  /// Result structure for AWS get secrets operations.
-  public struct GetSecretsResult {
-    // swift-format-ignore: AlwaysUseLowerCamelCase
-    /// The AWS access key.
-    public let access_key: String
-    // swift-format-ignore: AlwaysUseLowerCamelCase
-    /// The AWS secret key.
-    public let secret_key: String
-    // swift-format-ignore: AlwaysUseLowerCamelCase
-    /// AWS temporary session token.
-    public let session_token: String?
-    /// AWS resource Name.
-    public let arn: String?
-  }
-}
