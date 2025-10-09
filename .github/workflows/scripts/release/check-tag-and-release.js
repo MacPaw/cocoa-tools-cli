@@ -38,8 +38,12 @@ async function checkTagAndRelease() {
     });
 
     if (tagResponse.status === 200) {
-      console.log(`Tag exists: ${tagName}`);
-      tagExists = true;
+      // tagResponse returns a list of tags matching the tag prefix,
+      // we need to check if the tag exists
+      // in the list by comparing the tag name with the tag.ref
+      const tags = await tagResponse.json();
+      tagExists = tags.some(tag => tag.ref === `refs/tags/${tagName}`);
+      console.log(`Tag exists: ${tagExists}`);
     } else if (tagResponse.status === 404) {
       console.log(`Tag does not exist: ${tagName}`);
     } else {
