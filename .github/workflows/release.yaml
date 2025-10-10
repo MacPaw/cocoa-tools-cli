@@ -9,14 +9,14 @@ on:
       - main
     paths:
       # Run release workflow if .version file is updated
-      - .version
+      - '.version'
       # Run release workflow if related workflow files are updated
       # So we don't need to manually trigger the release workflow
       # or update the .version fileonce again.
-      - .github/workflows/release.yaml
-      - .github/workflows/load-env.yaml
-      - .github/workflows/scripts/*
-      - .github/workflows/templates/*
+      - '.github/workflows/release.yaml'
+      - '.github/workflows/load-env.yaml'
+      - '.github/workflows/scripts/**'
+      - '.github/workflows/templates/**'
 
 jobs:
   load-env:
