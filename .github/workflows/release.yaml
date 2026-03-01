@@ -115,7 +115,7 @@ jobs:
         run: ./.github/workflows/scripts/release/build-binary.sh
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ steps.build.outputs.asset_name }}
           path: ${{ steps.build.outputs.asset_path }}
