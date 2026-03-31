@@ -18,6 +18,8 @@ swift_install_sdk() {
   echo "SWIFT_VERSION_SHORT: ${SWIFT_VERSION_SHORT}"
 
   SWIFT_SDK_FOLDER="swift-${SWIFT_VERSION_SHORT}-RELEASE_static-linux-0.0.1"
+  # For Swift 6.3 linux static SDK version is 0.1.0
+  # SWIFT_SDK_FOLDER="swift-${SWIFT_VERSION_SHORT}-RELEASE_static-linux-0.1.0"
   ARTIFACT_BUNDLE_FILE="${SWIFT_SDK_FOLDER}.artifactbundle"
 
   if ! swift sdk list | grep "${SWIFT_SDK_FOLDER}" > /dev/null; then
@@ -47,6 +49,7 @@ swift_install_sdk() {
     rm -rf "/tmp/${ARTIFACT_BUNDLE_FILE}.tar.gz"
   fi
 
+  swift sdk list
   echo "Swift SDK installed"
 }
 
@@ -65,6 +68,10 @@ swift_run() {
         "--disable-index-store"
         "--static-swift-stdlib"
         "--swift-sdk" "${SWIFT_SDK:-"x86_64-swift-linux-musl"}"
+      )
+    elif [ "${ACTION}" == "test" ]; then
+      DEFAULT_ARGS+=(
+        "--enable-swift-testing"
       )
     fi
   fi

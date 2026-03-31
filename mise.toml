@@ -12,12 +12,12 @@ min_version = "2025.9.6"
 # https://github.com/apple/container/releases/
 # Run Linux containers as lightweight virtual machines.
 # Used in the mise `test-linux` task to run tests in Linux container while running on macOS.
-container = "0.5.0"
+container = "0.10.0"
 
 # https://github.com/securevale/swift-confidential/releases/
 # Obfuscation tool for Swift.
 # Used in ObfuscateSecrets library.
-"ubi:securevale/swift-confidential" = "latest"
+"github:securevale/swift-confidential" = "latest"
 
 # https://github.com/mvdan/sh/releases/
 # Formats shell scripts.

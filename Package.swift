@@ -20,7 +20,7 @@ enum SwiftConfidentialSource {
 
   var packageDependency: PackageDescription.Package.Dependency {
     switch self {
-    case .upstream: .package(url: "https://github.com/securevale/swift-confidential.git", from: "0.4.1")
+    case .upstream: .package(url: "https://github.com/securevale/swift-confidential.git", from: "0.5.1")
     case .fork: .package(url: "https://github.com/nekrich/swift-confidential.git", branch: "master")
     }
   }
@@ -51,14 +51,14 @@ enum YamsSource {
 
   var packageDependency: PackageDescription.Package.Dependency {
     switch self {
-    case .upstream: .package(url: "https://github.com/jpsim/Yams.git", from: "6.1.0")
+    case .upstream: .package(url: "https://github.com/jpsim/Yams.git", from: "6.2.1")
     case .fork: .package(url: "https://github.com/nekrich/Yams.git", branch: "main")
     }
   }
 }
 
 let swiftConfidentialSource: SwiftConfidentialSource = .fork
-let yamsSource: YamsSource = .fork
+let yamsSource: YamsSource = .upstream
 
 enum Targets {
   static func targetBundle(
@@ -134,10 +134,7 @@ enum Targets {
     commandBundle(
       name: "ObfuscateSecrets",
       dependencies: [.target(name: "EnvSubst"), .target(name: "Shell"), swiftConfidentialSource.targetDependency],
-      testsDependencies: [
-        .product(name: "ConfidentialKit", package: "swift-confidential", condition: .when(platforms: [.macOS])),
-        swiftConfidentialSource.targetDependency,
-      ],
+      testsDependencies: [swiftConfidentialSource.targetDependency],
       commandDependencies: [.target(name: "EnvSubstCommand"), .target(name: "ExportSecretsCommand")]
     )
   }
@@ -201,7 +198,7 @@ let package = Package(
   dependencies: [
     .package(url: "https://github.com/apple/swift-argument-parser.git", .upToNextMajor(from: "1.6.1")),
     .package(url: "https://github.com/swiftlang/swift-format.git", .upToNextMajor(from: "602.0.0")),
-    .package(url: "https://github.com/swiftlang/swift-syntax.git", "602.0.0"..<"603.0.0"),
+    .package(url: "https://github.com/swiftlang/swift-syntax.git", .upToNextMajor(from: "602.0.0")),
     .package(url: "https://github.com/apple/swift-log.git", .upToNextMajor(from: "1.6.4")),
     swiftConfidentialSource.packageDependency, yamsSource.packageDependency,
   ],
