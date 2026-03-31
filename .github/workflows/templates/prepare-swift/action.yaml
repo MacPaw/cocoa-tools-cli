@@ -42,7 +42,24 @@ runs:
           apt-get install -y zip
         fi
 
+    - name: Empty mise.toml for Linux
+      shell: bash
+      if: ${{ runner.os == 'Linux' }}
+      run: |
+        rm -rf mise.toml
+        touch mise.toml
+
     - name: Install mise tools
+      if: ${{ runner.os == 'Linux' }}
+      uses: jdx/mise-action@5ac50f778e26fac95da98d50503682459e86d566
+      with:
+        mise_toml: |
+          [tools]
+          shfmt = "latest"
+          shellcheck = "latest"
+
+    - name: Install mise tools
+      if: ${{ runner.os != 'Linux' }}
       uses: jdx/mise-action@5ac50f778e26fac95da98d50503682459e86d566
 
     - name: Select Swift Version
