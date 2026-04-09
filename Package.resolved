@@ -1,5 +1,5 @@
 {
-  "originHash" : "fe48726b149c14339bca212e55d1519f34983eab60f171a81ede97a308510418",
+  "originHash" : "25ff56556594abe5ee935e9e210a279a045f0c789f09240845bdbaa601995267",
   "pins" : [
     {
       "identity" : "swift-argument-parser",
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-case-paths",
       "state" : {
-        "revision" : "6989976265be3f8d2b5802c722f9ba168e227c71",
-        "version" : "1.7.2"
+        "revision" : "206cbce3882b4de9aee19ce62ac5b7306cadd45b",
+        "version" : "1.7.3"
       }
     },
     {
@@ -34,7 +34,7 @@
       "location" : "https://github.com/nekrich/swift-confidential.git",
       "state" : {
         "branch" : "master",
-        "revision" : "51d421bbde6bc27bead4d07148a63ba27ac92d94"
+        "revision" : "df1efca9745a4ac4698a650f3155ab2c3e343c00"
       }
     },
     {
@@ -51,8 +51,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-log.git",
       "state" : {
-        "revision" : "bbd81b6725ae874c69e9b8c8804d462356b55523",
-        "version" : "1.10.1"
+        "revision" : "8c0f217f01000dd30f60d6e536569ad4e74291f9",
+        "version" : "1.11.0"
       }
     },
     {
