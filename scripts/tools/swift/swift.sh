@@ -17,9 +17,7 @@ swift_install_sdk() {
   fi
   echo "SWIFT_VERSION_SHORT: ${SWIFT_VERSION_SHORT}"
 
-  SWIFT_SDK_FOLDER="swift-${SWIFT_VERSION_SHORT}-RELEASE_static-linux-0.0.1"
-  # For Swift 6.3 linux static SDK version is 0.1.0
-  # SWIFT_SDK_FOLDER="swift-${SWIFT_VERSION_SHORT}-RELEASE_static-linux-0.1.0"
+  SWIFT_SDK_FOLDER="swift-${SWIFT_VERSION_SHORT}-RELEASE_static-linux-0.1.0"
   ARTIFACT_BUNDLE_FILE="${SWIFT_SDK_FOLDER}.artifactbundle"
 
   if ! swift sdk list | grep "${SWIFT_SDK_FOLDER}" > /dev/null; then
@@ -34,7 +32,7 @@ swift_install_sdk() {
 
     SDK_URL="https://download.swift.org/swift-${SWIFT_VERSION_SHORT}-release/static-sdk/swift-${SWIFT_VERSION_SHORT}-RELEASE/${ARTIFACT_BUNDLE_FILE}.tar.gz"
     echo "SDK URL:        ${SDK_URL}"
-    echo "Copied SDK URL: https://download.swift.org/swift-6.2-release/static-sdk/swift-6.2-RELEASE/swift-6.2-RELEASE_static-linux-0.0.1.artifactbundle.tar.gz"
+    echo "Copied SDK URL: https://download.swift.org/swift-6.3-release/static-sdk/swift-6.3-RELEASE/swift-6.3-RELEASE_static-linux-0.1.0.artifactbundle.tar.gz"
 
     echo "Downloading Swift SDK..."
     curl --output "/tmp/${ARTIFACT_BUNDLE_FILE}.tar.gz" "${SDK_URL}"
