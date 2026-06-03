@@ -33,6 +33,19 @@ jobs:
           - os: ubuntu-latest
             swift-version: ${{ needs.load-env.outputs.swift-version }}
             container: swift:${{ needs.load-env.outputs.swift-version }}
+            sdk: musl
+          - os: ubuntu-26.04-arm
+            swift-version: ${{ needs.load-env.outputs.swift-version }}
+            container: swift:${{ needs.load-env.outputs.swift-version }}
+            sdk: musl
+          - os: ubuntu-latest
+            swift-version: ${{ needs.load-env.outputs.swift-version }}
+            container: swift:${{ needs.load-env.outputs.swift-version }}
+            sdk: gnu
+          - os: ubuntu-26.04-arm
+            swift-version: ${{ needs.load-env.outputs.swift-version }}
+            container: swift:${{ needs.load-env.outputs.swift-version }}
+            sdk: gnu
 
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.container }}
@@ -56,3 +69,18 @@ jobs:
         run: ./.github/workflows/scripts/release/build-binary.sh
         env:
           BINARY_NAME: ${{ needs.load-env.outputs.binary-name }}
+          SWIFT_SDK: ${{ matrix.sdk }}
+
+  # Dummy job to check if build passed and easy to configure PR gates.
+  check:
+    name: Check
+    needs:
+      - load-env
+      - build-release-binary
+    runs-on: ubuntu-latest
+    if: success()
+    steps:
+      - name: Check
+        shell: bash
+        run: |
+          echo "Build passed"

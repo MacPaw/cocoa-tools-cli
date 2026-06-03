@@ -4,7 +4,13 @@ set -Eeo pipefail
 
 PLATFORM="${PLATFORM:-"$(uname -s)"}"
 
-swift_install_sdk() {
+if [ "${PLATFORM}" == "Linux" ]; then
+  SWIFT_COMMAND="swiftly run swift"
+else
+  SWIFT_COMMAND="${SWIFT_BINARY:-"$(which swift || echo '/usr/bin/swift')"}"
+fi
+
+swift_install_musl_sdk() {
   local ARTIFACT_BUNDLE_FILE SWIFT_VERSION SWIFT_SDK_FOLDER SWIFT_VERSION_SHORT SDK_URL
   SWIFT_VERSION="$(cat .swift-version | tr -d '[:space:]')"
 
@@ -44,12 +50,12 @@ swift_install_sdk() {
     CHECKSUM="$(swift package compute-checksum "/tmp/${ARTIFACT_BUNDLE_FILE}.tar.gz")"
 
     echo "Installing Swift SDK..."
-    swift sdk install "/tmp/${ARTIFACT_BUNDLE_FILE}.tar.gz" --checksum "${CHECKSUM}"
+    ${SWIFT_COMMAND} sdk install "/tmp/${ARTIFACT_BUNDLE_FILE}.tar.gz" --checksum "${CHECKSUM}"
 
     rm -rf "/tmp/${ARTIFACT_BUNDLE_FILE}.tar.gz"
   fi
 
-  swift sdk list
+  ${SWIFT_COMMAND} sdk list
   echo "Swift SDK installed"
 }
 
@@ -67,7 +73,6 @@ swift_run() {
       DEFAULT_ARGS+=(
         "--disable-index-store"
         "--static-swift-stdlib"
-        "--swift-sdk" "${SWIFT_SDK:-"x86_64-swift-linux-musl"}"
       )
     elif [ "${ACTION}" == "test" ]; then
       DEFAULT_ARGS+=(
@@ -82,12 +87,18 @@ swift_run() {
   fi
 
   if [ "${PLATFORM}" == "Linux" ]; then
-    swift_install_sdk
+    if [[ "${*}" == *"-musl"* ]]; then
+      swift_install_musl_sdk
+    fi
   fi
 
-  SWIFT_BINARY="${SWIFT_BINARY:-"$(which swift || echo '/usr/bin/swift')"}"
-  echo "${SWIFT_BINARY} ${ACTION} ${DEFAULT_ARGS[*]} ${*}"
-  "$SWIFT_BINARY" "${ACTION}" "${DEFAULT_ARGS[@]}" "${@}"
+  echo "swift sdk list"
+  swift sdk list
+
+  echo "${SWIFT_COMMAND} sdk list"
+  ${SWIFT_COMMAND} sdk list
+  echo "${SWIFT_COMMAND} ${ACTION} ${DEFAULT_ARGS[*]} ${*}"
+  ${SWIFT_COMMAND} "${ACTION}" "${DEFAULT_ARGS[@]}" "${@}"
 }
 
 die() {

@@ -68,6 +68,22 @@ jobs:
             arch: x86_64
             swift-version: ${{ needs.load-env.outputs.swift-version }}
             container: swift:${{ needs.load-env.outputs.swift-version }}
+            sdk: gnu
+          - os: ubuntu-26.04-arm
+            arch: arm64
+            swift-version: ${{ needs.load-env.outputs.swift-version }}
+            container: swift:${{ needs.load-env.outputs.swift-version }}
+            sdk: gnu
+          - os: ubuntu-latest
+            arch: x86_64
+            swift-version: ${{ needs.load-env.outputs.swift-version }}
+            container: swift:${{ needs.load-env.outputs.swift-version }}
+            sdk: musl
+          - os: ubuntu-26.04-arm
+            arch: arm64
+            swift-version: ${{ needs.load-env.outputs.swift-version }}
+            container: swift:${{ needs.load-env.outputs.swift-version }}
+            sdk: musl
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.container }}
 
@@ -112,6 +128,7 @@ jobs:
           VERSION: ${{ needs.load-env.outputs.version }}
           ARCH: ${{ matrix.arch }}
           BINARY_NAME: ${{ needs.load-env.outputs.binary-name }}
+          SWIFT_SDK: ${{ matrix.sdk }}
         run: ./.github/workflows/scripts/release/build-binary.sh
 
       - name: Upload artifact
