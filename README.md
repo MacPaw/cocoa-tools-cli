@@ -1,5 +1,7 @@
 # MacPaw Cocoa Tools CLI (mpct)
 
+![Cocoa Tools CLI](.github/header.png)
+
 A comprehensive Swift CLI toolkit for engineers, providing essential utilities for scripts and secret management.
 
 ## Overview
