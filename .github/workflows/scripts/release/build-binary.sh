@@ -8,7 +8,13 @@ VERSION="${VERSION#v}"
 BINARY_NAME="${BINARY_NAME:-"mpct"}"
 PLATFORM="${PLATFORM:-"$(uname -s)"}"
 ARCH="${ARCH:-"$(uname -m)"}"
-ARCHIVE_NAME="${BINARY_NAME}-${VERSION}-${PLATFORM}-${ARCH}.zip"
+SWIFT_SDK="${SWIFT_SDK:-""}"
+
+ARCHIVE_NAME="${BINARY_NAME}-${VERSION}-${PLATFORM}-${ARCH}"
+if [[ -n "${SWIFT_SDK}" ]]; then
+  ARCHIVE_NAME="${ARCHIVE_NAME}-${SWIFT_SDK}"
+fi
+ARCHIVE_NAME="${ARCHIVE_NAME}.zip"
 
 echo "Building binary for platform: ${PLATFORM}, architecture: ${ARCH}, version: ${VERSION}"
 
@@ -17,8 +23,35 @@ mkdir -p build
 
 function build() {
   local ARCH="${1}"
-  echo "Building ${ARCH} binary for ${PLATFORM}..."
-  ./scripts/tools/swift/swift.sh --action=build --configuration=release -- --arch "${ARCH}" --product "${BINARY_NAME}"
+  local SWIFT_SDK="${2}"
+  local SWIFT_SDK_PARAM=""
+  echo "Building ${ARCH} binary for ${PLATFORM} with Swift SDK: ${SWIFT_SDK}..."
+  if [[ -n "${SWIFT_SDK}" && "${PLATFORM}" == "Linux" ]]; then
+
+    if [ "${SWIFT_SDK}" == "musl" ]; then
+      SWIFT_SDK_PARAM="swift-linux-musl"
+    elif [ "${SWIFT_SDK}" == "gnu" ]; then
+      SWIFT_SDK_PARAM="unknown-linux-gnu"
+    fi
+    if [[ ${ARCH} == "aarch64" ]]; then
+      SWIFT_SDK_PARAM="aarch64-${SWIFT_SDK_PARAM}"
+    elif [[ ${ARCH} == "x86_64" ]]; then
+      SWIFT_SDK_PARAM="x86_64-${SWIFT_SDK_PARAM}"
+    else
+      echo "Unsupported architecture: ${ARCH}"
+      exit 1
+    fi
+
+    if [ "${SWIFT_SDK}" == "gnu" ]; then
+      SWIFT_SDK_PARAM=""
+    fi
+  fi
+
+  if [[ -n "${SWIFT_SDK_PARAM}" ]]; then
+    ./scripts/tools/swift/swift.sh --action=build --configuration=release -- --arch "${ARCH}" --product "${BINARY_NAME}" --swift-sdk "${SWIFT_SDK_PARAM}"
+  else
+    ./scripts/tools/swift/swift.sh --action=build --configuration=release -- --arch "${ARCH}" --product "${BINARY_NAME}"
+  fi
 }
 
 if [ "${PLATFORM}" == "Darwin" ] && [ "${ARCH}" == "universal" ]; then
@@ -47,9 +80,9 @@ elif [ "${PLATFORM}" == "Darwin" ] && [[ ${ARCH} == "arm64" || ${ARCH} == "x86_6
   echo "Verifying binary..."
   lipo "build/${BINARY_NAME}" -verify_arch "${ARCH}"
 
-elif [ "${PLATFORM}" == "Linux" ] && [ "${ARCH}" == "x86_64" ]; then
+elif [ "${PLATFORM}" == "Linux" ] && [[ ${ARCH} == "aarch64" || ${ARCH} == "x86_64" ]]; then
   # Build for Linux x86_64
-  build "${ARCH}"
+  build "${ARCH}" "${SWIFT_SDK}"
   mv ".build/release/${BINARY_NAME}" "build/${BINARY_NAME}"
 
   # Verify the binary

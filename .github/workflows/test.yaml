@@ -21,6 +21,7 @@ jobs:
     uses: ./.github/workflows/load-env.yaml
 
   test:
+    name: Test
     needs:
       - load-env
     env:
@@ -91,3 +92,18 @@ jobs:
 
       - name: Lint
         run: mise tasks run lint
+
+  # Dummy job to check if test and lint passed and easy to configure PR gates.
+  check:
+    name: Check
+    needs:
+      - load-env
+      - test
+      - lint
+    runs-on: ubuntu-latest
+    if: success()
+    steps:
+      - name: Check
+        shell: bash
+        run: |
+          echo "Test and lint passed"

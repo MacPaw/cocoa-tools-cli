@@ -62,6 +62,27 @@ runs:
       if: ${{ runner.os != 'Linux' }}
       uses: jdx/mise-action@5ac50f778e26fac95da98d50503682459e86d566
 
+    - uses: vapor/swiftly-action@v0.2
+      if: ${{ runner.os == 'Linux' }}
+      with:
+        toolchain: ${{ inputs.swift-version }}
+
+    - name: Install Swift SDK ${{ inputs.swift-version }}
+      if: ${{ runner.os == 'Linux' }}
+      shell: bash
+      run: |
+        swiftly install "${SWIFT_VERSION}" --assume-yes --use --verify --verbose
+        swiftly link --assume-yes --verbose
+        swiftly list
+        swiftly list "${SWIFT_VERSION}" --format json
+      env:
+        SWIFT_VERSION: ${{ inputs.swift-version }}
+
+    - name: List Swift SDKs (all)
+      shell: bash
+      run: |
+        swift sdk list
+
     - name: Select Swift Version
       uses: ./.github/workflows/templates/select-swift-version/
       with:
