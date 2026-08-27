@@ -1,2 +1,4 @@
 [lfs]
 	sshtransfer = never
+[blame]
+	ignoreRevsFile = .git-blame-ignore-revs
