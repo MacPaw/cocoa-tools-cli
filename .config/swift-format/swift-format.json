@@ -22,9 +22,14 @@
       "XCTAssertNoThrow"
     ]
   },
+  "orderedImports": {
+    "includeConditionalImports": false
+  },
   "prioritizeKeepingFunctionOutputTogether": false,
-  "reflowMultilineStringLiterals": "never",
-  "respectsExistingLineBreaks": false,
+  "reflowMultilineStringLiterals": {
+    "never": {}
+  },
+  "respectsExistingLineBreaks": true,
   "rules": {
     "AllPublicDeclarationsHaveDocumentation": true,
     "AlwaysUseLiteralForEmptyCollectionInit": true,
@@ -33,7 +38,7 @@
     "AvoidRetroactiveConformances": true,
     "BeginDocumentationCommentWithOneLineSummary": true,
     "DoNotUseSemicolons": true,
-    "DontRepeatTypeInStaticProperties": true,
+    "DontRepeatTypeInStaticProperties": false,
     "FileScopedDeclarationPrivacy": true,
     "FullyIndirectEnum": true,
     "GroupNumericLiterals": true,
