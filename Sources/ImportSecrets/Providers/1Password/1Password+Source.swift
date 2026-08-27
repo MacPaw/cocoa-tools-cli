@@ -1,5 +1,5 @@
-import Foundation
-import SecretsInterface
+public import Foundation
+public import SecretsInterface
 
 extension ImportSecrets.Providers.OnePassword {
   /// Represents a specific secret source within 1Password.

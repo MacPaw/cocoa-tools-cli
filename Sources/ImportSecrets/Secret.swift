@@ -1,5 +1,5 @@
-import Foundation
-import SecretsInterface
+public import Foundation
+public import SecretsInterface
 
 extension ImportSecrets {
   /// Represents a secret to be imported from one or more sources.

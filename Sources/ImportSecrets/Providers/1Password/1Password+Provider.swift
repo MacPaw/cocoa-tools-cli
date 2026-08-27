@@ -1,4 +1,4 @@
-import SecretsInterface
+public import SecretsInterface
 
 extension ImportSecrets.Providers {
   /// 1Password secret provider implementation.

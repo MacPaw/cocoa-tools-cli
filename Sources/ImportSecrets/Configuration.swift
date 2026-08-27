@@ -1,5 +1,5 @@
-import Foundation
-import SecretsInterface
+public import Foundation
+public import SecretsInterface
 
 extension ImportSecrets {
   /// Namespace for secret fetcher implementations.

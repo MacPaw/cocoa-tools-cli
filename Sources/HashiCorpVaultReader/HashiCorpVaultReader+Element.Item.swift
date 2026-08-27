@@ -1,4 +1,4 @@
-import Foundation
+public import Foundation
 
 extension HashiCorpVaultReader.Element {
   /// A unique Vault item.

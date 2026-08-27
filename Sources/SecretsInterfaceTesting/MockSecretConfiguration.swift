@@ -1,5 +1,5 @@
 import Foundation
-import SecretsInterface
+public import SecretsInterface
 
 /// Mock implementation of `SecretConfigurationProtocol` for testing purposes.
 ///

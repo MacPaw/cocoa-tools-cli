@@ -6,11 +6,11 @@
 //
 
 @_exported public import SemanticVersion
-import SwiftCompilerPlugin
-import SwiftDiagnostics
-import SwiftSyntax
+public import SwiftCompilerPlugin
+public import SwiftDiagnostics
+public import SwiftSyntax
 import SwiftSyntaxBuilder
-import SwiftSyntaxMacros
+public import SwiftSyntaxMacros
 
 /// Macro for generating SemanticVersion instances at compile time.
 ///

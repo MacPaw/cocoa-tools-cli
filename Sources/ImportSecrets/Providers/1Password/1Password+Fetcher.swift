@@ -1,4 +1,4 @@
-import SecretsInterface
+public import SecretsInterface
 import Shell
 
 extension ImportSecrets.Providers.OnePassword {

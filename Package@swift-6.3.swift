@@ -225,31 +225,20 @@ let package = Package(
 
 for target in package.targets where target.type != .plugin && target.type != .test {
   var swiftSettings: [SwiftSetting] = target.swiftSettings ?? []
-  // any existential type syntax.
+  // xcrun swift -print-supported-features
+
+  // Swift 7 upcoming features
   swiftSettings.append(.enableUpcomingFeature("ExistentialAny"))
-  // Enables errors for uses of members that cannot be accessed because their defining module is not directly imported.
+  swiftSettings.append(.enableUpcomingFeature("InternalImportsByDefault"))
   swiftSettings.append(.enableUpcomingFeature("MemberImportVisibility"))
-  // Runs nonisolated async functions on the caller’s actor by default.
+  swiftSettings.append(.enableUpcomingFeature("InferIsolatedConformances"))
   swiftSettings.append(.enableUpcomingFeature("NonisolatedNonsendingByDefault"))
-  // Errors and warnings related to the compiler’s CAS compilation caching.
-  swiftSettings.append(.define("CompilationCaching"))
-  // Warnings related to deprecated APIs that may be removed in future versions and should be replaced with more current alternatives.
-  swiftSettings.append(.define("DeprecatedDeclaration"))
-  // Warnings that identify import declarations with the @_implementationOnly attribute.
-  swiftSettings.append(.define("ImplementationOnlyDeprecated"))
-  // Warnings that diagnose @preconcurrency import declarations that don’t need @preconcurrency, experimental and disabled by default.
-  swiftSettings.append(.define("PreconcurrencyImport"))
-  // Notes related to information about a missing module dependency.
-  swiftSettings.append(.define("MissingModuleOnKnownPaths"))
-  // Warnings that indicate the compiler cannot resolve an #if canImport(<ModuleName>, _version: <version>) directive because the module found was not built with a -user-module-version flag.
-  swiftSettings.append(.define("ModuleVersionMissing"))
-  // Warnings for unrecognized feature names in -enable-upcoming-feature or enable-experimental-feature.
-  swiftSettings.append(.define("StrictLanguageFeatures"))
-  // Warnings that identify the use of language constructs and library APIs that can undermine memory safety, disabled by default.
-  swiftSettings.append(.define("StrictMemorySafety"))
-  // Warnings that identify unrecognized platform names in @available attributes and if #available statements.
-  swiftSettings.append(.define("AvailabilityUnrecognizedName"))
-  // Warnings for unrecognized warning groups specified in -Wwarning or -Werror.
-  swiftSettings.append(.define("UnknownWarningGroup"))
+  swiftSettings.append(.enableUpcomingFeature("ImmutableWeakCaptures"))
+
+  // Swift 6 optional features
+  swiftSettings.append(.strictMemorySafety())
+  swiftSettings.append(.enableExperimentalFeature("CheckImplementationOnly"))
+  swiftSettings.append(.enableExperimentalFeature("AccessLevelOnImport"))
+
   target.swiftSettings = swiftSettings
 }

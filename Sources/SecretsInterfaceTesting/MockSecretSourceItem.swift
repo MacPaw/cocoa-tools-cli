@@ -1,5 +1,5 @@
-import Foundation
-import SecretsInterface
+public import Foundation
+public import SecretsInterface
 
 /// Mock implementation of `SecretSourceItemProtocol` for testing purposes.
 ///

@@ -1,4 +1,4 @@
-import Foundation
+public import Foundation
 
 /// A namespace for CLI tools.
 public enum Shell {

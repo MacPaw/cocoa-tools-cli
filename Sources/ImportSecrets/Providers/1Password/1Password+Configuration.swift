@@ -1,4 +1,4 @@
-import SecretsInterface
+public import SecretsInterface
 
 extension ImportSecrets.Providers.OnePassword.Source {
   /// Configuration for the 1Password provider.

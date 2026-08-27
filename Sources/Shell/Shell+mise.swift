@@ -1,4 +1,4 @@
-import Foundation
+public import Foundation
 
 extension Shell {
   /// Mise CLI wrapper for managing development tools and environments.

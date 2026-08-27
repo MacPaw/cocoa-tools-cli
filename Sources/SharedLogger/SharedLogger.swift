@@ -13,10 +13,10 @@ extension Logger {
   ///
   /// - Parameter logLevel: A new log level.
   @MainActor
-  public static func setLogLevel(_ logLevel: Logger.Level) { shared.logLevel = logLevel }
+  public static func setLogLevel(_ logLevel: Logger.Level) { unsafe shared.logLevel = logLevel }
 }
 
 /// Shared logger instance.
 @inlinable
 @inline(__always)
-public var log: Logger { .shared }
+public var log: Logger { unsafe .shared }

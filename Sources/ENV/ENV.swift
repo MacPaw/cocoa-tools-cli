@@ -1,4 +1,4 @@
-import Foundation
+public import Foundation
 
 /// Provides easy access to environment variables.
 @dynamicMemberLookup

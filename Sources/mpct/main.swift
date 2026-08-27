@@ -15,7 +15,7 @@ import protocol ArgumentParser.AsyncParsableCommand
 
 // Making sure that output will be shown immediately, as it comes in the script
 #if os(macOS)
-  setbuf(__stdoutp, nil)
+unsafe setbuf(__stdoutp, nil)
 #elseif os(Linux)
   setbuf(stdout, nil)
 #endif

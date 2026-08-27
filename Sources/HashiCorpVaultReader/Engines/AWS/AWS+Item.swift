@@ -1,4 +1,4 @@
-import Foundation
+public import Foundation
 
 extension HashiCorpVaultReader.Engine.AWS {
   /// Element configuration for AWS engine operations.

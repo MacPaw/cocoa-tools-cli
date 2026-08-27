@@ -1,7 +1,7 @@
-import Foundation
+public import Foundation
 
 #if canImport(FoundationNetworking)
-  import FoundationNetworking
+  public import FoundationNetworking
 #endif
 
 /// Protocol for unique AWS elements used in API operations.

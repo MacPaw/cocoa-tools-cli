@@ -1,4 +1,4 @@
-import ArgumentParser
+public import ArgumentParser
 @_exported public import EnvSubst
 @_exported public import EnvSubstCommand
 @_exported public import ExportSecretsCommand

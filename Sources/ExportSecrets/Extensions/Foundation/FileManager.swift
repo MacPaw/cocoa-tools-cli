@@ -1,4 +1,4 @@
-import Foundation
+public import Foundation
 
 /// Protocol that abstracts file system operations for testability.
 ///
