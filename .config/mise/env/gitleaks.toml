@@ -1,0 +1,3 @@
+# Path to the gitleaks configuration file.
+# Used by gitleaks / hk pre-commit secret scanning.
+GITLEAKS_CONFIG = ".config/gitleaks/gitleaks.toml"

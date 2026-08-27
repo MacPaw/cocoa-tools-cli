@@ -47,6 +47,6 @@ extension Fetcher: SecretFetcherAsyncProtocol {
   public func fetchItem(
     _ item: HashiCorpVaultReader.Element.Item,
     keys: Set<String>,
-    configuration: HashiCorpVaultReader.Configuration
+    configuration: HashiCorpVaultReader.Configuration,
   ) async throws -> [String: String] { try await reader.fetchItem(item, keys: keys, configuration: configuration) }
 }

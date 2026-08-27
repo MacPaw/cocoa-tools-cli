@@ -24,7 +24,7 @@ public protocol HashiCorpVaultReaderProtocol: Sendable {
   func fetchItem(
     _ item: HashiCorpVaultReader.Element.Item,
     keys: Set<String>,
-    configuration: HashiCorpVaultReader.Configuration
+    configuration: HashiCorpVaultReader.Configuration,
   ) async throws -> [String: String]
 }
 
@@ -88,13 +88,13 @@ extension HashiCorpVaultReader: HashiCorpVaultReaderProtocol {
         try await self.fetch(
           urlRequest: keyValueAPI.adaptURLRequest(urlRequest: baseRequest, for: keyValue),
           api: keyValueAPI,
-          item: keyValue
+          item: keyValue,
         )
       case .aws(let aws):
         try await self.fetch(
           urlRequest: awsAPI.adaptURLRequest(urlRequest: baseRequest, for: aws),
           api: awsAPI,
-          item: aws
+          item: aws,
         )
       }
 

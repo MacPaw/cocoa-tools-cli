@@ -168,7 +168,7 @@ extension SecretProviderProtocol {
 
     let fetchResult: [Source.Item: SecretsFetchResult] = try fetcher.fetch(
       sources: sources,
-      sourceConfiguration: sourceConfiguration
+      sourceConfiguration: sourceConfiguration,
     )
 
     return fetchResult
@@ -190,7 +190,7 @@ extension SecretProviderAsyncProtocol {
 
     let fetchResult: [Source.Item: SecretsFetchResult] = try await fetcher.fetch(
       sources: sources,
-      sourceConfiguration: sourceConfiguration
+      sourceConfiguration: sourceConfiguration,
     )
 
     return fetchResult

@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+#MISE description="Lint source code"
+
+set -Eeo pipefail
+
+mise tasks run lint:swift
+mise tasks run lint:shellcheck
+mise tasks run lint:yaml

@@ -1,0 +1,41 @@
+name: "Read release gate"
+description: "Read the release gate artifact of a Build run and expose it as outputs"
+inputs:
+  run-id:
+    description: "Build run whose release gate artifact should be read"
+    required: true
+  github-token:
+    description: "Token used to list and download the run artifacts; needs actions: read"
+    required: true
+outputs:
+  should-proceed:
+    description: "Whether this Build run should be released"
+    value: ${{ steps.gate.outputs.should-proceed }}
+  package-version:
+    description: "Version to release"
+    value: ${{ steps.gate.outputs.package-version }}
+  package-version-is-prerelease:
+    description: "Whether the version to release is a prerelease"
+    value: ${{ steps.gate.outputs.package-version-is-prerelease }}
+  swift-package-binary-name:
+    description: "Binary name the release archives are named after"
+    value: ${{ steps.gate.outputs.swift-package-binary-name }}
+  expected-zip-count:
+    description: "Number of archives a complete release must contain"
+    value: ${{ steps.gate.outputs.expected-zip-count }}
+  head-sha:
+    description: "Commit the release archives were built from"
+    value: ${{ steps.gate.outputs.head-sha }}
+  swift-has-build-artifacts:
+    description: "Whether the Swift package has build artifacts"
+    value: ${{ steps.gate.outputs.swift-has-build-artifacts }}
+runs:
+  using: "composite"
+  steps:
+    - name: Read release gate
+      id: gate
+      shell: bash
+      run: "${GITHUB_ACTION_PATH}/scripts/read-release-gate.bash"
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        RUN_ID: ${{ inputs.run-id }}

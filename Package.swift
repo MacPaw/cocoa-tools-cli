@@ -20,7 +20,7 @@ enum SwiftConfidentialSource {
 
   var packageDependency: PackageDescription.Package.Dependency {
     switch self {
-    case .upstream: .package(url: "https://github.com/securevale/swift-confidential.git", from: "0.5.1")
+    case .upstream: .package(url: "https://github.com/securevale/swift-confidential.git", from: "0.5.2")
     case .fork: .package(url: "https://github.com/nekrich/swift-confidential.git", branch: "master")
     }
   }
@@ -66,7 +66,7 @@ enum Targets {
     dependencies: [PackageDescription.Target.Dependency] = [],
     plugins: [PackageDescription.Target.PluginUsage] = [],
     tests: Bool = true,
-    testsDependencies: [PackageDescription.Target.Dependency] = []
+    testsDependencies: [PackageDescription.Target.Dependency] = [],
   ) -> [PackageDescription.Target] {
     var dependencies = dependencies
     if name != "SharedLogger" { dependencies.append(.target(name: "SharedLogger")) }
@@ -87,7 +87,7 @@ enum Targets {
     testsDependencies: [PackageDescription.Target.Dependency] = [],
     commandDependencies: [PackageDescription.Target.Dependency] = [],
     commandTests: Bool = false,
-    commandTestsDependencies: [PackageDescription.Target.Dependency] = []
+    commandTestsDependencies: [PackageDescription.Target.Dependency] = [],
   ) -> [PackageDescription.Target] {
     targetBundle(name: name, dependencies: dependencies, tests: tests, testsDependencies: testsDependencies)
       + targetBundle(
@@ -95,7 +95,7 @@ enum Targets {
         dependencies: [.target(name: name), .product(name: "ArgumentParser", package: "swift-argument-parser")]
           + commandDependencies,
         tests: commandTests,
-        testsDependencies: commandTestsDependencies
+        testsDependencies: commandTestsDependencies,
       )
   }
 
@@ -115,7 +115,7 @@ enum Targets {
         .target(name: "EnvSubst"), .target(name: "Shell"), .target(name: "HashiCorpVaultReader"),
         .target(name: "SecretsInterface"), .product(name: "Yams", package: "Yams"),
       ],
-      testsDependencies: [.target(name: "SecretsInterfaceTesting")]
+      testsDependencies: [.target(name: "SecretsInterfaceTesting")],
     )
   }
 
@@ -126,7 +126,7 @@ enum Targets {
       commandDependencies: [
         .target(name: "EnvSubstCommand"), .target(name: "HashiCorpVaultReader"), .target(name: "CI"),
         .target(name: "ImportSecrets"),
-      ]
+      ],
     )
   }
 
@@ -135,7 +135,7 @@ enum Targets {
       name: "ObfuscateSecrets",
       dependencies: [.target(name: "EnvSubst"), .target(name: "Shell"), swiftConfidentialSource.targetDependency],
       testsDependencies: [swiftConfidentialSource.targetDependency],
-      commandDependencies: [.target(name: "EnvSubstCommand"), .target(name: "ExportSecretsCommand")]
+      commandDependencies: [.target(name: "EnvSubstCommand"), .target(name: "ExportSecretsCommand")],
     )
   }
 
@@ -144,25 +144,25 @@ enum Targets {
       + targetBundle(
         name: "SemanticVersionMacro",
         dependencies: [.target(name: "SemanticVersion"), .target(name: "SemanticVersionMacroPlugin")],
-        tests: false
+        tests: false,
       ) + [
         .macro(
           name: "SemanticVersionMacroPlugin",
           dependencies: [
             .target(name: "SemanticVersion"), .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
             .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
-          ]
+          ],
         ),
         .plugin(
           name: "SemanticVersionBuildToolPlugin",
           capability: .buildTool(),
-          dependencies: [.target(name: "SemanticVersionGenerator")]
+          dependencies: [.target(name: "SemanticVersionGenerator")],
         ),
         .executableTarget(
           name: "SemanticVersionGenerator",
           dependencies: [
             .product(name: "ArgumentParser", package: "swift-argument-parser"), .target(name: "SemanticVersion"),
-          ]
+          ],
         ),
       ]
   }
@@ -211,7 +211,7 @@ let package = Package(
         .target(name: "ExportSecretsCommand"), .target(name: "SemanticVersion"), .target(name: "SemanticVersionMacro"),
       ],
       packageAccess: true,
-      plugins: [.plugin(name: "SemanticVersionBuildToolPlugin")]
+      plugins: [.plugin(name: "SemanticVersionBuildToolPlugin")],
     ),
 
     // Dummy target to avoid optional compact map on dependencies for swift-confidential upstream w/o ConfidentialObfuscator
@@ -221,7 +221,7 @@ let package = Package(
     + Targets.semanticVersion + Targets.env + Targets.ci + Targets.hashicorpVaultReader + Targets.sharedLogger
     + Targets.secretsInterface,
 
-  swiftLanguageModes: [.version(swiftLanguageVersion)]
+  swiftLanguageModes: [.version(swiftLanguageVersion)],
 )
 
 for target in package.targets where target.type != .plugin && target.type != .test {

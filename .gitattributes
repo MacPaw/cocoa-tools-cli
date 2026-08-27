@@ -3,4 +3,3 @@
 mise.lock linguist-generated=true linguist-language=TOML
 mise.*.lock linguist-generated=true linguist-language=TOML
 Package.resolved linguist-generated=true linguist-language=JSON
-.swift-format linguist-language=JSON

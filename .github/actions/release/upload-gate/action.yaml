@@ -1,0 +1,46 @@
+name: "Upload release gate"
+description: "Write the release gate file and upload it as the artifact the Release workflow keys off"
+inputs:
+  version:
+    description: "Version to release"
+    required: true
+  is-prerelease:
+    description: "Whether the version to release is a prerelease"
+    required: true
+  binary-name:
+    description: "Binary name the release archives are named after"
+    required: true
+  expected-zip-count:
+    description: "Number of archives a complete release must contain"
+    required: true
+  head-sha:
+    description: "Commit the release archives were built from"
+    required: true
+  swift-has-build-artifacts:
+    description: "Whether the Swift package has build artifacts"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    # The gate is written into the workspace, which the runner creates and leaves writable
+    # even for a job that never checks the repository out.
+    - name: Write release gate
+      shell: bash
+      run: "${GITHUB_ACTION_PATH}/scripts/write-release-gate.bash"
+      env:
+        GATE_PATH: release-gate.json
+        VERSION: ${{ inputs.version }}
+        IS_PRERELEASE: ${{ inputs.is-prerelease }}
+        SWIFT_PACKAGE_BINARY_NAME: ${{ inputs.binary-name }}
+        EXPECTED_ZIP_COUNT: ${{ inputs.expected-zip-count }}
+        HEAD_SHA: ${{ inputs.head-sha }}
+        SWIFT_HAS_BUILD_ARTIFACTS: ${{ inputs.swift-has-build-artifacts }}
+
+    - name: Upload release gate
+      uses: actions/upload-artifact@v7
+      with:
+        name: release-gate
+        path: release-gate.json
+        if-no-files-found: error
+        retention-days: 1

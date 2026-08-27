@@ -64,7 +64,7 @@ extension ImportSecrets.Configuration: DecodableWithConfiguration {
     var secrets: [ImportSecrets.Secret] = []
     let decodingConfiguration = ImportSecrets.Secret.DecodingConfiguration(
       topLevelDecodingConfiguration: configuration,
-      sourcesConfigurations: sourceConfigurations
+      sourcesConfigurations: sourceConfigurations,
     )
 
     // Decode secrets, and ignore secretHasNoKnownSources errors.
@@ -72,7 +72,7 @@ extension ImportSecrets.Configuration: DecodableWithConfiguration {
       do {
         let secret: ImportSecrets.Secret = try secretsContainer.decode(
           ImportSecrets.Secret.self,
-          configuration: decodingConfiguration
+          configuration: decodingConfiguration,
         )
         secrets.append(secret)
       }
@@ -92,7 +92,7 @@ extension ImportSecrets.Configuration: DecodableWithConfiguration {
       sourceConfigurations: sourceConfigurations,
       secrets: secrets,
       sourceProviders: configuration.sourceProviders,
-      secretNamesMapping: secretNamesMapping
+      secretNamesMapping: secretNamesMapping,
     )
   }
 

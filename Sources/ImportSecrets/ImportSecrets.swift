@@ -41,7 +41,7 @@ public struct ImportSecrets {
       sourceProviders: sourceProviders,
       encoding: encoding,
       envSubstOptions: envSubstOptions,
-      environment: environment
+      environment: environment,
     )
 
     return configuration
@@ -184,9 +184,9 @@ public struct ImportSecrets {
 
       let fetchedSecretsResult: SecretsFetchResult =
         if let sourceProvider = sourceProvider as? any SecretProviderAsyncProtocol {
-          try await sourceProvider.fetch(secrets: sourceSecrets, sourceConfiguration: sourceConfiguration, )
+          try await sourceProvider.fetch(secrets: sourceSecrets, sourceConfiguration: sourceConfiguration)
         }
-        else { try sourceProvider.fetch(secrets: sourceSecrets, sourceConfiguration: sourceConfiguration, ) }
+        else { try sourceProvider.fetch(secrets: sourceSecrets, sourceConfiguration: sourceConfiguration) }
 
       // Merge the fetched secrets, preferring new values over existing ones
       try result.addFetchedSecrets(fetchedSecretsResult.fetchedSecrets)

@@ -37,3 +37,25 @@ indent_size = 4
 [.gitconfig]
 indent_style = tab
 indent_size = 4
+
+# Shell scripts (shfmt). Do not pass parser/printer CLI flags to shfmt or
+# EditorConfig formatting options are ignored.
+# https://github.com/mvdan/sh/blob/master/cmd/shfmt/shfmt.1.scd
+[*.{sh,bash,bats}]
+shell_variant = bash
+simplify = true
+binary_next_line = true
+switch_case_indent = true
+space_redirects = true
+
+# Extensionless shell scripts matched by shebang (e.g. mise tasks).
+[[shell]]
+shell_variant = bash
+simplify = true
+binary_next_line = true
+switch_case_indent = true
+space_redirects = true
+
+[*.pkl]
+# Because hk formats this way.
+indent_size = 4

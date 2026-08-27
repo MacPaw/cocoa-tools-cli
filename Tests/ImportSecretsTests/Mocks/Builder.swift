@@ -17,7 +17,7 @@ enum MocksBuilder {
     secrets: [ImportSecrets.Secret],
     sourceProviders: [any SecretProviderProtocol] = [],
     onePasswordCLI: MockOnePasswordCLI? = .none,
-    secretNamesMapping: [String: String] = [:]
+    secretNamesMapping: [String: String] = [:],
   ) throws -> ImportSecrets.Configuration {
     var config = ImportSecrets.Configuration(
       version: .none,
@@ -35,10 +35,10 @@ enum MocksBuilder {
         vaultAddress: #require(URL(string: "https://vault.example.com")),
         defaultEngineConfigurations: .init(
           keyValue: .init(defaultSecretMountPath: "secrets"),
-          aws: .init(defaultEnginePath: "aws")
+          aws: .init(defaultEnginePath: "aws"),
         ),
         authenticationCredentials: .init(token: .init(vaultToken: "fake-token")),
-        authenticationMethod: .token
+        authenticationMethod: .token,
       )
     )
 

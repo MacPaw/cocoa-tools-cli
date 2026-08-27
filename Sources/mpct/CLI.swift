@@ -3,17 +3,15 @@ import EnvSubstCommand
 import ExportSecretsCommand
 import Foundation
 import SemanticVersion
-import SemanticVersionMacro
 
 #if canImport(ObfuscateSecretsCommand)
   import ObfuscateSecretsCommand
 #endif
 
 struct MPCT: AsyncParsableCommand {
-  static let version: SemanticVersion = #semanticVersion("1.0.0-beta.1+build.24")
   static let configuration: CommandConfiguration = CommandConfiguration(
     abstract: "A wrapper command-line tool for various scripts and tools we use every day",
-    version: TargetVersions.mpct.description,
+    version: TargetVersions.current.description,
     subcommands: [EnvSubstCommand.self, SecretsCommand.self],
   )
 

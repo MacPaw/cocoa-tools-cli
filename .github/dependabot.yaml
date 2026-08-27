@@ -8,8 +8,13 @@ updates:
   - package-ecosystem: "swift"
     directory: "/"
     schedule:
-      interval: "monthly"
+      interval: "quarterly"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "monthly"
+      interval: "quarterly"
+    ignore:
+      # Dependabot cannot clone this private repository, and one unreachable
+      # dependency fails the whole github-actions run. The action is pinned to a
+      # branch, so there is no version for Dependabot to bump either way.
+      - dependency-name: "MacPaw/.github-private/*"

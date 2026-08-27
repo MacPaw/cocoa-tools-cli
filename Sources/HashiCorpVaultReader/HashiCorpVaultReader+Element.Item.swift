@@ -33,27 +33,28 @@ extension Item: DecodableWithConfiguration {
     let keyValue = try container.decodeIfPresent(
       HashiCorpVaultReader.Engine.KeyValue.Item.self,
       forKey: .keyValue,
-      configuration: configuration
+      configuration: configuration,
     )
 
     let aws = try container.decodeIfPresent(
       HashiCorpVaultReader.Engine.AWS.Item.self,
       forKey: .aws,
-      configuration: configuration
+      configuration: configuration,
     )
 
     let engineConfigs: [Any?] = [keyValue, aws]
     guard !engineConfigs.compactMap(\.self).isEmpty else {
       throw DecodingError.valueNotFound(
         Self.self,
-        .init(codingPath: decoder.codingPath, debugDescription: "No engine configured for this item.")
+        .init(codingPath: decoder.codingPath, debugDescription: "No engine configured for this item."),
       )
     }
     guard engineConfigs.compactMap(\.self).count == 1 else {
       throw DecodingError.dataCorrupted(
         .init(
           codingPath: decoder.codingPath,
-          debugDescription: "Too many engine configs. Only one engine can be configured per item (kv or aws, not both)."
+          debugDescription:
+            "Too many engine configs. Only one engine can be configured per item (kv or aws, not both).",
         )
       )
     }
@@ -68,7 +69,7 @@ extension Item: DecodableWithConfiguration {
       throw DecodingError.dataCorrupted(
         .init(
           codingPath: decoder.codingPath,
-          debugDescription: "Vault configuration is malformed and has no keyValue or aws configuration."
+          debugDescription: "Vault configuration is malformed and has no keyValue or aws configuration.",
         )
       )
     }

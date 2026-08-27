@@ -13,7 +13,7 @@ public protocol CIIssuesLogger {
     sourcePath: String?,
     lineNumber: Int?,
     columnNumber: Int?,
-    code: Int?
+    code: Int?,
   )
 
   /// Log an error message.
@@ -29,6 +29,6 @@ public protocol CIIssuesLogger {
     sourcePath: String?,
     lineNumber: Int?,
     columnNumber: Int?,
-    code: Int?
+    code: Int?,
   )
 }

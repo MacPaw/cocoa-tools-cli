@@ -45,7 +45,7 @@ extension Fetcher: SecretFetcherProtocol {
   public func fetchItem(
     _ item: ImportSecrets.Providers.OnePassword.Source.Item,
     keys: Set<String>,
-    configuration: ImportSecrets.Providers.OnePassword.Source.Configuration
+    configuration: ImportSecrets.Providers.OnePassword.Source.Configuration,
   ) throws -> [String: String] {
     // Get the 1Password CLI instance (injected for testing or default system CLI)
     let onePasswordCLI = try self.onePasswordCLI ?? Shell.OnePassword()

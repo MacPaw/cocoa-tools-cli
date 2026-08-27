@@ -1,173 +1,158 @@
 name: Release
 
+# Publishes the archives built by the Build workflow, so a release always ships the exact
+# binaries that were tested rather than a rebuild.
+#
+# Releases are meant to be immutable, which is a repository setting this workflow cannot
+# turn on: enable Settings → General → "Immutable releases" so publishing locks the tag and
+# the assets and GitHub issues its own release attestation. The steps below are ordered for
+# it — assets are complete and attested before anything is published, because a published
+# release can no longer be corrected.
+
 permissions:
-  contents: write
+  contents: read
 
 on:
-  push:
+  workflow_run:
+    workflows:
+      - Build
+    types:
+      - completed
     branches:
       - main
-    paths:
-      # Run release workflow if .version file is updated
-      - '.version'
-      # Run release workflow if related workflow files are updated
-      # So we don't need to manually trigger the release workflow
-      # or update the .version fileonce again.
-      - '.github/workflows/release.yaml'
-      - '.github/workflows/load-env.yaml'
-      - '.github/workflows/scripts/**'
-      - '.github/workflows/templates/**'
+
+concurrency:
+  # One release at a time, repository wide: two runs publishing the same version would race
+  # over the same draft and tag.
+  group: release
+  # Build cancels superseded runs, and a cancelled Build never reaches this workflow. Once a
+  # release run starts it must finish, because cancelling between uploading the assets and
+  # publishing leaves a draft behind.
+  cancel-in-progress: false
+
+env:
+  # mise environment
+  MISE_ENV: ci
 
 jobs:
-  load-env:
-    uses: ./.github/workflows/load-env.yaml
-
-  check-tag-and-release:
-    needs:
-      - load-env
+  # The Build workflow uploads a release gate artifact only for commits that should be
+  # released, so its absence is the normal outcome and quietly stops here.
+  #
+  # Build's own event is not checked: on main Build is itself triggered by a green Test run,
+  # so its event is workflow_run rather than push, and only that path uploads a gate.
+  gate:
+    name: Gate
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # Required to read the artifacts of the Build run that triggered this workflow.
+      actions: read
+      statuses: write
     outputs:
-      tag_name: ${{ needs.load-env.outputs.version }}
-      should_proceed: ${{ steps.check.outputs.should_proceed }}
-      tag_exists: ${{ steps.check.outputs.tag_exists }}
-      release_exists: ${{ steps.check.outputs.release_exists }}
+      should-proceed: ${{ steps.gate.outputs.should-proceed }}
+      package-version: ${{ steps.gate.outputs.package-version }}
+      package-version-is-prerelease: ${{ steps.gate.outputs.package-version-is-prerelease }}
+      swift-package-binary-name: ${{ steps.gate.outputs.swift-package-binary-name }}
+      expected-zip-count: ${{ steps.gate.outputs.expected-zip-count }}
+      head-sha: ${{ steps.gate.outputs.head-sha }}
+      swift-has-build-artifacts: ${{ steps.gate.outputs.swift-has-build-artifacts }}
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v7
-      with:
-        fetch-depth: 1
-    - name: Check if tag and release exist
-      id: check
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        VERSION: ${{ needs.load-env.outputs.version }}
-      run: node ./.github/workflows/scripts/release/check-tag-and-release.js
-
-  build-binary:
-    needs:
-      - load-env
-      - check-tag-and-release
-    if: needs.check-tag-and-release.outputs.should_proceed == 'true'
-    strategy:
-      matrix:
-        include:
-          - os: ${{ needs.load-env.outputs.macOS-runner-os }}
-            arch: universal
-            xcode-version: ${{ needs.load-env.outputs.xcode-version }}
-            swift-version: ${{ needs.load-env.outputs.swift-version }}
-          - os: ${{ needs.load-env.outputs.macOS-runner-os }}
-            arch: arm64
-            xcode-version: ${{ needs.load-env.outputs.xcode-version }}
-            swift-version: ${{ needs.load-env.outputs.swift-version }}
-          - os: ${{ needs.load-env.outputs.macOS-runner-os }}
-            arch: x86_64
-            xcode-version: ${{ needs.load-env.outputs.xcode-version }}
-            swift-version: ${{ needs.load-env.outputs.swift-version }}
-          - os: ubuntu-latest
-            arch: x86_64
-            swift-version: ${{ needs.load-env.outputs.swift-version }}
-            container: swift:${{ needs.load-env.outputs.swift-version }}
-            sdk: gnu
-          - os: ubuntu-26.04-arm
-            arch: arm64
-            swift-version: ${{ needs.load-env.outputs.swift-version }}
-            container: swift:${{ needs.load-env.outputs.swift-version }}
-            sdk: gnu
-          - os: ubuntu-latest
-            arch: x86_64
-            swift-version: ${{ needs.load-env.outputs.swift-version }}
-            container: swift:${{ needs.load-env.outputs.swift-version }}
-            sdk: musl
-          - os: ubuntu-26.04-arm
-            arch: arm64
-            swift-version: ${{ needs.load-env.outputs.swift-version }}
-            container: swift:${{ needs.load-env.outputs.swift-version }}
-            sdk: musl
-    runs-on: ${{ matrix.os }}
-    container: ${{ matrix.container }}
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7
+      # `$/` runs the action from this repository at the commit this workflow was loaded
+      # from, so the job needs no checkout of its own.
+      - name: Read release gate
+        id: gate
+        uses: $/.github/actions/release/gate/
         with:
-          fetch-depth: 1
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Map architecture
-        id: map-architecture
-        env:
-          ARCH: ${{ matrix.arch }}
-        run: |
-          echo "Mapping ${ARCH} architecture to GitHub Actions runner.arch"
-          NEW_ARCH="${ARCH}"
-          if [[ "${ARCH}" == "universal" ]]; then
-            NEW_ARCH="UNIVERSAL"
-          elif [[ "${ARCH}" == "arm64" ]]; then
-            NEW_ARCH="ARM64"
-          elif [[ "${ARCH}" == "x86_64" ]]; then
-            NEW_ARCH="X64"
-          else
-            NEW_ARCH="${ARCH}"
-          fi
-          echo "NEW_ARCH=${NEW_ARCH}"
-
-          echo "architecture=${NEW_ARCH}" >> "${GITHUB_OUTPUT}"
-
-      - name: Prepare Swift
-        uses: ./.github/workflows/templates/prepare-swift/
+      - name: Set in-progress commit status
+        if: ${{ steps.gate.outputs.should-proceed == 'true' }}
+        uses: $/.github/actions/report-commit-status/
         with:
-          xcode-version: ${{ matrix.xcode-version }}
-          swift-version: ${{ matrix.swift-version }}
-          build-system: swift
-          configuration: release
-          architecture: ${{ steps.map-architecture.outputs.architecture }}
-
-      - name: Build binary
-        id: build
-        env:
-          VERSION: ${{ needs.load-env.outputs.version }}
-          ARCH: ${{ matrix.arch }}
-          BINARY_NAME: ${{ needs.load-env.outputs.binary-name }}
-          SWIFT_SDK: ${{ matrix.sdk }}
-        run: ./.github/workflows/scripts/release/build-binary.sh
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v7
-        with:
-          name: ${{ steps.build.outputs.asset_name }}
-          path: ${{ steps.build.outputs.asset_path }}
-          retention-days: 1
+          state: pending
+          sha: ${{ steps.gate.outputs.head-sha }}
+          description: In progress
 
   release:
+    name: Release ${{ needs.gate.outputs.package-version }}
     needs:
-      - load-env
-      - check-tag-and-release
-      - build-binary
-    if: needs.check-tag-and-release.outputs.should_proceed == 'true'
+      - gate
+    if: ${{ needs.gate.outputs.should-proceed == 'true' }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      # Required by actions/attest-build-provenance to sign the attestation.
+      id-token: write
+      attestations: write
+      # Required to read the artifacts of the Build run that triggered this workflow.
+      actions: read
+      statuses: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      VERSION: ${{ needs.gate.outputs.package-version }}
+      IS_PRERELEASE: ${{ needs.gate.outputs.package-version-is-prerelease }}
+      ARTIFACTS_DIR: artifacts
+      SWIFT_HAS_BUILD_ARTIFACTS: ${{ needs.gate.outputs.swift-has-build-artifacts }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
         with:
+          # The commit the archives were built from, as recorded by the Build run that
+          # produced them.
+          ref: ${{ needs.gate.outputs.head-sha }}
           fetch-depth: 1
 
-      - name: Download all artifacts
+      - name: Download release archives
         uses: actions/download-artifact@v8
+        if: ${{ needs.gate.outputs.swift-has-build-artifacts == 'true' }}
         with:
+          pattern: binaries-*
+          merge-multiple: true
           path: artifacts
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          run-id: ${{ github.event.workflow_run.id }}
 
-      - name: Create tag and release
+      # Runs before the release exists: a missing archive or a bad checksum must not reach
+      # a release that cannot be corrected afterwards.
+      - name: Verify release archives
+        run: ./.github/workflows/scripts/release/expect-release-assets.bash
+        if: ${{ needs.gate.outputs.swift-has-build-artifacts == 'true' }}
+        env:
+          SWIFT_PACKAGE_BINARY_NAME: ${{ needs.gate.outputs.swift-package-binary-name }}
+          EXPECTED_ZIP_COUNT: ${{ needs.gate.outputs.expected-zip-count }}
+
+      - name: Create draft release
         id: create-release
+        run: ./.github/workflows/scripts/release/create-release.bash
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VERSION: ${{ needs.load-env.outputs.version }}
-          IS_PRERELEASE: ${{ needs.load-env.outputs.is_prerelease }}
-        run: node ./.github/workflows/scripts/release/create-release.js
+          HEAD_SHA: ${{ needs.gate.outputs.head-sha }}
+          SWIFT_HAS_BUILD_ARTIFACTS: ${{ needs.gate.outputs.swift-has-build-artifacts }}
 
-      - name: Upload assets to release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_ID: ${{ steps.create-release.outputs.release_id }}
-          ARTIFACTS_PATH: artifacts
-        run: node ./.github/workflows/scripts/release/upload-assets.js
+      # Attests the archives users download; the checksum sidecars are only helpers.
+      - name: Attest release archives
+        if: ${{ steps.create-release.outputs.created == 'true' && needs.gate.outputs.swift-has-build-artifacts == 'true' }}
+        uses: actions/attest-build-provenance@v4
+        with:
+          subject-path: artifacts/*.zip
+
+      # Publishing creates the tag and, with immutable releases, locks the assets, so it
+      # happens only once the release is complete and attested.
+      - name: Publish release
+        if: ${{ steps.create-release.outputs.created == 'true' }}
+        run: ./.github/workflows/scripts/release/publish-release.bash
+
+      - name: Clean up draft release
+        if: ${{ failure() || cancelled() }}
+        run: ./.github/workflows/scripts/release/cleanup-draft-release.bash
+
+      - name: Report commit status
+        if: always()
+        uses: $/.github/actions/report-commit-status/
+        with:
+          sha: ${{ needs.gate.outputs.head-sha }}
+          description: ${{ job.status == 'success' && format('Released {0}', needs.gate.outputs.package-version) || 'Release failed' }}

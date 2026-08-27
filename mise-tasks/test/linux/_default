@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-
-#MISE description="Run tests in Linux container"
-
-mise task run test:linux:docker

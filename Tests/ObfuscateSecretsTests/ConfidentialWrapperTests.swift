@@ -60,7 +60,7 @@
       }
       """
 
-    func validate(outputFileURL: URL, _ sourceLocation: SourceLocation = #_sourceLocation, ) throws {
+    func validate(outputFileURL: URL, _ sourceLocation: SourceLocation = #_sourceLocation) throws {
       let obfuscatedString = try String(contentsOf: outputFileURL, encoding: .utf8)
 
       #expect(obfuscatedString == Self.expectedString, sourceLocation: sourceLocation)
@@ -74,7 +74,7 @@
       // When running in Xcode: tests run in a temp dir, and mise fails to recognize tool, because is not currently active.
       // If swift-confidential is not found by /usr/bin/which - install it with mise.
       if (try? Shell.which(cliToolName: "swift-confidential")) == nil {
-        do { try Shell.Mise().use(cliToolName: "github:securevale/swift-confidential", version: "0.5.1") }
+        do { try Shell.Mise().use(cliToolName: "github:securevale/swift-confidential", version: "0.5.2") }
         catch { #expect(Bool(false), "Unexpected error while installing swift-confidential: \(error)") }
       }
 

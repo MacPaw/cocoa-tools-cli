@@ -16,16 +16,29 @@ on:
     branches:
       - main
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # mise environment
+  MISE_ENV: ci
+
 jobs:
   load-env:
-    uses: ./.github/workflows/load-env.yaml
+    uses: $/.github/workflows/load-env.yaml
 
   test:
     name: Test
     needs:
       - load-env
+    permissions:
+      contents: read
+      # Required so the swift-cache action can delete the existing main build cache
+      # before saving a fresh one (cache keys are immutable).
+      actions: write
     env:
-      package_name: ${{ needs.load-env.outputs.package-name }}
+      package_name: ${{ needs.load-env.outputs.swift-package-name }}
 
     strategy:
       matrix:
@@ -37,10 +50,11 @@ jobs:
           - os: ubuntu-latest
             build-system: swift
             swift-version: ${{ needs.load-env.outputs.swift-version }}
-            container: swift:${{ needs.load-env.outputs.swift-version }}
+            container: ${{ needs.load-env.outputs.container-image-name }}:${{ needs.load-env.outputs.container-image-tag }}
           - os: ${{ needs.load-env.outputs.macOS-runner-os }}
             build-system: xcodebuild
             xcode-version: ${{ needs.load-env.outputs.xcode-version }}
+            swift-version: ${{ needs.load-env.outputs.swift-version }}
 
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.container }}
@@ -52,28 +66,36 @@ jobs:
           fetch-depth: 1
 
       - name: Prepare Swift
-        uses: ./.github/workflows/templates/prepare-swift/
+        uses: $/.github/actions/prepare-swift/
         with:
           xcode-version: ${{ matrix.xcode-version }}
           swift-version: ${{ matrix.swift-version }}
+          swift-toolchain-selector: ${{ needs.load-env.outputs.swift-toolchain-selector }}
           build-system: ${{ matrix.build-system }}
           configuration: debug
 
       - name: Build with ${{ matrix.build-system }}
-        run: mise tasks run build:${BUILD_SYSTEM} --configuration=debug
+        run: mise tasks run "build:${BUILD_SYSTEM}" --configuration=debug
         env:
           BUILD_SYSTEM: ${{ matrix.build-system }}
+          DERIVED_DATA_PATH: DerivedData
 
       - name: Test with ${{ matrix.build-system }}
-        run: mise tasks run test:${BUILD_SYSTEM} --configuration=debug
+        run: mise tasks run "test:${BUILD_SYSTEM}" --configuration=debug
         env:
           BUILD_SYSTEM: ${{ matrix.build-system }}
+          DERIVED_DATA_PATH: DerivedData
 
   lint:
     needs:
       - load-env
+    permissions:
+      contents: read
+      # Required so the swift-cache action can delete the existing main build cache
+      # before saving a fresh one (cache keys are immutable).
+      actions: write
     runs-on: ubuntu-latest
-    container: swift:${{ needs.load-env.outputs.swift-version }}
+    container: ${{ needs.load-env.outputs.container-image-name }}:${{ needs.load-env.outputs.container-image-tag }}
 
     steps:
       - name: Checkout repository
@@ -81,29 +103,44 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: git check
+        if: ${{ runner.os == 'Linux' }}
+        shell: bash
+        run: |
+          # This is a workaround to avoid the error:
+          # fatal: detected dubious ownership in repository at '/github/workspace'
+          # Kinda related to https://github.com/actions/checkout/issues/1048
+          git status || git config --system --add safe.directory "${GITHUB_WORKSPACE}"
+
       - name: Prepare Swift
-        uses: ./.github/workflows/templates/prepare-swift/
+        uses: $/.github/actions/prepare-swift/
         with:
           xcode-version: ${{ needs.load-env.outputs.xcode-version }}
           swift-version: ${{ needs.load-env.outputs.swift-version }}
+          swift-toolchain-selector: ${{ needs.load-env.outputs.swift-toolchain-selector }}
           build-system: swift
           configuration: debug
-          use-build-cache: false
+          use-build-cache: true
+          build-cache-suffix: lint
 
       - name: Lint
         run: mise tasks run lint
 
   # Dummy job to check if test and lint passed and easy to configure PR gates.
   check:
-    name: Check
+    name: Test and lint check
     needs:
-      - load-env
       - test
       - lint
     runs-on: ubuntu-latest
-    if: success()
+    # Runs on every non-cancelled path so this required check always reports a real conclusion.
+    # A skipped check counts as passing in branch protection, so the action below fails the job
+    # instead of an `if:` guard skipping it.
+    if: ${{ !cancelled() }}
     steps:
-      - name: Check
-        shell: bash
-        run: |
-          echo "Test and lint passed"
+      # `$/` runs the action from this repository at the commit this workflow was loaded
+      # from, so the job needs no checkout of its own.
+      - name: Require every needed job to have succeeded
+        uses: $/.github/actions/require-needs/
+        with:
+          needs: ${{ toJSON(needs) }}

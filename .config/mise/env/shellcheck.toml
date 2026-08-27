@@ -1,0 +1,3 @@
+# Path to the ShellCheck configuration file.
+# Used by scripts/tools/shellcheck/shellcheck.bash and hk pre-commit.
+SHELLCHECK_RCFILE = ".config/shellcheck/.shellcheckrc"

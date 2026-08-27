@@ -1,0 +1,26 @@
+name: "Report commit status"
+description: "Post a commit status to the GitHub Commit Statuses API for the current workflow run"
+inputs:
+  state:
+    description: "Commit status state: pending, success, failure, or error. Defaults to the current job status when omitted."
+    required: false
+    default: ""
+  sha:
+    description: "Commit SHA to post the status to"
+    required: true
+  description:
+    description: "Short description shown next to the status"
+    required: false
+    default: ""
+runs:
+  using: "composite"
+  steps:
+    - name: Post commit status
+      shell: bash
+      run: "${GITHUB_ACTION_PATH}/scripts/report-commit-status.bash"
+      env:
+        GH_TOKEN: ${{ github.token }}
+        COMMIT_STATUS_STATE: ${{ inputs.state }}
+        COMMIT_STATUS_SHA: ${{ inputs.sha }}
+        COMMIT_STATUS_DESCRIPTION: ${{ inputs.description }}
+        JOB_STATUS: ${{ job.status }}

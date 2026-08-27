@@ -38,13 +38,13 @@ extension HashiCorpVaultEngineAPIProtocol {
     guard let json = jsonObject as? [String: Any] else {
       throw DecodingError.typeMismatch(
         type(of: jsonObject),
-        .init(codingPath: [], debugDescription: "Can't decode JSON to the Dictionary<String, Any> type")
+        .init(codingPath: [], debugDescription: "Can't decode JSON to the Dictionary<String, Any> type"),
       )
     }
     guard let dataAnyObject = json["data"] else {
       throw DecodingError.keyNotFound(
         CodingKeys.data,
-        .init(codingPath: [], debugDescription: "Can't find the root 'data' key in the JSON")
+        .init(codingPath: [], debugDescription: "Can't find the root 'data' key in the JSON"),
       )
     }
     guard let dataObject = dataAnyObject as? [String: Any] else {
@@ -52,8 +52,8 @@ extension HashiCorpVaultEngineAPIProtocol {
         type(of: jsonObject),
         .init(
           codingPath: [CodingKeys.data],
-          debugDescription: "'data' is not a valid JSON object of Dictionary<String, Any> type"
-        )
+          debugDescription: "'data' is not a valid JSON object of Dictionary<String, Any> type",
+        ),
       )
     }
 

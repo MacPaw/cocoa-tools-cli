@@ -1,0 +1,26 @@
+name: "Require workflow run"
+description: "Fail unless the workflow run that triggered this one succeeded for the expected event"
+inputs:
+  upstream-workflow:
+    description: "Name of the upstream workflow, used in the failure message"
+    required: true
+  upstream-conclusion:
+    description: "Conclusion of the upstream run, e.g. github.event.workflow_run.conclusion"
+    required: true
+  upstream-event:
+    description: "Event the upstream run was triggered by, e.g. github.event.workflow_run.event"
+    required: true
+  upstream-required-event:
+    description: "Event the upstream run must have been triggered by"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Require a successful upstream run
+      shell: bash
+      run: "${GITHUB_ACTION_PATH}/scripts/require-workflow-run.bash"
+      env:
+        UPSTREAM_WORKFLOW: ${{ inputs.upstream-workflow }}
+        UPSTREAM_CONCLUSION: ${{ inputs.upstream-conclusion }}
+        UPSTREAM_EVENT: ${{ inputs.upstream-event }}
+        UPSTREAM_REQUIRED_EVENT: ${{ inputs.upstream-required-event }}

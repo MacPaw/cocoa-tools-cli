@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+#MISE description="Run tests on local machine (xcodebuild)"
+
+./scripts/tools/xcodebuild/xcodebuild.bash --package-name="${SWIFT_PACKAGE_NAME}" --action=test-without-building "${@}"

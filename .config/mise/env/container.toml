@@ -1,0 +1,12 @@
+# Resource limits for docker / Apple container Linux builds.
+
+# CPU count limit for docker/container images.
+CONTAINER_BUILD_CPUS = "4"
+# RAM limit for docker/container images.
+# Apple's `container` defaults to 1G RAM / 4 CPUs per VM — too small for SwiftSyntax builds.
+# While CPUs works fine, the minimum memory is the bottleneck for SwiftSyntax builds.
+# This constant was edited twice with a hope of extra space:
+# 1. First value was 4G (worked with 3G, so +1G seemed like a lot of room for growth)
+# 2. Now it's 8G (worked with 6G, so +2G for growth now).
+# Increase if you see 'error: compile command failed due to signal 9 (use -v to see invocation)'.
+CONTAINER_BUILD_MEMORY = "8G"

@@ -50,7 +50,7 @@ struct ErrorTests {
     let item = HashiCorpVaultReader.Element(
       item: .keyValue(.init(engineVersion: .v2, secretMountPath: "secret", path: "myapp/database", version: 1)),
       keys: ["password"],
-      keysMap: [:]
+      keysMap: [:],
     )
 
     // WHEN: Creating noSecretsFetched error
@@ -76,7 +76,7 @@ struct ErrorTests {
     let item = HashiCorpVaultReader.Element(
       item: .keyValue(.init(engineVersion: .v2, secretMountPath: "secret", path: "myapp/database", version: 1)),
       keys: [key],
-      keysMap: [:]
+      keysMap: [:],
     )
 
     // WHEN: Creating noSecretValueForItemKey error
@@ -174,7 +174,7 @@ struct ErrorTests {
       url: URL(string: "https://vault.example.com")!,
       mimeType: nil,
       expectedContentLength: 0,
-      textEncodingName: nil
+      textEncodingName: nil,
     )
 
     // WHEN: Creating responseNotHTTP error

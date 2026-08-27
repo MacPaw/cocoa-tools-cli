@@ -13,7 +13,7 @@ struct ImportSecretsFetchingTests {
   private static func buildProviders(
     opCLIMock: MockOnePasswordCLI,
     fakeProviderFetcher: ImportSecrets.Providers.FakeProvider.Fetcher,
-    hashicorpVaultReaderMock: MockHashiCorpVaultReaderProtocol = .init()
+    hashicorpVaultReaderMock: MockHashiCorpVaultReaderProtocol = .init(),
   ) -> [any SecretProviderProtocol] {
     [
       ImportSecrets.Providers.OnePassword(fetcher: .init(onePasswordCLI: opCLIMock)),
@@ -136,7 +136,7 @@ struct ImportSecretsFetchingTests {
           sources:
             unsupported-provider:
               path: /test/path
-              keys: 
+              keys:
                 - key
       """
     // WHEN/THEN: Getting secrets throws unsupportedSecretSource error
