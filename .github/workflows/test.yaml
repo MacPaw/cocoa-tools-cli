@@ -51,10 +51,6 @@ jobs:
             build-system: xcodebuild
             xcode-version: ${{ needs.load-env.outputs.xcode-version }}
             swift-version: ${{ needs.load-env.outputs.swift-version }}
-          - os: xcode-27
-            build-system: xcodebuild
-            xcode-version: "27.0"
-            swift-version: "6.4.x-snapshot-2026-08-01"
 
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.container }}

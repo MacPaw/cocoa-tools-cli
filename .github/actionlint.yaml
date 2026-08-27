@@ -11,5 +11,3 @@ paths:
       # reports it as a missing ref.
       - "specifying action \"\\$/.+\" in invalid format because ref is missing"
       - "reusable workflow call \"\\$/.+\" at \"uses\" is not following the format"
-      # Preview runner on GitHub is not recognized yet.
-      - "label \"xcode-27\" is unknown."
