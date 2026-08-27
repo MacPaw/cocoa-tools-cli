@@ -20,7 +20,7 @@ enum SwiftConfidentialSource {
 
   var packageDependency: PackageDescription.Package.Dependency {
     switch self {
-    case .upstream: .package(url: "https://github.com/securevale/swift-confidential.git", from: "0.5.1")
+    case .upstream: .package(url: "https://github.com/securevale/swift-confidential.git", from: "0.5.2")
     case .fork: .package(url: "https://github.com/nekrich/swift-confidential.git", branch: "master")
     }
   }
