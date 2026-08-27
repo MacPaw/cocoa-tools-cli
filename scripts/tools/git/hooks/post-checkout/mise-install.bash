@@ -30,7 +30,7 @@ if [[ ${PREV_HEAD} =~ ^0+$ ]]; then
 fi
 
 CHANGED_FILES="$(git diff --name-only "${PREV_HEAD}" "${NEW_HEAD}" || true)"
-if echo "${CHANGED_FILES}" | grep -qE '(^|/)\.config/mise/mise\.(toml|lock)$|(^|/)\.?mise\.(toml|lock)$|(^|/)\.(ruby|swift)-version$'; then
+if echo "${CHANGED_FILES}" | grep -qE '(^|/)\.config/mise/(mise|config)\.(toml|lock)$|(^|/)\.?mise\.(toml|lock)$|(^|/)\.(ruby|swift)-version$'; then
   echo "[ 🧰   mise ] Tool config changed — installing tools"
   "${MISE_BASH}" --install
 else

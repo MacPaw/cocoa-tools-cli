@@ -33,6 +33,8 @@ env:
   # x86_64/aarch64 from the macOS runner, and one gnu Linux archive per Linux runner.
   # The Release workflow refuses to publish a partial set.
   expected_release_zip_count: 7
+  # mise environment
+  MISE_ENV: ci
 
 jobs:
   # Fails the run when the Test workflow that triggered it was not a green push, instead of

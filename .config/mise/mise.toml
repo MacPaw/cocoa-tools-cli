@@ -43,11 +43,6 @@ pkl = "latest"
 # Used to scan for secrets in the repository.
 gitleaks = "latest"
 
-# https://github.com/tuist/tuist/releases
-# Xcode project generator.
-# Used to generate .sample project for E2E tests.
-"tuist" = "4.205.0"
-
 # https://github.com/google/yamlfmt/releases
 # Formats YAML files.
 yamlfmt = "latest"

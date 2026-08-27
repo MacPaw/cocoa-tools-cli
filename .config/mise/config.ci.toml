@@ -3,7 +3,14 @@
 # CI settings.
 [settings]
 # Disable development tools that are not needed for CI.
-disable_tools = ["container", "gitleaks", "hk", "pkl"]
+disable_tools = [
+  "container",
+  "gitleaks",
+  "hk",
+  "pkl",
+  "github:securevale/swift-confidential",
+  "1password",
+]
 
 # Disable caching of environment variables.
 env_cache = false

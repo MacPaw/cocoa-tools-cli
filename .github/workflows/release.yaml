@@ -30,6 +30,10 @@ concurrency:
   # publishing leaves a draft behind.
   cancel-in-progress: false
 
+env:
+  # mise environment
+  MISE_ENV: ci
+
 jobs:
   # The Build workflow uploads a release gate artifact only for commits that should be
   # released, so its absence is the normal outcome and quietly stops here.
