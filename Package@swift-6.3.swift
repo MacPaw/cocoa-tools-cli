@@ -200,7 +200,7 @@ let package = Package(
     .package(url: "https://github.com/swiftlang/swift-format.git", .upToNextMajor(from: "603.0.0")),
     .package(url: "https://github.com/swiftlang/swift-syntax.git", .upToNextMajor(from: "603.0.2")),
     .package(url: "https://github.com/apple/swift-log.git", .upToNextMajor(from: "1.15.0")),
-    swiftConfidentialSource.packageDependency, yamsSource.packageDependency,
+    yamsSource.packageDependency,
   ],
   targets: [
     .executableTarget(
@@ -242,3 +242,7 @@ for target in package.targets where target.type != .plugin && target.type != .te
 
   target.swiftSettings = swiftSettings
 }
+
+#if os(macOS)
+  package.dependencies.append(swiftConfidentialSource.packageDependency)
+#endif
