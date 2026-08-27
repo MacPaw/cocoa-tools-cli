@@ -6,97 +6,115 @@ permissions:
 on:
   workflow_call:
     inputs:
-      package-name:
-        description: 'Swift package name'
+      swift-package-name:
+        description: "Swift package name"
         type: string
         required: false
-        default: 'cocoa-tools'
-      binary-name:
-        description: 'Binary name'
+        default: ""
+      swift-package-binary-name:
+        description: "Binary name"
         type: string
         required: false
-        default: 'mpct'
+        default: ""
       swift-version:
-        description: 'Swift version'
+        description: "Swift version"
         type: string
         required: false
       xcode-version:
-        description: 'Xcode version'
+        description: "Xcode version"
         type: string
         required: false
-        default: '26.0'
+        default: ""
       macOS-runner-os:
-        description: 'macOS runner OS (macos-15, macos-latest)'
+        description: "macOS runner OS (macos-15, macos-latest)"
         type: string
         required: false
-        default: 'macos-26'
+        default: ""
+      checkout-ref:
+        description: "Commit to read the environment from. Empty checks out the ref that triggered the run."
+        type: string
+        required: false
+        default: ""
+      swift-has-build-artifacts:
+        description: "Swift package has build artifacts"
+        type: string
+        required: false
+        default: ""
     outputs:
-      package-name:
-        description: 'Swift package name'
-        value: ${{ jobs.load-env.outputs.package-name }}
-      binary-name:
-        description: 'Binary name'
-        value: ${{ jobs.load-env.outputs.binary-name }}
+      swift-package-name:
+        description: "Swift package name"
+        value: ${{ jobs.load-env.outputs.swift-package-name }}
+      swift-package-binary-name:
+        description: "Binary name"
+        value: ${{ jobs.load-env.outputs.swift-package-binary-name }}
       swift-version:
-        description: 'Swift version'
+        description: "Swift version"
         value: ${{ jobs.load-env.outputs.swift-version }}
       xcode-version:
-        description: 'Xcode version'
+        description: "Xcode version"
         value: ${{ jobs.load-env.outputs.xcode-version }}
       macOS-runner-os:
-        description: 'macOS runner OS'
+        description: "macOS runner OS"
         value: ${{ jobs.load-env.outputs.macOS-runner-os }}
-      version:
-        description: 'Version'
-        value: ${{ jobs.load-env.outputs.version }}
-      is_prerelease:
-        description: 'Is prerelease'
-        value: ${{ jobs.load-env.outputs.is_prerelease }}
+      package-version:
+        description: "Package version"
+        value: ${{ jobs.load-env.outputs.package-version }}
+      package-version-is-prerelease:
+        description: "Package is pre-release"
+        value: ${{ jobs.load-env.outputs.package-version-is-prerelease }}
+      container-image-name:
+        description: "Linux container image that carries the Swift version"
+        value: ${{ jobs.load-env.outputs.container-image-name }}
+      container-image-tag:
+        description: "Tag of the Linux container image"
+        value: ${{ jobs.load-env.outputs.container-image-tag }}
+      swift-toolchain-selector:
+        description: "Toolchain swiftly installs for the Swift version, a snapshot when it is unreleased"
+        value: ${{ jobs.load-env.outputs.swift-toolchain-selector }}
+      swift-has-build-artifacts:
+        description: "Swift package has build artifacts"
+        value: ${{ jobs.load-env.outputs.swift-has-build-artifacts }}
 
 jobs:
   load-env:
     runs-on: ubuntu-latest
     outputs:
-      package-name: ${{ steps.common-env.outputs.package-name }}
       swift-version: ${{ steps.common-env.outputs.swift-version }}
+      swift-package-name: ${{ steps.common-env.outputs.swift-package-name }}
+      swift-package-binary-name: ${{ steps.common-env.outputs.swift-package-binary-name }}
+      package-version: ${{ steps.common-env.outputs.package-version }}
+      package-version-is-prerelease: ${{ steps.common-env.outputs.package-version-is-prerelease }}
       xcode-version: ${{ steps.common-env.outputs.xcode-version }}
       macOS-runner-os: ${{ steps.common-env.outputs.macOS-runner-os }}
-      version: ${{ steps.common-env.outputs.version }}
-      is_prerelease: ${{ steps.common-env.outputs.is_prerelease }}
-      binary-name: ${{ steps.common-env.outputs.binary-name }}
+      container-image-name: ${{ steps.common-env.outputs.container-image-name }}
+      container-image-tag: ${{ steps.common-env.outputs.container-image-tag }}
+      swift-toolchain-selector: ${{ steps.common-env.outputs.swift-toolchain-selector }}
+      swift-has-build-artifacts: ${{ steps.common-env.outputs.swift-has-build-artifacts }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
         with:
+          # Callers triggered by workflow_run pass the commit that was built, because the
+          # ref that starts such a run is the default branch. An empty value keeps the
+          # action's default of checking out the triggering ref.
+          ref: ${{ inputs.checkout-ref }}
           fetch-depth: 1
           sparse-checkout: |
+            .config/mise
+            Package*.swift
             .version
+            .config/semantic-version/version
             .swift-version
+            .github/project_specs.yaml
+            .github/workflows/scripts/load-env
           sparse-checkout-cone-mode: false
 
-      - name: Setup Common Environment
+      - name: Load Environment
         id: common-env
         shell: bash
         run: |
-          echo "package-name=${{ inputs.package-name }}" >> $GITHUB_OUTPUT
-          echo "binary-name=${{ inputs.binary-name }}" >> $GITHUB_OUTPUT
-
-          SWIFT_VERSION="${{ inputs.swift-version }}"
-          SWIFT_VERSION="${SWIFT_VERSION:-"$(cat .swift-version | tr -d '[:space:]')"}"
-          SWIFT_VERSION="${SWIFT_VERSION:-"6.1.2"}"
-          echo "SWIFT_VERSION=${SWIFT_VERSION}"
-
-          echo "swift-version=${SWIFT_VERSION}" >> $GITHUB_OUTPUT
-          echo "xcode-version=${{ inputs.xcode-version }}" >> $GITHUB_OUTPUT
-          echo "macOS-runner-os=${{ inputs.macOS-runner-os }}" >> $GITHUB_OUTPUT
-
-          VERSION="$(cat .version | tr -d '[:space:]')"
-          echo "version=${VERSION}" >> $GITHUB_OUTPUT
-
-          if [[ "$VERSION" == *"-"* ]]; then
-            echo "is_prerelease=true" >>"$GITHUB_OUTPUT"
-            echo "Version contains dash, marking as pre-release"
-          else
-            echo "is_prerelease=false" >>"$GITHUB_OUTPUT"
-            echo "Version is stable release"
-          fi
+          .github/workflows/scripts/load-env/load-env.bash
+        env:
+          PROJECT_SPECS_YAML: ${{ github.workspace }}/.github/project_specs.yaml
+          WORKFLOW_INPUTS_JSON: ${{ toJSON(inputs) }}

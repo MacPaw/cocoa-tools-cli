@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+#MISE description="Lint YAML files (yamlfmt)"
+
+./scripts/tools/yamlfmt/yamlfmt.bash --lint --all

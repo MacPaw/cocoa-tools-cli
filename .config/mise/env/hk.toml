@@ -1,0 +1,4 @@
+# Path to the HK configuration file.
+HK_FILE = ".config/hk/hk.pkl"
+# Enable Mise integration.
+HK_MISE = "1"

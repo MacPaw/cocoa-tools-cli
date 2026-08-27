@@ -1,0 +1,6 @@
+# ShellCheck configuration for this repository.
+# Referenced by SHELLCHECK_RCFILE (see .config/mise/env/shellcheck.toml).
+
+shell=bash
+external-sources=true
+extended-analysis=true

@@ -15,3 +15,11 @@ Binary/
 *.local
 
 !/mise-tasks/build/
+/.vscode/settings.json
+/Derived
+*.xcodeproj
+
+# Symlinks created by `mise deps install ai`
+/.agents
+/.claude
+/CLAUDE.md

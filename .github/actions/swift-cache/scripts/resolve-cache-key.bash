@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+
+set -Euo pipefail
+
+if [[ ${BUILD_SYSTEM} == "swift" ]]; then
+  BUILD_SYSTEM_CACHE_KEY="swift-${SWIFT_VERSION}"
+elif [[ ${BUILD_SYSTEM} == "xcodebuild" ]]; then
+  BUILD_SYSTEM_CACHE_KEY="xcode-${XCODE_VERSION}"
+fi
+
+SPM_CACHE_KEY_ARRAY=(
+  "spm"
+  "${SPM_CACHE_VERSION}"
+  "${BUILD_SYSTEM_CACHE_KEY}"
+  "${RUNNER_OS}"
+  "${PACKAGE_RESOLVED_HASH}"
+)
+SPM_CACHE_KEY="$(
+  IFS=-
+  echo "${SPM_CACHE_KEY_ARRAY[*]}"
+)"
+echo "SPM_CACHE_KEY=${SPM_CACHE_KEY}"
+echo "SPM_CACHE_KEY=${SPM_CACHE_KEY}" >> "${GITHUB_OUTPUT}"
+
+SDK_CACHE_KEY_ARRAY=(
+  "swift-sdks"
+  "${SDK_CACHE_VERSION}"
+  "swift-${SWIFT_VERSION}"
+  "${RUNNER_OS}"
+)
+SDK_CACHE_KEY="$(
+  IFS=-
+  echo "${SDK_CACHE_KEY_ARRAY[*]}"
+)"
+echo "SDK_CACHE_KEY=${SDK_CACHE_KEY}"
+echo "SDK_CACHE_KEY=${SDK_CACHE_KEY}" >> "${GITHUB_OUTPUT}"
+
+# Swiftly trusts config.json for "already installed"; the toolchain bits live next to it
+# (Linux) or under Library/Developer/Toolchains (macOS). Keyed by toolchain version.
+TOOLCHAIN_CACHE_KEY_ARRAY=(
+  "swift-toolchains"
+  "${TOOLCHAIN_CACHE_VERSION}"
+  "swift-${SWIFT_VERSION}"
+  "${RUNNER_OS}"
+  "${ARCHITECTURE}"
+)
+TOOLCHAIN_CACHE_KEY="$(
+  IFS=-
+  echo "${TOOLCHAIN_CACHE_KEY_ARRAY[*]}"
+)"
+echo "TOOLCHAIN_CACHE_KEY=${TOOLCHAIN_CACHE_KEY}"
+echo "TOOLCHAIN_CACHE_KEY=${TOOLCHAIN_CACHE_KEY}" >> "${GITHUB_OUTPUT}"
+
+DEFAULT_BUILD_CACHE_KEY_ARRAY=(
+  "build"
+  "${BUILD_CACHE_VERSION}"
+  "${BUILD_SYSTEM_CACHE_KEY}"
+  "${CONFIGURATION}"
+  "${ARCHITECTURE}"
+)
+BUILD_CACHE_KEY_ARRAY=("${DEFAULT_BUILD_CACHE_KEY_ARRAY[@]}")
+
+DEFAULT_BUILD_CACHE_KEY_ARRAY+=("${PACKAGE_RESOLVED_HASH}")
+DEFAULT_BUILD_CACHE_KEY="$(
+  IFS=-
+  echo "${DEFAULT_BUILD_CACHE_KEY_ARRAY[*]}"
+)"
+echo "DEFAULT_BUILD_CACHE_KEY=${DEFAULT_BUILD_CACHE_KEY}"
+echo "DEFAULT_BUILD_CACHE_KEY=${DEFAULT_BUILD_CACHE_KEY}" >> "${GITHUB_OUTPUT}"
+
+if [[ -n ${BUILD_CACHE_SUFFIX} ]]; then
+  BUILD_CACHE_KEY_ARRAY+=("${BUILD_CACHE_SUFFIX}")
+fi
+BUILD_CACHE_KEY_ARRAY+=("${PACKAGE_RESOLVED_HASH}")
+BUILD_CACHE_KEY="$(
+  IFS=-
+  echo "${BUILD_CACHE_KEY_ARRAY[*]}"
+)"
+echo "BUILD_CACHE_KEY=${BUILD_CACHE_KEY}"
+echo "BUILD_CACHE_KEY=${BUILD_CACHE_KEY}" >> "${GITHUB_OUTPUT}"

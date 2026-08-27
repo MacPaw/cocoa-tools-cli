@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+#MISE description="Verify the musl binary runs inside Alpine Linux"
+
+set -Eeo pipefail
+
+PRODUCT="${PRODUCT:-"${SWIFT_PACKAGE_BINARY_NAME:?"SWIFT_PACKAGE_BINARY_NAME is unset"}"}"
+HOST_ARCH="$(uname -m)"
+
+# shellcheck source=scripts/tools/swift/static-sdk.bash
+source "./scripts/tools/swift/static-sdk.bash"
+# shellcheck source=scripts/linux-container-actions/_common-source.bash
+source "./scripts/linux-container-actions/_common-source.bash"
+
+LINUX_ARCH="$(swift_linux_arch "${HOST_ARCH}")"
+BINARY_PATH="${BINARY_PATH:-".build/$(swift_linux_triple musl "${LINUX_ARCH}")/release/${PRODUCT}"}"
+
+if [ ! -f "${BINARY_PATH}" ]; then
+  echo "=== musl binary not present — building ==="
+  ./scripts/tools/swift/swift.bash \
+    --action=build \
+    --configuration=release \
+    --libc-implementation=musl \
+    --arch="${LINUX_ARCH}" \
+    --product="${PRODUCT}"
+fi
+
+CONTAINER_WAS_RUNNING=false
+if container_status; then
+  CONTAINER_WAS_RUNNING=true
+else
+  container_start
+fi
+
+set +Ee
+echo "=== checking ${BINARY_PATH} inside Alpine ==="
+"${CONTAINER_BINARY}" run \
+  --rm \
+  --volume "$(pwd)/$(dirname "${BINARY_PATH}"):/binaries:ro" \
+  alpine \
+  "/binaries/${PRODUCT}" --version
+CONTAINER_EXIT_CODE=$?
+set -Ee
+
+if [ "${CONTAINER_WAS_RUNNING}" != "true" ]; then
+  container_stop
+fi
+
+exit "${CONTAINER_EXIT_CODE}"

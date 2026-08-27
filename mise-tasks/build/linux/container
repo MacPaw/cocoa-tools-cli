@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-
-#MISE description="Build release Linux binary (Container)"
-
-./scripts/tools/container/container.sh --build "${@}"

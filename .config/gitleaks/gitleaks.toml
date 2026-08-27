@@ -1,0 +1,16 @@
+# Gitleaks configuration for this repository.
+# Referenced by GITLEAKS_CONFIG (see .config/mise/env/gitleaks.toml).
+
+title = "SemanticVersion"
+
+[extend]
+# Extend the default rules shipped with the gitleaks binary.
+useDefault = true
+
+[[allowlists]]
+description = "Exclude local Swift / Xcode build artifacts"
+paths = ['''(?:^|/)\.build(?:/.*)?$''', '''(?:^|/)DerivedData(?:/.*)?$''']
+
+[[allowlists]]
+description = "Placeholder API key value used in docs examples"
+stopwords = ["sk-1234567890abcdef"]

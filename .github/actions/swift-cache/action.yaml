@@ -1,0 +1,156 @@
+name: "Cache Swift Packages"
+description: "Cache Swift Package Manager dependencies and build artifacts"
+inputs:
+  build-system:
+    description: "Build system being used (swift or xcodebuild)"
+    required: true
+  swift-version:
+    description: "Swift version being used"
+    required: true
+  configuration:
+    description: "Configuration to use"
+    required: true
+  xcode-version:
+    description: "Xcode version being used"
+    required: true
+  architecture:
+    description: "Architecture to use"
+    required: true
+    default: ${{ runner.arch }}
+  use-build-cache:
+    description: "Use build cache"
+    required: false
+    default: "true"
+  refresh-main-build-cache:
+    description: "On refs/heads/main, delete any existing build cache and skip restoring it so a fresh one is always saved. Set to false to use normal restore/save-on-miss behavior on main too."
+    required: false
+    default: "true"
+  cache-swift-sdks:
+    description: "Cache installed Swift SDKs, e.g. the static Linux SDK"
+    required: false
+    default: "false"
+  sdk-cache-version:
+    description: "Swift SDK cache version"
+    required: false
+    default: "v1"
+  cache-swift-toolchains:
+    description: "Cache Swiftly-installed toolchains and config.json so swiftly install can no-op"
+    required: false
+    default: "false"
+  toolchain-cache-version:
+    description: "Swift toolchain cache version"
+    required: false
+    default: "v1"
+  spm-cache-version:
+    description: "SPM cache version"
+    required: false
+    default: "v1"
+  build-cache-version:
+    description: "Build cache version"
+    required: false
+    default: "v1"
+  build-cache-suffix:
+    description: "Build cache suffix"
+    required: false
+    default: ""
+outputs:
+  swift-toolchains-cache-key:
+    description: "Swift toolchains cache key"
+    value: ${{ steps.swift-cache-key.outputs.TOOLCHAIN_CACHE_KEY }}
+runs:
+  using: "composite"
+  steps:
+    - name: Cache Key
+      id: swift-cache-key
+      shell: bash
+      run: "${GITHUB_ACTION_PATH}/scripts/resolve-cache-key.bash"
+      env:
+        BUILD_SYSTEM: ${{ inputs.build-system }}
+        SWIFT_VERSION: ${{ inputs.swift-version }}
+        XCODE_VERSION: ${{ inputs.xcode-version }}
+        ARCHITECTURE: ${{ inputs.architecture }}
+        RUNNER_OS: ${{ runner.os }}
+        CONFIGURATION: ${{ inputs.configuration }}
+        SDK_CACHE_VERSION: ${{ inputs.sdk-cache-version }}
+        TOOLCHAIN_CACHE_VERSION: ${{ inputs.toolchain-cache-version }}
+        SPM_CACHE_VERSION: ${{ inputs.spm-cache-version }}
+        BUILD_CACHE_VERSION: ${{ inputs.build-cache-version }}
+        BUILD_CACHE_SUFFIX: ${{ inputs.build-cache-suffix }}
+        PACKAGE_RESOLVED_HASH: ${{ hashFiles('Package*.swift') }}
+
+    - name: Cache Swift packages
+      uses: actions/cache@v6
+      with:
+        path: |
+          ./Package.resolved
+          ./.build/artifacts
+          ./.build/checkouts
+          ./.build/repositories
+          ./.build/prebuilts
+          ./.build/workspace-state.json
+          ./.build/manifest.*
+          ./.build/plugin-tools.yaml
+          ./DerivedData/SourcePackages
+          ~/Library/Caches/org.swift.swiftpm/
+          ~/.cache/org.swift.swiftpm/
+        key: ${{ steps.swift-cache-key.outputs.SPM_CACHE_KEY }}
+
+    - name: Cache Swift SDKs
+      uses: actions/cache@v6
+      if: ${{ inputs.cache-swift-sdks == 'true' }}
+      with:
+        # SwiftPM keeps installed SDK bundles in the first path on Linux and in the second on Darwin.
+        path: |
+          ~/.swiftpm/swift-sdks
+          ~/Library/org.swift.swiftpm/swift-sdks
+        key: ${{ steps.swift-cache-key.outputs.SDK_CACHE_KEY }}
+
+    - name: Delete existing main build cache
+      if: ${{ inputs.use-build-cache == 'true' && github.ref == 'refs/heads/main' && inputs.refresh-main-build-cache == 'true' }}
+      shell: bash
+      run: "${GITHUB_ACTION_PATH}/scripts/delete-main-build-cache.bash"
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
+        CACHE_KEY: ${{ steps.swift-cache-key.outputs.BUILD_CACHE_KEY }}
+
+    - name: Restore Swift Build Intermediate Files
+      id: restore-build-cache
+      if: ${{ inputs.use-build-cache == 'true' && !(github.ref == 'refs/heads/main' && inputs.refresh-main-build-cache == 'true') }}
+      uses: actions/cache/restore@v6
+      with:
+        path: |
+          ./.build
+          !./.build/artifacts/*
+          !./.build/checkouts/*
+          !./.build/repositories/*
+          !./.build/prebuilts/*
+          !./.build/workspace-state.json
+          !./.build/manifest.*
+          !./.build/plugin-tools.yaml
+          ./DerivedData
+          !./DerivedData/SourcePackages/*
+        key: ${{ steps.swift-cache-key.outputs.BUILD_CACHE_KEY }}
+        restore-keys: |
+          ${{ steps.swift-cache-key.outputs.DEFAULT_BUILD_CACHE_KEY }}
+
+    - name: Cache Swift Build Intermediate Files
+      uses: actions/cache@v6
+      if: >-
+        ${{ inputs.use-build-cache == 'true' && (
+          (github.ref == 'refs/heads/main' && inputs.refresh-main-build-cache == 'true') ||
+          steps.restore-build-cache.outputs.cache-matched-key == ''
+        ) }}
+      with:
+        path: |
+          ./.build
+          !./.build/artifacts/*
+          !./.build/checkouts/*
+          !./.build/repositories/*
+          !./.build/prebuilts/*
+          !./.build/workspace-state.json
+          !./.build/manifest.*
+          !./.build/plugin-tools.yaml
+          ./DerivedData
+          !./DerivedData/SourcePackages/*
+        key: ${{ steps.swift-cache-key.outputs.BUILD_CACHE_KEY }}

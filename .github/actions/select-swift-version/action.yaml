@@ -1,0 +1,80 @@
+name: "Select Swift Version"
+description: "Select Xcode version for Swift compilation"
+inputs:
+  xcode-version:
+    description: "Xcode version to select"
+    required: true
+  swift-version:
+    description: "Swift version to select"
+    required: true
+  swift-toolchain-selector:
+    description: "Toolchain swiftly installs, e.g. `6.4-snapshot` for a version that is not released yet. Empty installs the Swift version."
+    required: false
+    default: ""
+  cache-swift-toolchains:
+    description: "Cache Swift toolchains"
+    required: true
+    default: "true"
+  swift-toolchains-cache-key:
+    description: "Swift toolchains cache key"
+    required: true
+  build-system:
+    description: "Build system to use"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Xcode
+      if: ${{ inputs.xcode-version != '' && runner.os == 'macOS' && inputs.build-system == 'xcodebuild' }}
+      shell: bash
+      run: "${GITHUB_ACTION_PATH}/scripts/setup-xcode.bash"
+      env:
+        XCODE_VERSION: ${{ inputs.xcode-version }}
+
+    - id: swiftly-deps-install
+      name: Install Swiftly dependencies
+      shell: bash
+      run: "${GITHUB_ACTION_PATH}/scripts/install-swiftly-dependencies.bash"
+
+    - id: swiftly-install
+      name: Download and initialize Swiftly
+      shell: bash
+      run: "${GITHUB_ACTION_PATH}/scripts/install-swiftly.bash"
+
+    - name: Cache Swift toolchains
+      uses: actions/cache@v6
+      if: ${{ inputs.cache-swift-toolchains == 'true' && inputs.build-system == 'swift' }}
+      with:
+        # config.json is required: swiftly does not rediscover toolchains from the filesystem alone.
+        # macOS: toolchains under Library, config under ~/.swiftly (this repo's install script).
+        # Linux: both under ~/.local/share/swiftly, except in container jobs, where `~` is
+        # /github/home while swiftly follows root's passwd home instead.
+        path: |
+          ~/Library/Developer/Toolchains
+          ~/.swiftly/config.json
+          ~/.local/share/swiftly/toolchains
+          ~/.local/share/swiftly/config.json
+          /root/.local/share/swiftly/toolchains
+          /root/.local/share/swiftly/config.json
+        key: ${{ inputs.swift-toolchains-cache-key }}
+
+    - id: swiftly-install-swift-toolchain
+      name: Install Swift toolchain ${{ inputs.swift-version }}
+      if: ${{ inputs.build-system == 'swift' }}
+      shell: bash
+      run: "${GITHUB_ACTION_PATH}/scripts/swiftly-install-swift-toolchain.bash"
+      env:
+        SWIFT_VERSION: ${{ inputs.swift-version }}
+        SWIFT_TOOLCHAIN_SELECTOR: ${{ inputs.swift-toolchain-selector }}
+
+    - name: Link swiftly
+      if: ${{ inputs.build-system == 'swift' }}
+      shell: bash
+      run: "${GITHUB_ACTION_PATH}/scripts/link-swiftly.bash"
+      env:
+        SWIFT_VERSION: ${{ inputs.swift-version }}
+        SWIFT_TOOLCHAIN_SELECTOR: ${{ inputs.swift-toolchain-selector }}
+
+    - name: Swift versions and SDKs installed
+      shell: bash
+      run: "${GITHUB_ACTION_PATH}/scripts/list-swift-sdks.bash"

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+#MISE description="Build release binary on local machine for current architecture (xcodebuild)"
+
+./scripts/tools/xcodebuild/xcodebuild.bash --package-name="${SWIFT_PACKAGE_NAME}" --action=build-for-testing "${@}"

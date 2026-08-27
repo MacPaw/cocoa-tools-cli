@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+#MISE description="Format YAML files (yamlfmt)"
+
+./scripts/tools/yamlfmt/yamlfmt.bash --format --all

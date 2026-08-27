@@ -1,0 +1,96 @@
+name: "Prepare Swift"
+description: "Prepare Swift for compilation"
+inputs:
+  xcode-version:
+    description: "Xcode version to select"
+    required: true
+  swift-version:
+    description: "Swift version to select"
+    required: true
+  swift-toolchain-selector:
+    description: "Toolchain swiftly installs, e.g. `6.4-snapshot` for a version that is not released yet. Empty installs the Swift version."
+    required: false
+    default: ""
+  build-system:
+    description: "Build system to use"
+    required: true
+    default: "swift"
+  configuration:
+    description: "Configuration to use"
+    required: true
+    default: "debug"
+  architecture:
+    description: "Architecture to use"
+    required: true
+    default: ${{ runner.arch }}
+  use-build-cache:
+    description: "Use build cache"
+    required: false
+    default: "true"
+  refresh-main-build-cache:
+    description: "On refs/heads/main, delete any existing build cache and skip restoring it so a fresh one is always saved. Set to false to use normal restore/save-on-miss behavior on main too."
+    required: false
+    default: "true"
+  cache-swift-sdks:
+    description: "Cache installed Swift SDKs, e.g. the static Linux SDK"
+    required: false
+    default: "false"
+  cache-swift-toolchains:
+    description: "Cache Swiftly-installed toolchains and config.json so swiftly install can no-op"
+    required: false
+    default: "false"
+  spm-cache-version:
+    description: "SPM cache version"
+    required: false
+    default: "v1"
+  build-cache-version:
+    description: "Build cache version"
+    required: false
+    default: "v1"
+  build-cache-suffix:
+    description: "Build cache suffix"
+    required: false
+    default: ""
+runs:
+  using: "composite"
+  steps:
+    - name: Install CLI dependencies
+      shell: bash
+      if: ${{ runner.os == 'Linux' }}
+      run: "${GITHUB_ACTION_PATH}/scripts/linux/install-cli-tools.bash"
+
+    - name: Install mise tools
+      uses: jdx/mise-action@7e36c90d9ab29c415a2384db3006f3ec8a8cc654
+      with:
+        install_args: --env ci --verbose
+
+    - name: Cache Swift Packages and Build Intermediate Files
+      id: swift-cache
+      uses: $/.github/actions/swift-cache/
+      with:
+        build-system: ${{ inputs.build-system }}
+        swift-version: ${{ inputs.swift-version }}
+        configuration: ${{ inputs.configuration }}
+        xcode-version: ${{ inputs.xcode-version }}
+        architecture: ${{ inputs.architecture }}
+        use-build-cache: ${{ inputs.use-build-cache }}
+        refresh-main-build-cache: ${{ inputs.refresh-main-build-cache }}
+        cache-swift-sdks: ${{ inputs.cache-swift-sdks }}
+        cache-swift-toolchains: ${{ inputs.cache-swift-toolchains }}
+        spm-cache-version: ${{ inputs.spm-cache-version }}
+        build-cache-version: ${{ inputs.build-cache-version }}
+        build-cache-suffix: ${{ inputs.build-cache-suffix }}
+
+    - name: Select Swift Version
+      uses: $/.github/actions/select-swift-version/
+      with:
+        xcode-version: ${{ inputs.xcode-version }}
+        swift-version: ${{ inputs.swift-version }}
+        swift-toolchain-selector: ${{ inputs.swift-toolchain-selector }}
+        cache-swift-toolchains: ${{ inputs.cache-swift-toolchains }}
+        swift-toolchains-cache-key: ${{ steps.swift-cache.outputs.swift-toolchains-cache-key }}
+        build-system: ${{ inputs.build-system }}
+
+    - name: Trust Swift Package Macros and Plugins
+      shell: bash
+      run: mise deps install swift-trust --yes

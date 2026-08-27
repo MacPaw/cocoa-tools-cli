@@ -12,75 +12,261 @@ on:
       - checks_requested
     branches:
       - main
-  push:
+  # On main, Build is driven by Test rather than by the push itself, so release archives can
+  # only ever come from a commit that passed the whole Test workflow. Pull request Test runs
+  # carry the feature branch as their head branch and so do not match this filter, which
+  # keeps pull requests on the trigger above.
+  workflow_run:
+    workflows:
+      - Test
+    types:
+      - completed
     branches:
       - main
 
-jobs:
-  load-env:
-    uses: ./.github/workflows/load-env.yaml
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
-  build-release-binary:
-    name: Build release binary
+env:
+  # Archives produced by the matrix below: Darwin x86_64/arm64/universal plus musl Linux
+  # x86_64/aarch64 from the macOS runner, and one gnu Linux archive per Linux runner.
+  # The Release workflow refuses to publish a partial set.
+  expected_release_zip_count: 7
+
+jobs:
+  # Fails the run when the Test workflow that triggered it was not a green push, instead of
+  # skipping the jobs below: a run whose jobs all skip is reported as successful, which would
+  # advertise a green Build to the Release workflow.
+  require-test:
+    name: Require Test
+    if: ${{ github.event_name == 'workflow_run' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      statuses: write
+
+    steps:
+      - name: Set in-progress commit status
+        uses: $/.github/actions/report-commit-status/
+        with:
+          state: pending
+          sha: ${{ github.event.workflow_run.head_sha }}
+          description: In progress
+
+      - name: Require a green Test run
+        uses: $/.github/actions/release/require-workflow-run/
+        with:
+          upstream-workflow: Test
+          upstream-conclusion: ${{ github.event.workflow_run.conclusion }}
+          upstream-event: ${{ github.event.workflow_run.event }}
+          upstream-required-event: push
+
+  load-env:
+    needs:
+      - require-test
+    # require-test only runs for Test completions, and a skipped job would otherwise skip the
+    # whole chain on pull requests.
+    if: ${{ !cancelled() && (needs.require-test.result == 'success' || needs.require-test.result == 'skipped') }}
+    uses: $/.github/workflows/load-env.yaml
+    with:
+      # Empty for every other event, which keeps the triggering ref.
+      checkout-ref: ${{ github.event.workflow_run.head_sha }}
+
+  # Decides whether this commit should be released, before anything is built, so the
+  # matrix knows whether to keep its archives. Publishing itself is gated on a green
+  # build by the upload-release-gate job below.
+  assess-release:
+    name: Assess release
     needs:
       - load-env
-    strategy:
-      matrix:
-        include:
-          - os: ${{ needs.load-env.outputs.macOS-runner-os }}
-            swift-version: ${{ needs.load-env.outputs.swift-version }}
-            xcode-version: ${{ needs.load-env.outputs.xcode-version }}
-          - os: ubuntu-latest
-            swift-version: ${{ needs.load-env.outputs.swift-version }}
-            container: swift:${{ needs.load-env.outputs.swift-version }}
-            sdk: musl
-          - os: ubuntu-26.04-arm
-            swift-version: ${{ needs.load-env.outputs.swift-version }}
-            container: swift:${{ needs.load-env.outputs.swift-version }}
-            sdk: musl
-          - os: ubuntu-latest
-            swift-version: ${{ needs.load-env.outputs.swift-version }}
-            container: swift:${{ needs.load-env.outputs.swift-version }}
-            sdk: gnu
-          - os: ubuntu-26.04-arm
-            swift-version: ${{ needs.load-env.outputs.swift-version }}
-            container: swift:${{ needs.load-env.outputs.swift-version }}
-            sdk: gnu
-
-    runs-on: ${{ matrix.os }}
-    container: ${{ matrix.container }}
+    # Only the main path reaches Build through Test, and that is the only path that releases.
+    if: ${{ github.event_name == 'workflow_run' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      should-proceed: ${{ steps.assess.outputs.should-proceed }}
+      tag-exists: ${{ steps.assess.outputs.tag-exists }}
+      release-exists: ${{ steps.assess.outputs.release-exists }}
+      release-is-draft: ${{ steps.assess.outputs.release-is-draft }}
+      files-changed: ${{ steps.assess.outputs.files-changed }}
+      last-tag: ${{ steps.assess.outputs.last-tag }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
         with:
+          # A workflow_run run starts from the default branch, so the commit Test validated
+          # is pinned explicitly here and in every job below.
+          ref: ${{ github.event.workflow_run.head_sha }}
+          # The assessment compares version file against the latest tag, so it needs the
+          # full history, which also brings in every tag.
+          fetch-depth: 0
+
+      - name: Assess release
+        id: assess
+        run: ./.github/workflows/scripts/release/assess-release.bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ needs.load-env.outputs.package-version }}
+
+  build:
+    name: Build ${{ matrix.name }}
+    needs:
+      - load-env
+      - assess-release
+    # assess-release only runs for the main path, and a skipped job would otherwise skip the
+    # whole chain that depends on it.
+    if: ${{ !cancelled() && needs.load-env.result == 'success' && (needs.assess-release.result == 'success' || needs.assess-release.result == 'skipped') }}
+    permissions:
+      contents: read
+      # Required so the swift-cache action can delete the existing main build cache
+      # before saving a fresh one (cache keys are immutable).
+      actions: write
+    env:
+      package_name: ${{ needs.load-env.outputs.swift-package-name }}
+      should_release: ${{ needs.assess-release.outputs.should-proceed == 'true' }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # The macOS runner builds every Darwin binary and cross-compiles both musl Linux
+          # binaries with the static Linux SDK, so it needs a longer timeout.
+          - name: macOS (Darwin + musl)
+            os: ${{ needs.load-env.outputs.macOS-runner-os }}
+            build-system: swift
+            swift-version: ${{ needs.load-env.outputs.swift-version }}
+            xcode-version: ${{ needs.load-env.outputs.xcode-version }}
+            targets: all
+            artifact-id: darwin-and-musl
+            cache-swift-sdks: true
+            cache-swift-toolchains: true
+          - name: Linux gnu x86_64
+            os: ubuntu-latest
+            build-system: swift
+            swift-version: ${{ needs.load-env.outputs.swift-version }}
+            container: ${{ needs.load-env.outputs.container-image-name }}:${{ needs.load-env.outputs.container-image-tag }}
+            arch: x86_64
+            libc-implementation: gnu
+            artifact-id: linux-gnu-x86_64
+            cache-swift-sdks: false
+            cache-swift-toolchains: true
+          - name: Linux gnu aarch64
+            os: ubuntu-26.04-arm
+            build-system: swift
+            swift-version: ${{ needs.load-env.outputs.swift-version }}
+            container: ${{ needs.load-env.outputs.container-image-name }}:${{ needs.load-env.outputs.container-image-tag }}
+            arch: aarch64
+            libc-implementation: gnu
+            artifact-id: linux-gnu-aarch64
+            cache-swift-sdks: false
+            cache-swift-toolchains: true
+
+    runs-on: ${{ matrix.os }}
+    container: ${{ matrix.container }}
+    timeout-minutes: ${{ matrix.targets == 'all' && 60 || 25 }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
           fetch-depth: 1
 
       - name: Prepare Swift
-        uses: ./.github/workflows/templates/prepare-swift/
+        uses: $/.github/actions/prepare-swift/
         with:
           xcode-version: ${{ matrix.xcode-version }}
           swift-version: ${{ matrix.swift-version }}
-          build-system: swift
+          swift-toolchain-selector: ${{ needs.load-env.outputs.swift-toolchain-selector }}
+          build-system: ${{ matrix.build-system }}
           configuration: release
+          cache-swift-sdks: ${{ matrix.cache-swift-sdks }}
+          cache-swift-toolchains: ${{ matrix.cache-swift-toolchains }}
 
       - name: Build release binary
         id: build
-        run: ./.github/workflows/scripts/release/build-binary.sh
+        run: ./.github/workflows/scripts/release/build-binary.bash
         env:
-          BINARY_NAME: ${{ needs.load-env.outputs.binary-name }}
-          SWIFT_SDK: ${{ matrix.sdk }}
+          SWIFT_PACKAGE_BINARY_NAME: ${{ needs.load-env.outputs.swift-package-binary-name }}
+          TARGETS: ${{ matrix.targets }}
+          ARCH: ${{ matrix.arch }}
+          SWIFT_LIBC_IMPLEMENTATION: ${{ matrix.libc-implementation }}
+          SWIFT_HAS_BUILD_ARTIFACTS: ${{ needs.load-env.outputs.swift-has-build-artifacts }}
+
+      - name: Write archive checksums
+        if: ${{ env.should_release == 'true' && needs.load-env.outputs.swift-has-build-artifacts == 'true' }}
+        run: ./.github/workflows/scripts/release/write-zip-sha256.bash
+
+      - name: Upload release archives
+        if: ${{ env.should_release == 'true' && needs.load-env.outputs.swift-has-build-artifacts == 'true' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: binaries-${{ matrix.artifact-id }}
+          path: |
+            *.zip
+            *.zip.sha256
+          if-no-files-found: error
+          retention-days: 1
 
   # Dummy job to check if build passed and easy to configure PR gates.
   check:
-    name: Check
+    name: Build check
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      statuses: write
+    # Runs on every non-cancelled path so this required check always reports a real conclusion.
+    # A skipped check counts as passing in branch protection, so the action below fails the job
+    # instead of an `if:` guard skipping it.
+    if: ${{ !cancelled() }}
+    steps:
+      # `$/` runs the action from this repository at the commit this workflow was loaded
+      # from, so the job needs no checkout of its own.
+      - name: Require every needed job to have succeeded
+        uses: $/.github/actions/require-needs/
+        with:
+          needs: ${{ toJSON(needs) }}
+
+      - name: Report commit status
+        if: ${{ always() && github.event_name == 'workflow_run' }}
+        uses: $/.github/actions/report-commit-status/
+        with:
+          sha: ${{ github.event.workflow_run.head_sha }}
+          description: ${{ job.status == 'success' && 'Build succeeded' || 'Build failed' }}
+
+  # The Release workflow keys off this artifact: it is uploaded only when a releasable
+  # commit built green, so a failed build can never publish.
+  upload-release-gate:
+    name: Upload release gate
     needs:
       - load-env
-      - build-release-binary
+      - assess-release
+      - build
+      - check
+    if: ${{ needs.assess-release.outputs.should-proceed == 'true' }}
     runs-on: ubuntu-latest
-    if: success()
+    permissions:
+      contents: read
+
     steps:
-      - name: Check
-        shell: bash
-        run: |
-          echo "Build passed"
+      # `$/` runs the action from this repository at the commit this workflow was loaded
+      # from, so the job needs no checkout of its own.
+      - name: Write and upload release gate
+        uses: $/.github/actions/release/upload-gate/
+        with:
+          version: ${{ needs.load-env.outputs.package-version }}
+          is-prerelease: ${{ needs.load-env.outputs.package-version-is-prerelease || 'false' }}
+          binary-name: ${{ needs.load-env.outputs.swift-package-binary-name }}
+          expected-zip-count: ${{ env.expected_release_zip_count }}
+          # Deliberately not falling back to github.sha: on a workflow_run that is the default
+          # branch head rather than the commit that was built, and the gate is what pins the
+          # tag. An empty value fails the script instead of tagging the wrong commit.
+          head-sha: ${{ github.event.workflow_run.head_sha }}
+          # For packages w/o build artifacts the gate is still uploaded, so the Release workflow
+          # needs to know that there are no artifacts to download.
+          swift-has-build-artifacts: ${{ needs.load-env.outputs.swift-has-build-artifacts }}

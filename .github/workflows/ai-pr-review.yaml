@@ -1,0 +1,82 @@
+name: AI PR Review
+
+on:
+  pull_request:
+    types:
+      # When a PR is labeled with the trigger label.
+      - labeled
+      # When a PR is opened and labeled with the trigger label.
+      - opened
+      # When a PR is synchronized (e.g. when a commit is pushed to the PR).
+      # Please, note this is only for testing purposes.
+      # Do not uncomment the `synchronize` type unless you are sure what you are doing.
+      # Uncommenting will trigger the workflow for every commit pushed to the PR.
+      # 💸💸💸 This will drain the available billing credits quickly 💸💸💸.
+      # - synchronize
+  issue_comment:
+    types:
+      # When a new comment is created on a PR.
+      - created
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "PR number to review"
+        required: false
+        type: string
+        default: ""
+      provider:
+        description: "AI provider"
+        required: false
+        type: choice
+        default: "claude"
+        options:
+          - claude
+      reporter:
+        description: "Reporter type (github/markdown)"
+        required: false
+        type: choice
+        default: "github, markdown"
+        options:
+          - github
+          - markdown
+          - github, markdown
+      reporter_use_decision:
+        description: "Bring the Judgement Day to the PR"
+        required: false
+        type: choice
+        options:
+          - "true"
+          - "false"
+        default: "false"
+  workflow_call:
+    secrets:
+      ORG_ANTHROPIC_API_KEY_PR_REVIEWS:
+        required: true
+
+jobs:
+  ai-pr-review:
+    name: "AI PR Review"
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (
+        github.event_name == 'issue_comment' &&
+        github.event.issue.pull_request
+      ) ||
+      (
+        github.event_name == 'pull_request'
+      )
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read # Required to read the PR and instructions content.
+      pull-requests: write # Required to comment on the PR.
+      statuses: write # Required to set the status on the PR.
+    steps:
+      - name: AI PR Review
+        uses: MacPaw/.github-private/.github/actions/pr-review@main
+        with:
+          pr_number: ${{ inputs.pr_number }}
+          provider: ${{ inputs.provider }}
+          reporter: ${{ inputs.reporter }}
+          reporter_use_decision: ${{ inputs.reporter_use_decision }}
+          custom_instructions_prompts_version: 0.0.1
+          anthropic_api_key: ${{ secrets.ORG_ANTHROPIC_API_KEY_PR_REVIEWS }}

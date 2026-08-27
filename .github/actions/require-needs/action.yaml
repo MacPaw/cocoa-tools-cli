@@ -1,0 +1,14 @@
+name: "Require needs"
+description: "Fail unless every job in the calling job needs concluded successfully"
+inputs:
+  needs:
+    description: "The calling job needs context, serialised with toJSON(needs)"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Require every needed job to have succeeded
+      shell: bash
+      run: "${GITHUB_ACTION_PATH}/scripts/require-needs.bash"
+      env:
+        NEEDS_JSON: ${{ inputs.needs }}

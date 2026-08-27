@@ -1,0 +1,140 @@
+#:schema ./schema/mise.json
+
+# Minimum required mise version.
+min_version = "2026.7.16"
+
+[tools]
+# https://app-updates.agilebits.com/product_history/CLI2
+# CLI for 1Password.
+# Used in the ImportSecrets library.
+1password = "latest"
+
+# https://github.com/apple/container/releases/
+# Run Linux containers as lightweight virtual machines.
+# Used in the mise `test-linux` task to run tests in Linux container while running on macOS.
+container = { version = "1.2.0", os = ["macos"] }
+
+# https://github.com/securevale/swift-confidential/releases/
+# Obfuscation tool for Swift.
+# Used in ObfuscateSecrets library.
+"github:securevale/swift-confidential" = "latest"
+
+# https://github.com/mvdan/sh/releases/
+# Formats shell scripts.
+# Used in the mise `format` task.
+shfmt = "latest"
+
+# https://github.com/koalaman/shellcheck/releases/
+# Lints and formats shell scripts.
+# Used on CI to lint shell scripts.
+shellcheck = "latest"
+
+# https://github.com/jdx/hk/releases
+# A git hook manager and project linting tool with an emphasis on performance.
+hk = { version = "latest" }
+
+# https://github.com/apple/pkl/releases
+# A configuration as code language with rich validation and tooling.
+# Required for the hk.
+pkl = "latest"
+
+# https://github.com/gitleaks/gitleaks/releases
+# A fast, in-memory, git-based secret scanning tool.
+# Used to scan for secrets in the repository.
+gitleaks = "latest"
+
+# https://github.com/tuist/tuist/releases
+# Xcode project generator.
+# Used to generate .sample project for E2E tests.
+"tuist" = "4.205.0"
+
+# https://github.com/google/yamlfmt/releases
+# Formats YAML files.
+yamlfmt = "latest"
+
+# https://github.com/jqlang/jq/releases
+# JSON processor.
+jq = "latest"
+
+[settings]
+# Enables experimental features.
+# Used for lockfile support.
+experimental = true
+
+# Use the .lock file for mise.
+# This allows to lock tool versions and have flexibility in updating them,
+# by not locking the exact version in the mise.toml file.
+lockfile = true
+
+# Use the idiomatic version files.
+# Used for .ruby-version, .nvmrc, etc.
+idiomatic_version_file = true
+
+# A list of tools to install if there is an idiomatic version file.
+# Don't put "swift" there, as it is managed by Xcode.
+# Unless you want to use a custom version of Swift.
+idiomatic_version_file_enable_tools = []
+
+# Restricts which platforms are included when auto-locking
+lockfile_platforms = ["macos-arm64", "linux-x64", "linux-arm64"]
+
+# Enables caching of environment variables.
+env_cache = true
+# Time to live for environment variables cache.
+env_cache_ttl = "30d"
+
+[env]
+# Static environment variables.
+_.file = [
+  # CONTAINER_BUILD_CPUS, CONTAINER_BUILD_MEMORY
+  { path = "env/container.toml", cacheable = true },
+  # GITLEAKS_CONFIG
+  { path = "env/gitleaks.toml", cacheable = true },
+  # SHELLCHECK_RCFILE
+  { path = "env/shellcheck.toml", cacheable = true },
+  # HK_FILE
+  { path = "env/hk.toml", cacheable = true },
+]
+# Dynamic environment variables.
+_.source = [
+  # SWIFT_VERSION
+  { path = "env/dynamic/swift.bash", cacheable = true, tools = true, watch_files = [
+    ".swift-version",
+    ".config/mise/env/dynamic/swift.bash",
+  ] },
+  # SWIFT_PACKAGE_NAME, SWIFT_PACKAGE_BINARY_NAME
+  { path = "env/dynamic/swift-package.bash", cacheable = true, tools = true, watch_files = [
+    "Package.swift",
+    ".config/mise/env/dynamic/swift-package.bash",
+  ] },
+]
+
+[deps.git-bootstrap]
+sources = [".gitconfig", "scripts/tools/git/git.bash"]
+dir = "../.."
+run = "scripts/tools/git/git.bash --action=bootstrap"
+description = "Bootstrap git configuration (`.gitconfig`)"
+
+[deps.swift-trust]
+sources = [
+  "Package.resolved",
+  "scripts/tools/swift/spm-trust.bash",
+  "scripts/tools/swift/security/macros.json",
+  "scripts/tools/swift/security/plugins.json",
+]
+dir = "../.."
+run = "scripts/tools/swift/swift.bash --action=trust"
+description = "Trust Swift Package Macros and Plugins"
+
+[deps.hk-install]
+# , postinstall = "hk install --mise" fails on CI for some reason
+sources = ["hk.toml"]
+dir = "../.."
+run = "hk install --mise"
+description = "Install hk hooks"
+
+[deps.ai]
+sources = ["scripts/tools/ai/ai.bash"]
+dir = "../.."
+run = "scripts/tools/ai/ai.bash"
+description = "Create symlinks for AI agent configuration"
