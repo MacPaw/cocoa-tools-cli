@@ -12,12 +12,12 @@ min_version = "2026.7.16"
 # https://github.com/apple/container/releases/
 # Run Linux containers as lightweight virtual machines.
 # Used in the mise `test-linux` task to run tests in Linux container while running on macOS.
-container = { version = "1.2.0", os = ["macos"] }
+container = { version = "1.3.0", os = ["macos"] }
 
 # https://github.com/securevale/swift-confidential/releases/
 # Obfuscation tool for Swift.
 # Used in ObfuscateSecrets library.
-"github:securevale/swift-confidential" = "latest"
+"github:securevale/swift-confidential" = { version = "latest", os = ["macos"] }
 
 # https://github.com/mvdan/sh/releases/
 # Formats shell scripts.
@@ -31,7 +31,7 @@ shellcheck = "latest"
 
 # https://github.com/jdx/hk/releases
 # A git hook manager and project linting tool with an emphasis on performance.
-hk = { version = "latest" }
+hk = "latest"
 
 # https://github.com/apple/pkl/releases
 # A configuration as code language with rich validation and tooling.
