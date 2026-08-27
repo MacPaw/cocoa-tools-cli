@@ -76,13 +76,26 @@ resolve_swift_container_image() {
   fi
 }
 
+download_jq_binary() {
+  local JQ_ARCH
+  case "${ARCH:-"$(uname -m)"}" in
+    aarch64 | arm64) JQ_ARCH="arm64" ;;
+    *) JQ_ARCH="amd64" ;;
+  esac
+  local JQ_PREBUILT="${REPOSITORY_ROOT_DIR}/.build/prebuilts/jq-linux-${JQ_ARCH}"
+  if [ ! -f "${JQ_PREBUILT}" ]; then
+    echo "Downloading jq linux/${JQ_ARCH} binary..."
+    curl -fsSL -o "${JQ_PREBUILT}" "https://github.com/jqlang/jq/releases/latest/download/jq-linux-${JQ_ARCH}"
+  fi
+}
+
 # Running test on a package copy to avoid modifying files in the original package folder (.build, .swiftpm, etc.).
 prepare_package_copy() {
 
   echo "Removing copy..."
   rm -rf /package-copy
 
-  mkdir -p /package-copy/.build
+  mkdir -p /package-copy
 
   echo "Trusting Swift Package Macros and Plugins..."
   if [ -x ./scripts/tools/swift/swift.bash ]; then
@@ -109,23 +122,7 @@ prepare_package_copy() {
     fi
   done
 
-  echo "Copying resolved packages..."
-  for SOURCE in .build/checkouts .build/repositories .build/workspace-state.json .build/prebuilts .build/manifest.*; do
-    echo "  Copying ${SOURCE}..."
-    if [ -d "${SOURCE}" ]; then
-      cp -r "${SOURCE}" /package-copy
-    elif [ -f "${SOURCE}" ]; then
-      DIR="/package-copy/$(dirname "${SOURCE}")"
-      if [ ! -d "${DIR}" ]; then
-        echo "    Creating ${DIR}..."
-        mkdir -p "${DIR}"
-      fi
-      echo "    Copying ${SOURCE} to ${DIR}..."
-      cp "${SOURCE}" "${DIR}"
-    else
-      echo "    Skipping missing ${SOURCE}"
-    fi
-  done
+  ln -s /package/.build /package-copy/.build
 
   echo "Copying necessary scripts..."
   mkdir -p /package-copy/scripts/tools
@@ -137,24 +134,9 @@ prepare_package_copy() {
   echo "Current directory:"
   pwd
 
-  echo "Removing previous build..."
-  rm -rf .build/*-linux-* || true
-
-  # echo "Cleaning..."
-  # /usr/bin/swift package clean
-
-  # echo "Resolving packages..."
-  # /usr/bin/swift package resolve
-
 }
 
 finish() {
-  echo "Copying prebuilts back..."
-  cp -r .build/prebuilts \
-    \
-    /package/.build \
-    || true # Workaround for read-only mount when using the container binary.
-
   echo "Removing copy..."
   rm -rf /package-copy
 }

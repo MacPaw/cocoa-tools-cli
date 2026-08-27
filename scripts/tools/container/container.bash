@@ -16,6 +16,9 @@ container_run() {
   resolve_swift_container_image "${SWIFT_VERSION}"
   echo "Using container image: ${CONTAINER_IMAGE_NAME}:${CONTAINER_IMAGE_TAG}"
 
+  download_jq_binary
+  mkdir -p "${REPOSITORY_ROOT_DIR}/.build/linux"
+
   if [ ! -d "${REPOSITORY_ROOT_DIR}/.build/prebuilts" ]; then
     mkdir -p "${REPOSITORY_ROOT_DIR}/.build/prebuilts"
   fi
@@ -48,7 +51,9 @@ container_run() {
     --volume "${HOME}/.swiftpm/swift-sdks:/root/.swiftpm/swift-sdks:rw" \
     --volume "${REPOSITORY_ROOT_DIR}/.build/prebuilts:/package/.build/prebuilts:rw" \
     --volume "${REPOSITORY_ROOT_DIR}/.build/${SWIFT_RELEASE_DIRECTORY}:/package/.build/${SWIFT_RELEASE_DIRECTORY}:rw" \
+    --volume "${REPOSITORY_ROOT_DIR}/.build/linux:/package/.build:rw" \
     --volume "${REPOSITORY_ROOT_DIR}:/package:ro" \
+    --volume "${HOME}/Library/Caches/org.swift.swiftpm:/root/.cache/org.swift.swiftpm:rw" \
     --workdir /package \
     --env "SWIFT_LIBC_IMPLEMENTATION=${SWIFT_LIBC_IMPLEMENTATION}" \
     --env "ARCH=${ARCH}" \

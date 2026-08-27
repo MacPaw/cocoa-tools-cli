@@ -9,9 +9,9 @@ set -eu
 prepare_package_copy
 
 echo "Testing..."
-./scripts/tools/swift/swift.bash --action=test
+./scripts/tools/swift/swift.bash --action=test -- --disable-automatic-resolution --disable-prefetching
 
 echo "Building..."
-./scripts/tools/swift/swift.bash --action=build --configuration=debug
+./scripts/tools/swift/swift.bash --action=build --configuration=debug -- --disable-automatic-resolution --disable-prefetching
 
 finish

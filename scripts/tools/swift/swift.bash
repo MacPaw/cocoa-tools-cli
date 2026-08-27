@@ -52,8 +52,8 @@ swift_install_musl_sdk() {
   ARTIFACT_BUNDLE_FILE="${SWIFT_SDK_FOLDER}.artifactbundle"
 
   if ! ${SWIFT_COMMAND} sdk list | grep "${SWIFT_SDK_FOLDER}" > /dev/null; then
-    echo "Installing curl..."
     if ! which curl > /dev/null 2>&1; then
+      echo "Installing curl..."
       if [ "${PLATFORM}" == "Linux" ]; then
         apt-get update && apt-get install -y curl
       else
@@ -232,10 +232,12 @@ swift_run_build_or_tests() {
     echo "${SWIFT_COMMAND} build --configuration ${CONFIGURATION} ${TARGET_ARGS[*]} --show-bin-path"
     BIN_DIR="$(${SWIFT_COMMAND} build --configuration "${CONFIGURATION}" "${TARGET_ARGS[@]}" --show-bin-path | tr -d '[:space:]')"
 
-    echo "Copying ${PRODUCT} from ${BIN_DIR} to ${OUTPUT}..."
-    mkdir -p "${OUTPUT}"
-    cp "${BIN_DIR}/${PRODUCT}" "${OUTPUT}/${PRODUCT}"
-    chmod +x "${OUTPUT}/${PRODUCT}"
+    if [[ "$(realpath "${BIN_DIR}/${PRODUCT}")" != "$(realpath "${OUTPUT}/${PRODUCT}")" ]]; then
+      echo "Copying ${PRODUCT} from ${BIN_DIR} to ${OUTPUT}..."
+      mkdir -p "${OUTPUT}"
+      cp "${BIN_DIR}/${PRODUCT}" "${OUTPUT}/${PRODUCT}"
+      chmod +x "${OUTPUT}/${PRODUCT}"
+    fi
   fi
 }
 
