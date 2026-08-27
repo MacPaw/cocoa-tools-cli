@@ -199,10 +199,6 @@ swift_run_build_or_tests() {
         "--disable-swift-testing"
       )
 
-      if [ "${PLATFORM}" == "Linux" ] || [ "${PLATFORM}" == "Darwin" ]; then
-        DEFAULT_ARGS+=("--disable-index-store")
-      fi
-
       if [ "${USE_STATIC_SWIFT_STDLIB}" == "true" ]; then
         DEFAULT_ARGS+=("--static-swift-stdlib")
       fi
@@ -218,11 +214,17 @@ swift_run_build_or_tests() {
     if [ -n "${PRODUCT}" ]; then
       DEFAULT_ARGS+=("--product" "${PRODUCT}")
     fi
-  elif [ "${ACTION}" == "test" ] && [ "${PLATFORM}" == "Linux" ]; then
+  elif [ "${ACTION}" == "test" ]; then
     DEFAULT_ARGS+=(
-      "--enable-swift-testing"
-      "--enable-xctest"
+      "--enable-code-coverage"
     )
+
+    if [ "${PLATFORM}" == "Linux" ]; then
+      DEFAULT_ARGS+=(
+        "--enable-swift-testing"
+        "--enable-xctest"
+      )
+    fi
   fi
 
   echo "${SWIFT_COMMAND} ${ACTION} ${DEFAULT_ARGS[*]} ${TARGET_ARGS[*]} ${EXTRA_SWIFTPM_ARGS[*]}"
