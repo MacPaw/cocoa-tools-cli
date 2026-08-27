@@ -1,7 +1,7 @@
-public import Foundation
-
 #if canImport(FoundationNetworking)
   public import FoundationNetworking
+#else
+  public import Foundation
 #endif
 
 extension URLSession {
