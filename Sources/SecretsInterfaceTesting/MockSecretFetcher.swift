@@ -43,7 +43,7 @@ public struct MockSecretFetcher: SecretFetcherProtocol {
     initializationError: String? = nil,
     predefinedSecrets: [String: [String: String]] = [:],
     shouldFailFetch: Bool = false,
-    fetchError: String? = nil
+    fetchError: String? = nil,
   ) {
     self.shouldFailInitialization = shouldFailInitialization
     self.initializationError = initializationError

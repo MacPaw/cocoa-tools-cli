@@ -22,7 +22,7 @@ struct SemanticVersionGenerator: ParsableCommand {
   @Option(
     name: [.customLong("output"), .short],
     help: "Output file path for the generated Swift code",
-    transform: URL.init(fileURLWithPath:)
+    transform: URL.init(fileURLWithPath:),
   )
   var outputFileURL: URL
 

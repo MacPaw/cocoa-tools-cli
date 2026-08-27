@@ -60,7 +60,7 @@
       }
       """
 
-    func validate(outputFileURL: URL, _ sourceLocation: SourceLocation = #_sourceLocation, ) throws {
+    func validate(outputFileURL: URL, _ sourceLocation: SourceLocation = #_sourceLocation) throws {
       let obfuscatedString = try String(contentsOf: outputFileURL, encoding: .utf8)
 
       #expect(obfuscatedString == Self.expectedString, sourceLocation: sourceLocation)

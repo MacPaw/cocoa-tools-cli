@@ -12,7 +12,7 @@ final class MockHashiCorpVaultReaderProtocol: HashiCorpVaultReaderProtocol {
   func fetchItem(
     _ item: HashiCorpVaultReader.Element.Item,
     keys: Set<String>,
-    configuration: HashiCorpVaultReader.Configuration
+    configuration: HashiCorpVaultReader.Configuration,
   ) async throws -> [String: String] { [:] }
 }
 
@@ -138,7 +138,7 @@ struct ImportSecretsDecodingTests {
           sources:
             fake-source:
               path: /test/path
-              keys: 
+              keys:
                 - key
       """
     let data = minimalYaml.data(using: .utf8)!

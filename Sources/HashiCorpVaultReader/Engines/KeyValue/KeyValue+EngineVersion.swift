@@ -36,7 +36,7 @@ extension EngineVersion: Comparable {
   /// - Returns: `true` if lhs is less than rhs.
   public static func < (
     lhs: HashiCorpVaultReader.Engine.KeyValue.EngineVersion,
-    rhs: HashiCorpVaultReader.Engine.KeyValue.EngineVersion
+    rhs: HashiCorpVaultReader.Engine.KeyValue.EngineVersion,
   ) -> Bool { lhs.rawValue < rhs.rawValue }
 }
 

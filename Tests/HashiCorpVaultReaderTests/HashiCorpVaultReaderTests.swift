@@ -25,7 +25,7 @@ struct HashiCorpVaultReaderTests {
     let sut = HashiCorpVaultReader.Element.init(
       item: .keyValue(keyValueElement),
       keys: ["password"],
-      keysMap: ["a": "b"]
+      keysMap: ["a": "b"],
     )
 
     // THEN: Element is configured correctly
@@ -122,7 +122,7 @@ struct HashiCorpVaultReaderTests {
       vaultAddress: URL(string: "https://vault.example.com")!,
       defaultEngineConfigurations: .init(),
       authenticationCredentials: .init(),
-      authenticationMethod: .token
+      authenticationMethod: .token,
     )
     let sut = HashiCorpVaultReader()
 
@@ -141,10 +141,10 @@ struct HashiCorpVaultReaderTests {
       vaultAddress: #require(URL(string: "https://vault.example.com")),
       defaultEngineConfigurations: .init(
         keyValue: .init(defaultSecretMountPath: "secret"),
-        aws: .init(defaultEnginePath: "aws")
+        aws: .init(defaultEnginePath: "aws"),
       ),
       authenticationCredentials: .init(token: .init(vaultToken: "test-token")),
-      authenticationMethod: .token
+      authenticationMethod: .token,
     )
   }
 }

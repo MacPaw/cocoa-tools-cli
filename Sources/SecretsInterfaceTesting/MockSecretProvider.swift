@@ -68,7 +68,7 @@ public struct MockSecretProvider: SecretProviderProtocol {
     shouldFailConfigurationDecoding: Bool = false,
     configurationDecodingError: String? = nil,
     predefinedSource: Source? = nil,
-    predefinedConfiguration: Source.Configuration? = nil
+    predefinedConfiguration: Source.Configuration? = nil,
   ) {
     self.fetcher = fetcher
     self.shouldFailSourceDecoding = shouldFailSourceDecoding
@@ -144,7 +144,7 @@ extension MockSecretProvider {
   public static func withPredefined(
     source: Source? = nil,
     configuration: Source.Configuration? = nil,
-    fetcher: Fetcher = MockSecretFetcher()
+    fetcher: Fetcher = MockSecretFetcher(),
   ) -> MockSecretProvider {
     MockSecretProvider(fetcher: fetcher, predefinedSource: source, predefinedConfiguration: configuration)
   }

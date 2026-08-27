@@ -12,7 +12,7 @@ extension ImportSecrets.Providers.FakeProvider.Source {
 extension ImportSecrets.Providers.FakeProvider.Source.Item: SecretSourceItemProtocol {
   static func == (
     lhs: ImportSecrets.Providers.FakeProvider.Source.Item,
-    rhs: ImportSecrets.Providers.FakeProvider.Source.Item
+    rhs: ImportSecrets.Providers.FakeProvider.Source.Item,
   ) -> Bool { lhs.path == rhs.path }
 
   func hash(into hasher: inout Hasher) { hasher.combine(path) }

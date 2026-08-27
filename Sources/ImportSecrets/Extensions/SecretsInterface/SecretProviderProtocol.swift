@@ -10,7 +10,7 @@ extension SecretProviderProtocol {
 
   fileprivate func buildResultFrom(
     sourceFetchResults: [Source.Item: SecretsFetchResult],
-    for secrets: [ImportSecrets.Secret]
+    for secrets: [ImportSecrets.Secret],
   ) throws -> SecretsFetchResult {
     var result: SecretsFetchResult = .init()
 
@@ -55,7 +55,7 @@ extension SecretProviderProtocol {
     // Delegate to the typed fetch method
     let results: [Source.Item: SecretsFetchResult] = try self.fetch(
       sources: sourcesToFetch,
-      sourceConfiguration: sourceConfiguration
+      sourceConfiguration: sourceConfiguration,
     )
 
     let result: SecretsFetchResult = try buildResultFrom(sourceFetchResults: results, for: secrets)
@@ -78,7 +78,7 @@ extension SecretProviderAsyncProtocol {
     // Delegate to the typed fetch method
     let results: [Source.Item: SecretsFetchResult] = try await self.fetch(
       sources: sourcesToFetch,
-      sourceConfiguration: sourceConfiguration
+      sourceConfiguration: sourceConfiguration,
     )
 
     let result: SecretsFetchResult = try buildResultFrom(sourceFetchResults: results, for: secrets)

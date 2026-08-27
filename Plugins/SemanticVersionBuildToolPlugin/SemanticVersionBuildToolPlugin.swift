@@ -3,7 +3,7 @@ import PackagePlugin
 
 @main
 struct SemanticVersionBuildToolPlugin {
-  func createBuildCommands(packageDirectoryURL: URL, pluginWorkDirectoryURL: URL, targetName: String, toolURL: URL )
+  func createBuildCommands(packageDirectoryURL: URL, pluginWorkDirectoryURL: URL, targetName: String, toolURL: URL)
     -> [Command]
   {
     // Find the version file — prefer .config/semantic-version/version, fall back to .version

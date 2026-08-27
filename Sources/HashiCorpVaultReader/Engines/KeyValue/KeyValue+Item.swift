@@ -39,12 +39,12 @@ extension Item: DecodableWithConfiguration {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     let secretMountPath: String = try container.decode(
       key: .secretMountPath,
-      or: configuration.defaultEngineConfigurations.keyValue?.defaultSecretMountPath
+      or: configuration.defaultEngineConfigurations.keyValue?.defaultSecretMountPath,
     )
 
     let engineVersion: HashiCorpVaultReader.Engine.KeyValue.EngineVersion = try container.decode(
       key: .engineVersion,
-      or: configuration.defaultEngineConfigurations.keyValue?.defaultEngineVersion
+      or: configuration.defaultEngineConfigurations.keyValue?.defaultEngineVersion,
     )
     let secretsPath: String = try container.decode(String.self, forKey: .path)
     let version: Int = try container.decodeIfPresent(Int.self, forKey: .version) ?? 0

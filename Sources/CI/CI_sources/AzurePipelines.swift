@@ -22,7 +22,7 @@ extension CI.AzurePipelines: CIInterface {
       "BUILD_SOURCEBRANCH",
       "BUILD_REPOSITORY_URI",
       "BUILD_REASON",
-      "BUILD_REPOSITORY_NAME"
+      "BUILD_REPOSITORY_NAME",
     )
   }
 

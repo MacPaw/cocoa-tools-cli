@@ -142,7 +142,7 @@ extension ImportSecrets.Secret: DecodableWithConfiguration {
       let sourceDecoder: any Decoder = try sourcesContainer.superDecoder(forKey: providerKey)
       let source: any SecretSourceProtocol = try sourceProvider.decodeSource(
         from: sourceDecoder,
-        sourceConfiguration: sourceConfiguration
+        sourceConfiguration: sourceConfiguration,
       )
 
       // Check that there are no duplicates in the keysMap.
@@ -157,7 +157,7 @@ extension ImportSecrets.Secret: DecodableWithConfiguration {
               codingPath: container.codingPath + [CodingKeys.sources, providerKey],
               debugDescription:
                 "Multiple keys in the keyMap \(duplicateKeys) map to the same value for the resulting key '\(value)'. This is not allowed.",
-              underlyingError: nil
+              underlyingError: nil,
             )
           )
         }
@@ -173,7 +173,7 @@ extension ImportSecrets.Secret: DecodableWithConfiguration {
         DecodingError.Context(
           codingPath: container.codingPath + [CodingKeys.sources],
           debugDescription: "No known sources specified for the secret",
-          underlyingError: ImportSecrets.Error.secretHasNoKnownSources
+          underlyingError: ImportSecrets.Error.secretHasNoKnownSources,
         )
       )
     }
@@ -201,7 +201,7 @@ extension ImportSecrets.Secret: DecodableWithConfiguration {
           throw SecretsInterface.Error.multipleSourceKeysLeadsToOneReslutingKey(
             provider: sourceProviderKey,
             keys: duplicateKeys,
-            newKey: value
+            newKey: value,
           )
         }
       }

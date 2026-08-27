@@ -192,7 +192,7 @@ extension SecretFetcherAsyncProtocol {
 
     let uniqueFetchedResult: [Source.Item: SecretsFetchResult] = try await withThrowingTaskGroup(
       of: (Source.Item, SecretsFetchResult).self,
-      returning: [Source.Item: SecretsFetchResult].self
+      returning: [Source.Item: SecretsFetchResult].self,
     ) { taskGroup in
       for (item, keys) in itemsToFetch {
         taskGroup.addTask { [self, item, keys] in

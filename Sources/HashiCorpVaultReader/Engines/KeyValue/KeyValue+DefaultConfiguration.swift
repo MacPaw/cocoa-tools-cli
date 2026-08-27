@@ -44,9 +44,10 @@ extension DefaultConfiguration: Decodable {
     let defaultEngineVersion =
       try container.decodeIfPresent(
         HashiCorpVaultReader.Engine.KeyValue.EngineVersion.self,
-        forKey: .defaultEngineVersion
+        forKey: .defaultEngineVersion,
       ) ?? .default
-    let defaultSecretMountPath = try container.decodeIfPresent(String.self, forKey: .defaultSecretMountPath) ?? "secret"
+    let defaultSecretMountPath =
+      try container.decodeIfPresent(String.self, forKey: .defaultSecretMountPath) ?? "secret"
 
     self.init(defaultEngineVersion: defaultEngineVersion, defaultSecretMountPath: defaultSecretMountPath)
   }

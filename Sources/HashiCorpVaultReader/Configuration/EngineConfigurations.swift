@@ -22,7 +22,7 @@ extension HashiCorpVaultReader.Configuration {
     ///   - aws: Optional AWS engine default configuration.
     public init(
       keyValue: HashiCorpVaultReader.Engine.KeyValue.DefaultConfiguration? = .init(),
-      aws: HashiCorpVaultReader.Engine.AWS.DefaultConfiguration? = .init()
+      aws: HashiCorpVaultReader.Engine.AWS.DefaultConfiguration? = .init(),
     ) {
       self.keyValue = keyValue
       self.aws = aws

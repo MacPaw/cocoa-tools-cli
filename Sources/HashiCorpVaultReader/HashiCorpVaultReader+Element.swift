@@ -46,7 +46,7 @@ extension Element: DecodableWithConfiguration {
 
     let item: HashiCorpVaultReader.Element.Item = try HashiCorpVaultReader.Element.Item(
       from: decoder,
-      configuration: configuration
+      configuration: configuration,
     )
 
     self.init(item: item, keys: keys, keysMap: keysMap)

@@ -96,7 +96,7 @@ extension ENV {
   @inlinable
   mutating public func merge(
     _ other: Collection,
-    uniquingKeysWith combine: (Value, Value) throws -> Value = { current, _ in current }
+    uniquingKeysWith combine: (Value, Value) throws -> Value = { current, _ in current },
   ) rethrows { try variables.merge(other, uniquingKeysWith: combine) }
 
   /// Return a new ENV by merging another collection.
@@ -108,7 +108,7 @@ extension ENV {
   @inlinable
   public func merging(
     _ other: Collection,
-    uniquingKeysWith combine: (Value, Value) throws -> Value = { current, _ in current }
+    uniquingKeysWith combine: (Value, Value) throws -> Value = { current, _ in current },
   ) rethrows -> Self { try new { try $0.merging(other, uniquingKeysWith: combine) } }
 
   /// Replace all environment variables with another ENV.
@@ -132,7 +132,7 @@ extension ENV {
   @inlinable
   mutating public func merge(
     _ other: Self,
-    uniquingKeysWith combine: (Value, Value) throws -> Value = { current, _ in current }
+    uniquingKeysWith combine: (Value, Value) throws -> Value = { current, _ in current },
   ) rethrows { try merge(other.variables, uniquingKeysWith: combine) }
 
   /// Return a new ENV by merging another ENV.
@@ -144,7 +144,7 @@ extension ENV {
   @inlinable
   public func merging(
     _ other: Self,
-    uniquingKeysWith combine: (Value, Value) throws -> Value = { current, _ in current }
+    uniquingKeysWith combine: (Value, Value) throws -> Value = { current, _ in current },
   ) rethrows -> Self { try new { try $0.merging(other, uniquingKeysWith: combine) } }
 
   /// Remove all environment variables.
@@ -260,7 +260,7 @@ extension ENV {
   @inlinable
   public static func merging(
     _ other: Collection,
-    uniquingKeysWith combine: (Value, Value) throws -> Value = { current, _ in current }
+    uniquingKeysWith combine: (Value, Value) throws -> Value = { current, _ in current },
   ) rethrows -> Self { try current.merging(other, uniquingKeysWith: combine) }
 
   /// Return a new ENV with current variables replaced by another ENV.
@@ -279,7 +279,7 @@ extension ENV {
   @inlinable
   public static func merging(
     _ other: Self,
-    uniquingKeysWith combine: (Value, Value) throws -> Value = { current, _ in current }
+    uniquingKeysWith combine: (Value, Value) throws -> Value = { current, _ in current },
   ) rethrows -> Self { try current.merging(other, uniquingKeysWith: combine) }
 
   /// Return a new ENV with all current variables removed.

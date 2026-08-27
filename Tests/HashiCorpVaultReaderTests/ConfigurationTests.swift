@@ -18,7 +18,7 @@ struct ConfigurationTests {
     let apiVersion = "v2"
     let engineConfigurations = HashiCorpVaultReader.Configuration.EngineConfigurations(
       keyValue: .init(defaultSecretMountPath: "kv"),
-      aws: .init(defaultEnginePath: "aws-prod")
+      aws: .init(defaultEnginePath: "aws-prod"),
     )
     let authCredentials = HashiCorpVaultReader.Configuration.AuthenticationCredentials(
       token: .init(vaultToken: "test-token")
@@ -31,7 +31,7 @@ struct ConfigurationTests {
       apiVersion: apiVersion,
       defaultEngineConfigurations: engineConfigurations,
       authenticationCredentials: authCredentials,
-      authenticationMethod: authMethod
+      authenticationMethod: authMethod,
     )
 
     // THEN: Configuration is set correctly
@@ -56,7 +56,7 @@ struct ConfigurationTests {
       vaultAddress: vaultAddress,
       defaultEngineConfigurations: engineConfigurations,
       authenticationCredentials: authCredentials,
-      authenticationMethod: authMethod
+      authenticationMethod: authMethod,
     )
 
     // THEN: API version defaults to "v1"
@@ -160,7 +160,7 @@ struct ConfigurationTests {
       apiVersion: "v2",
       defaultEngineConfigurations: sut.defaultEngineConfigurations,
       authenticationCredentials: sut.authenticationCredentials,
-      authenticationMethod: sut.authenticationMethod
+      authenticationMethod: sut.authenticationMethod,
     )
 
     // WHEN: Building base URL
@@ -220,7 +220,7 @@ struct ConfigurationTests {
     // GIVEN: AppRole credentials
     let appRole = HashiCorpVaultReader.Configuration.AuthenticationCredentials.AppRole(
       roleId: "role-id-123",
-      secretId: "secret-id-456"
+      secretId: "secret-id-456",
     )
 
     // WHEN: Creating authentication credentials
@@ -289,7 +289,7 @@ struct ConfigurationTests {
     let tokenMethod = try decoder.decode(HashiCorpVaultReader.Configuration.AuthenticationMethod.self, from: tokenData)
     let appRoleMethod = try decoder.decode(
       HashiCorpVaultReader.Configuration.AuthenticationMethod.self,
-      from: appRoleData
+      from: appRoleData,
     )
 
     // THEN: Methods are decoded correctly
@@ -365,7 +365,7 @@ struct ConfigurationTests {
     let decoder = JSONDecoder()
     let sut = try decoder.decode(
       HashiCorpVaultReader.Configuration.AuthenticationCredentials.Token.self,
-      from: jsonData
+      from: jsonData,
     )
 
     // THEN: Token is decoded correctly
@@ -403,7 +403,7 @@ struct ConfigurationTests {
     let decoder = JSONDecoder()
     let sut = try decoder.decode(
       HashiCorpVaultReader.Configuration.AuthenticationCredentials.AppRole.self,
-      from: jsonData
+      from: jsonData,
     )
 
     // THEN: AppRole is decoded correctly
@@ -433,7 +433,7 @@ struct ConfigurationTests {
       vaultAddress: URL(string: "https://different-vault.example.com")!,
       defaultEngineConfigurations: config2.defaultEngineConfigurations,
       authenticationCredentials: config2.authenticationCredentials,
-      authenticationMethod: config2.authenticationMethod
+      authenticationMethod: config2.authenticationMethod,
     )
 
     // WHEN: Comparing configurations
@@ -448,10 +448,10 @@ struct ConfigurationTests {
       vaultAddress: #require(URL(string: "https://vault.example.com")),
       defaultEngineConfigurations: .init(
         keyValue: .init(defaultSecretMountPath: "secret"),
-        aws: .init(defaultEnginePath: "aws")
+        aws: .init(defaultEnginePath: "aws"),
       ),
       authenticationCredentials: .init(token: .init(vaultToken: "test-token")),
-      authenticationMethod: .token
+      authenticationMethod: .token,
     )
   }
 }

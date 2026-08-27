@@ -35,7 +35,7 @@ extension HashiCorpVaultReader {
       apiVersion: String = "v1",
       defaultEngineConfigurations: HashiCorpVaultReader.Configuration.EngineConfigurations,
       authenticationCredentials: HashiCorpVaultReader.Configuration.AuthenticationCredentials,
-      authenticationMethod: HashiCorpVaultReader.Configuration.AuthenticationMethod
+      authenticationMethod: HashiCorpVaultReader.Configuration.AuthenticationMethod,
     ) {
       self.vaultAddress = vaultAddress
       self.apiVersion = apiVersion
@@ -65,11 +65,11 @@ extension HashiCorpVaultReader.Configuration: Decodable {
     let apiVersion = try container.decodeIfPresent(String.self, forKey: .apiVersion) ?? "v1"
     let authenticationCredentials = try container.decode(
       HashiCorpVaultReader.Configuration.AuthenticationCredentials.self,
-      forKey: .authenticationCredentials
+      forKey: .authenticationCredentials,
     )
     let authenticationMethod = try container.decode(
       HashiCorpVaultReader.Configuration.AuthenticationMethod.self,
-      forKey: .authenticationMethod
+      forKey: .authenticationMethod,
     )
     let defaultEngineConfigurations: HashiCorpVaultReader.Configuration.EngineConfigurations =
       try container.decodeIfPresent(HashiCorpVaultReader.Configuration.EngineConfigurations.self, forKey: .engines)
@@ -80,7 +80,7 @@ extension HashiCorpVaultReader.Configuration: Decodable {
       apiVersion: apiVersion,
       defaultEngineConfigurations: defaultEngineConfigurations,
       authenticationCredentials: authenticationCredentials,
-      authenticationMethod: authenticationMethod
+      authenticationMethod: authenticationMethod,
     )
   }
 }

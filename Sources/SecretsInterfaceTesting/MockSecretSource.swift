@@ -39,7 +39,7 @@ public struct MockSecretSource: SecretSourceProtocol {
     keys: [String] = [],
     keysMap: [String: String] = [:],
     shouldFailValidation: Bool = false,
-    validationError: String? = nil
+    validationError: String? = nil,
   ) {
     self.item = item
     self.keys = keys
@@ -76,7 +76,7 @@ extension MockSecretSource {
   public static func failingValidation(
     errorMessage: String? = nil,
     item: Item = MockSecretSourceItem(),
-    keys: [String] = []
+    keys: [String] = [],
   ) -> MockSecretSource {
     MockSecretSource(item: item, keys: keys, shouldFailValidation: true, validationError: errorMessage)
   }

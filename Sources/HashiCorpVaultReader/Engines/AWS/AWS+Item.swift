@@ -33,8 +33,8 @@ extension Item: DecodableWithConfiguration {
         CodingKeys.enginePath,
         DecodingError.Context(
           codingPath: decoder.codingPath,
-          debugDescription: "The 'enginePath' key is missing and no default value was provided"
-        )
+          debugDescription: "The 'enginePath' key is missing and no default value was provided",
+        ),
       )
     }
     self.enginePath = enginePath

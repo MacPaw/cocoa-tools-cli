@@ -45,7 +45,7 @@ extension API: HashiCorpVaultEngineAPIProtocol {
     guard let nestedDataAnyObject = dataObject["data"] else {
       throw DecodingError.keyNotFound(
         CodingKeys.data,
-        .init(codingPath: [CodingKeys.data], debugDescription: "Can't find the root 'data' key in the JSON")
+        .init(codingPath: [CodingKeys.data], debugDescription: "Can't find the root 'data' key in the JSON"),
       )
     }
     guard let nestedDataObject = nestedDataAnyObject as? [String: Any] else {
@@ -53,8 +53,8 @@ extension API: HashiCorpVaultEngineAPIProtocol {
         type(of: nestedDataAnyObject),
         .init(
           codingPath: [CodingKeys.data, CodingKeys.data],
-          debugDescription: "'data' is not a valid JSON object of Dictionary<String, Any> type"
-        )
+          debugDescription: "'data' is not a valid JSON object of Dictionary<String, Any> type",
+        ),
       )
     }
 
