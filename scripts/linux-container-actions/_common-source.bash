@@ -92,27 +92,40 @@ prepare_package_copy() {
   fi
 
   echo "Copying sources..."
-  for SOURCE in Plugins Sources Tests Package*.swift Package.resolved .version .swift-version .config/semantic-version/version; do
+  for SOURCE in Plugins Sources Tests Package*.swift Package.resolved .swift-version .config/semantic-version/version; do
     echo "  Copying ${SOURCE}..."
     if [ -d "${SOURCE}" ]; then
       cp -r "${SOURCE}" /package-copy
     elif [ -f "${SOURCE}" ]; then
-      cp "${SOURCE}" /package-copy
+      DIR="/package-copy/$(dirname "${SOURCE}")"
+      if [ ! -d "${DIR}" ]; then
+        echo "    Creating ${DIR}..."
+        mkdir -p "${DIR}"
+      fi
+      echo "    Copying ${SOURCE} to ${DIR}..."
+      cp "${SOURCE}" "${DIR}"
     else
-      echo "  Skipping missing ${SOURCE}"
+      echo "    Skipping missing ${SOURCE}"
     fi
   done
 
   echo "Copying resolved packages..."
-  cp -r .build/checkouts \
-    .build/repositories \
-    .build/plugins \
-    .build/workspace-state.json \
-    .build/prebuilts \
-    .build/manifest.* \
-    \
-    /package-copy/.build \
-    || true
+  for SOURCE in .build/checkouts .build/repositories .build/workspace-state.json .build/prebuilts .build/manifest.*; do
+    echo "  Copying ${SOURCE}..."
+    if [ -d "${SOURCE}" ]; then
+      cp -r "${SOURCE}" /package-copy
+    elif [ -f "${SOURCE}" ]; then
+      DIR="/package-copy/$(dirname "${SOURCE}")"
+      if [ ! -d "${DIR}" ]; then
+        echo "    Creating ${DIR}..."
+        mkdir -p "${DIR}"
+      fi
+      echo "    Copying ${SOURCE} to ${DIR}..."
+      cp "${SOURCE}" "${DIR}"
+    else
+      echo "    Skipping missing ${SOURCE}"
+    fi
+  done
 
   echo "Copying necessary scripts..."
   mkdir -p /package-copy/scripts/tools
