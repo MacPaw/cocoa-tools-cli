@@ -16,7 +16,7 @@
 
 set -Eeo pipefail
 
-PLATFORM="${PLATFORM:-"$(uname -s)"}"
+PLATFORM="${PLATFORM:-"$(uname -s | tr '[:upper:]' '[:lower:]')"}"
 
 if command -v swiftly > /dev/null 2>&1; then
   SWIFT_COMMAND="swiftly run swift"
@@ -52,9 +52,9 @@ swift_install_musl_sdk() {
   ARTIFACT_BUNDLE_FILE="${SWIFT_SDK_FOLDER}.artifactbundle"
 
   if ! ${SWIFT_COMMAND} sdk list | grep "${SWIFT_SDK_FOLDER}" > /dev/null; then
-    echo "Installing curl..."
     if ! which curl > /dev/null 2>&1; then
-      if [ "${PLATFORM}" == "Linux" ]; then
+      echo "Installing curl..."
+      if [ "${PLATFORM}" == "linux" ]; then
         apt-get update && apt-get install -y curl
       else
         brew install curl
@@ -187,7 +187,7 @@ swift_run_build_or_tests() {
     TARGET_ARGS+=("--arch" "${ARCH}")
   fi
 
-  if [ "${PLATFORM}" == "Linux" ]; then
+  if [ "${PLATFORM}" == "linux" ]; then
     USE_STATIC_SWIFT_STDLIB=true
   fi
 
@@ -198,10 +198,6 @@ swift_run_build_or_tests() {
         "--disable-xctest"
         "--disable-swift-testing"
       )
-
-      if [ "${PLATFORM}" == "Linux" ] || [ "${PLATFORM}" == "Darwin" ]; then
-        DEFAULT_ARGS+=("--disable-index-store")
-      fi
 
       if [ "${USE_STATIC_SWIFT_STDLIB}" == "true" ]; then
         DEFAULT_ARGS+=("--static-swift-stdlib")
@@ -218,11 +214,17 @@ swift_run_build_or_tests() {
     if [ -n "${PRODUCT}" ]; then
       DEFAULT_ARGS+=("--product" "${PRODUCT}")
     fi
-  elif [ "${ACTION}" == "test" ] && [ "${PLATFORM}" == "Linux" ]; then
+  elif [ "${ACTION}" == "test" ]; then
     DEFAULT_ARGS+=(
-      "--enable-swift-testing"
-      "--enable-xctest"
+      "--enable-code-coverage"
     )
+
+    if [ "${PLATFORM}" == "linux" ]; then
+      DEFAULT_ARGS+=(
+        "--enable-swift-testing"
+        "--enable-xctest"
+      )
+    fi
   fi
 
   echo "${SWIFT_COMMAND} ${ACTION} ${DEFAULT_ARGS[*]} ${TARGET_ARGS[*]} ${EXTRA_SWIFTPM_ARGS[*]}"
@@ -232,10 +234,12 @@ swift_run_build_or_tests() {
     echo "${SWIFT_COMMAND} build --configuration ${CONFIGURATION} ${TARGET_ARGS[*]} --show-bin-path"
     BIN_DIR="$(${SWIFT_COMMAND} build --configuration "${CONFIGURATION}" "${TARGET_ARGS[@]}" --show-bin-path | tr -d '[:space:]')"
 
-    echo "Copying ${PRODUCT} from ${BIN_DIR} to ${OUTPUT}..."
-    mkdir -p "${OUTPUT}"
-    cp "${BIN_DIR}/${PRODUCT}" "${OUTPUT}/${PRODUCT}"
-    chmod +x "${OUTPUT}/${PRODUCT}"
+    if [[ "$(realpath "${BIN_DIR}/${PRODUCT}")" != "$(realpath "${OUTPUT}/${PRODUCT}")" ]]; then
+      echo "Copying ${PRODUCT} from ${BIN_DIR} to ${OUTPUT}..."
+      mkdir -p "${OUTPUT}"
+      cp "${BIN_DIR}/${PRODUCT}" "${OUTPUT}/${PRODUCT}"
+      chmod +x "${OUTPUT}/${PRODUCT}"
+    fi
   fi
 }
 

@@ -3,9 +3,9 @@
   // Glibc import must be the first import.
   // Issue: https://github.com/swiftlang/swift/issues/77866
   #if canImport(Glibc)
-  @preconcurrency import Glibc
+  @unsafe @preconcurrency import Glibc
   #elseif canImport(Musl)
-  @preconcurrency import Musl
+  @unsafe @preconcurrency import Musl
   #endif
 #endif
 
@@ -15,9 +15,9 @@ import protocol ArgumentParser.AsyncParsableCommand
 
 // Making sure that output will be shown immediately, as it comes in the script
 #if os(macOS)
-  setbuf(__stdoutp, nil)
+unsafe setbuf(__stdoutp, nil)
 #elseif os(Linux)
-  setbuf(stdout, nil)
+unsafe setbuf(stdout, nil)
 #endif
 
 if ProcessInfo.processInfo.arguments.contains("--verbose") {

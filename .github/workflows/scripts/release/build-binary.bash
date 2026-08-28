@@ -23,7 +23,7 @@ VERSION_FILE="$(version_filename)"
 VERSION="${VERSION:-"$( (cat "${VERSION_FILE}" || echo '0.0.1') | tr -d '[:space:]')"}"
 VERSION="${VERSION#v}"
 SWIFT_PACKAGE_BINARY_NAME="${SWIFT_PACKAGE_BINARY_NAME:-""}"
-HOST_PLATFORM="$(uname -s)"
+HOST_PLATFORM="$(uname -s | tr '[:upper:]' '[:lower:]')"
 HOST_ARCH="$(uname -m)"
 PLATFORM="${PLATFORM:-"${HOST_PLATFORM}"}"
 ARCH="${ARCH:-"${HOST_ARCH}"}"
@@ -89,7 +89,7 @@ verify_binary() {
 
   echo "Binary size: $(du -h "${BINARY_PATH}" | cut -f1)"
 
-  if [ "${TARGET_PLATFORM}" == "Darwin" ] && [ "${HOST_PLATFORM}" == "Darwin" ]; then
+  if [ "${TARGET_PLATFORM}" == "darwin" ] && [ "${HOST_PLATFORM}" == "darwin" ]; then
     local EXPECTED_ARCHS EXPECTED_ARCH
 
     if [ "${TARGET_ARCH}" == "universal" ]; then
@@ -156,13 +156,13 @@ build_target() {
 
 stage_universal_binary() {
   local OUTPUT_DIR
-  OUTPUT_DIR="$(target_staging_dir Darwin universal "")"
+  OUTPUT_DIR="$(target_staging_dir darwin universal "")"
 
   echo "Creating universal binary..."
   mkdir -p "${OUTPUT_DIR}"
   lipo \
-    "$(target_staging_dir Darwin arm64 "")/${SWIFT_PACKAGE_BINARY_NAME}" \
-    "$(target_staging_dir Darwin x86_64 "")/${SWIFT_PACKAGE_BINARY_NAME}" \
+    "$(target_staging_dir darwin arm64 "")/${SWIFT_PACKAGE_BINARY_NAME}" \
+    "$(target_staging_dir darwin x86_64 "")/${SWIFT_PACKAGE_BINARY_NAME}" \
     -create \
     -output "${OUTPUT_DIR}/${SWIFT_PACKAGE_BINARY_NAME}"
 }
@@ -178,10 +178,10 @@ archive_target() {
   rm -f "${ARCHIVE_PATH}"
 
   case "${TARGET_PLATFORM}" in
-    Darwin)
+    darwin)
       (cd "${STAGE_DIR}" && ditto -c -k --sequesterRsrc --keepParent "${SWIFT_PACKAGE_BINARY_NAME}" "${ARCHIVE_PATH}")
       ;;
-    Linux)
+    linux)
       (cd "${STAGE_DIR}" && zip "${ARCHIVE_PATH}" "${SWIFT_PACKAGE_BINARY_NAME}")
       ;;
     *)
@@ -217,32 +217,32 @@ release_target() {
 release_universal_target() {
   if [[ ${SWIFT_HAS_BUILD_ARTIFACTS} == "true" ]]; then
     stage_universal_binary
-    verify_binary Darwin universal ""
-    archive_target Darwin universal ""
+    verify_binary darwin universal ""
+    archive_target darwin universal ""
   fi
 }
 
 mkdir -p "${STAGING_DIR}"
 
 if [ "${TARGETS}" == "all" ]; then
-  if [ "${HOST_PLATFORM}" != "Darwin" ]; then
+  if [ "${HOST_PLATFORM}" != "darwin" ]; then
     die "TARGETS=all builds Darwin and musl Linux binaries and requires a Darwin host, got ${HOST_PLATFORM}"
   fi
 
-  release_target Darwin x86_64 ""
-  release_target Darwin arm64 ""
+  release_target darwin x86_64 ""
+  release_target darwin arm64 ""
   release_universal_target
 
-  release_target Linux x86_64 musl
-  release_target Linux aarch64 musl
-elif [ "${PLATFORM}" == "Darwin" ] && [ "${ARCH}" == "universal" ]; then
-  build_and_verify_target Darwin x86_64 ""
-  build_and_verify_target Darwin arm64 ""
+  release_target linux x86_64 musl
+  release_target linux aarch64 musl
+elif [ "${PLATFORM}" == "darwin" ] && [ "${ARCH}" == "universal" ]; then
+  build_and_verify_target darwin x86_64 ""
+  build_and_verify_target darwin arm64 ""
   release_universal_target
-elif [ "${PLATFORM}" == "Darwin" ] && [[ ${ARCH} == "arm64" || ${ARCH} == "x86_64" ]]; then
-  release_target Darwin "${ARCH}" ""
-elif [ "${PLATFORM}" == "Linux" ] && [[ ${ARCH} == "aarch64" || ${ARCH} == "x86_64" ]]; then
-  release_target Linux "${ARCH}" "${SWIFT_LIBC_IMPLEMENTATION}"
+elif [ "${PLATFORM}" == "darwin" ] && [[ ${ARCH} == "arm64" || ${ARCH} == "x86_64" ]]; then
+  release_target darwin "${ARCH}" ""
+elif [ "${PLATFORM}" == "linux" ] && [[ ${ARCH} == "aarch64" || ${ARCH} == "x86_64" ]]; then
+  release_target linux "${ARCH}" "${SWIFT_LIBC_IMPLEMENTATION}"
 else
   die "Unsupported platform/architecture combination: ${PLATFORM}/${ARCH}"
 fi

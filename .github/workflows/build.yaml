@@ -29,10 +29,10 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  # Archives produced by the matrix below: Darwin x86_64/arm64/universal plus musl Linux
-  # x86_64/aarch64 from the macOS runner, and one gnu Linux archive per Linux runner.
+  # Archives produced by the matrix below: Darwin arm64/x86_64 plus musl Linux
+  # x86_64/aarch64 from the macOS runners, and one gnu Linux archive per Linux runner.
   # The Release workflow refuses to publish a partial set.
-  expected_release_zip_count: 7
+  expected_release_zip_count: 6
   # mise environment
   MISE_ENV: ci
 
@@ -129,33 +129,61 @@ jobs:
     env:
       package_name: ${{ needs.load-env.outputs.swift-package-name }}
       should_release: ${{ needs.assess-release.outputs.should-proceed == 'true' }}
+      artifact_id: ${{ matrix.platform }}-${{ matrix.arch }}${{ matrix.libc-implementation != '' && format('-{0}', matrix.libc-implementation) || '' }}
 
     strategy:
       fail-fast: false
       matrix:
         include:
-          # The macOS runner builds every Darwin binary and cross-compiles both musl Linux
-          # binaries with the static Linux SDK, so it needs a longer timeout.
-          - name: macOS (Darwin + musl)
+          - name: macOS arm64
             os: ${{ needs.load-env.outputs.macOS-runner-os }}
             build-system: swift
             swift-version: ${{ needs.load-env.outputs.swift-version }}
             xcode-version: ${{ needs.load-env.outputs.xcode-version }}
-            targets: all
-            artifact-id: darwin-and-musl
+            arch: arm64
+            cache-swift-sdks: false
+            cache-swift-toolchains: true
+            platform: darwin
+          - name: macOS x86_64
+            os: ${{ needs.load-env.outputs.macOS-runner-os }}
+            build-system: swift
+            swift-version: ${{ needs.load-env.outputs.swift-version }}
+            xcode-version: ${{ needs.load-env.outputs.xcode-version }}
+            arch: x86_64
+            cache-swift-sdks: false
+            cache-swift-toolchains: true
+            platform: darwin
+          - name: Linux x86_64 musl
+            os: ${{ needs.load-env.outputs.macOS-runner-os }}
+            build-system: swift
+            swift-version: ${{ needs.load-env.outputs.swift-version }}
+            xcode-version: ${{ needs.load-env.outputs.xcode-version }}
+            arch: x86_64
+            libc-implementation: musl
             cache-swift-sdks: true
             cache-swift-toolchains: true
-          - name: Linux gnu x86_64
+            platform: linux
+          - name: Linux aarch64 musl
+            os: ${{ needs.load-env.outputs.macOS-runner-os }}
+            build-system: swift
+            swift-version: ${{ needs.load-env.outputs.swift-version }}
+            xcode-version: ${{ needs.load-env.outputs.xcode-version }}
+            arch: aarch64
+            libc-implementation: musl
+            cache-swift-sdks: true
+            cache-swift-toolchains: true
+            platform: linux
+          - name: Linux x86_64 gnu
             os: ubuntu-latest
             build-system: swift
             swift-version: ${{ needs.load-env.outputs.swift-version }}
             container: ${{ needs.load-env.outputs.container-image-name }}:${{ needs.load-env.outputs.container-image-tag }}
             arch: x86_64
             libc-implementation: gnu
-            artifact-id: linux-gnu-x86_64
             cache-swift-sdks: false
             cache-swift-toolchains: true
-          - name: Linux gnu aarch64
+            platform: linux
+          - name: Linux aarch64 gnu
             os: ubuntu-26.04-arm
             build-system: swift
             swift-version: ${{ needs.load-env.outputs.swift-version }}
@@ -165,10 +193,11 @@ jobs:
             artifact-id: linux-gnu-aarch64
             cache-swift-sdks: false
             cache-swift-toolchains: true
+            platform: linux
 
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.container }}
-    timeout-minutes: ${{ matrix.targets == 'all' && 60 || 25 }}
+    timeout-minutes: 25
 
     steps:
       - name: Checkout repository
@@ -187,16 +216,19 @@ jobs:
           configuration: release
           cache-swift-sdks: ${{ matrix.cache-swift-sdks }}
           cache-swift-toolchains: ${{ matrix.cache-swift-toolchains }}
+          libc-implementation: ${{ matrix.libc-implementation }}
+          binary-architecture: ${{ matrix.arch }}
+          binary-platform: ${{ matrix.platform }}
 
       - name: Build release binary
         id: build
         run: ./.github/workflows/scripts/release/build-binary.bash
         env:
           SWIFT_PACKAGE_BINARY_NAME: ${{ needs.load-env.outputs.swift-package-binary-name }}
-          TARGETS: ${{ matrix.targets }}
           ARCH: ${{ matrix.arch }}
           SWIFT_LIBC_IMPLEMENTATION: ${{ matrix.libc-implementation }}
           SWIFT_HAS_BUILD_ARTIFACTS: ${{ needs.load-env.outputs.swift-has-build-artifacts }}
+          PLATFORM: ${{ matrix.platform }}
 
       - name: Write archive checksums
         if: ${{ env.should_release == 'true' && needs.load-env.outputs.swift-has-build-artifacts == 'true' }}
@@ -206,7 +238,7 @@ jobs:
         if: ${{ env.should_release == 'true' && needs.load-env.outputs.swift-has-build-artifacts == 'true' }}
         uses: actions/upload-artifact@v7
         with:
-          name: binaries-${{ matrix.artifact-id }}
+          name: binaries-${{ env.artifact_id }}
           path: |
             *.zip
             *.zip.sha256

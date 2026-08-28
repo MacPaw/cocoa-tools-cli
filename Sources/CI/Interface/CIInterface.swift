@@ -1,4 +1,4 @@
-import ENV
+public import ENV
 import Foundation
 
 /// CI interface.

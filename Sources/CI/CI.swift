@@ -1,4 +1,4 @@
-import ENV
+public import ENV
 import Foundation
 
 /// CI.
@@ -9,7 +9,7 @@ public struct CI {
   /// CI type.
   public var type: CIType { ci.type }
 
-  private init(env: ENV = ENV.current, supportedCIs: [any CIInterface.Type] = Self.supported) {
+  private init(env: ENV = ENV.current, supportedCIs: [any CIInterface.Type] = unsafe Self.supported) {
     let currentCI: any CIInterface =
       if let currentCIType: any CIInterface.Type = supportedCIs.first(where: { $0.validateAsCurrentCI(env) }) {
         currentCIType.init(env: env)
@@ -29,7 +29,7 @@ extension CI: CIInterface {
   /// Initialize CI with environment variables.
   ///
   /// - Parameter env: Environment variables.
-  public init(env: ENV = .current) { self.init(env: env, supportedCIs: Self.supported) }
+  public init(env: ENV = .current) { self.init(env: env, supportedCIs: unsafe Self.supported) }
 
   /// Validate if the current CI is supported.
   ///
@@ -57,9 +57,9 @@ extension CI {
   /// - Returns: The current CI.
   public static var current: any CIInterface {
     lock.withLock {
-      if let cached: any CIInterface = _current { return cached }
-      _current = detectCurrent()
-      guard let current = _current else { fatalError("Failed to detect current CI") }
+      if let cached: any CIInterface = unsafe _current { return cached }
+      unsafe _current = detectCurrent()
+      guard let current = unsafe _current else { fatalError("Failed to detect current CI") }
       return current
     }
   }
@@ -69,16 +69,16 @@ extension CI {
   /// - Parameter ciType: The CI type to register.
   public static func register(_ ciType: any CIInterface.Type) {
     lock.withLock {
-      supported.insert(ciType, at: 0)
-      _current = nil  // Reset cache
+      unsafe supported.insert(ciType, at: 0)
+      unsafe _current = nil  // Reset cache
     }
   }
 
   /// Reset the current CI cache.
   public static func reset() {
     lock.withLock {
-      supported = defaultSupported
-      _current = nil
+      unsafe supported = defaultSupported
+      unsafe _current = nil
     }
   }
 

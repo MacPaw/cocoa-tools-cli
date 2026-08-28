@@ -1,4 +1,4 @@
-import Foundation
+public import Foundation
 
 extension HashiCorpVaultReader {
   /// Errors that can occur during HashiCorp Vault operations.

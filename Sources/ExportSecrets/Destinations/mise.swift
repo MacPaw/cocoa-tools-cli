@@ -1,4 +1,4 @@
-import Shell
+public import Shell
 
 /// Protocol for exporting secrets to mise configuration files.
 ///

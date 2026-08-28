@@ -1,7 +1,7 @@
-import Foundation
+public import Foundation
 
 #if canImport(FoundationNetworking)
-  import FoundationNetworking
+  public import FoundationNetworking
 #endif
 
 /// Protocol for HashiCorp Vault engine API functionality.

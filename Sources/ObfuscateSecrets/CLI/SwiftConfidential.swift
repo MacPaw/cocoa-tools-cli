@@ -1,5 +1,10 @@
 import Foundation
-import Shell
+
+#if swift(>=6.4)
+  import Shell
+#else
+  public import Shell
+#endif
 
 extension Shell { struct SwiftConfidential { let cliURL: URL } }
 

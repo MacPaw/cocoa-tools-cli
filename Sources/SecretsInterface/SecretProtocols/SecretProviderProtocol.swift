@@ -1,4 +1,4 @@
-import Foundation
+public import Foundation
 
 /// Protocol defining a secret provider that combines a source and fetcher.
 public protocol SecretProviderProtocol: Sendable {

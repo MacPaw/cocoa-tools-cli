@@ -1,4 +1,4 @@
-import Foundation
+public import Foundation
 
 extension URL {
   /// Returns the path component of the URL, removing any percent-encoding.

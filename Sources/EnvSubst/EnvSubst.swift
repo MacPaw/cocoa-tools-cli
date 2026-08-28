@@ -1,4 +1,4 @@
-import Foundation
+public import Foundation
 
 /// Environment variable substitution utility.
 public struct EnvSubst: Sendable {

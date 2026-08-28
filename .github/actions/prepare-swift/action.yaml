@@ -19,10 +19,13 @@ inputs:
     description: "Configuration to use"
     required: true
     default: "debug"
-  architecture:
-    description: "Architecture to use"
+  binary-architecture:
+    description: "Architecture used for the build (arm64/aarch64/x86_64)"
     required: true
     default: ${{ runner.arch }}
+  binary-platform:
+    description: "Platform used for the build (linux/macos)"
+    required: true
   use-build-cache:
     description: "Use build cache"
     required: false
@@ -51,6 +54,10 @@ inputs:
     description: "Build cache suffix"
     required: false
     default: ""
+  libc-implementation:
+    description: "libc implementation to use for the build"
+    required: false
+    default: ""
 runs:
   using: "composite"
   steps:
@@ -70,7 +77,8 @@ runs:
         swift-version: ${{ inputs.swift-version }}
         configuration: ${{ inputs.configuration }}
         xcode-version: ${{ inputs.xcode-version }}
-        architecture: ${{ inputs.architecture }}
+        binary-architecture: ${{ inputs.binary-architecture }}
+        binary-platform: ${{ inputs.binary-platform }}
         use-build-cache: ${{ inputs.use-build-cache }}
         refresh-main-build-cache: ${{ inputs.refresh-main-build-cache }}
         cache-swift-sdks: ${{ inputs.cache-swift-sdks }}
@@ -78,6 +86,7 @@ runs:
         spm-cache-version: ${{ inputs.spm-cache-version }}
         build-cache-version: ${{ inputs.build-cache-version }}
         build-cache-suffix: ${{ inputs.build-cache-suffix }}
+        libc-implementation: ${{ inputs.libc-implementation }}
 
     - name: Select Swift Version
       uses: $/.github/actions/select-swift-version/

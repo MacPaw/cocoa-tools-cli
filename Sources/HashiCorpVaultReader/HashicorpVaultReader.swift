@@ -1,7 +1,7 @@
-import Foundation
-
 #if canImport(FoundationNetworking)
-  import FoundationNetworking
+  public import FoundationNetworking
+#else
+  public import Foundation
 #endif
 
 /// Protocol for HashiCorp Vault reader functionality.

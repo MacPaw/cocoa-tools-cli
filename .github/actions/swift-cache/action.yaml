@@ -13,10 +13,13 @@ inputs:
   xcode-version:
     description: "Xcode version being used"
     required: true
-  architecture:
-    description: "Architecture to use"
+  binary-architecture:
+    description: "Architecture used for the build (arm64/aarch64/x86_64)"
     required: true
     default: ${{ runner.arch }}
+  binary-platform:
+    description: "Platform used for the build (darwin/linux)"
+    required: true
   use-build-cache:
     description: "Use build cache"
     required: false
@@ -53,6 +56,11 @@ inputs:
     description: "Build cache suffix"
     required: false
     default: ""
+  libc-implementation:
+    description: "libc implementation"
+    required: false
+    default: ""
+
 outputs:
   swift-toolchains-cache-key:
     description: "Swift toolchains cache key"
@@ -68,7 +76,9 @@ runs:
         BUILD_SYSTEM: ${{ inputs.build-system }}
         SWIFT_VERSION: ${{ inputs.swift-version }}
         XCODE_VERSION: ${{ inputs.xcode-version }}
-        ARCHITECTURE: ${{ inputs.architecture }}
+        HOST_ARCHITECTURE: ${{ runner.arch }}
+        BINARY_ARCHITECTURE: ${{ inputs.binary-architecture }}
+        BINARY_PLATFORM: ${{ inputs.binary-platform }}
         RUNNER_OS: ${{ runner.os }}
         CONFIGURATION: ${{ inputs.configuration }}
         SDK_CACHE_VERSION: ${{ inputs.sdk-cache-version }}
@@ -77,6 +87,7 @@ runs:
         BUILD_CACHE_VERSION: ${{ inputs.build-cache-version }}
         BUILD_CACHE_SUFFIX: ${{ inputs.build-cache-suffix }}
         PACKAGE_RESOLVED_HASH: ${{ hashFiles('Package*.swift') }}
+        LIBC_IMPLEMENTATION: ${{ inputs.libc-implementation }}
 
     - name: Cache Swift packages
       uses: actions/cache@v6
@@ -89,6 +100,7 @@ runs:
           ./.build/prebuilts
           ./.build/workspace-state.json
           ./.build/manifest.*
+          ./.build/plugin-tools.db
           ./.build/plugin-tools.yaml
           ./DerivedData/SourcePackages
           ~/Library/Caches/org.swift.swiftpm/
@@ -127,6 +139,7 @@ runs:
           !./.build/prebuilts/*
           !./.build/workspace-state.json
           !./.build/manifest.*
+          !./.build/plugin-tools.db
           !./.build/plugin-tools.yaml
           ./DerivedData
           !./DerivedData/SourcePackages/*

@@ -23,3 +23,6 @@ Binary/
 /.agents
 /.claude
 /CLAUDE.md
+
+# Local build artifacts
+/build

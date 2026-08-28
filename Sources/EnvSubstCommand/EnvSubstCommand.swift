@@ -1,4 +1,4 @@
-import ArgumentParser
+public import ArgumentParser
 @_exported public import EnvSubst
 import Foundation
 

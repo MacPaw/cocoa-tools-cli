@@ -1,8 +1,8 @@
-import Foundation
+public import Foundation
 import SharedLogger
 
 #if canImport(FoundationNetworking)
-  import FoundationNetworking
+  public import FoundationNetworking
 #endif
 
 /// Protocol for unique KeyValue elements used in API operations.

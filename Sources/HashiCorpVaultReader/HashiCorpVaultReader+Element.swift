@@ -1,4 +1,4 @@
-import Foundation
+public import Foundation
 
 extension HashiCorpVaultReader {
   /// Represents a vault element that can be either KeyValue or AWS engine type.

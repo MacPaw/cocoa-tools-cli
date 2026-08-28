@@ -2,11 +2,11 @@
 
 set -Eeo pipefail
 
-PLATFORM="${PLATFORM:-"$(uname -s)"}"
+PLATFORM="${PLATFORM:-"$(uname -s | tr '[:upper:]' '[:lower:]')"}"
 
 SOURCE_TRUST_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/security"
 
-if [ "$PLATFORM" == "Darwin" ]; then
+if [ "$PLATFORM" == "darwin" ]; then
   SPM_CACHE_DIR="${HOME}/Library/org.swift.swiftpm"
 else
   SPM_CACHE_DIR="${HOME}/.cache/org.swift.swiftpm"
@@ -14,7 +14,34 @@ fi
 
 SPM_TRUST_DIR="${SPM_CACHE_DIR}/security"
 
+_JQ_READY=false
+
+function install_jq_if_needed() {
+  $_JQ_READY && return
+  if ! command -v jq > /dev/null 2>&1; then
+    echo "Installing jq..."
+    if [ "${PLATFORM}" == "linux" ]; then
+      local JQ_ARCH PREBUILT
+      case "$(uname -m)" in
+        aarch64) JQ_ARCH="arm64" ;;
+        *) JQ_ARCH="amd64" ;;
+      esac
+      PREBUILT="/package/.build/prebuilts/jq-linux-${JQ_ARCH}"
+      if [ ! -f "${PREBUILT}" ]; then
+        echo "  jq prebuilt binary not found at ${PREBUILT}. Run the container via docker.bash to pre-download it." >&2
+        exit 1
+      fi
+      cp "${PREBUILT}" /usr/local/bin/jq
+      chmod +x /usr/local/bin/jq
+    else
+      mise use jq@latest
+    fi
+  fi
+  _JQ_READY=true
+}
+
 function update_trust_info() {
+  install_jq_if_needed
   echo "Getting trust info for ${1}" >&2
 
   if [ ! -f "${SOURCE_TRUST_DIR}/${1}" ]; then
@@ -88,6 +115,7 @@ function update_trust_info() {
 }
 
 function merge_trust_info() {
+  install_jq_if_needed
   local FILE="${1}"
   local DEST_FILE="${SPM_TRUST_DIR}/${FILE}"
   local SOURCE_FILE="${SOURCE_TRUST_DIR}/${FILE}"

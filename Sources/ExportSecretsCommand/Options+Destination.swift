@@ -1,4 +1,4 @@
-import ArgumentParser
+public import ArgumentParser
 
 extension ExportSecretsCommand.Options {
   /// Represents a configured export destination for secrets.

@@ -1,5 +1,5 @@
-import EnvSubst
-import Foundation
+package import EnvSubst
+package import Foundation
 import Shell
 
 package struct ObfuscateSecrets {}

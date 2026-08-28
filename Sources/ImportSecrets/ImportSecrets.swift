@@ -1,8 +1,8 @@
-import EnvSubst
-import Foundation
-import SecretsInterface
+public import EnvSubst
+public import Foundation
+public import SecretsInterface
 import Shell
-import Yams
+public import Yams
 
 /// Main entry point for importing secrets from various providers.
 ///

@@ -36,6 +36,6 @@ if [[ -n ${SWIFT_PACKAGE_BINARY_NAME} ]]; then
   )
 fi
 
-./scripts/tools/swift/swift.bash "${BUILD_ARGS[@]}"
+./scripts/tools/swift/swift.bash "${BUILD_ARGS[@]}" -- --disable-automatic-resolution --disable-prefetching
 
 finish

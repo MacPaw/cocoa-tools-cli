@@ -1,5 +1,5 @@
-import Foundation
-import Shell
+public import Foundation
+public import Shell
 
 /// Protocol for interacting with the 1Password CLI tool.
 ///

@@ -1,4 +1,4 @@
-import SecretsInterface
+public import SecretsInterface
 
 /// Mock implementation of `SecretFetcherProtocol` for testing purposes.
 ///

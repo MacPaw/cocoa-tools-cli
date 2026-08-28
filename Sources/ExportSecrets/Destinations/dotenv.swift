@@ -1,4 +1,4 @@
-import Foundation
+public import Foundation
 
 private typealias DotEnv = ExportSecrets.Destinations.DotEnv
 
