@@ -68,6 +68,15 @@ xcodebuild_run() {
     DEFAULT_ARGS+=("-derivedDataPath" "${DERIVED_DATA_PATH}")
   fi
 
+  if [[ $ACTION == "test" || $ACTION == "test-without-building" ]]; then
+    local XCRESULT_OUTPUT
+    XCRESULT_OUTPUT="${ARTIFACTS_DIR}/test-results/${SWIFT_PACKAGE_NAME}-$(tr '[:upper:]' '[:lower:]' <<< "${CONFIGURATION}").xcresult"
+    mkdir -p "$(dirname "${XCRESULT_OUTPUT}")"
+    DEFAULT_ARGS+=(
+      "-resultBundlePath" "${XCRESULT_OUTPUT}"
+    )
+  fi
+
   local TOOLCHAIN_IDENTIFIER
   TOOLCHAIN_IDENTIFIER="$(resolve_toolchain_identifier "${SWIFT_VERSION:-}")"
 

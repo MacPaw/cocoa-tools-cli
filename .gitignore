@@ -24,5 +24,5 @@ Binary/
 /.claude
 /CLAUDE.md
 
-# Local build artifacts
-/build
+# Local artifacts
+/artifacts

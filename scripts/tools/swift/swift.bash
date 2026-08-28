@@ -16,6 +16,7 @@
 
 set -Eeo pipefail
 
+ARTIFACTS_DIR="${ARTIFACTS_DIR:-"artifacts"}"
 PLATFORM="${PLATFORM:-"$(uname -s | tr '[:upper:]' '[:lower:]')"}"
 
 if command -v swiftly > /dev/null 2>&1; then
@@ -225,6 +226,13 @@ swift_run_build_or_tests() {
         "--enable-xctest"
       )
     fi
+
+    local XUNIT_OUTPUT
+    XUNIT_OUTPUT="${ARTIFACTS_DIR}/test-results/${SWIFT_PACKAGE_NAME}-${CONFIGURATION}-xUnit.xml"
+    mkdir -p "$(dirname "${XUNIT_OUTPUT}")"
+    DEFAULT_ARGS+=(
+      "--xunit-output" "${XUNIT_OUTPUT}"
+    )
   fi
 
   echo "${SWIFT_COMMAND} ${ACTION} ${DEFAULT_ARGS[*]} ${TARGET_ARGS[*]} ${EXTRA_SWIFTPM_ARGS[*]}"
@@ -240,6 +248,17 @@ swift_run_build_or_tests() {
       cp "${BIN_DIR}/${PRODUCT}" "${OUTPUT}/${PRODUCT}"
       chmod +x "${OUTPUT}/${PRODUCT}"
     fi
+  fi
+
+  if [ "${ACTION}" == "test" ]; then
+    echo "Getting code coverage JSON path..."
+    local CODE_COVERAGE_PATH
+    CODE_COVERAGE_PATH="$(${SWIFT_COMMAND} "${ACTION}" "${DEFAULT_ARGS[@]}" "${TARGET_ARGS[@]}" "${EXTRA_SWIFTPM_ARGS[@]}" --show-code-coverage-path)"
+
+    local LCOV_PATH
+    LCOV_PATH="${ARTIFACTS_DIR}/test-results/${SWIFT_PACKAGE_NAME}-${CONFIGURATION}-lcov.json"
+    echo "Formatting and copying code coverage JSON from ${CODE_COVERAGE_PATH} to ${LCOV_PATH}..."
+    jq '.' "${CODE_COVERAGE_PATH}" > "${LCOV_PATH}"
   fi
 }
 

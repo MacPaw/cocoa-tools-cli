@@ -39,6 +39,7 @@ jobs:
       actions: write
     env:
       package_name: ${{ needs.load-env.outputs.swift-package-name }}
+      artifact_id: ${{ matrix.build-system }}-${{ matrix.swift-version }}${{ matrix.xcode-version && format('-{0}', matrix.xcode-version) }}-${{ matrix.platform }}-${{ matrix.os }}
 
     strategy:
       matrix:
@@ -90,6 +91,15 @@ jobs:
         env:
           BUILD_SYSTEM: ${{ matrix.build-system }}
           DERIVED_DATA_PATH: DerivedData
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-results-${{ env.artifact_id }}
+          path: |
+            artifacts/test-results
+          if-no-files-found: error
+          retention-days: 1
 
   lint:
     needs:

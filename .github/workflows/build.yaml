@@ -231,11 +231,11 @@ jobs:
           PLATFORM: ${{ matrix.platform }}
 
       - name: Write archive checksums
-        if: ${{ env.should_release == 'true' && needs.load-env.outputs.swift-has-build-artifacts == 'true' }}
+        if: ${{ needs.load-env.outputs.swift-has-build-artifacts == 'true' }}
         run: ./.github/workflows/scripts/release/write-zip-sha256.bash
 
       - name: Upload release archives
-        if: ${{ env.should_release == 'true' && needs.load-env.outputs.swift-has-build-artifacts == 'true' }}
+        if: ${{ needs.load-env.outputs.swift-has-build-artifacts == 'true' }}
         uses: actions/upload-artifact@v7
         with:
           name: binaries-${{ env.artifact_id }}
