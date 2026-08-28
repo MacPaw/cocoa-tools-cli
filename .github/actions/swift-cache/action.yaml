@@ -13,10 +13,13 @@ inputs:
   xcode-version:
     description: "Xcode version being used"
     required: true
-  architecture:
-    description: "Architecture to use"
+  binary-architecture:
+    description: "Architecture used for the build (arm64/aarch64/x86_64)"
     required: true
     default: ${{ runner.arch }}
+  binary-platform:
+    description: "Platform used for the build (darwin/linux)"
+    required: true
   use-build-cache:
     description: "Use build cache"
     required: false
@@ -73,7 +76,9 @@ runs:
         BUILD_SYSTEM: ${{ inputs.build-system }}
         SWIFT_VERSION: ${{ inputs.swift-version }}
         XCODE_VERSION: ${{ inputs.xcode-version }}
-        ARCHITECTURE: ${{ inputs.architecture }}
+        HOST_ARCHITECTURE: ${{ runner.arch }}
+        BINARY_ARCHITECTURE: ${{ inputs.binary-architecture }}
+        BINARY_PLATFORM: ${{ inputs.binary-platform }}
         RUNNER_OS: ${{ runner.os }}
         CONFIGURATION: ${{ inputs.configuration }}
         SDK_CACHE_VERSION: ${{ inputs.sdk-cache-version }}

@@ -217,6 +217,8 @@ jobs:
           cache-swift-sdks: ${{ matrix.cache-swift-sdks }}
           cache-swift-toolchains: ${{ matrix.cache-swift-toolchains }}
           libc-implementation: ${{ matrix.libc-implementation }}
+          binary-architecture: ${{ matrix.arch }}
+          binary-platform: ${{ matrix.platform }}
 
       - name: Build release binary
         id: build
