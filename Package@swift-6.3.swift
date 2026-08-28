@@ -195,7 +195,7 @@ enum Targets {
     targetBundle(
       name: "TestsCoverageCommand",
       dependencies: [
-        .target(name: "XCResultParsing"),
+        .target(name: "XCResultParsing", condition: .when(platforms: [.macOS])),
         .product(name: "ArgumentParser", package: "swift-argument-parser"),
       ],
       tests: false,
@@ -206,7 +206,7 @@ enum Targets {
     targetBundle(
       name: "TestsResultsCommand",
       dependencies: [
-        .target(name: "XCResultParsing"),
+        .target(name: "XCResultParsing", condition: .when(platforms: [.macOS])),
         .product(name: "ArgumentParser", package: "swift-argument-parser"),
       ],
       tests: false,
