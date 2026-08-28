@@ -72,8 +72,12 @@ xcodebuild_run() {
     local XCRESULT_OUTPUT
     XCRESULT_OUTPUT="${ARTIFACTS_DIR}/test-results/${SWIFT_PACKAGE_NAME}-$(tr '[:upper:]' '[:lower:]' <<< "${CONFIGURATION}").xcresult"
     mkdir -p "$(dirname "${XCRESULT_OUTPUT}")"
+    if [ -d "${XCRESULT_OUTPUT}" ]; then
+      rm -rf "${XCRESULT_OUTPUT}"
+    fi
     DEFAULT_ARGS+=(
       "-resultBundlePath" "${XCRESULT_OUTPUT}"
+      "-enableCodeCoverage" "YES"
     )
   fi
 
