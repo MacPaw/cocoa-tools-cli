@@ -4,23 +4,29 @@ Scaffold a new SPM module in the `mpct` package following existing conventions.
 
 ## Steps
 
-### 1. Add the target in `Package.swift`
+### 1. Add the target in ALL Package manifests
+
+This repo has multiple Package manifests for different Swift toolchain versions:
+- `Package.swift` — baseline swift-tools-version
+- `Package@swift-6.3.swift` — active manifest when building with Swift 6.3+
+
+**You MUST update every `Package@swift-X.Y.swift` file in the repo root, not just `Package.swift`.**
+Check with `ls Package*.swift` before editing.
 
 Use the `targetBundle` helper — it auto-adds `SharedLogger`. Pass extra dependencies as needed:
 
 ```swift
-targetBundle(
-  name: "MyModule",
-  dependencies: ["SomeOtherModule"]
-),
-targetBundle(
-  name: "MyModuleTests",
-  dependencies: ["MyModule"],
-  type: .test
-),
+static var myModule: [PackageDescription.Target] {
+  targetBundle(
+    name: "MyModule",
+    dependencies: [.target(name: "SomeOtherModule")],
+  )
+}
 ```
 
-If the module exposes a public API, add it to `products`:
+Then append `Targets.myModule` to the `targets` array in every manifest.
+
+If the module exposes a public API, add it to `products` in every manifest:
 
 ```swift
 .library(name: "MyModule", targets: ["MyModule"]),
@@ -32,7 +38,7 @@ If the module exposes a public API, add it to `products`:
 Sources/MyModule/MyModule.swift
 ```
 
-Follow the one-main-type-per-file rule. Add doc comments (`///`) on all public declarations.
+Follow the one-main-type-per-file rule. **Add `///` doc comments on ALL public declarations** — types, properties, methods, and initializers.
 
 ### 3. Create the test suite
 
@@ -68,6 +74,7 @@ Key conventions:
 - `@Test` label format: `"functionOrProperty testExplanation"` (no `test_` prefix)
 - Add brief inline comments in each GIVEN/WHEN/THEN block describing what's happening
 - Test outputs, not internal behaviour
+- Use `#require` for non-optional assertions that gate subsequent `#expect` calls
 
 ### 4. Verify
 

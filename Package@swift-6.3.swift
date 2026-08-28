@@ -179,6 +179,39 @@ enum Targets {
   static var hashicorpVaultReader: [PackageDescription.Target] {
     targetBundle(name: "HashiCorpVaultReader", dependencies: [.target(name: "SecretsInterface")], tests: true)
   }
+
+  static var xcResultParsing: [PackageDescription.Target] {
+    targetBundle(name: "XCResultParsing", dependencies: [.target(name: "Shell")], tests: false)
+      + [
+        .testTarget(
+          name: "XCResultParsingTests",
+          dependencies: [.target(name: "XCResultParsing"), .target(name: "SharedLogger")],
+          resources: [.copy("Fixtures/cocoa-tools-debug.xcresult")],
+        )
+      ]
+  }
+
+  static var testsCoverage: [PackageDescription.Target] {
+    targetBundle(
+      name: "TestsCoverageCommand",
+      dependencies: [
+        .target(name: "XCResultParsing"),
+        .product(name: "ArgumentParser", package: "swift-argument-parser"),
+      ],
+      tests: false,
+    )
+  }
+
+  static var testsResults: [PackageDescription.Target] {
+    targetBundle(
+      name: "TestsResultsCommand",
+      dependencies: [
+        .target(name: "XCResultParsing"),
+        .product(name: "ArgumentParser", package: "swift-argument-parser"),
+      ],
+      tests: false,
+    )
+  }
 }
 
 let package = Package(
@@ -194,6 +227,7 @@ let package = Package(
     .library(name: "ENV", targets: ["ENV"]), .library(name: "CI", targets: ["CI"]),
     .library(name: "SecretsInterfaceTesting", targets: ["SecretsInterfaceTesting"]),
     .library(name: "SecretsInterface", targets: ["SecretsInterface"]),
+    .library(name: "XCResultParsing", targets: ["XCResultParsing"]),
   ],
   dependencies: [
     .package(url: "https://github.com/apple/swift-argument-parser.git", .upToNextMajor(from: "1.8.2")),
@@ -209,6 +243,7 @@ let package = Package(
         .product(name: "ArgumentParser", package: "swift-argument-parser"), .target(name: "EnvSubstCommand"),
         .target(name: "ObfuscateSecretsCommand", condition: .when(platforms: [.macOS])),
         .target(name: "ExportSecretsCommand"), .target(name: "SemanticVersion"), .target(name: "SemanticVersionMacro"),
+        .target(name: "TestsCoverageCommand"), .target(name: "TestsResultsCommand"),
       ],
       plugins: [.plugin(name: "SemanticVersionBuildToolPlugin")],
     ),
@@ -218,7 +253,7 @@ let package = Package(
 
   ] + Targets.shell + Targets.envSubst + Targets.exportSecrets + Targets.importSecrets + Targets.obfuscateSecrets
     + Targets.semanticVersion + Targets.env + Targets.ci + Targets.hashicorpVaultReader + Targets.sharedLogger
-    + Targets.secretsInterface,
+    + Targets.secretsInterface + Targets.xcResultParsing + Targets.testsCoverage + Targets.testsResults,
 
   swiftLanguageModes: [.version(swiftLanguageVersion)],
 )

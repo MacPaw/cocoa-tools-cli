@@ -70,9 +70,10 @@ public enum Shell {
     if let environment { process.environment = environment }
 
     try process.run()
-    process.waitUntilExit()
-
+    // Read stdout before waitUntilExit to drain the pipe and prevent deadlock
+    // when the process writes more than the ~64 KB pipe buffer (e.g. xccov output).
     let stdoutData: Data = stdoutPipe.fileHandleForReading.readDataToEndOfFile()
+    process.waitUntilExit()
 
     guard process.terminationStatus == 0 else {
       let stderrData = stderrPipe.fileHandleForReading.readDataToEndOfFile()

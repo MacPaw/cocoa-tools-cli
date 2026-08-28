@@ -18,6 +18,9 @@ Swift CLI for macOS CI/CD tooling. Modular SPM package, Swift 6.1, macOS 15+.
 | `ObfuscateSecrets` | Envsubst + `swift-confidential` obfuscation (macOS only) |
 | `SemanticVersion` | SemVer 2.0 type + build-tool plugin embedding `.config/semantic-version/version` |
 | `SharedLogger` | `swift-log` singleton; all targets depend on it automatically |
+| `XCResultParsing` | `xcresulttool` CLI wrapper + Codable types for coverage and test results |
+| `TestsCoverageCommand` | `mpct tests coverage parse` — exports and prints coverage report |
+| `TestsResultsCommand` | `mpct tests results parse` — fetches and prints test result summary |
 
 ## CLI
 
@@ -27,6 +30,11 @@ mpct [--verbose]
   secrets
     export          Fetch secrets → --destination (dotenv | mise | stdout | ci)
     obfuscate       Envsubst + swift-confidential (macOS only)
+  tests
+    coverage
+      parse         Export xcresult coverage → CoverageReport
+    results
+      parse         Fetch xcresult test results → TestResults
 ```
 
 ## Commands
@@ -47,12 +55,27 @@ make bootstrap                # First-time setup (installs mise and tools)
 - Every target is created with `targetBundle(...)` in `Package.swift`, which automatically adds `SharedLogger` as a dependency.
 - Command targets (e.g., `ExportSecretsCommand`) also get `ArgumentParser` added automatically.
 - Conditional (macOS-only) targets use `#if os(macOS)` / `.when(platforms: [.macOS])`.
+- **Multiple Package manifests**: the repo has `Package.swift` and `Package@swift-6.3.swift`. When adding or modifying targets, update ALL manifests. Check with `ls Package*.swift`.
+- **All public declarations must have `///` doc comments** — types, properties, methods, and initializers.
+
+## Testing conventions
+
+Always invoke the `/new-module` skill before writing tests to pick up the current conventions. Key rules:
+- Name the system under test `sut`.
+- Method name: `test_functionOrProperty_testExplanation`.
+- `@Test` label: `"functionOrProperty testExplanation"` (no `test_` prefix).
+- Structure each test with `// GIVEN`, `// WHEN`, `// THEN` inline comments.
+- Test outputs, not internal behaviour.
 
 ## Release
 
 Bump the version in `.config/semantic-version/version`, update `README.md`, and merge to `main`. CI builds and publishes the release automatically.
 
 ## Skills
+
+Always invoke the relevant skill before starting a task. Available skills:
+
+- `/new-module` — scaffold a new SPM module (includes Package manifest, source, test conventions, and doc comment rules)
 
 If skills don't appear in your agent, run:
 
