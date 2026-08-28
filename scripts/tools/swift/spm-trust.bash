@@ -2,11 +2,11 @@
 
 set -Eeo pipefail
 
-PLATFORM="${PLATFORM:-"$(uname -s)"}"
+PLATFORM="${PLATFORM:-"$(uname -s | tr '[:upper:]' '[:lower:]')"}"
 
 SOURCE_TRUST_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/security"
 
-if [ "$PLATFORM" == "Darwin" ]; then
+if [ "$PLATFORM" == "darwin" ]; then
   SPM_CACHE_DIR="${HOME}/Library/org.swift.swiftpm"
 else
   SPM_CACHE_DIR="${HOME}/.cache/org.swift.swiftpm"
@@ -20,7 +20,7 @@ function install_jq_if_needed() {
   $_JQ_READY && return
   if ! command -v jq > /dev/null 2>&1; then
     echo "Installing jq..."
-    if [ "${PLATFORM}" == "Linux" ]; then
+    if [ "${PLATFORM}" == "linux" ]; then
       local JQ_ARCH PREBUILT
       case "$(uname -m)" in
         aarch64) JQ_ARCH="arm64" ;;

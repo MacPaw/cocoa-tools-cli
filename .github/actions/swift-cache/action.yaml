@@ -53,6 +53,11 @@ inputs:
     description: "Build cache suffix"
     required: false
     default: ""
+  libc-implementation:
+    description: "libc implementation"
+    required: false
+    default: ""
+
 outputs:
   swift-toolchains-cache-key:
     description: "Swift toolchains cache key"
@@ -77,6 +82,7 @@ runs:
         BUILD_CACHE_VERSION: ${{ inputs.build-cache-version }}
         BUILD_CACHE_SUFFIX: ${{ inputs.build-cache-suffix }}
         PACKAGE_RESOLVED_HASH: ${{ hashFiles('Package*.swift') }}
+        LIBC_IMPLEMENTATION: ${{ inputs.libc-implementation }}
 
     - name: Cache Swift packages
       uses: actions/cache@v6

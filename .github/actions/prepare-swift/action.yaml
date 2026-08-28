@@ -51,6 +51,10 @@ inputs:
     description: "Build cache suffix"
     required: false
     default: ""
+  libc-implementation:
+    description: "libc implementation to use for the build"
+    required: false
+    default: ""
 runs:
   using: "composite"
   steps:
@@ -78,6 +82,7 @@ runs:
         spm-cache-version: ${{ inputs.spm-cache-version }}
         build-cache-version: ${{ inputs.build-cache-version }}
         build-cache-suffix: ${{ inputs.build-cache-suffix }}
+        libc-implementation: ${{ inputs.libc-implementation }}
 
     - name: Select Swift Version
       uses: $/.github/actions/select-swift-version/

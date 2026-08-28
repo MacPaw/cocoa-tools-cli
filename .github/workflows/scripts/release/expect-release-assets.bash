@@ -39,7 +39,7 @@ fi
 # Platform and architecture name the build target, not the machine that produced the
 # archive: the macOS runner also cross-builds the musl Linux archives.
 VERSION_PATTERN="${VERSION//./\\.}"
-NAME_PATTERN="^${SWIFT_PACKAGE_BINARY_NAME}-${VERSION_PATTERN}-(Darwin-(arm64|x86_64|universal)|Linux-(aarch64|x86_64)-(gnu|musl))\.zip$"
+NAME_PATTERN="^${SWIFT_PACKAGE_BINARY_NAME}-${VERSION_PATTERN}-(darwin-(arm64|x86_64|universal)|linux-(aarch64|x86_64)-(gnu|musl))\.zip$"
 
 for ARCHIVE in "${ARCHIVES[@]}"; do
   ARCHIVE_NAME="$(basename "${ARCHIVE}")"

@@ -16,7 +16,7 @@
 
 set -Eeo pipefail
 
-PLATFORM="${PLATFORM:-"$(uname -s)"}"
+PLATFORM="${PLATFORM:-"$(uname -s | tr '[:upper:]' '[:lower:]')"}"
 
 if command -v swiftly > /dev/null 2>&1; then
   SWIFT_COMMAND="swiftly run swift"
@@ -54,7 +54,7 @@ swift_install_musl_sdk() {
   if ! ${SWIFT_COMMAND} sdk list | grep "${SWIFT_SDK_FOLDER}" > /dev/null; then
     if ! which curl > /dev/null 2>&1; then
       echo "Installing curl..."
-      if [ "${PLATFORM}" == "Linux" ]; then
+      if [ "${PLATFORM}" == "linux" ]; then
         apt-get update && apt-get install -y curl
       else
         brew install curl
@@ -187,7 +187,7 @@ swift_run_build_or_tests() {
     TARGET_ARGS+=("--arch" "${ARCH}")
   fi
 
-  if [ "${PLATFORM}" == "Linux" ]; then
+  if [ "${PLATFORM}" == "linux" ]; then
     USE_STATIC_SWIFT_STDLIB=true
   fi
 
@@ -219,7 +219,7 @@ swift_run_build_or_tests() {
       "--enable-code-coverage"
     )
 
-    if [ "${PLATFORM}" == "Linux" ]; then
+    if [ "${PLATFORM}" == "linux" ]; then
       DEFAULT_ARGS+=(
         "--enable-swift-testing"
         "--enable-xctest"
