@@ -89,6 +89,8 @@ _.file = [
   { path = "env/shellcheck.toml", cacheable = true },
   # HK_FILE
   { path = "env/hk.toml", cacheable = true },
+  # ARTIFACTS_DIR
+  { path = "env/artifacts.toml", cacheable = true },
 ]
 # Dynamic environment variables.
 _.source = [

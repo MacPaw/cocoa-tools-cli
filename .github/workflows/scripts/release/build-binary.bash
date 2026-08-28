@@ -33,7 +33,8 @@ SWIFT_LIBC_IMPLEMENTATION="${SWIFT_LIBC_IMPLEMENTATION:-""}"
 # the musl Linux cross-builds. Any other value builds the single PLATFORM/ARCH target.
 TARGETS="${TARGETS:-""}"
 
-STAGING_DIR="build/staging"
+ARTIFACTS_DIR="${ARTIFACTS_DIR:-"artifacts"}"
+STAGING_DIR="${ARTIFACTS_DIR}/build/staging"
 
 ASSET_NAMES=()
 ASSET_PATHS=()
