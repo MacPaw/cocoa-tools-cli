@@ -1,7 +1,7 @@
 public import ArgumentParser
 import Foundation
 
-#if canImport(XCResultParsing)
+#if os(macOS)
   import XCResultParsing
 #endif
 
@@ -12,22 +12,18 @@ struct TestsResultsParseCommand: AsyncParsableCommand {
   var options: Options
 
   func validate() throws {
-    #if canImport(XCResultParsing)
+    #if os(macOS)
       guard let xcresult = options.xcresult else {
         throw ValidationError("--xcresult is required")
       }
       guard FileManager.default.fileExists(atPath: xcresult) else {
         throw ValidationError("xcresult bundle not found: \(xcresult)")
       }
-    #else
-      if options.xcresult != nil {
-        throw ValidationError("This command requires macOS.")
-      }
     #endif
   }
 
   func run() async throws {
-    #if canImport(XCResultParsing)
+    #if os(macOS)
       let xcresultURL = URL(fileURLWithPath: options.xcresult!)
       let cli = XCResultToolCLI()
       let data = try cli.getTestResultsTests(xcresultPath: xcresultURL)
