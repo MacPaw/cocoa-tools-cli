@@ -1,0 +1,61 @@
+# mpct — MacPaw Cocoa Tools CLI
+
+Swift CLI for macOS CI/CD tooling. Modular SPM package, Swift 6.1, macOS 15+.
+
+## Modules
+
+| Module | Purpose |
+|---|---|
+| `ENV` | `@dynamicMemberLookup` wrapper around `ProcessInfo` environment |
+| `CI` | CI platform abstraction: GitHub Actions, Azure Pipelines, local |
+| `Shell` | Process execution, `which`, `mise` CLI integration |
+| `EnvSubst` | POSIX-compatible `$VAR` / `${VAR:-default}` substitution engine |
+| `SecretsInterface` | Protocol layer for secret provider implementations |
+| `SecretsInterfaceTesting` | Mock implementations for use in tests |
+| `HashiCorpVaultReader` | HashiCorp Vault HTTP client (KV v1/v2, AWS engine) |
+| `ImportSecrets` | Loads secrets from 1Password CLI or HashiCorp Vault via YAML config |
+| `ExportSecrets` | Writes secrets to dotenv / mise / stdout / CI env |
+| `ObfuscateSecrets` | Envsubst + `swift-confidential` obfuscation (macOS only) |
+| `SemanticVersion` | SemVer 2.0 type + build-tool plugin embedding `.config/semantic-version/version` |
+| `SharedLogger` | `swift-log` singleton; all targets depend on it automatically |
+
+## CLI
+
+```
+mpct [--verbose]
+  envsubst          Substitute env vars in a file or stdin
+  secrets
+    export          Fetch secrets → --destination (dotenv | mise | stdout | ci)
+    obfuscate       Envsubst + swift-confidential (macOS only)
+```
+
+## Commands
+
+Use `mise tasks run` (not `mise run`). Nested tasks use `:` as separator.
+
+```bash
+mise tasks run build          # Build
+mise tasks run test           # Run all tests
+mise tasks run test:swift     # Run Swift tests only
+mise tasks run format         # Format Swift, YAML, shell
+mise tasks run lint           # Lint Swift, YAML, shell
+make bootstrap                # First-time setup (installs mise and tools)
+```
+
+## Package conventions
+
+- Every target is created with `targetBundle(...)` in `Package.swift`, which automatically adds `SharedLogger` as a dependency.
+- Command targets (e.g., `ExportSecretsCommand`) also get `ArgumentParser` added automatically.
+- Conditional (macOS-only) targets use `#if os(macOS)` / `.when(platforms: [.macOS])`.
+
+## Release
+
+Bump the version in `.config/semantic-version/version`, update `README.md`, and merge to `main`. CI builds and publishes the release automatically.
+
+## Skills
+
+If skills don't appear in your agent, run:
+
+```bash
+./scripts/tools/ai/ai.bash
+```
