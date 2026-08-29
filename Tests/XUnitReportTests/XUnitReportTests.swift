@@ -47,7 +47,7 @@ struct XUnitReportTests {
     // WHEN
     let sut = try XUnitReport.load(from: fixtureURL())
     let recordingCases = sut.testSuites.flatMap(\.testCases)
-      .filter { $0.className == "RecordingTests.RecordingTests" }
+      .filter { $0.className == "RecordingTests.RecordingTestsTesting" }
     // THEN
     #expect(recordingCases.filter { $0.failure != nil }.count == 2)
     #expect(recordingCases.contains(where: { $0.isSkipped }))
@@ -59,7 +59,7 @@ struct XUnitReportTests {
     // WHEN
     let sut = try XUnitReport.load(from: fixtureURL())
     let messages = sut.testSuites.flatMap(\.testCases)
-      .filter { $0.className == "RecordingTests.RecordingTests" }
+      .filter { $0.className == "RecordingTests.RecordingTestsTesting" }
       .compactMap(\.failure?.message)
     // THEN
     #expect(messages.contains { $0.hasPrefix("Expectation failed:") })
