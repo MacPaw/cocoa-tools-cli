@@ -115,6 +115,14 @@ Cross-platform xUnit XML parser (macOS and Linux).
 - **Use Cases**: Parsing xUnit output from `swift test --xunit-output`, CI test result processing
 - **Entry point**: `TestSuites.load(from: URL) throws -> TestSuites`
 
+#### LLVMCoverageParser
+Cross-platform LLVM coverage JSON parser (macOS and Linux).
+
+- **Features**: Parses `llvm.coverage.json.export` produced by `swift test --enable-code-coverage`; exposes per-file and aggregate coverage stats (lines, functions, branches)
+- **Fixture stripping**: The test fixture strips segments (line-by-line execution data), the top-level functions array (23k+ mangled Swift symbols), and summary fields not modelled by the parser: `instantiations`, `regions`, `mcdc`
+- **Use Cases**: Parsing LLVM JSON coverage reports, CI coverage result processing
+- **Entry point**: `LLVMCoverage.load(from: URL) throws -> LLVMCoverage`
+
 #### Shell
 Shell command execution utilities with mise integration.
 

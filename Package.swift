@@ -209,6 +209,19 @@ enum Targets {
       ]
   }
 
+  static var llvmCoverageParser: [PackageDescription.Target] {
+    targetBundle(name: "LLVMCoverageParser", tests: false)
+      + [
+        .testTarget(
+          name: "LLVMCoverageParserTests",
+          dependencies: [.target(name: "LLVMCoverageParser"), .target(name: "SharedLogger")],
+          resources: [
+            .copy("Fixtures/lcov.json")
+          ],
+        )
+      ]
+  }
+
   static var testsCoverage: [PackageDescription.Target] {
     targetBundle(
       name: "TestsCoverageCommand",
@@ -247,6 +260,7 @@ let package = Package(
     .library(name: "SecretsInterface", targets: ["SecretsInterface"]),
     .library(name: "XCResultParsing", targets: ["XCResultParsing"]),
     .library(name: "XUnitParser", targets: ["XUnitParser"]),
+    .library(name: "LLVMCoverageParser", targets: ["LLVMCoverageParser"]),
   ],
   dependencies: [
     .package(url: "https://github.com/apple/swift-argument-parser.git", .upToNextMajor(from: "1.6.1")),
@@ -273,7 +287,8 @@ let package = Package(
 
   ] + Targets.shell + Targets.envSubst + Targets.exportSecrets + Targets.importSecrets + Targets.obfuscateSecrets
     + Targets.semanticVersion + Targets.env + Targets.ci + Targets.hashicorpVaultReader + Targets.sharedLogger
-    + Targets.secretsInterface + Targets.xcResultParsing + Targets.xUnitParser + Targets.testsCoverage
+    + Targets.secretsInterface + Targets.xcResultParsing + Targets.xUnitParser + Targets.llvmCoverageParser
+    + Targets.testsCoverage
     + Targets.testsResults,
 
   swiftLanguageModes: [.version(swiftLanguageVersion)],

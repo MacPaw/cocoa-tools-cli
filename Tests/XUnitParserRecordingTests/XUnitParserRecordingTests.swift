@@ -3,7 +3,7 @@ import Testing
 
 // Run only when MPCT_TESTS_RECORD_FAILURES=1.
 // These tests intentionally produce failures, errors, and skips so that
-// `mise tasks run test:swift:record-failures` can capture a real xUnit fixture
+// `mise tasks run test:swift:record-fixtures` can capture a real xUnit fixture
 // containing all element types for XUnitParserTests.
 @Suite(.enabled(if: ProcessInfo.processInfo.environment["MPCT_TESTS_RECORD_FAILURES"] == "1"))
 struct RecordingTests {

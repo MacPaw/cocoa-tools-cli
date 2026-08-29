@@ -1,24 +1,112 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Placeholder fixture. Regenerate with:
-    mise tasks run test:swift:record-failures
--->
 <testsuites>
-  <testsuite name="TestResults" errors="0" tests="5" failures="4" skipped="1" time="0.1">
-    <testcase classname="XUnitParserRecordingTests.RecordingTests" name="test_withKnownIssue_expectFalse()" time="0.01">
-      <failure message="Expectation failed: false" type="Issue">RecordingTests.swift:0: Expectation failed: false</failure>
+  <testsuite name="TestResults" errors="0" tests="100" failures="2" skipped="1" time="4.227993625">
+    <testcase classname="LLVMCoverageParserTests.LLVMCoverageParserTests" name="test_load_regionStatHasNotCovered()" time="0.019004916" />
+    <testcase classname="LLVMCoverageParserTests.LLVMCoverageParserTests" name="test_load_fileHasNonEmptyFilename()" time="0.018177208" />
+    <testcase classname="LLVMCoverageParserTests.LLVMCoverageParserTests" name="test_load_dataIsNonEmpty()" time="0.018643375" />
+    <testcase classname="LLVMCoverageParserTests.LLVMCoverageParserTests" name="test_load_totalsHasNonZeroLineCount()" time="0.018316334" />
+    <testcase classname="LLVMCoverageParserTests.LLVMCoverageParserTests" name="test_load_lineStatHasNoNotCovered()" time="0.018547541" />
+    <testcase classname="LLVMCoverageParserTests.LLVMCoverageParserTests" name="test_load_fileLineCoveragePercentIsValid()" time="0.018911333" />
+    <testcase classname="CITests.CITypeTests" name="test_init_createsCITypeWithProvidedName()" time="0.0139555" />
+    <testcase classname="CITests.CITests" name="test_current_sync()" time="0.0138765" />
+    <testcase classname="XUnitParserTests.XUnitParserTests" name="test_load_failuresFixture_hasSkippedTest()" time="0.017955833" />
+    <testcase classname="XUnitParserTests.XUnitParserTests" name="test_load_returnsNonEmptySuites()" time="0.017493625" />
+    <testcase classname="XUnitParserTests.XUnitParserTests" name="test_load_failuresFixture_hasFailures()" time="0.018372125" />
+    <testcase classname="XUnitParserTests.XUnitParserTests" name="test_load_suiteHasCorrectTestCount()" time="0.018179167" />
+    <testcase classname="XUnitParserTests.XUnitParserTests" name="test_load_failuresFixture_failureHasMessage()" time="0.017596292" />
+    <testcase classname="XUnitParserTests.XUnitParserTests" name="test_load_testCaseHasDecomposedClassname()" time="0.018435584" />
+    <testcase classname="XUnitParserTests.XUnitParserTests" name="test_load_allPassingTestCasesHaveNoFailure()" time="0.018345792" />
+    <testcase classname="ExportSecretsTests.ExportSecretsTests" name="test_export_noSecretsToExport()" time="0.017948208" />
+    <testcase classname="ExportSecretsTests.ExportSecretsTests" name="test_export_dotenvWithLocalEnv()" time="0.017782209" />
+    <testcase classname="ExportSecretsTests.ExportSecretsTests" name="test_export_miseWithLocalEnv()" time="0.017826292" />
+    <testcase classname="EnvSubstTests.EnvSubstTests" name="test_substitute_handlesEnvsubstTestCases_xcode()" time="4.225833208" />
+    <testcase classname="ObfuscateSecretsTests.ObfuscateSecretsTests" name="test_obfuscate_withCLI()" time="0.078572291" />
+    <testcase classname="ObfuscateSecretsTests.ObfuscateSecretsTests" name="test_obfuscate_withLibrary()" time="0.0264925" />
+    <testcase classname="XCResultParsingTests.XCResultParsingTests" name="test_load_returnsNonEmptyTargets()" time="1.169448541" />
+    <testcase classname="XCResultParsingTests.XCResultParsingTests" name="test_load_CIType_hasExecutedFunction()" time="1.169518167" />
+    <testcase classname="XCResultParsingTests.XCResultParsingTests" name="test_load_hasCoverageFilesWithFunctions()" time="1.169574125" />
+    <testcase classname="XCResultParsingTests.XCResultParsingTests" name="test_getTestResultsTests_returnsDecodableTestResults()" time="0.067259875" />
+    <testcase classname="SemanticVersionTests.SemanticVersionTests" name="test_version_isPrerelease()" time="0.013724875" />
+    <testcase classname="SemanticVersionTests.SemanticVersionTests" name="test_version_compare()" time="0.013855375" />
+    <testcase classname="SemanticVersionTests.SemanticVersionTests" name="test_codeExpression()" time="0.014125208" />
+    <testcase classname="SemanticVersionTests.SemanticVersionTests" name="test_version_isRelease()" time="0.013732125" />
+    <testcase classname="SemanticVersionTests.SemanticVersionTests" name="test_version_init()" time="0.013806417" />
+    <testcase classname="SemanticVersionTests.SemanticVersionTests" name="test_version_buildVersion()" time="0.013799875" />
+    <testcase classname="ENVTests.ENVTests" name="test_getters()" time="0.016741708" />
+    <testcase classname="ENVTests.ENVTests" name="test_current()" time="0.016719208" />
+    <testcase classname="ENVTests.ENVTests" name="test_decode()" time="0.014021084" />
+    <testcase classname="ENVTests.ENVTests" name="test_equatable()" time="0.01765625" />
+    <testcase classname="ENVTests.ENVTests" name="test_encode()" time="0.018069625" />
+    <testcase classname="ENVTests.ENVTests" name="test_init_withEnvironment()" time="0.0167795" />
+    <testcase classname="XUnitParserRecordingTests.RecordingTests" name="test_expectFalse()" time="0.018247625" >
+      <failure message="Expectation failed: Bool(false) (error): // GIVEN&#10;// WHEN &#8212; bare assertion failure&#10;// THEN &#8212; unexpected failure recorded in xUnit output" />
     </testcase>
-    <testcase classname="XUnitParserRecordingTests.RecordingTests" name="test_expectFalse()" time="0.01">
-      <failure message="Expectation failed: false" type="Issue">RecordingTests.swift:0: Expectation failed: false</failure>
+    <testcase classname="XUnitParserRecordingTests.RecordingTests" name="test_withKnownIssue_throwError()" time="0.01811725" />
+    <testcase classname="XUnitParserRecordingTests.RecordingTests" name="test_withKnownIssue_expectFalse()" time="0.017688625" />
+    <testcase classname="XUnitParserRecordingTests.RecordingTests" name="test_throwError()" time="0.018005791" >
+      <failure message="Caught error: RecordingError() (error)" />
     </testcase>
-    <testcase classname="XUnitParserRecordingTests.RecordingTests" name="test_withKnownIssue_throwError()" time="0.01">
-      <failure message="Caught error: RecordingError()" type="Issue">RecordingTests.swift:0: Caught error: RecordingError()</failure>
+    <testcase classname="XUnitParserRecordingTests.RecordingTests" name="test_intentionalSkip()" >
+      <skipped>intentional skip for xUnit fixture generation</skipped>
     </testcase>
-    <testcase classname="XUnitParserRecordingTests.RecordingTests" name="test_throwError()" time="0.01">
-      <failure message="Caught error: RecordingError()" type="Issue">RecordingTests.swift:0: Caught error: RecordingError()</failure>
-    </testcase>
-    <testcase classname="XUnitParserRecordingTests.RecordingTests" name="test_intentionalSkip()" time="0.0">
-      <skipped/>
-    </testcase>
+    <testcase classname="ImportSecretsTests.ImportSecretsTests" name="test_getSecrets_multipleEnvVarsWithSharedItem()" time="0.018471875" />
+    <testcase classname="ImportSecretsTests.ImportSecretsTests" name="test_getSecrets_noSecretsToFetch()" time="0.016912792" />
+    <testcase classname="ImportSecretsTests.ImportSecretsFetchingTests" name="test_importSecrets_fetchesFallbacksToOtherSecretFetchers()" time="0.017315875" />
+    <testcase classname="ImportSecretsTests.ImportSecretsFetchingTests" name="test_importSecrets_throwsErrorWhenBoth1PasswordAndFakeProviderFail()" time="0.017635542" />
+    <testcase classname="ImportSecretsTests.ImportSecretsFetchingTests" name="test_importSecrets_throwsErrorWhenNoSecretsConfigured()" time="0.015093166" />
+    <testcase classname="ImportSecretsTests.ImportSecretsFetchingTests" name="test_importSecrets_throwsErrorForUnsupportedProvider()" time="0.014792875" />
+    <testcase classname="ImportSecretsTests.ImportSecretsFetchingTests" name="test_importSecrets_fetchesSecretsOnlyFromProvidedSources()" time="0.017692416" />
+    <testcase classname="ImportSecretsTests.ImportSecretsDecodingTests" name="test_secret_decodingWithMultipleSourcesSucceeds()" time="0.016876042" />
+    <testcase classname="ImportSecretsTests.ImportSecretsDecodingTests" name="test_sourceConfigurations_decodingSucceeds()" time="0.017974875" />
+    <testcase classname="ImportSecretsTests.ImportSecretsDecodingTests" name="test_configuration_decodingWithMissingSourceConfigurationsSucceeds()" time="0.016249208" />
+    <testcase classname="ImportSecretsTests.ImportSecretsDecodingTests" name="test_configuration_decodingFromYAMLSucceeds()" time="0.017603041" />
+    <testcase classname="ImportSecretsTests.ImportSecretsDecodingTests" name="test_configuration_validationWithDuplicateEnvVarsThrowsError()" time="0.016905958" />
+    <testcase classname="HashiCorpVaultReaderTests.HashiCorpVaultReaderTests" name="test_authenticate_withToken_returnsToken()" time="0.021352125" />
+    <testcase classname="HashiCorpVaultReaderTests.HashiCorpVaultReaderTests" name="test_element_initWithKeyValue()" time="0.018095917" />
+    <testcase classname="HashiCorpVaultReaderTests.HashiCorpVaultReaderTests" name="test_element_initWithNoEngines_failsValidation()" time="0.01823125" />
+    <testcase classname="HashiCorpVaultReaderTests.HashiCorpVaultReaderTests" name="test_element_initWithBothEngines_failsValidation()" time="0.018180333" />
+    <testcase classname="HashiCorpVaultReaderTests.HashiCorpVaultReaderTests" name="test_authenticate_withTokenButNoCredentials_throwsError()" time="0.021428708" />
+    <testcase classname="HashiCorpVaultReaderTests.HashiCorpVaultReaderTests" name="test_element_initWithAWS()" time="0.018182542" />
+    <testcase classname="HashiCorpVaultReaderTests.KeyValueAPI" name="test_decodeGetSecretsResult_v1()" time="0.013842333" />
+    <testcase classname="HashiCorpVaultReaderTests.KeyValueAPI" name="test_decodeGetSecretsResult_v2()" time="0.014078791" />
+    <testcase classname="HashiCorpVaultReaderTests.ConfigurationTests" name="test_configuration_inequalityWithDifferentVaultAddress()" time="0.017650041" />
+    <testcase classname="HashiCorpVaultReaderTests.ConfigurationTests" name="test_configuration_decodingWithMissingAPIVersion_usesDefault()" time="0.014750792" />
+    <testcase classname="HashiCorpVaultReaderTests.ConfigurationTests" name="test_engineConfigurations_decodingFromJSON()" time="0.007970916" />
+    <testcase classname="HashiCorpVaultReaderTests.ConfigurationTests" name="test_token_initialization()" time="0.014455333" />
+    <testcase classname="HashiCorpVaultReaderTests.ConfigurationTests" name="test_configuration_initWithAllParameters()" time="0.011298" />
+    <testcase classname="HashiCorpVaultReaderTests.ConfigurationTests" name="test_buildBaseURL_withDefaultPath()" time="0.017508958" />
+    <testcase classname="HashiCorpVaultReaderTests.ConfigurationTests" name="test_configuration_decodingFromJSON()" time="0.006842125" />
+    <testcase classname="HashiCorpVaultReaderTests.ConfigurationTests" name="test_appRole_initialization()" time="0.014715666" />
+    <testcase classname="HashiCorpVaultReaderTests.ConfigurationTests" name="test_buildURLRequest_withDefaultParameters()" time="0.014977834" />
+    <testcase classname="HashiCorpVaultReaderTests.ConfigurationTests" name="test_buildBaseURL_withCustomPath()" time="0.012779584" />
+    <testcase classname="HashiCorpVaultReaderTests.ConfigurationTests" name="test_authenticationMethod_appRoleCase()" time="0.006670125" />
+    <testcase classname="HashiCorpVaultReaderTests.ConfigurationTests" name="test_buildURLRequest_withCustomHTTPMethod()" time="0.011054417" />
+    <testcase classname="HashiCorpVaultReaderTests.ConfigurationTests" name="test_configuration_equalityComparison()" time="0.014630917" />
+    <testcase classname="HashiCorpVaultReaderTests.ConfigurationTests" name="test_configuration_initWithDefaultAPIVersion()" time="0.011020041" />
+    <testcase classname="HashiCorpVaultReaderTests.ConfigurationTests" name="test_buildBaseURL_withDifferentAPIVersion()" time="0.008128208" />
+    <testcase classname="HashiCorpVaultReaderTests.ConfigurationTests" name="test_engineConfigurations_initWithAllEngines()" time="0.006668125" />
+    <testcase classname="HashiCorpVaultReaderTests.ConfigurationTests" name="test_authenticationCredentials_decodingFromJSON()" time="0.017577542" />
+    <testcase classname="HashiCorpVaultReaderTests.ConfigurationTests" name="test_authenticationMethod_tokenCase()" time="0.014696042" />
+    <testcase classname="HashiCorpVaultReaderTests.ConfigurationTests" name="test_authenticationCredentials_initWithToken()" time="0.007434625" />
+    <testcase classname="HashiCorpVaultReaderTests.ConfigurationTests" name="test_appRole_decodingFromJSON()" time="0.006690167" />
+    <testcase classname="HashiCorpVaultReaderTests.ConfigurationTests" name="test_token_decodingFromJSON()" time="0.00716775" />
+    <testcase classname="HashiCorpVaultReaderTests.ConfigurationTests" name="test_authenticationMethod_decodingFromString()" time="0.006667375" />
+    <testcase classname="HashiCorpVaultReaderTests.ConfigurationTests" name="test_authenticationCredentials_initWithAppRole()" time="0.007493458" />
+    <testcase classname="HashiCorpVaultReaderTests.ErrorTests" name="test_httpError_responseNotHTTP()" time="0.01684075" />
+    <testcase classname="HashiCorpVaultReaderTests.ErrorTests" name="test_httpError_casesEqualityComparison()" time="0.013403542" />
+    <testcase classname="HashiCorpVaultReaderTests.ErrorTests" name="test_error_cantGetTokenFromAppRoleAuthenticationResponse()" time="0.01381625" />
+    <testcase classname="HashiCorpVaultReaderTests.ErrorTests" name="test_error_withAssociatedValuesEquality()" time="0.013883542" />
+    <testcase classname="HashiCorpVaultReaderTests.ErrorTests" name="test_error_patternMatchingInDoCatch()" time="0.013765375" />
+    <testcase classname="HashiCorpVaultReaderTests.ErrorTests" name="test_error_noSecretValueForItemKey()" time="0.013780042" />
+    <testcase classname="HashiCorpVaultReaderTests.ErrorTests" name="test_error_noSecretsFetched()" time="0.013839791" />
+    <testcase classname="HashiCorpVaultReaderTests.ErrorTests" name="test_error_casesEqualityComparison()" time="0.013756042" />
+    <testcase classname="HashiCorpVaultReaderTests.ErrorTests" name="test_error_tokenAuthenticationCredentialsIsNotSet()" time="0.013781667" />
+    <testcase classname="HashiCorpVaultReaderTests.ErrorTests" name="test_httpError_patternMatchingInDoCatch()" time="0.013700375" />
+    <testcase classname="HashiCorpVaultReaderTests.ErrorTests" name="test_error_tooManyEngineConfigs()" time="0.013731542" />
+    <testcase classname="HashiCorpVaultReaderTests.ErrorTests" name="test_httpError_wrongStatusCode()" time="0.016676667" />
+    <testcase classname="HashiCorpVaultReaderTests.ErrorTests" name="test_error_appRoleAuthenticationCredentialsAreNotSet()" time="0.013255375" />
+    <testcase classname="HashiCorpVaultReaderTests.ErrorTests" name="test_error_invalidURL()" time="0.013827459" />
+    <testcase classname="HashiCorpVaultReaderTests.ErrorTests" name="test_error_urlIsNotSet()" time="0.013914042" />
+    <testcase classname="HashiCorpVaultReaderTests.ErrorTests" name="test_error_noConfigsForItem()" time="0.013725208" />
   </testsuite>
 </testsuites>
