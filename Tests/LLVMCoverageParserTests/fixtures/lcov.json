@@ -5,14 +5,14 @@
     {
       "totals": {
         "lines": {
-          "count": 127685,
-          "covered": 11195,
-          "percent": 8.7676704389709048
+          "count": 127731,
+          "covered": 11241,
+          "percent": 8.8005261056438933
         },
         "functions": {
-          "count": 23051,
-          "covered": 1494,
-          "percent": 6.4812806385840096
+          "count": 23054,
+          "covered": 1500,
+          "percent": 6.5064630866660877
         },
         "branches": {
           "count": 0,
@@ -65,7 +65,7 @@
           }
         },
         {
-          "filename": "/Users/v/Developer/MacPaw/mpct/.build/arm64-apple-macosx/debug/XUnitParserTests.build/DerivedSources/resource_bundle_accessor.swift",
+          "filename": "/Users/v/Developer/MacPaw/mpct/.build/arm64-apple-macosx/debug/XUnitReportTests.build/DerivedSources/resource_bundle_accessor.swift",
           "summary": {
             "lines": {
               "count": 15,
@@ -8801,7 +8801,28 @@
           }
         },
         {
-          "filename": "/Users/v/Developer/MacPaw/mpct/Sources/XCResultParsing/CoverageReport.swift",
+          "filename": "/Users/v/Developer/MacPaw/mpct/Sources/XCResultParsing/XCCovCLI.swift",
+          "summary": {
+            "lines": {
+              "count": 23,
+              "covered": 12,
+              "percent": 52.173913043478258
+            },
+            "functions": {
+              "count": 3,
+              "covered": 2,
+              "percent": 66.666666666666657
+            },
+            "branches": {
+              "count": 0,
+              "covered": 0,
+              "notcovered": 0,
+              "percent": 0
+            }
+          }
+        },
+        {
+          "filename": "/Users/v/Developer/MacPaw/mpct/Sources/XCResultParsing/XCResultCoverage.swift",
           "summary": {
             "lines": {
               "count": 4,
@@ -8822,16 +8843,37 @@
           }
         },
         {
-          "filename": "/Users/v/Developer/MacPaw/mpct/Sources/XCResultParsing/XCCovCLI.swift",
+          "filename": "/Users/v/Developer/MacPaw/mpct/Sources/XCResultParsing/XCResultCoverageDiff.swift",
           "summary": {
             "lines": {
-              "count": 12,
-              "covered": 12,
+              "count": 4,
+              "covered": 0,
+              "percent": 0
+            },
+            "functions": {
+              "count": 1,
+              "covered": 0,
+              "percent": 0
+            },
+            "branches": {
+              "count": 0,
+              "covered": 0,
+              "notcovered": 0,
+              "percent": 0
+            }
+          }
+        },
+        {
+          "filename": "/Users/v/Developer/MacPaw/mpct/Sources/XCResultParsing/XCResultTestResults.swift",
+          "summary": {
+            "lines": {
+              "count": 4,
+              "covered": 4,
               "percent": 100
             },
             "functions": {
-              "count": 2,
-              "covered": 2,
+              "count": 1,
+              "covered": 1,
               "percent": 100
             },
             "branches": {
@@ -8864,17 +8906,59 @@
           }
         },
         {
-          "filename": "/Users/v/Developer/MacPaw/mpct/Sources/XUnitParser/TestSuites.swift",
+          "filename": "/Users/v/Developer/MacPaw/mpct/Sources/XUnitReport/XUnitReport.TestSuite+TestCase.swift",
           "summary": {
             "lines": {
-              "count": 114,
-              "covered": 98,
-              "percent": 85.964912280701753
+              "count": 8,
+              "covered": 8,
+              "percent": 100
             },
             "functions": {
-              "count": 33,
-              "covered": 20,
-              "percent": 60.606060606060609
+              "count": 2,
+              "covered": 2,
+              "percent": 100
+            },
+            "branches": {
+              "count": 0,
+              "covered": 0,
+              "notcovered": 0,
+              "percent": 0
+            }
+          }
+        },
+        {
+          "filename": "/Users/v/Developer/MacPaw/mpct/Sources/XUnitReport/XUnitReport.swift",
+          "summary": {
+            "lines": {
+              "count": 4,
+              "covered": 4,
+              "percent": 100
+            },
+            "functions": {
+              "count": 1,
+              "covered": 1,
+              "percent": 100
+            },
+            "branches": {
+              "count": 0,
+              "covered": 0,
+              "notcovered": 0,
+              "percent": 0
+            }
+          }
+        },
+        {
+          "filename": "/Users/v/Developer/MacPaw/mpct/Sources/XUnitReport/XUnitSAXParser.swift",
+          "summary": {
+            "lines": {
+              "count": 104,
+              "covered": 89,
+              "percent": 85.576923076923066
+            },
+            "functions": {
+              "count": 29,
+              "covered": 17,
+              "percent": 58.620689655172406
             },
             "branches": {
               "count": 0,
@@ -9368,16 +9452,16 @@
           }
         },
         {
-          "filename": "/Users/v/Developer/MacPaw/mpct/Tests/XCResultParsingTests/XCResultParsingTests.swift",
+          "filename": "/Users/v/Developer/MacPaw/mpct/Tests/XCResultParsingTests/XCResultCoverageDiffTests.swift",
           "summary": {
             "lines": {
-              "count": 47,
-              "covered": 47,
+              "count": 54,
+              "covered": 54,
               "percent": 100
             },
             "functions": {
-              "count": 7,
-              "covered": 7,
+              "count": 5,
+              "covered": 5,
               "percent": 100
             },
             "branches": {
@@ -9389,15 +9473,57 @@
           }
         },
         {
-          "filename": "/Users/v/Developer/MacPaw/mpct/Tests/XUnitParserRecordingTests/XUnitParserRecordingTests.swift",
+          "filename": "/Users/v/Developer/MacPaw/mpct/Tests/XCResultParsingTests/XCResultCoverageTests.swift",
           "summary": {
             "lines": {
-              "count": 31,
+              "count": 35,
+              "covered": 35,
+              "percent": 100
+            },
+            "functions": {
+              "count": 6,
+              "covered": 6,
+              "percent": 100
+            },
+            "branches": {
+              "count": 0,
+              "covered": 0,
+              "notcovered": 0,
+              "percent": 0
+            }
+          }
+        },
+        {
+          "filename": "/Users/v/Developer/MacPaw/mpct/Tests/XCResultParsingTests/XCResultTestResultsTests.swift",
+          "summary": {
+            "lines": {
+              "count": 12,
+              "covered": 12,
+              "percent": 100
+            },
+            "functions": {
+              "count": 2,
+              "covered": 2,
+              "percent": 100
+            },
+            "branches": {
+              "count": 0,
+              "covered": 0,
+              "notcovered": 0,
+              "percent": 0
+            }
+          }
+        },
+        {
+          "filename": "/Users/v/Developer/MacPaw/mpct/Tests/XUnitReportRecordingTests/XUnitReportRecordingTests.swift",
+          "summary": {
+            "lines": {
+              "count": 17,
               "covered": 0,
               "percent": 0
             },
             "functions": {
-              "count": 7,
+              "count": 3,
               "covered": 0,
               "percent": 0
             },
@@ -9410,16 +9536,16 @@
           }
         },
         {
-          "filename": "/Users/v/Developer/MacPaw/mpct/Tests/XUnitParserTests/XUnitParserTests.swift",
+          "filename": "/Users/v/Developer/MacPaw/mpct/Tests/XUnitReportTests/XUnitReportTests.swift",
           "summary": {
             "lines": {
-              "count": 71,
-              "covered": 71,
+              "count": 56,
+              "covered": 56,
               "percent": 100
             },
             "functions": {
-              "count": 13,
-              "covered": 13,
+              "count": 12,
+              "covered": 12,
               "percent": 100
             },
             "branches": {

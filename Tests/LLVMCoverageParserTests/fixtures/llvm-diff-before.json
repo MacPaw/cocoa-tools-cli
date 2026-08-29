@@ -1,0 +1,196 @@
+{
+  "type": "llvm.coverage.json.export",
+  "version": "3.0.1",
+  "data": [
+    {
+      "totals": {
+        "lines": {
+          "count": 103,
+          "covered": 76,
+          "percent": 73.786407766990294
+        },
+        "functions": {
+          "count": 19,
+          "covered": 16,
+          "percent": 84.210526315789465
+        },
+        "branches": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        }
+      },
+      "files": [
+        {
+          "filename": "/Users/v/Developer/MacPaw/mpct/.xcresult-diff/Before/Sources/Target1/StructA.swift",
+          "summary": {
+            "lines": {
+              "count": 3,
+              "covered": 3,
+              "percent": 100
+            },
+            "functions": {
+              "count": 1,
+              "covered": 1,
+              "percent": 100
+            },
+            "branches": {
+              "count": 0,
+              "covered": 0,
+              "notcovered": 0,
+              "percent": 0
+            }
+          }
+        },
+        {
+          "filename": "/Users/v/Developer/MacPaw/mpct/.xcresult-diff/Before/Sources/Target2/StructC.swift",
+          "summary": {
+            "lines": {
+              "count": 6,
+              "covered": 6,
+              "percent": 100
+            },
+            "functions": {
+              "count": 2,
+              "covered": 2,
+              "percent": 100
+            },
+            "branches": {
+              "count": 0,
+              "covered": 0,
+              "notcovered": 0,
+              "percent": 0
+            }
+          }
+        },
+        {
+          "filename": "/Users/v/Developer/MacPaw/mpct/.xcresult-diff/Before/Sources/Target2/StructD.swift",
+          "summary": {
+            "lines": {
+              "count": 6,
+              "covered": 3,
+              "percent": 50
+            },
+            "functions": {
+              "count": 2,
+              "covered": 1,
+              "percent": 50
+            },
+            "branches": {
+              "count": 0,
+              "covered": 0,
+              "notcovered": 0,
+              "percent": 0
+            }
+          }
+        },
+        {
+          "filename": "/Users/v/Developer/MacPaw/mpct/.xcresult-diff/Before/Sources/Target2/StructE.swift",
+          "summary": {
+            "lines": {
+              "count": 6,
+              "covered": 6,
+              "percent": 100
+            },
+            "functions": {
+              "count": 2,
+              "covered": 2,
+              "percent": 100
+            },
+            "branches": {
+              "count": 0,
+              "covered": 0,
+              "notcovered": 0,
+              "percent": 0
+            }
+          }
+        },
+        {
+          "filename": "/Users/v/Developer/MacPaw/mpct/.xcresult-diff/Before/Tests/Target1Tests/StructATests.swift",
+          "summary": {
+            "lines": {
+              "count": 4,
+              "covered": 4,
+              "percent": 100
+            },
+            "functions": {
+              "count": 1,
+              "covered": 1,
+              "percent": 100
+            },
+            "branches": {
+              "count": 0,
+              "covered": 0,
+              "notcovered": 0,
+              "percent": 0
+            }
+          }
+        },
+        {
+          "filename": "/Users/v/Developer/MacPaw/mpct/.xcresult-diff/Before/Tests/Target2Tests/StructCTests.swift",
+          "summary": {
+            "lines": {
+              "count": 8,
+              "covered": 8,
+              "percent": 100
+            },
+            "functions": {
+              "count": 2,
+              "covered": 2,
+              "percent": 100
+            },
+            "branches": {
+              "count": 0,
+              "covered": 0,
+              "notcovered": 0,
+              "percent": 0
+            }
+          }
+        },
+        {
+          "filename": "/Users/v/Developer/MacPaw/mpct/.xcresult-diff/Before/Tests/Target2Tests/StructDTests.swift",
+          "summary": {
+            "lines": {
+              "count": 5,
+              "covered": 5,
+              "percent": 100
+            },
+            "functions": {
+              "count": 1,
+              "covered": 1,
+              "percent": 100
+            },
+            "branches": {
+              "count": 0,
+              "covered": 0,
+              "notcovered": 0,
+              "percent": 0
+            }
+          }
+        },
+        {
+          "filename": "/Users/v/Developer/MacPaw/mpct/.xcresult-diff/Before/Tests/Target2Tests/StructETests.swift",
+          "summary": {
+            "lines": {
+              "count": 9,
+              "covered": 9,
+              "percent": 100
+            },
+            "functions": {
+              "count": 2,
+              "covered": 2,
+              "percent": 100
+            },
+            "branches": {
+              "count": 0,
+              "covered": 0,
+              "notcovered": 0,
+              "percent": 0
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

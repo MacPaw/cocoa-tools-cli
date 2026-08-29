@@ -1,7 +1,7 @@
 public import Foundation
 
 /// Root of an LLVM coverage JSON export (`llvm.coverage.json.export`).
-public struct LLVMCoverage: Sendable, Decodable {
+public struct LLVMCoverage: Sendable, Codable {
   /// Coverage format version string (e.g. `"3.0.1"`).
   public let version: String
   /// One coverage data entry per instrumented binary. In practice always a single element.

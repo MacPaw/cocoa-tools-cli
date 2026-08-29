@@ -3,6 +3,10 @@ import PackageDescription
 
 let package = Package(
   name: "After",
+  products: [
+    .library(name: "Target2", targets: ["Target2"]),
+    .library(name: "Target3", targets: ["Target3"]),
+  ],
   targets: [
     .target(name: "Target2"),
     .testTarget(name: "Target2Tests", dependencies: [.target(name: "Target2")]),

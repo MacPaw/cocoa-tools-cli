@@ -25,3 +25,25 @@ echo "Trimming lcov.json (removing segments, functions, instantiations, regions,
 jq '{type,version,data:[.data[]|{totals:{lines:.totals.lines,functions:.totals.functions,branches:.totals.branches},files:[.files[]|{filename,summary:{lines:.summary.lines,functions:.summary.functions,branches:.summary.branches}}],functions:[]}]}' \
   "${ARTIFACTS_DIR}/test-results/${SWIFT_PACKAGE_NAME}-debug-lcov.json" \
   > "Tests/LLVMCoverageParserTests/fixtures/lcov.json"
+
+LLVM_REPO_ROOT="$(pwd)"
+LLVM_FIXTURES_DIR="${LLVM_REPO_ROOT}/Tests/LLVMCoverageParserTests/fixtures"
+JQ_TRIM='{type,version,data:[.data[0]|{totals:{lines:.totals.lines,functions:.totals.functions,branches:.totals.branches},files:[.files[]|select(.filename|contains("/.build/")|not)|{filename,summary:{lines:.summary.lines,functions:.summary.functions,branches:.summary.branches}}]}]}'
+
+generate_lcov() {
+  local pkg_dir="$1"
+  local output_file="$2"
+  (
+    cd "${pkg_dir}" || exit
+    swift test --enable-code-coverage 2>&1 | tail -3 || true
+    local codecov_path
+    codecov_path=$(swift test --enable-code-coverage --show-code-coverage-path 2> /dev/null)
+    jq "${JQ_TRIM}" "${codecov_path}" > "${output_file}"
+  )
+}
+
+echo "Generating llvm-diff-before.json from .xcresult-diff/Before..."
+generate_lcov "${LLVM_REPO_ROOT}/.xcresult-diff/Before" "${LLVM_FIXTURES_DIR}/llvm-diff-before.json"
+
+echo "Generating llvm-diff-after.json from .xcresult-diff/After..."
+generate_lcov "${LLVM_REPO_ROOT}/.xcresult-diff/After" "${LLVM_FIXTURES_DIR}/llvm-diff-after.json"

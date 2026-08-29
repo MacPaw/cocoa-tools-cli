@@ -218,7 +218,9 @@ enum Targets {
           name: "LLVMCoverageParserTests",
           dependencies: [.target(name: "LLVMCoverageParser"), .target(name: "SharedLogger")],
           resources: [
-            .copy("fixtures/lcov.json")
+            .copy("fixtures/lcov.json"),
+            .copy("fixtures/llvm-diff-before.json"),
+            .copy("fixtures/llvm-diff-after.json"),
           ],
         )
       ]

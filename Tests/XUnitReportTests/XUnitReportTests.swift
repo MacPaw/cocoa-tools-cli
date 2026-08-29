@@ -31,14 +31,14 @@ struct XUnitReportTests {
 
   @Test("load testCaseHasDecomposedClassName")
   func test_load_testCaseHasDecomposedClassName() throws {
-    // GIVEN — XCResultParsingTests cases appear in the fixture with a two-component className
+    // GIVEN — XCResultCoverageTests cases appear in the fixture with a two-component className
     // WHEN
     let sut = try XUnitReport.load(from: fixtureURL)
     let allCases = sut.testSuites.flatMap(\.testCases)
-    let testCase = try #require(allCases.first { $0.className == "XCResultParsingTests.XCResultParsingTests" })
+    let testCase = try #require(allCases.first { $0.className == "XCResultParsingTests.XCResultCoverageTests" })
     // THEN
     #expect(testCase.moduleName == "XCResultParsingTests")
-    #expect(testCase.suiteName == "XCResultParsingTests")
+    #expect(testCase.suiteName == "XCResultCoverageTests")
   }
 
   @Test("load recordingSuiteHasExpectedFailures")

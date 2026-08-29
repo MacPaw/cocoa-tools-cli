@@ -1,6 +1,6 @@
 extension LLVMCoverage {
   /// Coverage count and percentage for a single metric.
-  public struct Stat: Sendable, Decodable {
+  public struct Stat: Sendable, Codable {
     /// Total number of items.
     public let count: Int
     /// Number of covered items.
