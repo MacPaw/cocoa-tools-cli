@@ -32,8 +32,14 @@ final class XUnitSAXParser: NSObject, XMLParserDelegate, @unchecked Sendable {
 
   func parse(data: Data) throws -> XUnitReport {
     let xmlParser = XMLParser(data: data)
-    unsafe xmlParser.delegate = self
-    xmlParser.parse()
+    xmlParser.externalEntityResolvingPolicy = .never
+    #if canImport(FoundationXML)
+      xmlParser.delegate = self
+    #else
+      unsafe xmlParser.delegate = self
+    #endif
+    // Linux: Returns YES in the event of a successful parse, and NO in case of error.
+    _ = xmlParser.parse()
     if let error = parseError {
       throw error
     }
