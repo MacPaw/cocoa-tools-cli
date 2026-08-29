@@ -26,10 +26,10 @@ struct TestsCoverageParseCommand: AsyncParsableCommand {
     #if os(macOS)
       let xcresultURL = URL(fileURLWithPath: options.xcresult!)
       let report = try CoverageReport.load(from: xcresultURL)
-      let pct = String(format: "%.1f%%", report.lineCoverage * 100)
+      let pct = unsafe String(format: "%.1f%%", report.lineCoverage * 100)
       print("Coverage: \(report.coveredLines)/\(report.executableLines) lines (\(pct))")
       for target in report.targets {
-        let tpct = String(format: "%.1f%%", target.lineCoverage * 100)
+        let tpct = unsafe String(format: "%.1f%%", target.lineCoverage * 100)
         print("  \(target.name): \(target.coveredLines)/\(target.executableLines) (\(tpct))")
       }
     #endif
