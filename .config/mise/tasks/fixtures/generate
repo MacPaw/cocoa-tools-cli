@@ -13,21 +13,31 @@ XCRESULT_FIXTURES_DIR="${REPO_ROOT}/Tests/XCResultParsingTests/fixtures"
 JQ_TRIM='{type,version,data:[.data[0]|{totals:{lines:.totals.lines,functions:.totals.functions,branches:.totals.branches},files:[.files[]|select(.filename|contains("/.build/")|not)|{filename,summary:{lines:.summary.lines,functions:.summary.functions,branches:.summary.branches}}]}]}'
 
 # ── TestPackage: lcov.json ────────────────────────────────────────────────────
-# Note: test-package-xUnit-swift-testing.xml is hand-maintained in
-# Tests/XUnitReportTests/fixtures/ — swift test --xunit-output does not write
-# the file when any test fails (Swift 6.4 behaviour), so it cannot be
-# regenerated automatically when RecordingTests intentionally fails.
 echo "Running TestPackage tests for lcov.json..."
 (
+  echo "  Going to ${TEST_PKG}"
   cd "${TEST_PKG}"
-  MPCT_TESTS_RECORD_FAILURES=1 swift test --enable-code-coverage 2>&1 | tail -3 || true
-  # Run again cleanly so --show-code-coverage-path returns a path that exists.
-  swift test --enable-code-coverage 2>&1 | tail -3
-  local_codecov_path=$(swift test --enable-code-coverage --show-code-coverage-path 2> /dev/null)
+  echo "  Running Tests for lcov.json..."
+  swift test --enable-code-coverage || true
+  echo " Determining code coverage path..."
+  local_codecov_path="$(swift test --enable-code-coverage --show-code-coverage-path 2> /dev/null)"
+  echo " Converting to lcov.json..."
   jq "${JQ_TRIM}" "${local_codecov_path}" \
     > "${REPO_ROOT}/Tests/LLVMCoverageParserTests/fixtures/lcov.json"
 )
 echo "  → lcov.json"
+
+# ── TestPackage: test-package-xUnit-swift-testing.xml ────────────────────────────────────────────────────
+echo "Running TestPackage tests for xunit output..."
+(
+  echo "  Going to ${TEST_PKG}"
+  cd "${TEST_PKG}"
+  echo "  Running Tests for xunit output..."
+  XUNIT_PATH="${REPO_ROOT}/Tests/XUnitReportTests/fixtures/test-package-xUnit.xml"
+  rm "${REPO_ROOT}/Tests/XUnitReportTests/fixtures/test-package-xUnit-swift-testing.xml" || true
+  MPCT_TESTS_RECORD_FAILURES=1 swift test --enable-code-coverage --xunit-output "${XUNIT_PATH}" || true
+)
+echo "  → test-package-xUnit-swift-testing.xml"
 
 # ── Diffs: llvm-diff-before.json + llvm-diff-after.json ─────────────────────
 generate_llvm_diff() {
@@ -39,6 +49,10 @@ generate_llvm_diff() {
 
     local codecov_path
     codecov_path=$(swift test --enable-code-coverage --show-code-coverage-path 2> /dev/null)
+    if [ -f "${codecov_path}" ]; then
+      jq "${JQ_TRIM}" "${codecov_path}" > "${output_file}"
+      return 0
+    fi
     local profdata
     profdata="$(dirname "${codecov_path}")/default.profdata"
     local products_dir
@@ -134,7 +148,7 @@ xcrun xccov diff --json \
   --path-equivalence "${DIFFS_DIR}/Before,${DIFFS_DIR}/After" \
   "${XCRESULT_ARTIFACTS_DIR}/coverage-diff-before.xcresult" \
   "${XCRESULT_ARTIFACTS_DIR}/coverage-diff-after.xcresult" \
-  > "${XCRESULT_FIXTURES_DIR}/coverage-diff.json"
+  | jq . > "${XCRESULT_FIXTURES_DIR}/coverage-diff.json"
 echo "  → coverage-diff.json"
 
 echo "All fixtures regenerated."
