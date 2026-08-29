@@ -1,0 +1,172 @@
+{
+  "addedTargets": [
+    {
+      "buildProductPath": "/Users/v/Library/Developer/Xcode/DerivedData/Build/Products/Debug/Target3Tests.xctest/Contents/MacOS/Target3Tests",
+      "coveredLines": 8,
+      "executableLines": 11,
+      "files": [
+        {
+          "coveredLines": 3,
+          "executableLines": 6,
+          "functions": [
+            {
+              "coveredLines": 3,
+              "executableLines": 3,
+              "executionCount": 1,
+              "lineCoverage": 1,
+              "lineNumber": 4,
+              "name": "StructF.increment()"
+            },
+            {
+              "coveredLines": 0,
+              "executableLines": 3,
+              "executionCount": 0,
+              "lineCoverage": 0,
+              "lineNumber": 8,
+              "name": "StructF.decrement()"
+            }
+          ],
+          "lineCoverage": 0.5,
+          "name": "StructF.swift",
+          "path": "/Users/v/Developer/MacPaw/mpct/.xcresult-diff/After/Sources/Target3/StructF.swift"
+        },
+        {
+          "coveredLines": 5,
+          "executableLines": 5,
+          "functions": [
+            {
+              "coveredLines": 5,
+              "executableLines": 5,
+              "executionCount": 1,
+              "lineCoverage": 1,
+              "lineNumber": 5,
+              "name": "StructFTests.increment()"
+            }
+          ],
+          "lineCoverage": 1,
+          "name": "StructFTests.swift",
+          "path": "/Users/v/Developer/MacPaw/mpct/.xcresult-diff/After/Tests/Target3Tests/StructFTests.swift"
+        }
+      ],
+      "lineCoverage": 0.72727272727272729,
+      "name": "Target3Tests"
+    }
+  ],
+  "lineCoverageDelta": {
+    "coveredLinesDelta": 1,
+    "executableLinesDelta": 4,
+    "lineCoverageDelta": -0.053817271589486904
+  },
+  "removedTargets": [
+    {
+      "name": "Target1Tests"
+    }
+  ],
+  "targetDeltas": [
+    {
+      "addedFiles": [],
+      "fileDeltas": [
+        {
+          "addedFunctions": [],
+          "documentLocation": "/Users/v/Developer/MacPaw/mpct/.xcresult-diff/After/Sources/Target2/StructE.swift",
+          "functionDeltas": [
+            {
+              "lineCoverageDelta": {
+                "coveredLinesDelta": -3,
+                "executableLinesDelta": 0,
+                "lineCoverageDelta": -1
+              },
+              "name": "StructE.isNegative()"
+            }
+          ],
+          "lineCoverageDelta": {
+            "coveredLinesDelta": -3,
+            "executableLinesDelta": 0,
+            "lineCoverageDelta": -0.5
+          },
+          "removedFunctions": []
+        },
+        {
+          "addedFunctions": [],
+          "documentLocation": "/Users/v/Developer/MacPaw/mpct/.xcresult-diff/After/Tests/Target2Tests/StructETests.swift",
+          "functionDeltas": [
+            {
+              "lineCoverageDelta": {
+                "coveredLinesDelta": 1,
+                "executableLinesDelta": 1,
+                "lineCoverageDelta": 0
+              },
+              "name": "StructETests.isPositive()"
+            }
+          ],
+          "lineCoverageDelta": {
+            "coveredLinesDelta": -4,
+            "executableLinesDelta": -4,
+            "lineCoverageDelta": 0
+          },
+          "removedFunctions": [
+            {
+              "name": "StructETests.isNegative()"
+            }
+          ]
+        },
+        {
+          "addedFunctions": [
+            {
+              "coveredLines": 5,
+              "executableLines": 5,
+              "executionCount": 1,
+              "lineCoverage": 1,
+              "lineNumber": 10,
+              "name": "StructDTests.lowercased()"
+            }
+          ],
+          "documentLocation": "/Users/v/Developer/MacPaw/mpct/.xcresult-diff/After/Tests/Target2Tests/StructDTests.swift",
+          "functionDeltas": [
+            {
+              "lineCoverageDelta": {
+                "coveredLinesDelta": -1,
+                "executableLinesDelta": -1,
+                "lineCoverageDelta": 0
+              },
+              "name": "StructDTests.uppercased()"
+            }
+          ],
+          "lineCoverageDelta": {
+            "coveredLinesDelta": 4,
+            "executableLinesDelta": 4,
+            "lineCoverageDelta": 0
+          },
+          "removedFunctions": []
+        },
+        {
+          "addedFunctions": [],
+          "documentLocation": "/Users/v/Developer/MacPaw/mpct/.xcresult-diff/After/Sources/Target2/StructD.swift",
+          "functionDeltas": [
+            {
+              "lineCoverageDelta": {
+                "coveredLinesDelta": 3,
+                "executableLinesDelta": 0,
+                "lineCoverageDelta": 1
+              },
+              "name": "StructD.lowercased()"
+            }
+          ],
+          "lineCoverageDelta": {
+            "coveredLinesDelta": 3,
+            "executableLinesDelta": 0,
+            "lineCoverageDelta": 0.5
+          },
+          "removedFunctions": []
+        }
+      ],
+      "lineCoverageDelta": {
+        "coveredLinesDelta": 0,
+        "executableLinesDelta": 0,
+        "lineCoverageDelta": 0
+      },
+      "name": "Target2Tests",
+      "removedFiles": []
+    }
+  ]
+}

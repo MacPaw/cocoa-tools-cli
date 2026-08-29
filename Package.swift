@@ -186,7 +186,10 @@ enum Targets {
         .testTarget(
           name: "XCResultParsingTests",
           dependencies: [.target(name: "XCResultParsing"), .target(name: "SharedLogger")],
-          resources: [.copy("Fixtures/cocoa-tools-debug.xcresult")],
+          resources: [
+            .copy("Fixtures/cocoa-tools-debug.xcresult"),
+            .copy("Fixtures/coverage-diff.json"),
+          ],
         )
       ]
   }

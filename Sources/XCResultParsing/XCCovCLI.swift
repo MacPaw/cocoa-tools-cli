@@ -24,4 +24,24 @@ struct XCCovCLI: Sendable {
       ],
     )
   }
+
+  /// Returns the raw JSON produced by `xcrun xccov diff --json`.
+  ///
+  /// - Parameters:
+  ///   - before: Path to the before `.xcresult` bundle.
+  ///   - after: Path to the after `.xcresult` bundle.
+  ///   - pathEquivalence: Optional source path remapping `(from, to)` passed as `--path-equivalence`.
+  /// - Returns: Raw JSON data from stdout.
+  /// - Throws: `Shell.Error` if the process exits with a non-zero status.
+  func diffCoverage(before: URL, after: URL, pathEquivalence: (from: String, to: String)?) throws -> Data {
+    var arguments = ["xccov", "diff", "--json"]
+    if let pe = pathEquivalence {
+      arguments += ["--path-equivalence", "\(pe.from),\(pe.to)"]
+    }
+    arguments += [
+      before.path(percentEncoded: false),
+      after.path(percentEncoded: false),
+    ]
+    return try Shell.run(executableURL: xcrunURL, arguments: arguments)
+  }
 }

@@ -5,7 +5,7 @@ import Testing
 
 #if os(macOS)
   @Suite
-  struct XCResultParsingTests {
+  struct XCResultCoverageTests {
     private var xcresultURL: URL {
       Bundle.module.resourceURL!.appendingPathComponent("cocoa-tools-debug.xcresult")
     }
@@ -44,17 +44,6 @@ import Testing
       // THEN — CIType.init(name:) at line 8 has been executed at least once
       let initFn = try #require(ciFile.functions.first { $0.lineNumber == 8 })
       #expect(initFn.executionCount >= 1)
-    }
-
-    @Test("load returnsDecodableTestResults")
-    func test_load_returnsDecodableTestResults() throws {
-      // GIVEN — path to fixture xcresult
-      // WHEN — loading test results via xcresulttool get test-results tests
-      let sut = try XCResultTestResults.load(from: xcresultURL)
-
-      // THEN — at least one device and one test group present
-      #expect(!sut.devices.isEmpty)
-      #expect(!sut.testNodes.isEmpty)
     }
   }
 #endif
