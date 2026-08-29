@@ -12,9 +12,9 @@ echo "Running Swift tests with MPCT_TESTS_RECORD_FAILURES=1 to capture fixture a
 ARTIFACTS_DIR="${ARTIFACTS_DIR:-"artifacts"}"
 SWIFT_PACKAGE_NAME="${SWIFT_PACKAGE_NAME:-"cocoa-tools"}"
 
-echo "Copying xUnit XML (with intentional failures) → XUnitParserTests fixture..."
+echo "Copying xUnit XML (with intentional failures and skips) → XUnitReportTests fixture..."
 cp "${ARTIFACTS_DIR}/test-results/${SWIFT_PACKAGE_NAME}-debug-xUnit-swift-testing.xml" \
-  "Tests/XUnitParserTests/Fixtures/xunit-with-failures.xml"
+  "Tests/XUnitReportTests/Fixtures/cocoa-tools-debug-xUnit-swift-testing.xml"
 
 # Strip segments, the top-level functions array, and unused summary fields from the full 28MB lcov.json.
 # Segments are line-by-line execution data we don't model; the functions array contains 23k+ entries

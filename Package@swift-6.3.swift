@@ -191,19 +191,18 @@ enum Targets {
       ]
   }
 
-  static var xUnitParser: [PackageDescription.Target] {
-    targetBundle(name: "XUnitParser", tests: false)
+  static var xUnitReport: [PackageDescription.Target] {
+    targetBundle(name: "XUnitReport", tests: false)
       + [
         .testTarget(
-          name: "XUnitParserTests",
-          dependencies: [.target(name: "XUnitParser"), .target(name: "SharedLogger")],
+          name: "XUnitReportTests",
+          dependencies: [.target(name: "XUnitReport"), .target(name: "SharedLogger")],
           resources: [
-            .copy("Fixtures/cocoa-tools-debug-xUnit-swift-testing.xml"),
-            .copy("Fixtures/xunit-with-failures.xml"),
+            .copy("Fixtures/cocoa-tools-debug-xUnit-swift-testing.xml")
           ],
         ),
         .testTarget(
-          name: "XUnitParserRecordingTests",
+          name: "XUnitReportRecordingTests",
           dependencies: [.target(name: "SharedLogger")],
         ),
       ]
@@ -259,7 +258,7 @@ let package = Package(
     .library(name: "SecretsInterfaceTesting", targets: ["SecretsInterfaceTesting"]),
     .library(name: "SecretsInterface", targets: ["SecretsInterface"]),
     .library(name: "XCResultParsing", targets: ["XCResultParsing"]),
-    .library(name: "XUnitParser", targets: ["XUnitParser"]),
+    .library(name: "XUnitReport", targets: ["XUnitReport"]),
     .library(name: "LLVMCoverageParser", targets: ["LLVMCoverageParser"]),
   ],
   dependencies: [
@@ -286,7 +285,7 @@ let package = Package(
 
   ] + Targets.shell + Targets.envSubst + Targets.exportSecrets + Targets.importSecrets + Targets.obfuscateSecrets
     + Targets.semanticVersion + Targets.env + Targets.ci + Targets.hashicorpVaultReader + Targets.sharedLogger
-    + Targets.secretsInterface + Targets.xcResultParsing + Targets.xUnitParser + Targets.llvmCoverageParser
+    + Targets.secretsInterface + Targets.xcResultParsing + Targets.xUnitReport + Targets.llvmCoverageParser
     + Targets.testsCoverage
     + Targets.testsResults,
 

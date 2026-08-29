@@ -5,9 +5,9 @@
     {
       "totals": {
         "lines": {
-          "count": 127690,
-          "covered": 11181,
-          "percent": 8.7563630668024128
+          "count": 127685,
+          "covered": 11195,
+          "percent": 8.7676704389709048
         },
         "functions": {
           "count": 23051,
@@ -174,8 +174,8 @@
           "summary": {
             "lines": {
               "count": 354,
-              "covered": 257,
-              "percent": 72.598870056497177
+              "covered": 270,
+              "percent": 76.271186440677965
             },
             "functions": {
               "count": 83,
@@ -279,8 +279,8 @@
           "summary": {
             "lines": {
               "count": 133,
-              "covered": 58,
-              "percent": 43.609022556390975
+              "covered": 59,
+              "percent": 44.360902255639097
             },
             "functions": {
               "count": 35,
@@ -8342,9 +8342,9 @@
           "filename": "/Users/v/Developer/MacPaw/mpct/Sources/LLVMCoverageParser/LLVMCoverage.swift",
           "summary": {
             "lines": {
-              "count": 14,
-              "covered": 9,
-              "percent": 64.285714285714292
+              "count": 4,
+              "covered": 4,
+              "percent": 100
             },
             "functions": {
               "count": 1,
@@ -9308,8 +9308,8 @@
           "filename": "/Users/v/Developer/MacPaw/mpct/Tests/LLVMCoverageParserTests/LLVMCoverageParserTests.swift",
           "summary": {
             "lines": {
-              "count": 50,
-              "covered": 50,
+              "count": 55,
+              "covered": 55,
               "percent": 100
             },
             "functions": {

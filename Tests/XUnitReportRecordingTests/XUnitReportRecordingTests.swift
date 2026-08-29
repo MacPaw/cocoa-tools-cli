@@ -4,18 +4,14 @@ import Testing
 // Run only when MPCT_TESTS_RECORD_FAILURES=1.
 // These tests intentionally produce failures, errors, and skips so that
 // `mise tasks run test:swift:record-fixtures` can capture a real xUnit fixture
-// containing all element types for XUnitParserTests.
+// containing all element types for XUnitReportTests.
+//
+// Note: withKnownIssue { ... } does NOT produce a <failure> element in xUnit output —
+// Swift Testing marks the test as passed because the issue was expected. Only unexpected
+// failures (bare #expect / throw) appear as <failure> in the xUnit XML.
 @Suite(.enabled(if: ProcessInfo.processInfo.environment["MPCT_TESTS_RECORD_FAILURES"] == "1"))
 struct RecordingTests {
   struct RecordingError: Error {}
-
-  @Test("withKnownIssue expectFalse")
-  func test_withKnownIssue_expectFalse() {
-    // GIVEN
-    // WHEN — assertion failure wrapped in withKnownIssue
-    // THEN — expected failure recorded in xUnit output
-    withKnownIssue { #expect(Bool(false)) }
-  }
 
   @Test("expectFalse")
   func test_expectFalse() {
@@ -23,14 +19,6 @@ struct RecordingTests {
     // WHEN — bare assertion failure
     // THEN — unexpected failure recorded in xUnit output
     #expect(Bool(false))
-  }
-
-  @Test("withKnownIssue throwError")
-  func test_withKnownIssue_throwError() {
-    // GIVEN
-    // WHEN — thrown error wrapped in withKnownIssue
-    // THEN — expected thrown-error failure recorded in xUnit output
-    withKnownIssue { throw RecordingError() }
   }
 
   @Test("throwError")
