@@ -5,14 +5,14 @@
     {
       "totals": {
         "lines": {
-          "count": 103,
-          "covered": 76,
-          "percent": 73.786407766990294
+          "count": 64,
+          "covered": 58,
+          "percent": 90.625
         },
         "functions": {
-          "count": 19,
-          "covered": 16,
-          "percent": 84.210526315789465
+          "count": 15,
+          "covered": 14,
+          "percent": 93.333333333333329
         },
         "branches": {
           "count": 0,
@@ -23,7 +23,7 @@
       },
       "files": [
         {
-          "filename": "/Users/v/Developer/MacPaw/mpct/.xcresult-diff/Before/Sources/Target1/StructA.swift",
+          "filename": "/Users/v/Developer/MacPaw/mpct/Tests/fixtures/Diffs/Before/Sources/Target1/StructA.swift",
           "summary": {
             "lines": {
               "count": 3,
@@ -44,7 +44,7 @@
           }
         },
         {
-          "filename": "/Users/v/Developer/MacPaw/mpct/.xcresult-diff/Before/Sources/Target2/StructC.swift",
+          "filename": "/Users/v/Developer/MacPaw/mpct/Tests/fixtures/Diffs/Before/Sources/Target2/StructC.swift",
           "summary": {
             "lines": {
               "count": 6,
@@ -65,7 +65,7 @@
           }
         },
         {
-          "filename": "/Users/v/Developer/MacPaw/mpct/.xcresult-diff/Before/Sources/Target2/StructD.swift",
+          "filename": "/Users/v/Developer/MacPaw/mpct/Tests/fixtures/Diffs/Before/Sources/Target2/StructD.swift",
           "summary": {
             "lines": {
               "count": 6,
@@ -86,7 +86,7 @@
           }
         },
         {
-          "filename": "/Users/v/Developer/MacPaw/mpct/.xcresult-diff/Before/Sources/Target2/StructE.swift",
+          "filename": "/Users/v/Developer/MacPaw/mpct/Tests/fixtures/Diffs/Before/Sources/Target2/StructE.swift",
           "summary": {
             "lines": {
               "count": 6,
@@ -107,7 +107,7 @@
           }
         },
         {
-          "filename": "/Users/v/Developer/MacPaw/mpct/.xcresult-diff/Before/Tests/Target1Tests/StructATests.swift",
+          "filename": "/Users/v/Developer/MacPaw/mpct/Tests/fixtures/Diffs/Before/Tests/Target1Tests/StructATests.swift",
           "summary": {
             "lines": {
               "count": 4,
@@ -128,7 +128,7 @@
           }
         },
         {
-          "filename": "/Users/v/Developer/MacPaw/mpct/.xcresult-diff/Before/Tests/Target2Tests/StructCTests.swift",
+          "filename": "/Users/v/Developer/MacPaw/mpct/Tests/fixtures/Diffs/Before/Tests/Target2Tests/StructCTests.swift",
           "summary": {
             "lines": {
               "count": 8,
@@ -149,7 +149,7 @@
           }
         },
         {
-          "filename": "/Users/v/Developer/MacPaw/mpct/.xcresult-diff/Before/Tests/Target2Tests/StructDTests.swift",
+          "filename": "/Users/v/Developer/MacPaw/mpct/Tests/fixtures/Diffs/Before/Tests/Target2Tests/StructDTests.swift",
           "summary": {
             "lines": {
               "count": 5,
@@ -170,7 +170,7 @@
           }
         },
         {
-          "filename": "/Users/v/Developer/MacPaw/mpct/.xcresult-diff/Before/Tests/Target2Tests/StructETests.swift",
+          "filename": "/Users/v/Developer/MacPaw/mpct/Tests/fixtures/Diffs/Before/Tests/Target2Tests/StructETests.swift",
           "summary": {
             "lines": {
               "count": 9,

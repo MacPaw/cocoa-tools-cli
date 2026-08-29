@@ -7,7 +7,7 @@ import Testing
   @Suite
   struct XCResultCoverageTests {
     private var xcresultURL: URL {
-      Bundle.module.resourceURL!.appendingPathComponent("cocoa-tools-debug.xcresult")
+      Bundle.module.resourceURL!.appendingPathComponent("test-package.xcresult")
     }
 
     @Test("load returnsNonEmptyTargets")
@@ -33,17 +33,17 @@ import Testing
       #expect(allFiles.allSatisfy { !$0.functions.isEmpty })
     }
 
-    @Test("load CIType hasExecutedFunction")
-    func test_load_CIType_hasExecutedFunction() throws {
+    @Test("load Greeter hasExecutedFunction")
+    func test_load_Greeter_hasExecutedFunction() throws {
       // GIVEN — path to fixture xcresult
-      // WHEN — loading coverage and locating CIType.swift
+      // WHEN — loading coverage and locating Greeter.swift
       let sut = try XCResultCoverage.load(from: xcresultURL)
       let allFiles = sut.targets.flatMap(\.files)
-      let ciFile = try #require(allFiles.first { $0.name == "CIType.swift" })
+      let greeterFile = try #require(allFiles.first { $0.name == "Greeter.swift" })
 
-      // THEN — CIType.init(name:) at line 8 has been executed at least once
-      let initFn = try #require(ciFile.functions.first { $0.lineNumber == 8 })
-      #expect(initFn.executionCount >= 1)
+      // THEN — greet(_:) at line 2 has been executed at least once
+      let greetFn = try #require(greeterFile.functions.first { $0.lineNumber == 2 })
+      #expect(greetFn.executionCount >= 1)
     }
   }
 #endif

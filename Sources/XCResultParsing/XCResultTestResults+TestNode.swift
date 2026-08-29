@@ -5,8 +5,8 @@ extension XCResultTestResults {
     public var name: String
     /// The kind of this node (e.g. `"Test Suite"`, `"Test Case"`).
     public var nodeType: String
-    /// The pass/fail status (e.g. `"Passed"`, `"Failed"`).
-    public var result: String
+    /// The pass/fail status (e.g. `"Passed"`, `"Failed"`). `nil` for skipped nodes.
+    public var result: String?
     /// Human-readable duration string.
     public var duration: String?
     /// Duration in seconds as a floating-point value.

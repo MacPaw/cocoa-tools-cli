@@ -7,7 +7,7 @@ import Testing
   @Suite
   struct XCResultTestResultsTests {
     private var xcresultURL: URL {
-      Bundle.module.resourceURL!.appendingPathComponent("cocoa-tools-debug.xcresult")
+      Bundle.module.resourceURL!.appendingPathComponent("test-package.xcresult")
     }
 
     @Test("load returnsDecodableTestResults")

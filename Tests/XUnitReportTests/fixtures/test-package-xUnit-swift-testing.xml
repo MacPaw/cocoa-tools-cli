@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="TestResults" errors="0" tests="5" failures="2" skipped="1" time="0.010">
+    <testcase classname="TargetATests.GreeterTests" name="test_greet_returnsFormattedGreeting()" time="0.001" />
+    <testcase classname="TargetBTests.AdderTests" name="test_add_returnsSumOfTwoIntegers()" time="0.001" />
+    <testcase classname="RecordingTests.RecordingTests" name="test_expectFalse()" time="0.001" >
+      <failure message="Expectation failed: Bool(false) (error)" />
+    </testcase>
+    <testcase classname="RecordingTests.RecordingTests" name="test_intentionalSkip()" >
+      <skipped>intentional skip for xUnit fixture generation</skipped>
+    </testcase>
+    <testcase classname="RecordingTests.RecordingTests" name="test_throwError()" time="0.001" >
+      <failure message="Caught error: RecordingError() (error)" />
+    </testcase>
+  </testsuite>
+</testsuites>

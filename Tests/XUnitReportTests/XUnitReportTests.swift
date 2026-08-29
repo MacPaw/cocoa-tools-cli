@@ -6,7 +6,7 @@ import Testing
 @Suite
 struct XUnitReportTests {
   private var fixtureURL: URL {
-    Bundle.module.resourceURL!.appendingPathComponent("cocoa-tools-debug-xUnit-swift-testing.xml")
+    Bundle.module.resourceURL!.appendingPathComponent("test-package-xUnit-swift-testing.xml")
   }
 
   @Test("load returnsNonEmptySuites")
@@ -35,10 +35,10 @@ struct XUnitReportTests {
     // WHEN
     let sut = try XUnitReport.load(from: fixtureURL)
     let allCases = sut.testSuites.flatMap(\.testCases)
-    let testCase = try #require(allCases.first { $0.className == "XCResultParsingTests.XCResultCoverageTests" })
+    let testCase = try #require(allCases.first { $0.className == "TargetATests.GreeterTests" })
     // THEN
-    #expect(testCase.moduleName == "XCResultParsingTests")
-    #expect(testCase.suiteName == "XCResultCoverageTests")
+    #expect(testCase.moduleName == "TargetATests")
+    #expect(testCase.suiteName == "GreeterTests")
   }
 
   @Test("load recordingSuiteHasExpectedFailures")
@@ -47,7 +47,7 @@ struct XUnitReportTests {
     // WHEN
     let sut = try XUnitReport.load(from: fixtureURL)
     let recordingCases = sut.testSuites.flatMap(\.testCases)
-      .filter { $0.className == "XUnitReportRecordingTests.RecordingTests" }
+      .filter { $0.className == "RecordingTests.RecordingTests" }
     // THEN
     #expect(recordingCases.filter { $0.failure != nil }.count == 2)
     #expect(recordingCases.contains(where: { $0.isSkipped }))
@@ -59,7 +59,7 @@ struct XUnitReportTests {
     // WHEN
     let sut = try XUnitReport.load(from: fixtureURL)
     let messages = sut.testSuites.flatMap(\.testCases)
-      .filter { $0.className == "XUnitReportRecordingTests.RecordingTests" }
+      .filter { $0.className == "RecordingTests.RecordingTests" }
       .compactMap(\.failure?.message)
     // THEN
     #expect(messages.contains { $0.hasPrefix("Expectation failed:") })

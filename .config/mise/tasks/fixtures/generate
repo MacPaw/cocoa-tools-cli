@@ -1,0 +1,140 @@
+#!/usr/bin/env bash
+
+#MISE description="Regenerate all test fixtures: xUnit, lcov, llvm-diff JSONs, xcresult bundles"
+
+set -Eeo pipefail
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)"
+TEST_PKG="${REPO_ROOT}/Tests/fixtures/TestPackage"
+DIFFS_DIR="${REPO_ROOT}/Tests/fixtures/Diffs"
+XCRESULT_ARTIFACTS_DIR="${REPO_ROOT}/artifacts/xcresult-diff"
+XCRESULT_FIXTURES_DIR="${REPO_ROOT}/Tests/XCResultParsingTests/fixtures"
+
+JQ_TRIM='{type,version,data:[.data[0]|{totals:{lines:.totals.lines,functions:.totals.functions,branches:.totals.branches},files:[.files[]|select(.filename|contains("/.build/")|not)|{filename,summary:{lines:.summary.lines,functions:.summary.functions,branches:.summary.branches}}]}]}'
+
+# ── TestPackage: lcov.json ────────────────────────────────────────────────────
+# Note: test-package-xUnit-swift-testing.xml is hand-maintained in
+# Tests/XUnitReportTests/fixtures/ — swift test --xunit-output does not write
+# the file when any test fails (Swift 6.4 behaviour), so it cannot be
+# regenerated automatically when RecordingTests intentionally fails.
+echo "Running TestPackage tests for lcov.json..."
+(
+  cd "${TEST_PKG}"
+  MPCT_TESTS_RECORD_FAILURES=1 swift test --enable-code-coverage 2>&1 | tail -3 || true
+  # Run again cleanly so --show-code-coverage-path returns a path that exists.
+  swift test --enable-code-coverage 2>&1 | tail -3
+  local_codecov_path=$(swift test --enable-code-coverage --show-code-coverage-path 2> /dev/null)
+  jq "${JQ_TRIM}" "${local_codecov_path}" \
+    > "${REPO_ROOT}/Tests/LLVMCoverageParserTests/fixtures/lcov.json"
+)
+echo "  → lcov.json"
+
+# ── Diffs: llvm-diff-before.json + llvm-diff-after.json ─────────────────────
+generate_llvm_diff() {
+  local pkg_dir="$1"
+  local output_file="$2"
+  (
+    cd "${pkg_dir}"
+    swift test --enable-code-coverage 2>&1 | tail -3
+
+    local codecov_path
+    codecov_path=$(swift test --enable-code-coverage --show-code-coverage-path 2> /dev/null)
+    local profdata
+    profdata="$(dirname "${codecov_path}")/default.profdata"
+    local products_dir
+    products_dir="$(dirname "$(dirname "${codecov_path}")")"
+
+    # Combine coverage across all xctest binaries so every target is included.
+    local first_bin=()
+    local extra_bins=()
+    for xctest in "${products_dir}"/*.xctest; do
+      [[ -d ${xctest} ]] || continue
+      local bin
+      bin="${xctest}/Contents/MacOS/$(basename "${xctest}" .xctest)"
+      [[ -f ${bin} ]] || continue
+      if [[ ${#first_bin[@]} -eq 0 ]]; then
+        first_bin=("${bin}")
+      else extra_bins+=(-object "${bin}"); fi
+    done
+
+    xcrun llvm-cov export \
+      -format=text \
+      -instr-profile="${profdata}" \
+      "${first_bin[0]}" "${extra_bins[@]}" \
+      2> /dev/null | jq "${JQ_TRIM}" > "${output_file}"
+  )
+}
+
+echo "Generating llvm-diff-before.json from Diffs/Before..."
+generate_llvm_diff "${DIFFS_DIR}/Before" \
+  "${REPO_ROOT}/Tests/LLVMCoverageParserTests/fixtures/llvm-diff-before.json"
+echo "  → llvm-diff-before.json"
+
+echo "Generating llvm-diff-after.json from Diffs/After..."
+generate_llvm_diff "${DIFFS_DIR}/After" \
+  "${REPO_ROOT}/Tests/LLVMCoverageParserTests/fixtures/llvm-diff-after.json"
+echo "  → llvm-diff-after.json"
+
+# ── TestPackage: xcresult bundle ─────────────────────────────────────────────
+echo "Building TestPackage xcresult..."
+mkdir -p "${XCRESULT_ARTIFACTS_DIR}"
+rm -rf "${XCRESULT_ARTIFACTS_DIR}/test-package.xcresult"
+(
+  cd "${TEST_PKG}"
+  xcodebuild test \
+    -scheme "TestPackage-Package" \
+    -destination "platform=macOS" \
+    -enableCodeCoverage YES \
+    -collect-test-diagnostics never \
+    -resultBundlePath "${XCRESULT_ARTIFACTS_DIR}/test-package.xcresult" \
+    CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO \
+    "RUN_CLANG_STATIC_ANALYZER=NO" "COMPILER_INDEX_STORE_ENABLE=NO" \
+    2>&1 | grep -E "(TEST SUCCEEDED|TEST FAILED|error:)" | head -5
+)
+rm -rf "${XCRESULT_FIXTURES_DIR}/test-package.xcresult"
+cp -R "${XCRESULT_ARTIFACTS_DIR}/test-package.xcresult" \
+  "${XCRESULT_FIXTURES_DIR}/test-package.xcresult"
+echo "  → test-package.xcresult"
+
+# ── Diffs: xcresult bundles + coverage-diff.json ─────────────────────────────
+echo "Building Diffs/Before xcresult..."
+rm -rf "${XCRESULT_ARTIFACTS_DIR}/coverage-diff-before.xcresult"
+(
+  cd "${DIFFS_DIR}/Before"
+  xcodebuild test \
+    -scheme "Before-Package" \
+    -destination "platform=macOS" \
+    -enableCodeCoverage YES \
+    -collect-test-diagnostics never \
+    -resultBundlePath "${XCRESULT_ARTIFACTS_DIR}/coverage-diff-before.xcresult" \
+    -derivedDataPath "${DIFFS_DIR}/.build/Before" \
+    CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO \
+    "RUN_CLANG_STATIC_ANALYZER=NO" "COMPILER_INDEX_STORE_ENABLE=NO" \
+    2>&1 | grep -E "(TEST SUCCEEDED|TEST FAILED|error:)" | head -5
+)
+
+echo "Building Diffs/After xcresult..."
+rm -rf "${XCRESULT_ARTIFACTS_DIR}/coverage-diff-after.xcresult"
+(
+  cd "${DIFFS_DIR}/After"
+  xcodebuild test \
+    -scheme "After-Package" \
+    -destination "platform=macOS" \
+    -enableCodeCoverage YES \
+    -collect-test-diagnostics never \
+    -resultBundlePath "${XCRESULT_ARTIFACTS_DIR}/coverage-diff-after.xcresult" \
+    -derivedDataPath "${DIFFS_DIR}/.build/After" \
+    CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO \
+    "RUN_CLANG_STATIC_ANALYZER=NO" "COMPILER_INDEX_STORE_ENABLE=NO" \
+    2>&1 | grep -E "(TEST SUCCEEDED|TEST FAILED|error:)" | head -5
+)
+
+echo "Generating coverage-diff.json..."
+xcrun xccov diff --json \
+  --path-equivalence "${DIFFS_DIR}/Before,${DIFFS_DIR}/After" \
+  "${XCRESULT_ARTIFACTS_DIR}/coverage-diff-before.xcresult" \
+  "${XCRESULT_ARTIFACTS_DIR}/coverage-diff-after.xcresult" \
+  > "${XCRESULT_FIXTURES_DIR}/coverage-diff.json"
+echo "  → coverage-diff.json"
+
+echo "All fixtures regenerated."
