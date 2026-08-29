@@ -191,6 +191,24 @@ enum Targets {
       ]
   }
 
+  static var xUnitParser: [PackageDescription.Target] {
+    targetBundle(name: "XUnitParser", tests: false)
+      + [
+        .testTarget(
+          name: "XUnitParserTests",
+          dependencies: [.target(name: "XUnitParser"), .target(name: "SharedLogger")],
+          resources: [
+            .copy("Fixtures/cocoa-tools-debug-xUnit-swift-testing.xml"),
+            .copy("Fixtures/xunit-with-failures.xml"),
+          ],
+        ),
+        .testTarget(
+          name: "XUnitParserRecordingTests",
+          dependencies: [.target(name: "SharedLogger")],
+        ),
+      ]
+  }
+
   static var testsCoverage: [PackageDescription.Target] {
     targetBundle(
       name: "TestsCoverageCommand",
@@ -228,6 +246,7 @@ let package = Package(
     .library(name: "SecretsInterfaceTesting", targets: ["SecretsInterfaceTesting"]),
     .library(name: "SecretsInterface", targets: ["SecretsInterface"]),
     .library(name: "XCResultParsing", targets: ["XCResultParsing"]),
+    .library(name: "XUnitParser", targets: ["XUnitParser"]),
   ],
   dependencies: [
     .package(url: "https://github.com/apple/swift-argument-parser.git", .upToNextMajor(from: "1.8.2")),
@@ -253,7 +272,8 @@ let package = Package(
 
   ] + Targets.shell + Targets.envSubst + Targets.exportSecrets + Targets.importSecrets + Targets.obfuscateSecrets
     + Targets.semanticVersion + Targets.env + Targets.ci + Targets.hashicorpVaultReader + Targets.sharedLogger
-    + Targets.secretsInterface + Targets.xcResultParsing + Targets.testsCoverage + Targets.testsResults,
+    + Targets.secretsInterface + Targets.xcResultParsing + Targets.xUnitParser + Targets.testsCoverage
+    + Targets.testsResults,
 
   swiftLanguageModes: [.version(swiftLanguageVersion)],
 )

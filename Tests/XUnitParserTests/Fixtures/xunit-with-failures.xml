@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Placeholder fixture. Regenerate with:
+    mise tasks run test:swift:record-failures
+-->
+<testsuites>
+  <testsuite name="TestResults" errors="0" tests="5" failures="4" skipped="1" time="0.1">
+    <testcase classname="XUnitParserRecordingTests.RecordingTests" name="test_withKnownIssue_expectFalse()" time="0.01">
+      <failure message="Expectation failed: false" type="Issue">RecordingTests.swift:0: Expectation failed: false</failure>
+    </testcase>
+    <testcase classname="XUnitParserRecordingTests.RecordingTests" name="test_expectFalse()" time="0.01">
+      <failure message="Expectation failed: false" type="Issue">RecordingTests.swift:0: Expectation failed: false</failure>
+    </testcase>
+    <testcase classname="XUnitParserRecordingTests.RecordingTests" name="test_withKnownIssue_throwError()" time="0.01">
+      <failure message="Caught error: RecordingError()" type="Issue">RecordingTests.swift:0: Caught error: RecordingError()</failure>
+    </testcase>
+    <testcase classname="XUnitParserRecordingTests.RecordingTests" name="test_throwError()" time="0.01">
+      <failure message="Caught error: RecordingError()" type="Issue">RecordingTests.swift:0: Caught error: RecordingError()</failure>
+    </testcase>
+    <testcase classname="XUnitParserRecordingTests.RecordingTests" name="test_intentionalSkip()" time="0.0">
+      <skipped/>
+    </testcase>
+  </testsuite>
+</testsuites>

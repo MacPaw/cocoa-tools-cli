@@ -108,6 +108,13 @@ Comprehensive semantic versioning implementation with compile-time macro support
 
 ### Supporting Libraries
 
+#### XUnitParser
+Cross-platform xUnit XML parser (macOS and Linux).
+
+- **Features**: Parses `<testsuites>` → `<testsuite>` → `<testcase>` → `<failure>` hierarchy; decomposes `classname` into `moduleName`/`suiteName`
+- **Use Cases**: Parsing xUnit output from `swift test --xunit-output`, CI test result processing
+- **Entry point**: `TestSuites.load(from: URL) throws -> TestSuites`
+
 #### Shell
 Shell command execution utilities with mise integration.
 
