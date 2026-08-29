@@ -24,7 +24,7 @@ struct TestsResultsParseCommand: AsyncParsableCommand {
 
   func run() async throws {
     #if os(macOS)
-      let xcresultURL = URL(fileURLWithPath: options.xcresult!)
+      let xcresultURL = URL(fileURLWithPath: options.xcresult ?? "")
       let results = try XCResultTestResults.load(from: xcresultURL)
       print("Test groups: \(results.testNodes.count)")
       print("Devices: \(results.devices.map(\.deviceName).joined(separator: ", "))")

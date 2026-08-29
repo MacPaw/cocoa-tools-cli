@@ -5,15 +5,15 @@ import Testing
 
 @Suite
 struct LLVMCoverageParserTests {
-  private var fixtureURL: URL {
-    Bundle.module.resourceURL!.appendingPathComponent("lcov.json")
+  private func fixtureURL() throws -> URL {
+    try #require(Bundle.module.resourceURL).appendingPathComponent("lcov.json")
   }
 
   @Test("load dataIsNonEmpty")
   func test_load_dataIsNonEmpty() throws {
     // GIVEN — lcov fixture
     // WHEN
-    let sut = try LLVMCoverage.load(from: fixtureURL)
+    let sut = try LLVMCoverage.load(from: fixtureURL())
     // THEN
     #expect(!sut.data.isEmpty)
   }
@@ -22,7 +22,7 @@ struct LLVMCoverageParserTests {
   func test_load_totalsHasNonZeroLineCount() throws {
     // GIVEN
     // WHEN
-    let sut = try LLVMCoverage.load(from: fixtureURL)
+    let sut = try LLVMCoverage.load(from: fixtureURL())
     let coverage = try #require(sut.data.first)
     // THEN
     #expect(coverage.totals.lines.count > 0)
@@ -32,7 +32,7 @@ struct LLVMCoverageParserTests {
   func test_load_fileHasNonEmptyFilename() throws {
     // GIVEN
     // WHEN
-    let sut = try LLVMCoverage.load(from: fixtureURL)
+    let sut = try LLVMCoverage.load(from: fixtureURL())
     let coverage = try #require(sut.data.first)
     let file = try #require(coverage.files.first)
     // THEN
@@ -43,7 +43,7 @@ struct LLVMCoverageParserTests {
   func test_load_fileLineCoveragePercentIsValid() throws {
     // GIVEN
     // WHEN
-    let sut = try LLVMCoverage.load(from: fixtureURL)
+    let sut = try LLVMCoverage.load(from: fixtureURL())
     let coverage = try #require(sut.data.first)
     let file = try #require(coverage.files.first)
     // THEN
@@ -55,7 +55,7 @@ struct LLVMCoverageParserTests {
   func test_load_branchStatHasNotCovered() throws {
     // GIVEN — branches always carry the notcovered field
     // WHEN
-    let sut = try LLVMCoverage.load(from: fixtureURL)
+    let sut = try LLVMCoverage.load(from: fixtureURL())
     let coverage = try #require(sut.data.first)
     let file = try #require(coverage.files.first)
     // THEN
@@ -66,7 +66,7 @@ struct LLVMCoverageParserTests {
   func test_load_lineStatHasNoNotCovered() throws {
     // GIVEN — lines do not carry the notcovered field
     // WHEN
-    let sut = try LLVMCoverage.load(from: fixtureURL)
+    let sut = try LLVMCoverage.load(from: fixtureURL())
     let coverage = try #require(sut.data.first)
     let file = try #require(coverage.files.first)
     // THEN

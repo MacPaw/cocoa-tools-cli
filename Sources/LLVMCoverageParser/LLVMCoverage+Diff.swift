@@ -2,7 +2,9 @@
 public struct LLVMCoverageDiff: Codable, Sendable {
   /// Source files present in `after` but not in `before`.
   public var addedFiles: [LLVMCoverage.File]
-  /// Source files present in `before` but not in `after`. Only the normalized filename is retained.
+  /// Source files present in `before` but not in `after`.
+  ///
+  /// Only the normalized filename is retained.
   public var removedFiles: [RemovedFile]
   /// Aggregate coverage delta derived from the `totals` of each export.
   public var totalsDelta: SummaryDelta

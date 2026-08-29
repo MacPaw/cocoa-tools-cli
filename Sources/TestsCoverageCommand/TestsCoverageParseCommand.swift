@@ -24,7 +24,7 @@ struct TestsCoverageParseCommand: AsyncParsableCommand {
 
   func run() async throws {
     #if os(macOS)
-      let xcresultURL = URL(fileURLWithPath: options.xcresult!)
+      let xcresultURL = URL(fileURLWithPath: options.xcresult ?? "")
       let report = try XCResultCoverage.load(from: xcresultURL)
       let pct = unsafe String(format: "%.1f%%", report.lineCoverage * 100)
       print("Coverage: \(report.coveredLines)/\(report.executableLines) lines (\(pct))")

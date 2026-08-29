@@ -6,15 +6,15 @@ import Testing
 #if os(macOS)
   @Suite
   struct XCResultCoverageTests {
-    private var xcresultURL: URL {
-      Bundle.module.resourceURL!.appendingPathComponent("test-package.xcresult")
+    private func xcresultURL() throws -> URL {
+      try #require(Bundle.module.resourceURL).appendingPathComponent("test-package.xcresult")
     }
 
     @Test("load returnsNonEmptyTargets")
     func test_load_returnsNonEmptyTargets() throws {
       // GIVEN — path to fixture xcresult
       // WHEN — loading coverage via xccov view --report --json
-      let sut = try XCResultCoverage.load(from: xcresultURL)
+      let sut = try XCResultCoverage.load(from: xcresultURL())
 
       // THEN — at least one target with executable lines
       #expect(sut.executableLines > 0)
@@ -25,7 +25,7 @@ import Testing
     func test_load_hasCoverageFilesWithFunctions() throws {
       // GIVEN — path to fixture xcresult
       // WHEN — loading coverage
-      let sut = try XCResultCoverage.load(from: xcresultURL)
+      let sut = try XCResultCoverage.load(from: xcresultURL())
 
       // THEN — every target has files, every file has at least one function
       let allFiles = sut.targets.flatMap(\.files)
@@ -37,7 +37,7 @@ import Testing
     func test_load_Greeter_hasExecutedFunction() throws {
       // GIVEN — path to fixture xcresult
       // WHEN — loading coverage and locating Greeter.swift
-      let sut = try XCResultCoverage.load(from: xcresultURL)
+      let sut = try XCResultCoverage.load(from: xcresultURL())
       let allFiles = sut.targets.flatMap(\.files)
       let greeterFile = try #require(allFiles.first { $0.name == "Greeter.swift" })
 

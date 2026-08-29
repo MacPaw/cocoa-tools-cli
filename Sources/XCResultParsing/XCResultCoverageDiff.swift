@@ -4,7 +4,9 @@ public import Foundation
 public struct XCResultCoverageDiff: Codable, Sendable {
   /// Targets present in `after` but not in `before`.
   public var addedTargets: [XCResultCoverage.Target]
-  /// Target names present in `before` but not in `after`. Only `name` is provided by xccov.
+  /// Target names present in `before` but not in `after`.
+  ///
+  /// Only `name` is provided by xccov.
   public var removedTargets: [RemovedTarget]
   /// Aggregate line-coverage delta across all matched targets.
   public var lineCoverageDelta: LineCoverageDelta

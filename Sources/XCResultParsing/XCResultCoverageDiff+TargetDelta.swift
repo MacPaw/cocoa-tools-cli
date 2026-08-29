@@ -7,7 +7,9 @@ extension XCResultCoverageDiff {
     public var lineCoverageDelta: LineCoverageDelta
     /// Files present in `after` but not in `before` (full file data).
     public var addedFiles: [XCResultCoverage.Target.File]
-    /// File paths present in `before` but not in `after`. Only `documentLocation` is provided.
+    /// File paths present in `before` but not in `after`.
+    ///
+    /// Only `documentLocation` is provided.
     public var removedFiles: [RemovedFile]
     /// Per-file deltas for files matched between before and after.
     public var fileDeltas: [FileDelta]

@@ -7,7 +7,9 @@ extension XCResultCoverageDiff.TargetDelta {
     public var lineCoverageDelta: XCResultCoverageDiff.LineCoverageDelta
     /// Functions present in `after` but not in `before` (full function data).
     public var addedFunctions: [XCResultCoverage.Target.File.Function]
-    /// Function names present in `before` but not in `after`. Only `name` is provided.
+    /// Function names present in `before` but not in `after`.
+    ///
+    /// Only `name` is provided.
     public var removedFunctions: [RemovedFunction]
     /// Per-function deltas for functions matched between before and after.
     public var functionDeltas: [FunctionDelta]

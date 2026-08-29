@@ -6,15 +6,15 @@ import Testing
 #if os(macOS)
   @Suite
   struct XCResultCoverageDiffTests {
-    private var diffJSONURL: URL {
-      Bundle.module.resourceURL!.appendingPathComponent("coverage-diff.json")
+    private func diffJSONURL() throws -> URL {
+      try #require(Bundle.module.resourceURL).appendingPathComponent("coverage-diff.json")
     }
 
     @Test("diffJSON addedTargets hasTarget3Tests")
     func test_diffJSON_addedTargets_hasTarget3Tests() throws {
       // GIVEN — pre-computed diff fixture generated with --path-equivalence
       // WHEN — decoding directly from JSON
-      let data = try Data(contentsOf: diffJSONURL)
+      let data = try Data(contentsOf: diffJSONURL())
       let sut = try JSONDecoder().decode(XCResultCoverageDiff.self, from: data)
 
       // THEN — Target3Tests is in addedTargets with full coverage data
@@ -26,7 +26,7 @@ import Testing
     func test_diffJSON_removedTargets_hasTarget1Tests() throws {
       // GIVEN — pre-computed diff fixture
       // WHEN — decoding from JSON
-      let data = try Data(contentsOf: diffJSONURL)
+      let data = try Data(contentsOf: diffJSONURL())
       let sut = try JSONDecoder().decode(XCResultCoverageDiff.self, from: data)
 
       // THEN — Target1Tests is in removedTargets (name only)
@@ -37,7 +37,7 @@ import Testing
     func test_diffJSON_fileDeltas_hasStructDPositiveDelta() throws {
       // GIVEN — pre-computed diff fixture (StructD.lowercased() added in After)
       // WHEN — locating the StructD.swift file delta in Target2Tests
-      let data = try Data(contentsOf: diffJSONURL)
+      let data = try Data(contentsOf: diffJSONURL())
       let sut = try JSONDecoder().decode(XCResultCoverageDiff.self, from: data)
       let target2Delta = try #require(sut.targetDeltas.first { $0.name == "Target2Tests" })
       let structDDelta = try #require(target2Delta.fileDeltas.first { $0.documentLocation.hasSuffix("StructD.swift") })
@@ -55,7 +55,7 @@ import Testing
     func test_diffJSON_fileDeltas_hasStructENegativeDelta() throws {
       // GIVEN — pre-computed diff fixture (StructE.isNegative() dropped in After)
       // WHEN — locating the StructE.swift file delta in Target2Tests
-      let data = try Data(contentsOf: diffJSONURL)
+      let data = try Data(contentsOf: diffJSONURL())
       let sut = try JSONDecoder().decode(XCResultCoverageDiff.self, from: data)
       let target2Delta = try #require(sut.targetDeltas.first { $0.name == "Target2Tests" })
       let structEDelta = try #require(target2Delta.fileDeltas.first { $0.documentLocation.hasSuffix("StructE.swift") })

@@ -5,12 +5,12 @@ import Testing
 
 @Suite
 struct LLVMCoverageDiffTests {
-  private var beforeURL: URL {
-    Bundle.module.resourceURL!.appendingPathComponent("llvm-diff-before.json")
+  private func beforeURL() throws -> URL {
+    try #require(Bundle.module.resourceURL).appendingPathComponent("llvm-diff-before.json")
   }
 
-  private var afterURL: URL {
-    Bundle.module.resourceURL!.appendingPathComponent("llvm-diff-after.json")
+  private func afterURL() throws -> URL {
+    try #require(Bundle.module.resourceURL).appendingPathComponent("llvm-diff-after.json")
   }
 
   /// Derives path equivalence by finding the first /Sources/ file and splitting on that marker.
@@ -28,8 +28,8 @@ struct LLVMCoverageDiffTests {
   @Test("diff addedFiles hasTarget3Sources")
   func test_diff_addedFiles_hasTarget3Sources() throws {
     // GIVEN — before has Target1+Target2, after has Target2+Target3
-    let before = try LLVMCoverage.load(from: beforeURL)
-    let after = try LLVMCoverage.load(from: afterURL)
+    let before = try LLVMCoverage.load(from: beforeURL())
+    let after = try LLVMCoverage.load(from: afterURL())
 
     // WHEN — computing diff
     let sut = LLVMCoverageDiff.diff(
@@ -45,8 +45,8 @@ struct LLVMCoverageDiffTests {
   @Test("diff removedFiles hasTarget1Sources")
   func test_diff_removedFiles_hasTarget1Sources() throws {
     // GIVEN — before has Target1+Target2, after has Target2+Target3
-    let before = try LLVMCoverage.load(from: beforeURL)
-    let after = try LLVMCoverage.load(from: afterURL)
+    let before = try LLVMCoverage.load(from: beforeURL())
+    let after = try LLVMCoverage.load(from: afterURL())
 
     // WHEN — computing diff
     let sut = LLVMCoverageDiff.diff(
@@ -62,8 +62,8 @@ struct LLVMCoverageDiffTests {
   @Test("diff totalsDelta linesPercentDeltaIsNonZero")
   func test_diff_totalsDelta_linesPercentDeltaIsNonZero() throws {
     // GIVEN — two builds with different coverage across different source sets
-    let before = try LLVMCoverage.load(from: beforeURL)
-    let after = try LLVMCoverage.load(from: afterURL)
+    let before = try LLVMCoverage.load(from: beforeURL())
+    let after = try LLVMCoverage.load(from: afterURL())
 
     // WHEN — computing diff
     let sut = LLVMCoverageDiff.diff(
@@ -79,8 +79,8 @@ struct LLVMCoverageDiffTests {
   @Test("diff fileDeltas hasStructDPositiveDelta")
   func test_diff_fileDeltas_hasStructDPositiveDelta() throws {
     // GIVEN — StructD gains coverage for lowercased() in the after build
-    let before = try LLVMCoverage.load(from: beforeURL)
-    let after = try LLVMCoverage.load(from: afterURL)
+    let before = try LLVMCoverage.load(from: beforeURL())
+    let after = try LLVMCoverage.load(from: afterURL())
 
     // WHEN — locating StructD in fileDeltas
     let sut = LLVMCoverageDiff.diff(
@@ -97,8 +97,8 @@ struct LLVMCoverageDiffTests {
   @Test("diff fileDeltas hasStructENegativeDelta")
   func test_diff_fileDeltas_hasStructENegativeDelta() throws {
     // GIVEN — StructE loses coverage for isNegative() in the after build
-    let before = try LLVMCoverage.load(from: beforeURL)
-    let after = try LLVMCoverage.load(from: afterURL)
+    let before = try LLVMCoverage.load(from: beforeURL())
+    let after = try LLVMCoverage.load(from: afterURL())
 
     // WHEN — locating StructE in fileDeltas
     let sut = LLVMCoverageDiff.diff(
