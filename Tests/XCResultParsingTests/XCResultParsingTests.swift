@@ -14,21 +14,21 @@ import Testing
     func test_load_returnsNonEmptyTargets() throws {
       // GIVEN — path to fixture xcresult
       // WHEN — loading coverage via xccov view --report --json
-      let result = try CoverageReport.load(from: xcresultURL)
+      let sut = try XCResultCoverage.load(from: xcresultURL)
 
       // THEN — at least one target with executable lines
-      #expect(result.executableLines > 0)
-      #expect(!result.targets.isEmpty)
+      #expect(sut.executableLines > 0)
+      #expect(!sut.targets.isEmpty)
     }
 
     @Test("load hasCoverageFilesWithFunctions")
     func test_load_hasCoverageFilesWithFunctions() throws {
       // GIVEN — path to fixture xcresult
       // WHEN — loading coverage
-      let result = try CoverageReport.load(from: xcresultURL)
+      let sut = try XCResultCoverage.load(from: xcresultURL)
 
       // THEN — every target has files, every file has at least one function
-      let allFiles = result.targets.flatMap(\.files)
+      let allFiles = sut.targets.flatMap(\.files)
       #expect(!allFiles.isEmpty)
       #expect(allFiles.allSatisfy { !$0.functions.isEmpty })
     }
@@ -37,8 +37,8 @@ import Testing
     func test_load_CIType_hasExecutedFunction() throws {
       // GIVEN — path to fixture xcresult
       // WHEN — loading coverage and locating CIType.swift
-      let result = try CoverageReport.load(from: xcresultURL)
-      let allFiles = result.targets.flatMap(\.files)
+      let sut = try XCResultCoverage.load(from: xcresultURL)
+      let allFiles = sut.targets.flatMap(\.files)
       let ciFile = try #require(allFiles.first { $0.name == "CIType.swift" })
 
       // THEN — CIType.init(name:) at line 8 has been executed at least once
@@ -46,18 +46,15 @@ import Testing
       #expect(initFn.executionCount >= 1)
     }
 
-    @Test("getTestResultsTests returnsDecodableTestResults")
-    func test_getTestResultsTests_returnsDecodableTestResults() throws {
-      // GIVEN — CLI wrapper targeting the fixture xcresult
-      let sut = XCResultToolCLI()
-
-      // WHEN — fetching JSON test results
-      let data = try sut.getTestResultsTests(xcresultPath: xcresultURL)
-      let result = try JSONDecoder().decode(TestResults.self, from: data)
+    @Test("load returnsDecodableTestResults")
+    func test_load_returnsDecodableTestResults() throws {
+      // GIVEN — path to fixture xcresult
+      // WHEN — loading test results via xcresulttool get test-results tests
+      let sut = try XCResultTestResults.load(from: xcresultURL)
 
       // THEN — at least one device and one test group present
-      #expect(!result.devices.isEmpty)
-      #expect(!result.testNodes.isEmpty)
+      #expect(!sut.devices.isEmpty)
+      #expect(!sut.testNodes.isEmpty)
     }
   }
 #endif
