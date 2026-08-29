@@ -14,7 +14,7 @@ SWIFT_PACKAGE_NAME="${SWIFT_PACKAGE_NAME:-"cocoa-tools"}"
 
 echo "Copying xUnit XML (with intentional failures and skips) → XUnitReportTests fixture..."
 cp "${ARTIFACTS_DIR}/test-results/${SWIFT_PACKAGE_NAME}-debug-xUnit-swift-testing.xml" \
-  "Tests/XUnitReportTests/Fixtures/cocoa-tools-debug-xUnit-swift-testing.xml"
+  "Tests/XUnitReportTests/fixtures/cocoa-tools-debug-xUnit-swift-testing.xml"
 
 # Strip segments, the top-level functions array, and unused summary fields from the full 28MB lcov.json.
 # Segments are line-by-line execution data we don't model; the functions array contains 23k+ entries
@@ -24,4 +24,4 @@ cp "${ARTIFACTS_DIR}/test-results/${SWIFT_PACKAGE_NAME}-debug-xUnit-swift-testin
 echo "Trimming lcov.json (removing segments, functions, instantiations, regions, mcdc) → LLVMCoverageParserTests fixture..."
 jq '{type,version,data:[.data[]|{totals:{lines:.totals.lines,functions:.totals.functions,branches:.totals.branches},files:[.files[]|{filename,summary:{lines:.summary.lines,functions:.summary.functions,branches:.summary.branches}}],functions:[]}]}' \
   "${ARTIFACTS_DIR}/test-results/${SWIFT_PACKAGE_NAME}-debug-lcov.json" \
-  > "Tests/LLVMCoverageParserTests/Fixtures/lcov.json"
+  > "Tests/LLVMCoverageParserTests/fixtures/lcov.json"

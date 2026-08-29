@@ -9,7 +9,7 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../../.." && pwd)"
 BEFORE_DIR="${REPO_ROOT}/.xcresult-diff/Before"
 AFTER_DIR="${REPO_ROOT}/.xcresult-diff/After"
 ARTIFACTS_DIR="${REPO_ROOT}/artifacts/xcresult-diff"
-FIXTURES_DIR="${REPO_ROOT}/Tests/XCResultParsingTests/Fixtures"
+FIXTURES_DIR="${REPO_ROOT}/Tests/XCResultParsingTests/fixtures"
 
 mkdir -p "${ARTIFACTS_DIR}"
 

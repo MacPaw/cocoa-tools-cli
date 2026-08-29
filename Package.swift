@@ -187,8 +187,8 @@ enum Targets {
           name: "XCResultParsingTests",
           dependencies: [.target(name: "XCResultParsing"), .target(name: "SharedLogger")],
           resources: [
-            .copy("Fixtures/cocoa-tools-debug.xcresult"),
-            .copy("Fixtures/coverage-diff.json"),
+            .copy("fixtures/cocoa-tools-debug.xcresult"),
+            .copy("fixtures/coverage-diff.json"),
           ],
         )
       ]
@@ -201,7 +201,7 @@ enum Targets {
           name: "XUnitReportTests",
           dependencies: [.target(name: "XUnitReport"), .target(name: "SharedLogger")],
           resources: [
-            .copy("Fixtures/cocoa-tools-debug-xUnit-swift-testing.xml")
+            .copy("fixtures/cocoa-tools-debug-xUnit-swift-testing.xml")
           ],
         ),
         .testTarget(
@@ -218,7 +218,7 @@ enum Targets {
           name: "LLVMCoverageParserTests",
           dependencies: [.target(name: "LLVMCoverageParser"), .target(name: "SharedLogger")],
           resources: [
-            .copy("Fixtures/lcov.json")
+            .copy("fixtures/lcov.json")
           ],
         )
       ]
