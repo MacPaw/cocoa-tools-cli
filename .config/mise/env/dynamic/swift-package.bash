@@ -4,7 +4,12 @@
 
 set SWIFT_PACKAGE_DUMP_JSON
 echo "Dumping swift package"
-SWIFT_PACKAGE_DUMP_JSON="$(swift package dump-package | jq -c .)"
+
+if [[ "$(uname -s)" == "Darwin" ]] && command -v swiftly > /dev/null 2>&1 && command -v xcrun > /dev/null 2>&1; then
+  SWIFT_PACKAGE_DUMP_JSON="$(swiftly run +xcode swift package dump-package)"
+else
+  SWIFT_PACKAGE_DUMP_JSON="$(swift package dump-package)"
+fi
 
 export SWIFT_PACKAGE_NAME
 echo "Getting package name"
