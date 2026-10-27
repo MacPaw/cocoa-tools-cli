@@ -27,3 +27,5 @@ Binary/
 # Local artifacts
 /artifacts
 /hk.log
+/output.log
+/patches

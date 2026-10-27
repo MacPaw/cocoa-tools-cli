@@ -33,6 +33,11 @@ shellcheck = "latest"
 # A git hook manager and project linting tool with an emphasis on performance.
 hk = "latest"
 
+# https://github.com/gitleaks/gitleaks/releases
+# A fast, in-memory, git-based secret scanning tool.
+# Used to scan for secrets in the repository.
+gitleaks = "latest"
+
 # https://github.com/google/yamlfmt/releases
 # Formats YAML files.
 yamlfmt = "latest"
@@ -73,6 +78,8 @@ env_cache_ttl = "30d"
 _.file = [
   # CONTAINER_BUILD_CPUS, CONTAINER_BUILD_MEMORY
   { path = "env/container.toml", cacheable = true },
+  # GITLEAKS_CONFIG
+  { path = "env/gitleaks.toml", cacheable = true },
   # SHELLCHECK_RCFILE
   { path = "env/shellcheck.toml", cacheable = true },
   # HK_FILE

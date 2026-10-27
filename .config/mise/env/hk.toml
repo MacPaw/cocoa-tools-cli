@@ -1,5 +1,4 @@
 # Path to the HK entry point (amends .config/hk/hk.pkl, see the comment there).
-HK_FILE = ".config/hk/hk.pkl"
+HK_FILE = ".config/hk.pkl"
 # Enable Mise integration.
 HK_MISE = "1"
-HK_STATE_DIR = "/Users/v/Developer/MacPaw/mpct/"

@@ -12,6 +12,7 @@ local builtin_linters = new Mapping<String, Step> {
     ["check_case_conflict"] = Builtins.check_case_conflict
     ["check_executables_have_shebangs"] = Builtins.check_executables_have_shebangs
     ["check_symlinks"] = Builtins.check_symlinks
+    ["gitleaks"] = Builtins.gitleaks
     ["jq"] = Builtins.jq
     ["mise"] = Builtins.mise
     ["newlines"] = Builtins.newlines
