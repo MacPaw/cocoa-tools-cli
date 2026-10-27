@@ -66,12 +66,14 @@ swift_install_musl_sdk() {
     echo "SDK URL:        ${SDK_URL}"
 
     echo "Downloading Swift SDK..."
-    curl --output "/tmp/${ARTIFACT_BUNDLE_FILE}.tar.gz" "${SDK_URL}"
+    curl --fail --location --output "/tmp/${ARTIFACT_BUNDLE_FILE}.tar.gz" "${SDK_URL}"
 
     echo "Computing checksum..."
     local CHECKSUM
     if [[ ${SWIFT_VERSION_SHORT} == "6.3.3" ]]; then
       CHECKSUM="87c3eaf908e67c0e13a84367119e12273cec1d2cd3d81f7d74bb36722d6b607b"
+    elif [[ ${SWIFT_VERSION_SHORT} == "6.4.0" ]]; then
+      CHECKSUM="47d2fd89eebfdf9eb4d536b6710414297f755c17926cdebc4742c08982b40a9e"
     else
       echo "Computing checksum with Swift..."
       CHECKSUM="$(swift package compute-checksum "/tmp/${ARTIFACT_BUNDLE_FILE}.tar.gz")"
@@ -161,6 +163,19 @@ swift_validate_options() {
   done
 }
 
+# The default build system of Swift 6.4 does not follow the autolink entries of the static
+# Foundation archives, so linking a statically linked Foundation fails with undefined symbols.
+# Listing the archives in a group lets the linker resolve their mutual dependencies in any order.
+STATIC_FOUNDATION_LINKER_ARGS=("-Xlinker" "--start-group")
+for STATIC_FOUNDATION_LIB in \
+  Foundation FoundationEssentials FoundationInternationalization FoundationNetworking FoundationXML \
+  CoreFoundation _FoundationICU _FoundationCShims _FoundationCollections _CFXMLInterface \
+  _CFURLSessionInterface swiftSynchronization; do
+  STATIC_FOUNDATION_LINKER_ARGS+=("-Xlinker" "-l${STATIC_FOUNDATION_LIB}")
+done
+# `FoundationNetworking` and `FoundationXML` rely on the system libcurl and libxml2.
+STATIC_FOUNDATION_LINKER_ARGS+=("-Xlinker" "--end-group" "-Xlinker" "-lcurl" "-Xlinker" "-lxml2")
+
 swift_run_build_or_tests() {
   local EXTRA_SWIFTPM_ARGS=("${@}")
   local DEFAULT_ARGS TARGET_ARGS BIN_DIR USE_STATIC_SWIFT_STDLIB
@@ -202,6 +217,7 @@ swift_run_build_or_tests() {
 
       if [ "${USE_STATIC_SWIFT_STDLIB}" == "true" ]; then
         DEFAULT_ARGS+=("--static-swift-stdlib")
+        DEFAULT_ARGS+=("${STATIC_FOUNDATION_LINKER_ARGS[@]}")
       fi
     fi
 

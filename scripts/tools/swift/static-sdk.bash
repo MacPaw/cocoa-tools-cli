@@ -4,18 +4,19 @@ set -Eeo pipefail
 
 STATIC_LINUX_SDK_VERSION="${STATIC_LINUX_SDK_VERSION:-"0.1.0"}"
 
-# Release version of the toolchain, without the trailing `.0` that download.swift.org omits.
+# Release version of the toolchain, spelled the way download.swift.org names its release, which is
+# the version in `.swift-version` (`6.4.0`, not `6.4`).
 swift_pinned_version() {
   local SWIFT_VERSION
   SWIFT_VERSION="$(tr -d '[:space:]' < .swift-version)"
   if [[ ${SWIFT_VERSION} == "xcode" ]]; then
     SWIFT_VERSION="$(swift -version 2> /dev/null | grep 'Apple Swift version' | awk '{print $4}' | tr -d '[:space:]')"
   fi
-  if [[ ${SWIFT_VERSION} == *".0" ]]; then
-    echo "${SWIFT_VERSION%.0}"
-  else
-    echo "${SWIFT_VERSION}"
+  # `swift -version` omits the patch component of a `.0` release.
+  if [[ ${SWIFT_VERSION} =~ ^[0-9]+\.[0-9]+$ ]]; then
+    SWIFT_VERSION="${SWIFT_VERSION}.0"
   fi
+  echo "${SWIFT_VERSION}"
 }
 
 swift_static_sdk_bundle_id() {
