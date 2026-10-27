@@ -19,7 +19,7 @@ extension XCResultCoverageDiff.TargetDelta {
 extension XCResultCoverageDiff.TargetDelta.FileDelta {
   /// A function name from the before bundle that has no match in the after bundle.
   public struct RemovedFunction: Codable, Sendable {
-    /// The function name as reported by xccov (e.g. `"MyType.someMethod()"`).
+    /// The function name as reported by xccov (for example `"MyType.someMethod()"`).
     public var name: String
   }
 }

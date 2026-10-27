@@ -3,9 +3,9 @@ extension XCResultTestResults {
   public struct TestNode: Codable, Sendable {
     /// Display name of this node.
     public var name: String
-    /// The kind of this node (e.g. `"Test Suite"`, `"Test Case"`).
+    /// The kind of this node (for example `"Test Suite"`, `"Test Case"`).
     public var nodeType: String
-    /// The pass/fail status (e.g. `"Passed"`, `"Failed"`). `nil` for skipped nodes.
+    /// The pass/fail status (for example `"Passed"`, `"Failed"`). `nil` for skipped nodes.
     public var result: String?
     /// Human-readable duration string.
     public var duration: String?

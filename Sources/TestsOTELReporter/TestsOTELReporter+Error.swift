@@ -1,5 +1,9 @@
 public import Foundation
 
+#if canImport(FoundationNetworking)
+  public import FoundationNetworking
+#endif
+
 extension TestsOTELReporter {
   /// Errors raised while exporting test metrics.
   public enum Error: Swift.Error {

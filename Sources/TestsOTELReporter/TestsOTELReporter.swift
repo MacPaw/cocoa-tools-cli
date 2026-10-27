@@ -3,7 +3,7 @@ public import Foundation
 import SharedLogger
 
 #if canImport(FoundationNetworking)
-  import FoundationNetworking
+  public import FoundationNetworking
 #endif
 
 /// Exports metrics about a completed test run to an OpenTelemetry collector.
