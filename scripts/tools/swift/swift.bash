@@ -165,7 +165,8 @@ swift_validate_options() {
 
 # The default build system of Swift 6.4 does not follow the autolink entries of the static
 # Foundation archives, so linking a statically linked Foundation fails with undefined symbols.
-# Listing the archives in a group lets the linker resolve their mutual dependencies in any order.
+# It applies to native Linux builds only: a musl cross-build links host tools on the build machine
+# too. Listing the archives in a group lets the linker resolve their mutual dependencies in any order.
 STATIC_FOUNDATION_LINKER_ARGS=("-Xlinker" "--start-group")
 for STATIC_FOUNDATION_LIB in \
   Foundation FoundationEssentials FoundationInternationalization FoundationNetworking FoundationXML \
@@ -217,7 +218,9 @@ swift_run_build_or_tests() {
 
       if [ "${USE_STATIC_SWIFT_STDLIB}" == "true" ]; then
         DEFAULT_ARGS+=("--static-swift-stdlib")
-        DEFAULT_ARGS+=("${STATIC_FOUNDATION_LINKER_ARGS[@]}")
+        if [ "${PLATFORM}" == "linux" ] && [ "${LIBC_IMPLEMENTATION}" != "musl" ]; then
+          DEFAULT_ARGS+=("${STATIC_FOUNDATION_LINKER_ARGS[@]}")
+        fi
       fi
     fi
 
