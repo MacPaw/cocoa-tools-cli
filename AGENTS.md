@@ -81,8 +81,11 @@ The task builds from `Tests/fixtures/TestPackage` (two source targets, a recordi
 - `Tests/LLVMCoverageParserTests/fixtures/llvm-diff-after.json`
 - `Tests/XCResultParsingTests/fixtures/test-package.xcresult`
 - `Tests/XCResultParsingTests/fixtures/coverage-diff.json`
+- `Tests/XUnitReportTests/fixtures/test-package-xUnit-swift-testing.xml`
 
-`Tests/XUnitReportTests/fixtures/test-package-xUnit-swift-testing.xml` is hand-maintained — `swift test --xunit-output` does not write the file when any test fails (Swift 6.4), so it cannot be regenerated automatically when `RecordingTests` intentionally fails.
+The xUnit XML is generated with `MPCT_TESTS_RECORD_FAILURES=1`, which enables `RecordingTests` so the fixture contains `<failure>` and `<skipped>` elements. Since Swift 6.4.0, `swift test --xunit-output` writes the file even when tests fail, and emits one `<testsuite>` per test target.
+
+SwiftPM 6.4's own `codecov/*.json` covers only one test binary, so the generator instead runs `llvm-cov export` over every `.xctest` binary with the merged `default.profdata`.
 
 ## Package conventions
 

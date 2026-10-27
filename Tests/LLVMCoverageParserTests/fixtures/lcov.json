@@ -1,75 +1,56 @@
 {
-  "type": "llvm.coverage.json.export",
-  "version": "3.0.1",
   "data": [
     {
-      "totals": {
-        "lines": {
-          "count": 54,
-          "covered": 37,
-          "percent": 68.518518518518519
-        },
-        "functions": {
-          "count": 11,
-          "covered": 6,
-          "percent": 54.54545454545454
-        },
-        "branches": {
-          "count": 0,
-          "covered": 0,
-          "notcovered": 0,
-          "percent": 0
-        }
-      },
       "files": [
         {
           "filename": "/Users/v/Developer/MacPaw/mpct/Tests/fixtures/TestPackage/Sources/TargetA/Greeter.swift",
           "summary": {
-            "lines": {
-              "count": 6,
-              "covered": 3,
-              "percent": 50
+            "branches": {
+              "count": 0,
+              "covered": 0,
+              "notcovered": 0,
+              "percent": 0
             },
             "functions": {
               "count": 2,
               "covered": 1,
               "percent": 50
             },
-            "branches": {
-              "count": 0,
-              "covered": 0,
-              "notcovered": 0,
-              "percent": 0
+            "lines": {
+              "count": 6,
+              "covered": 3,
+              "percent": 50
             }
           }
         },
         {
           "filename": "/Users/v/Developer/MacPaw/mpct/Tests/fixtures/TestPackage/Sources/TargetB/Adder.swift",
           "summary": {
-            "lines": {
-              "count": 6,
-              "covered": 3,
-              "percent": 50
+            "branches": {
+              "count": 0,
+              "covered": 0,
+              "notcovered": 0,
+              "percent": 0
             },
             "functions": {
               "count": 2,
               "covered": 1,
               "percent": 50
             },
-            "branches": {
-              "count": 0,
-              "covered": 0,
-              "notcovered": 0,
-              "percent": 0
+            "lines": {
+              "count": 6,
+              "covered": 3,
+              "percent": 50
             }
           }
         },
         {
           "filename": "/Users/v/Developer/MacPaw/mpct/Tests/fixtures/TestPackage/Tests/RecordingTests/RecordingTestsTesting.swift",
           "summary": {
-            "lines": {
-              "count": 8,
+            "branches": {
+              "count": 0,
               "covered": 0,
+              "notcovered": 0,
               "percent": 0
             },
             "functions": {
@@ -77,10 +58,9 @@
               "covered": 0,
               "percent": 0
             },
-            "branches": {
-              "count": 0,
+            "lines": {
+              "count": 8,
               "covered": 0,
-              "notcovered": 0,
               "percent": 0
             }
           }
@@ -88,46 +68,66 @@
         {
           "filename": "/Users/v/Developer/MacPaw/mpct/Tests/fixtures/TestPackage/Tests/TargetATests/GreeterTests.swift",
           "summary": {
-            "lines": {
-              "count": 8,
-              "covered": 8,
-              "percent": 100
+            "branches": {
+              "count": 0,
+              "covered": 0,
+              "notcovered": 0,
+              "percent": 0
             },
             "functions": {
               "count": 1,
               "covered": 1,
               "percent": 100
             },
-            "branches": {
-              "count": 0,
-              "covered": 0,
-              "notcovered": 0,
-              "percent": 0
+            "lines": {
+              "count": 8,
+              "covered": 8,
+              "percent": 100
             }
           }
         },
         {
           "filename": "/Users/v/Developer/MacPaw/mpct/Tests/fixtures/TestPackage/Tests/TargetBTests/AdderTests.swift",
           "summary": {
-            "lines": {
-              "count": 9,
-              "covered": 9,
-              "percent": 100
+            "branches": {
+              "count": 0,
+              "covered": 0,
+              "notcovered": 0,
+              "percent": 0
             },
             "functions": {
               "count": 1,
               "covered": 1,
               "percent": 100
             },
-            "branches": {
-              "count": 0,
-              "covered": 0,
-              "notcovered": 0,
-              "percent": 0
+            "lines": {
+              "count": 9,
+              "covered": 9,
+              "percent": 100
             }
           }
         }
-      ]
+      ],
+      "totals": {
+        "branches": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        },
+        "functions": {
+          "count": 18,
+          "covered": 10,
+          "percent": 55.555555555555557
+        },
+        "lines": {
+          "count": 121,
+          "covered": 71,
+          "percent": 58.677685950413228
+        }
+      }
     }
-  ]
+  ],
+  "type": "llvm.coverage.json.export",
+  "version": "3.0.1"
 }

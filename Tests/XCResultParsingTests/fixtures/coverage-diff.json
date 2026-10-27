@@ -200,26 +200,6 @@
           ]
         },
         {
-          "addedFunctions": [],
-          "documentLocation": "/Users/v/Developer/MacPaw/mpct/Tests/fixtures/Diffs/After/Sources/Target2/StructD.swift",
-          "functionDeltas": [
-            {
-              "lineCoverageDelta": {
-                "coveredLinesDelta": 3,
-                "executableLinesDelta": 0,
-                "lineCoverageDelta": 1
-              },
-              "name": "StructD.lowercased()"
-            }
-          ],
-          "lineCoverageDelta": {
-            "coveredLinesDelta": 3,
-            "executableLinesDelta": 0,
-            "lineCoverageDelta": 0.5
-          },
-          "removedFunctions": []
-        },
-        {
           "addedFunctions": [
             {
               "coveredLines": 5,
@@ -245,6 +225,26 @@
             "coveredLinesDelta": 4,
             "executableLinesDelta": 4,
             "lineCoverageDelta": 0
+          },
+          "removedFunctions": []
+        },
+        {
+          "addedFunctions": [],
+          "documentLocation": "/Users/v/Developer/MacPaw/mpct/Tests/fixtures/Diffs/After/Sources/Target2/StructD.swift",
+          "functionDeltas": [
+            {
+              "lineCoverageDelta": {
+                "coveredLinesDelta": 3,
+                "executableLinesDelta": 0,
+                "lineCoverageDelta": 1
+              },
+              "name": "StructD.lowercased()"
+            }
+          ],
+          "lineCoverageDelta": {
+            "coveredLinesDelta": 3,
+            "executableLinesDelta": 0,
+            "lineCoverageDelta": 0.5
           },
           "removedFunctions": []
         }
