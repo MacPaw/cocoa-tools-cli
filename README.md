@@ -28,9 +28,16 @@ mpct is a modular Swift CLI project targeting macOS 15+ that helps engineers wit
 ```
 mpct
 ├── envsubst              # Environment variable substitution
-└── secrets               # Secret management commands
-    ├── export            # Export secrets from providers
-    └── obfuscate         # Generate obfuscated Swift code
+├── secrets               # Secret management commands
+│   ├── export            # Export secrets from providers
+│   └── obfuscate         # Generate obfuscated Swift code
+└── tests                 # Test result tools
+    ├── coverage
+    │   └── parse         # Export xcresult coverage
+    ├── results
+    │   └── parse         # Fetch xcresult test results
+    └── report
+        └── otel          # Push test metrics to an OpenTelemetry collector
 ```
 
 ### [envsubst](docs/Commands/EnvSubstCommand.md)
@@ -59,6 +66,24 @@ mpct secrets export --config secrets.yaml --source op --destination mise
 - Multiple export formats (dotenv, mise, stdout)
 - YAML-based configuration
 - Environment variable substitution in configs
+
+### tests report otel
+Push metrics about a completed test run to an OpenTelemetry collector over OTLP/HTTP.
+
+```bash
+mpct tests report otel --xcresult Build/tests.xcresult --endpoint https://collector.example
+mpct tests report otel --xunit .build/tests.xml --dry-run
+```
+
+Accepts exactly one of `--xcresult` (macOS only) or `--xunit`. The endpoint and headers fall back
+to `OTEL_EXPORTER_OTLP_ENDPOINT` and `OTEL_EXPORTER_OTLP_HEADERS`; there is no built-in default, so
+a missing endpoint is a validation error rather than silent data loss.
+
+**Key Features:**
+- Emits `cicd.test.case.count` (by result status), `cicd.test.case.duration`, and `cicd.test.run.duration`
+- Per-suite breakdown via `test.suite.name`, disabled with `--no-per-suite`
+- Resource attributes (`vcs.*`, `cicd.*`) derived from the detected CI
+- `--dry-run` prints the payload without sending it; `--no-fail-on-error` keeps a green build green
 
 ### [secrets obfuscate](docs/Commands/ObfuscateSecretsCommand.md)
 Generate obfuscated Swift code for secrets.
@@ -122,6 +147,13 @@ Cross-platform LLVM coverage JSON parser (macOS and Linux).
 - **Fixture stripping**: The test fixture strips segments (line-by-line execution data), the top-level functions array (23k+ mangled Swift symbols), and summary fields not modelled by the parser: `instantiations`, `regions`, `mcdc`
 - **Use Cases**: Parsing LLVM JSON coverage reports, CI coverage result processing
 - **Entry point**: `LLVMCoverage.load(from: URL) throws -> LLVMCoverage`
+
+#### TestsOTELReporter
+OpenTelemetry metrics reporter for completed test runs.
+
+- **Features**: Normalizes `.xcresult` and xUnit reports into one model; builds the OTLP metrics payload as JSON and pushes it over HTTP; no OpenTelemetry SDK dependency
+- **Use Cases**: Feeding CI test outcomes into Grafana/Mimir alongside the Xcode CAS metrics
+- **Entry point**: `TestsOTELReporter(configuration:).report(_ testRun: TestRun) async throws`
 
 #### Shell
 Shell command execution utilities with mise integration.

@@ -74,3 +74,46 @@ extension CI.GitHubActions.Environment {
     try _appendValueToFile(name: name, value: value, isOutput: isOutput)
   }
 }
+
+extension CI.GitHubActions {
+  /// Source control repository metadata for the current run.
+  var repository: CI.Repository {
+    CI.Repository(
+      organizationName: _env.firstNonEmpty(of: "ORGANIZATION_NAME", "GITHUB_REPOSITORY_OWNER"),
+      repositoryName: _env.firstNonEmpty(of: "REPOSITORY_NAME")
+        ?? _env.firstNonEmpty(of: "GITHUB_REPOSITORY").map(CI.repositoryName(fromSlug:)),
+      provider: "github",
+    )
+  }
+
+  /// Pipeline metadata for the current run.
+  var cicd: CI.CICD {
+    CI.CICD(
+      pipelineName: _env.firstNonEmpty(of: "GITHUB_WORKFLOW"),
+      run: CI.CICD.Run(
+        id: _env.firstNonEmpty(of: "GITHUB_RUN_ID"),
+        number: _env.firstNonEmpty(of: "GITHUB_RUN_NUMBER"),
+        taskName: _env.firstNonEmpty(of: "GITHUB_JOB"),
+        stageName: .none,
+        url: runURL,
+      ),
+    )
+  }
+
+  /// Web URL of the current workflow run, assembled from the server, repository slug, and run identifier.
+  private var runURL: URL? {
+    guard
+      let serverURL = _env.firstNonEmpty(of: "GITHUB_SERVER_URL"),
+      let slug = _env.firstNonEmpty(of: "GITHUB_REPOSITORY"),
+      let runID = _env.firstNonEmpty(of: "GITHUB_RUN_ID"),
+      let base = URL(string: serverURL)
+    else { return .none }
+
+    return
+      base
+      .appendingPathComponent(slug)
+      .appendingPathComponent("actions")
+      .appendingPathComponent("runs")
+      .appendingPathComponent(runID)
+  }
+}

@@ -1,4 +1,5 @@
 import ENV
+import Foundation
 
 extension CI {
   /// Azure Pipelines CI.
@@ -59,5 +60,68 @@ extension CI.AzurePipelines.Environment: CIEnvInterface {
 
   func setVariable(name: String, value: String, isOutput: Bool) throws {
     _setVariable(name: name, value: value, isSecret: false, isOutput: isOutput)
+  }
+}
+
+extension CI.AzurePipelines {
+  /// Source control repository metadata for the current run.
+  var repository: CI.Repository {
+    CI.Repository(
+      organizationName: _env.firstNonEmpty(of: "ORGANIZATION_NAME")
+        ?? collectionURL.flatMap(Self.organizationName(fromCollectionURL:)),
+      repositoryName: _env.firstNonEmpty(of: "REPOSITORY_NAME", "BUILD_REPOSITORY_NAME")
+        .map(CI.repositoryName(fromSlug:)),
+      provider: _env.firstNonEmpty(of: "BUILD_REPOSITORY_PROVIDER").map { $0.lowercased() },
+    )
+  }
+
+  /// Pipeline metadata for the current run.
+  var cicd: CI.CICD {
+    CI.CICD(
+      pipelineName: _env.firstNonEmpty(of: "BUILD_DEFINITIONNAME"),
+      run: CI.CICD.Run(
+        id: _env.firstNonEmpty(of: "BUILD_BUILDID"),
+        number: _env.firstNonEmpty(of: "BUILD_BUILDNUMBER"),
+        taskName: _env.firstNonEmpty(of: "SYSTEM_JOBDISPLAYNAME"),
+        stageName: _env.firstNonEmpty(of: "SYSTEM_STAGEDISPLAYNAME"),
+        url: runURL,
+      ),
+    )
+  }
+
+  /// The Azure DevOps collection URL of the current run, if reported.
+  private var collectionURL: URL? {
+    _env.firstNonEmpty(of: "SYSTEM_COLLECTIONURI", "SYSTEM_TEAMFOUNDATIONCOLLECTIONURI").flatMap(URL.init(string:))
+  }
+
+  /// Web URL of the current build, assembled from the collection URL, project, and build identifier.
+  private var runURL: URL? {
+    guard
+      let collectionURL,
+      let project = _env.firstNonEmpty(of: "SYSTEM_TEAMPROJECT"),
+      let buildID = _env.firstNonEmpty(of: "BUILD_BUILDID")
+    else { return .none }
+
+    var components: URLComponents? = URLComponents(
+      url: collectionURL.appendingPathComponent(project).appendingPathComponent("_build")
+        .appendingPathComponent(
+          "results"
+        ),
+      resolvingAgainstBaseURL: false,
+    )
+    components?.queryItems = [URLQueryItem(name: "buildId", value: buildID)]
+
+    return components?.url
+  }
+
+  /// Extracts the organization name from an Azure DevOps collection URL.
+  ///
+  /// Collection URLs take the form `https://dev.azure.com/{organization}/`, so the organization
+  /// is the last non-empty path component.
+  ///
+  /// - Parameter collectionURL: The collection URL reported by Azure Pipelines.
+  /// - Returns: The organization name, or `nil` when the URL carries no path component.
+  private static func organizationName(fromCollectionURL collectionURL: URL) -> String? {
+    collectionURL.pathComponents.last { $0 != "/" && !$0.isEmpty }
   }
 }

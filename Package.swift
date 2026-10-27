@@ -243,6 +243,21 @@ enum Targets {
       tests: false,
     )
   }
+
+  static var testsOTELReporter: [PackageDescription.Target] {
+    commandBundle(
+      name: "TestsOTELReporter",
+      dependencies: [.target(name: "CI")],
+      testsDependencies: [.target(name: "CI")],
+      commandDependencies: [
+        .target(name: "XCResultParsing", condition: .when(platforms: [.macOS])), .target(name: "XUnitReport"),
+      ],
+      commandTests: true,
+      commandTestsDependencies: [
+        .target(name: "XCResultParsing", condition: .when(platforms: [.macOS])), .target(name: "XUnitReport"),
+      ],
+    )
+  }
 }
 
 let package = Package(
@@ -261,6 +276,7 @@ let package = Package(
     .library(name: "XCResultParsing", targets: ["XCResultParsing"]),
     .library(name: "XUnitReport", targets: ["XUnitReport"]),
     .library(name: "LLVMCoverageParser", targets: ["LLVMCoverageParser"]),
+    .library(name: "TestsOTELReporter", targets: ["TestsOTELReporter"]),
   ],
   dependencies: [
     .package(url: "https://github.com/apple/swift-argument-parser.git", .upToNextMajor(from: "1.6.1")),
@@ -268,6 +284,7 @@ let package = Package(
     .package(url: "https://github.com/swiftlang/swift-syntax.git", .upToNextMajor(from: "602.0.0")),
     .package(url: "https://github.com/apple/swift-log.git", .upToNextMajor(from: "1.6.4")),
     swiftConfidentialSource.packageDependency, yamsSource.packageDependency,
+    .package(url: "https://github.com/apple/swift-configuration.git", from: "1.2.0", traits: [.defaults, "YAML"]),
   ],
   targets: [
     .executableTarget(
@@ -277,6 +294,7 @@ let package = Package(
         .target(name: "ObfuscateSecretsCommand", condition: .when(platforms: [.macOS])),
         .target(name: "ExportSecretsCommand"), .target(name: "SemanticVersion"), .target(name: "SemanticVersionMacro"),
         .target(name: "TestsCoverageCommand"), .target(name: "TestsResultsCommand"),
+        .target(name: "TestsOTELReporterCommand"),
       ],
       packageAccess: true,
       plugins: [.plugin(name: "SemanticVersionBuildToolPlugin")],
@@ -289,7 +307,7 @@ let package = Package(
     + Targets.semanticVersion + Targets.env + Targets.ci + Targets.hashicorpVaultReader + Targets.sharedLogger
     + Targets.secretsInterface + Targets.xcResultParsing + Targets.xUnitReport + Targets.llvmCoverageParser
     + Targets.testsCoverage
-    + Targets.testsResults,
+    + Targets.testsResults + Targets.testsOTELReporter,
 
   swiftLanguageModes: [.version(swiftLanguageVersion)],
 )

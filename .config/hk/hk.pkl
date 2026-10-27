@@ -1,5 +1,5 @@
-amends "package://github.com/jdx/hk/releases/download/v1.53.0/hk@1.53.0#/Config.pkl"
-import "package://github.com/jdx/hk/releases/download/v1.53.0/hk@1.53.0#/Builtins.pkl"
+amends "package://github.com/jdx/hk/releases/download/v2.8.1/hk@2.8.1#/Config.pkl"
+import "package://github.com/jdx/hk/releases/download/v2.8.1/hk@2.8.1#/Builtins.pkl"
 
 local shellScriptsMatch: List<FileSelector> = List(
     new FileSelector { glob = List("**/*.sh", "**/*.bash") },
@@ -12,7 +12,6 @@ local builtin_linters = new Mapping<String, Step> {
     ["check_case_conflict"] = Builtins.check_case_conflict
     ["check_executables_have_shebangs"] = Builtins.check_executables_have_shebangs
     ["check_symlinks"] = Builtins.check_symlinks
-    ["gitleaks"] = Builtins.gitleaks
     ["jq"] = Builtins.jq
     ["mise"] = Builtins.mise
     ["newlines"] = Builtins.newlines
@@ -25,8 +24,7 @@ local project_linters = new Mapping<String, Step> {
         check = "./scripts/tools/yamlfmt/yamlfmt.bash --lint {{files}}"
         fix = "./scripts/tools/yamlfmt/yamlfmt.bash --format {{files}}"
     }
-    ["actionlint"] {
-        ...Builtins.actionlint
+    ["actionlint"] = (Builtins.actionlint) {
         depends = List("yamlfmt")
     }
     // Project wrappers: ShellCheck config via SHELLCHECK_RCFILE / .shellcheckrc;
@@ -50,22 +48,18 @@ local project_linters = new Mapping<String, Step> {
     }
 }
 
-local linters = new Mapping<String, Step> {
+// Shared steps feed the implicit `check`, `fix` and `pre-commit` hooks.
+steps = new Mapping<String, Step> {
     ...builtin_linters
     ...project_linters
 }
 
 hooks {
-    ["pre-commit"] {
-        fix = true
-        stash = "git"
-        steps = linters
-    }
     // {{commit_msg_file}} / {{source}} are only defined for commit-msg / prepare-commit-msg
     ["prepare-commit-msg"] {
         steps {
             ["commit-msg-add-jira-issue"] {
-                check = "scripts/tools/git/hooks/prepare-commit-msg/append-jira-issue.bash {{commit_msg_file}} {{source}}"
+                check = "./scripts/tools/git/hooks/prepare-commit-msg/append-jira-issue.bash {{commit_msg_file}} {{source}}"
                 output_summary = "combined"
             }
         }
@@ -78,16 +72,9 @@ hooks {
     ["post-checkout"] {
         steps {
             ["mise-install"] {
-                check = "scripts/tools/git/hooks/post-checkout/mise-install.bash {{prev_head}} {{new_head}}"
+                check = "./scripts/tools/git/hooks/post-checkout/mise-install.bash {{prev_head}} {{new_head}}"
                 output_summary = "combined"
             }
         }
-    }
-    ["check"] {
-        steps = linters
-    }
-    ["fix"] {
-        fix = true
-        steps = linters
     }
 }

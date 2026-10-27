@@ -4,7 +4,7 @@ A comprehensive Swift implementation of semantic versioning with compile-time ma
 
 SemanticVersion is based on [swiftlang/swift-package-manager/Verion](https://github.com/swiftlang/swift-package-manager/blob/main/Sources/PackageDescription/Version.swift) under Apache License.
 
-New features:  
+New features:
 * `Codable` support
 * `ExpressibleByIntegerLiteral` and `ExpressibleByFloatLiteral` support
 * `#semanticVersion` macro
@@ -174,19 +174,19 @@ import SemanticVersion
 
 struct AppVersion {
   static let current = TargetVersions.core
-  
+
   /// Custom version display string.
   static var displayString: String {
     var result = "\(current.major).\(current.minor).\(current.patch)"
-    
+
     if current.isPrerelease {
       result += "-\(current.prereleaseIdentifiers.joined(separator: "."))"
     }
-    
+
     if let buildVersion = current.buildVersion {
       result += " (build \(buildVersion))"
     }
-    
+
     return result
   }
 }

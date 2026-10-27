@@ -26,6 +26,12 @@ extension CI: CIInterface {
   /// Environment variables management.
   public var env: any CIEnvInterface { ci.env }
 
+  /// Source control repository metadata for the current run.
+  public var repository: Repository { ci.repository }
+
+  /// Pipeline metadata for the current run.
+  public var cicd: CICD { ci.cicd }
+
   /// Initialize CI with environment variables.
   ///
   /// - Parameter env: Environment variables.

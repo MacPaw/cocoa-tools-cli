@@ -4,6 +4,7 @@ import ExportSecretsCommand
 import Foundation
 import SemanticVersion
 import TestsCoverageCommand
+import TestsOTELReporterCommand
 import TestsResultsCommand
 
 #if canImport(ObfuscateSecretsCommand)
@@ -30,7 +31,15 @@ struct TestsCommand: ParsableCommand {
   static let configuration: CommandConfiguration = CommandConfiguration(
     commandName: "tests",
     abstract: "Test result tools",
-    subcommands: [TestsCoverageCommand.self, TestsResultsCommand.self],
+    subcommands: [TestsCoverageCommand.self, TestsResultsCommand.self, TestsReportCommand.self],
+  )
+}
+
+struct TestsReportCommand: ParsableCommand {
+  static let configuration: CommandConfiguration = CommandConfiguration(
+    commandName: "report",
+    abstract: "Push test results to external services",
+    subcommands: [TestsOTELReporterCommand.self],
   )
 }
 

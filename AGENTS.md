@@ -23,6 +23,8 @@ Swift CLI for macOS CI/CD tooling. Modular SPM package, Swift 6.1, macOS 15+.
 | `LLVMCoverageParser` | LLVM coverage JSON parser — `LLVMCoverage.load(from:)` → `LLVMCoverage`/`File`/`Summary`/`Stat` |
 | `TestsCoverageCommand` | `mpct tests coverage parse` — exports and prints coverage report |
 | `TestsResultsCommand` | `mpct tests results parse` — fetches and prints test result summary |
+| `TestsOTELReporter` | Neutral `TestRun` model + OTLP/HTTP JSON metrics payload and push (no OpenTelemetry SDK dependency) |
+| `TestsOTELReporterCommand` | `mpct tests report otel` — parses a report and pushes its metrics |
 
 ## CLI
 
@@ -37,7 +39,19 @@ mpct [--verbose]
       parse         Export xcresult coverage → CoverageReport
     results
       parse         Fetch xcresult test results → TestResults
+    report
+      otel          Push test metrics to an OpenTelemetry collector (OTLP/HTTP)
 ```
+
+### `tests report otel`
+
+Takes exactly one of `--xcresult` (macOS only) or `--xunit`. Endpoint and headers fall back to
+`OTEL_EXPORTER_OTLP_ENDPOINT` / `OTEL_EXPORTER_OTLP_HEADERS`; there is no default endpoint.
+`OTEL_EXPORTER_OTLP_ENDPOINT` is a **base** URL — `v1/metrics` is appended, per the OTLP spec.
+
+Emits three gauges/histograms, all with millisecond durations: `cicd.test.case.count`
+(attributed by `test.case.result.status`), `cicd.test.case.duration`, `cicd.test.run.duration`.
+Resource attributes come from `CI.current.repository` / `.cicd`.
 
 ## Commands
 

@@ -1,0 +1,86 @@
+import ArgumentParser
+import Foundation
+import SharedLogger
+import TestsOTELReporter
+import XUnitReport
+
+#if os(macOS)
+  import XCResultParsing
+#endif
+
+extension TestsOTELReporterCommand {
+  /// Validates the options before the command runs.
+  ///
+  /// - Throws: `ValidationError` when the inputs or the endpoint are not usable.
+  public func validate() throws {
+    _ = try options.resolvedInput()
+    _ = try options.resolvedEndpoint(environment: Self.environment)
+    _ = try options.resolvedHeaders(environment: Self.environment)
+  }
+
+  /// Parses the report and exports its metrics.
+  ///
+  /// The exit status reflects only the export: a run containing failing tests still exits zero,
+  /// since the command reports results rather than gating on them.
+  ///
+  /// - Throws: An export error, unless `--no-fail-on-error` was passed.
+  public func run() async throws {
+    let environment: [String: String] = Self.environment
+    let testRun: TestRun = try Self.testRun(for: try options.resolvedInput())
+
+    let reporter = TestsOTELReporter(
+      configuration: TestsOTELReporter.Configuration(
+        endpoint: try options.resolvedEndpoint(environment: environment),
+        headers: try options.resolvedHeaders(environment: environment),
+        isPerSuiteEnabled: options.perSuite,
+        timestamp: options.resolvedTimestamp(environment: environment),
+        isDryRun: options.dryRun,
+      )
+    )
+
+    do {
+      let payload: Data = try await reporter.report(testRun)
+
+      if options.dryRun {
+        print(String(decoding: payload, as: UTF8.self))
+      }
+      else {
+        log.info(
+          """
+          Exported metrics for \(testRun.testCases.count) test cases \
+          in \(testRun.suites.count) suites
+          """
+        )
+      }
+    }
+    catch {
+      guard options.failOnError else {
+        log.warning("Failed to export test metrics: \(error)")
+        return
+      }
+      throw error
+    }
+  }
+
+  /// Reads the selected report into the reporter's neutral model.
+  ///
+  /// - Parameter input: The report to read.
+  /// - Returns: The normalized test run.
+  /// - Throws: An error if the report cannot be read or parsed.
+  private static func testRun(for input: Options.Input) throws -> TestRun {
+    switch input {
+    case .xunit(let url):
+      return TestRun(report: try XUnitReport.load(from: url))
+
+    case .xcresult(let url):
+      #if os(macOS)
+        return TestRun(testResults: try XCResultTestResults.load(from: url))
+      #else
+        throw ValidationError("--xcresult is only supported on macOS")
+      #endif
+    }
+  }
+
+  /// The process environment the command falls back to for OpenTelemetry configuration.
+  private static var environment: [String: String] { ProcessInfo.processInfo.environment }
+}
