@@ -16,16 +16,18 @@ struct OTLPMetricsBuilder {
   /// Timestamp recorded on every data point.
   let timestamp: Date
 
-  /// Builds the export request for a test run.
+  /// Builds the export request for a test run and its coverage.
   ///
   /// - Parameters:
-  ///   - testRun: The completed test run.
+  ///   - testRun: The completed test run, if there is one to report.
+  ///   - lineCoverage: Line coverage of the run, if there is any to report.
   ///   - repository: Repository metadata for the run.
   ///   - cicd: Pipeline metadata for the run.
   ///   - ciProviderName: Name of the CI the run executed on.
   /// - Returns: The OTLP export request, ready to be encoded.
   func build(
-    testRun: TestRun,
+    testRun: TestRun?,
+    lineCoverage: LineCoverage?,
     repository: CI.Repository,
     cicd: CI.CICD,
     ciProviderName: String?,
@@ -39,7 +41,7 @@ struct OTLPMetricsBuilder {
           scopeMetrics: [
             OTLPMetricsRequest.ScopeMetrics(
               scope: OTLPMetricsRequest.Scope(name: SemanticConventions.scopeName),
-              metrics: metrics(for: testRun),
+              metrics: (testRun.map(metrics(for:)) ?? []) + (lineCoverage.map(lineCoverageMetrics(for:)) ?? []),
             )
           ],
         )
@@ -140,6 +142,53 @@ struct OTLPMetricsBuilder {
       ]),
       histogram: .none,
     )
+  }
+
+  // MARK: - Line coverage
+
+  /// Builds every metric derived from line coverage.
+  ///
+  /// A gauge for the same reason as the test case count: each CI run is a one-shot process. The
+  /// covered and uncovered lines are disjoint, so their sum is the executable line count and a
+  /// ratio can be derived without weighting targets by size. There is deliberately no run-level
+  /// total, which would double-count in a sum over the target attribute.
+  ///
+  /// - Parameter lineCoverage: Line coverage of the run.
+  /// - Returns: The metrics to export.
+  private func lineCoverageMetrics(for lineCoverage: LineCoverage) -> [OTLPMetricsRequest.Metric] {
+    let dataPoints: [OTLPMetricsRequest.NumberDataPoint] = lineCoverage.targets.flatMap { target in
+      [
+        (SemanticConventions.LineCoverageStatus.covered, target.coveredLines),
+        (SemanticConventions.LineCoverageStatus.uncovered, target.uncoveredLines),
+      ]
+      .map { status, lines in
+        OTLPMetricsRequest.NumberDataPoint(
+          attributes: [
+            OTLPMetricsRequest.KeyValue(
+              key: SemanticConventions.Attribute.testLineCoverageTargetName,
+              stringValue: target.name,
+            ),
+            OTLPMetricsRequest.KeyValue(
+              key: SemanticConventions.Attribute.testLineCoverageStatus,
+              stringValue: status,
+            ),
+          ],
+          timeUnixNano: Self.unixNano(timestamp),
+          asInt: String(lines),
+          asDouble: .none,
+        )
+      }
+    }
+
+    return [
+      OTLPMetricsRequest.Metric(
+        name: SemanticConventions.Metric.testLineCoverageCount,
+        description: "Number of executable lines, by whether they were covered, per target.",
+        unit: SemanticConventions.Unit.lines,
+        gauge: OTLPMetricsRequest.Gauge(dataPoints: dataPoints),
+        histogram: .none,
+      )
+    ]
   }
 
   // MARK: - Grouping

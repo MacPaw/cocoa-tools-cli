@@ -251,10 +251,12 @@ enum Targets {
       testsDependencies: [.target(name: "CI")],
       commandDependencies: [
         .target(name: "XCResultParsing", condition: .when(platforms: [.macOS])), .target(name: "XUnitReport"),
+        .target(name: "LLVMCoverageParser"),
       ],
       commandTests: true,
       commandTestsDependencies: [
         .target(name: "XCResultParsing", condition: .when(platforms: [.macOS])), .target(name: "XUnitReport"),
+        .target(name: "LLVMCoverageParser"),
       ],
     )
   }

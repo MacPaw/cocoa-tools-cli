@@ -14,6 +14,27 @@ struct Options: ParsableArguments {
   @Option(
     name: .long,
     help: """
+      Path to an `llvm-cov export` JSON file to report line coverage from. \
+      Combine with --xunit; --xcresult already carries line coverage.
+      """,
+  )
+  var llvmLineCoverage: String?
+
+  @Flag(
+    inversion: .prefixedNo,
+    help: "Report per-target line coverage, when the input carries it",
+  )
+  var lineCoverage: Bool = true
+
+  @Flag(
+    name: .long,
+    help: "Include test bundle targets (`*.xctest`) in the line coverage report",
+  )
+  var includeTestTargets: Bool = false
+
+  @Option(
+    name: .long,
+    help: """
       Base URL of the OTLP endpoint, without the signal path — `v1/metrics` is appended. \
       Defaults to $OTEL_EXPORTER_OTLP_ENDPOINT.
       """,

@@ -8,8 +8,9 @@ import SharedLogger
 
 /// Exports metrics about a completed test run to an OpenTelemetry collector.
 ///
-/// The reporter derives three metrics — test case counts by result status, a histogram of test
-/// case durations, and the total run duration — and pushes them to an OTLP/HTTP endpoint as JSON.
+/// The reporter derives three test metrics — test case counts by result status, a histogram of
+/// test case durations, and the total run duration — plus per-target line coverage, and pushes
+/// them to an OTLP/HTTP endpoint as JSON.
 public struct TestsOTELReporter {
   /// Configuration for this push.
   public let configuration: Configuration
@@ -41,12 +42,24 @@ public struct TestsOTELReporter {
   /// - Returns: The JSON-encoded OTLP `ExportMetricsServiceRequest`.
   /// - Throws: An encoding error if the payload cannot be serialized.
   public func payload(for testRun: TestRun) throws -> Data {
+    try payload(testRun: testRun, lineCoverage: .none)
+  }
+
+  /// Builds the OTLP payload for a test run and its line coverage without sending it.
+  ///
+  /// - Parameters:
+  ///   - testRun: The completed test run, if there is one to report.
+  ///   - lineCoverage: Line coverage of the run, if there is any to report.
+  /// - Returns: The JSON-encoded OTLP `ExportMetricsServiceRequest`.
+  /// - Throws: An encoding error if the payload cannot be serialized.
+  public func payload(testRun: TestRun?, lineCoverage: LineCoverage?) throws -> Data {
     let request = OTLPMetricsBuilder(
       isPerSuiteEnabled: configuration.isPerSuiteEnabled,
       timestamp: configuration.timestamp,
     )
     .build(
       testRun: testRun,
+      lineCoverage: lineCoverage,
       repository: ci.repository,
       cicd: ci.cicd,
       ciProviderName: ci.type.name,
@@ -68,7 +81,22 @@ public struct TestsOTELReporter {
   /// - Throws: ``Error`` if the collector rejects the export, or a `URLSession` error.
   @discardableResult
   public func report(_ testRun: TestRun) async throws -> Data {
-    let payload = try payload(for: testRun)
+    try await report(testRun: testRun, lineCoverage: .none)
+  }
+
+  /// Exports the metrics for a test run and its line coverage.
+  ///
+  /// When the configuration requests a dry run, the payload is built and returned without any
+  /// network request being made.
+  ///
+  /// - Parameters:
+  ///   - testRun: The completed test run, if there is one to report.
+  ///   - lineCoverage: Line coverage of the run, if there is any to report.
+  /// - Returns: The JSON-encoded payload that was sent, or would have been sent.
+  /// - Throws: ``Error`` if the collector rejects the export, or a `URLSession` error.
+  @discardableResult
+  public func report(testRun: TestRun?, lineCoverage: LineCoverage?) async throws -> Data {
+    let payload = try payload(testRun: testRun, lineCoverage: lineCoverage)
 
     guard !configuration.isDryRun else {
       log.debug("Dry run: skipping OTLP export of \(payload.count) bytes")

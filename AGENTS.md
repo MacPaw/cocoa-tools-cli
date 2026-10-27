@@ -23,8 +23,8 @@ Swift CLI for macOS CI/CD tooling. Modular SPM package, Swift 6.1, macOS 15+.
 | `LLVMCoverageParser` | LLVM coverage JSON parser — `LLVMCoverage.load(from:)` → `LLVMCoverage`/`File`/`Summary`/`Stat` |
 | `TestsCoverageCommand` | `mpct tests coverage parse` — exports and prints coverage report |
 | `TestsResultsCommand` | `mpct tests results parse` — fetches and prints test result summary |
-| `TestsOTELReporter` | Neutral `TestRun` model + OTLP/HTTP JSON metrics payload and push (no OpenTelemetry SDK dependency) |
-| `TestsOTELReporterCommand` | `mpct tests report otel` — parses a report and pushes its metrics |
+| `TestsOTELReporter` | Neutral `TestRun` / `LineCoverage` models + OTLP/HTTP JSON metrics payload and push (no OpenTelemetry SDK dependency) |
+| `TestsOTELReporterCommand` | `mpct tests report otel` — parses a report and line coverage and pushes their metrics |
 
 ## CLI
 
@@ -40,18 +40,27 @@ mpct [--verbose]
     results
       parse         Fetch xcresult test results → TestResults
     report
-      otel          Push test metrics to an OpenTelemetry collector (OTLP/HTTP)
+      otel          Push test and line coverage metrics to an OpenTelemetry collector (OTLP/HTTP)
 ```
 
 ### `tests report otel`
 
-Takes exactly one of `--xcresult` (macOS only) or `--xunit`. Endpoint and headers fall back to
-`OTEL_EXPORTER_OTLP_ENDPOINT` / `OTEL_EXPORTER_OTLP_HEADERS`; there is no default endpoint.
-`OTEL_EXPORTER_OTLP_ENDPOINT` is a **base** URL — `v1/metrics` is appended, per the OTLP spec.
+Inputs: `--xcresult` (macOS only; reports tests **and** coverage, so it excludes the others), or
+`--xunit` and/or `--llvm-line-coverage` (an `llvm-cov export` JSON; the Linux path). At least one is required.
+Endpoint and headers fall back to `OTEL_EXPORTER_OTLP_ENDPOINT` / `OTEL_EXPORTER_OTLP_HEADERS`; there is
+no default endpoint. `OTEL_EXPORTER_OTLP_ENDPOINT` is a **base** URL — `v1/metrics` is appended, per the
+OTLP spec.
 
 Emits three gauges/histograms, all with millisecond durations: `cicd.test.case.count`
 (attributed by `test.case.result.status`), `cicd.test.case.duration`, `cicd.test.run.duration`.
 Resource attributes come from `CI.current.repository` / `.cicd`.
+
+Line coverage is one more gauge, `cicd.test.coverage.line.count` (unit `{line}`): per target, a `covered` and an
+`uncovered` data point (`test.coverage.target.name`, `test.coverage.line.status`). Their sum is the executable
+line count; there is no run-level total. These names are MacPaw extensions (no OTel registry entry).
+`--no-line-coverage` skips it; an xcresult without coverage data warns and reports tests only. xcresult drops
+`*.xctest` targets and LLVM drops `Tests/` and `.build/` paths unless `--include-test-targets`. LLVM has no
+targets, so the target is the directory after `Sources/`; other files go under `other`.
 
 ## Commands
 

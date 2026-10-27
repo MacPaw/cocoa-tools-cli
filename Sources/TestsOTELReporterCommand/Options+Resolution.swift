@@ -13,7 +13,7 @@ extension Options {
     static let buildFinishTime: String = "BUILD_FINISHTIME"
   }
 
-  /// The report the command was asked to read.
+  /// A test report the command was asked to read.
   enum Input: Equatable {
     /// An `.xcresult` bundle.
     case xcresult(URL)
@@ -21,34 +21,58 @@ extension Options {
     case xunit(URL)
   }
 
-  /// Resolves which report to read.
+  /// What the command was asked to read.
+  struct Inputs: Equatable {
+    /// The test report to read, if any.
+    var report: Input?
+    /// The `llvm-cov export` JSON file to read line coverage from, if any.
+    var llvmLineCoverage: URL?
+  }
+
+  /// Resolves what to read.
   ///
-  /// - Returns: The selected input.
-  /// - Throws: `ValidationError` when neither or both inputs are given, or the file is missing.
-  func resolvedInput() throws -> Input {
+  /// `--xcresult` is a complete input on its own, so it excludes the others; `--xunit` and
+  /// `--llvm-line-coverage` may be combined, and either may be given alone.
+  ///
+  /// - Returns: The selected inputs.
+  /// - Throws: `ValidationError` when no input is given, the combination is ambiguous or
+  ///   contradicts `--no-line-coverage`, or a file is missing.
+  func resolvedInputs() throws -> Inputs {
     #if os(macOS)
       let xcresultPath: String? = xcresult
     #else
       let xcresultPath: String? = .none
     #endif
 
-    switch (xcresultPath, xunit) {
-    case (.some, .some):
+    if xcresultPath != nil, xunit != nil {
       throw ValidationError("Pass only one of --xcresult or --xunit")
+    }
+    if xcresultPath != nil, llvmLineCoverage != nil {
+      throw ValidationError(
+        "--llvm-line-coverage cannot be combined with --xcresult, which already carries line coverage"
+      )
+    }
+    if llvmLineCoverage != nil, !lineCoverage {
+      throw ValidationError("--llvm-line-coverage contradicts --no-line-coverage")
+    }
 
-    case (.some(let path), .none):
-      return Input.xcresult(try Self.existingFileURL(atPath: path, option: "--xcresult"))
+    let report: Input? =
+      if let xcresultPath { Input.xcresult(try Self.existingFileURL(atPath: xcresultPath, option: "--xcresult")) }
+      else if let xunit { Input.xunit(try Self.existingFileURL(atPath: xunit, option: "--xunit")) }
+      else { .none }
+    let llvmLineCoverageURL: URL? = try llvmLineCoverage.map {
+      try Self.existingFileURL(atPath: $0, option: "--llvm-line-coverage")
+    }
 
-    case (.none, .some(let path)):
-      return Input.xunit(try Self.existingFileURL(atPath: path, option: "--xunit"))
-
-    case (.none, .none):
+    guard report != nil || llvmLineCoverageURL != nil else {
       #if os(macOS)
-        throw ValidationError("One of --xcresult or --xunit is required")
+        throw ValidationError("One of --xcresult, --xunit or --llvm-line-coverage is required")
       #else
-        throw ValidationError("--xunit is required")
+        throw ValidationError("One of --xunit or --llvm-line-coverage is required")
       #endif
     }
+
+    return Inputs(report: report, llvmLineCoverage: llvmLineCoverageURL)
   }
 
   /// Resolves the OTLP base URL from the flag, falling back to the environment.

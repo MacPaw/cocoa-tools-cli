@@ -11,7 +11,7 @@ struct OptionsResolutionTests {
   /// - Parameter arguments: Command-line arguments, without the command name.
   /// - Returns: The parsed options.
   /// - Throws: An error if the arguments do not parse.
-  private func makeSUT(_ arguments: [String] = []) throws -> Options {
+  func makeSUT(_ arguments: [String] = []) throws -> Options {
     try Options.parse(arguments)
   }
 
@@ -182,26 +182,26 @@ struct OptionsResolutionTests {
 
   // MARK: - Input
 
-  @Test("resolvedInput throwsWhenNoReportIsGiven")
-  func test_resolvedInput_throwsWhenNoReportIsGiven() throws {
+  @Test("resolvedInputs throwsWhenNoReportIsGiven")
+  func test_resolvedInputs_throwsWhenNoReportIsGiven() throws {
     // GIVEN — neither report option
     let sut = try makeSUT()
 
     // WHEN / THEN
-    #expect(throws: ValidationError.self) { try sut.resolvedInput() }
+    #expect(throws: ValidationError.self) { try sut.resolvedInputs() }
   }
 
-  @Test("resolvedInput throwsForMissingFile")
-  func test_resolvedInput_throwsForMissingFile() throws {
+  @Test("resolvedInputs throwsForMissingFile")
+  func test_resolvedInputs_throwsForMissingFile() throws {
     // GIVEN — a path that does not exist
     let sut = try makeSUT(["--xunit", "/nonexistent/report.xml"])
 
     // WHEN / THEN
-    #expect(throws: ValidationError.self) { try sut.resolvedInput() }
+    #expect(throws: ValidationError.self) { try sut.resolvedInputs() }
   }
 
-  @Test("resolvedInput returnsXUnitForExistingFile")
-  func test_resolvedInput_returnsXUnitForExistingFile() throws {
+  @Test("resolvedInputs returnsXUnitForExistingFile")
+  func test_resolvedInputs_returnsXUnitForExistingFile() throws {
     // GIVEN — an existing xUnit report on disk
     let url = FileManager.default.temporaryDirectory.appendingPathComponent("\(UUID().uuidString).xml")
     try Data("<testsuites/>".utf8).write(to: url)
@@ -210,21 +210,104 @@ struct OptionsResolutionTests {
     let sut = try makeSUT(["--xunit", url.path])
 
     // WHEN
-    let input = try sut.resolvedInput()
+    let inputs = try sut.resolvedInputs()
 
     // THEN
-    #expect(input == Options.Input.xunit(URL(fileURLWithPath: url.path)))
+    #expect(inputs == Options.Inputs(report: .xunit(URL(fileURLWithPath: url.path)), llvmLineCoverage: .none))
   }
 
   #if os(macOS)
-    @Test("resolvedInput throwsWhenBothReportsAreGiven")
-    func test_resolvedInput_throwsWhenBothReportsAreGiven() throws {
+    @Test("resolvedInputs throwsWhenBothReportsAreGiven")
+    func test_resolvedInputs_throwsWhenBothReportsAreGiven() throws {
       // GIVEN — both report options, pointing at files that do exist
       let directory = FileManager.default.temporaryDirectory.path
       let sut = try makeSUT(["--xunit", directory, "--xcresult", directory])
 
       // WHEN / THEN — ambiguity is rejected rather than silently resolved by precedence
-      #expect(throws: ValidationError.self) { try sut.resolvedInput() }
+      #expect(throws: ValidationError.self) { try sut.resolvedInputs() }
+    }
+  #endif
+}
+
+extension OptionsResolutionTests {
+  /// Creates an empty file on disk.
+  ///
+  /// - Returns: The URL of the file, which the caller is expected to remove.
+  /// - Throws: An error if the file cannot be written.
+  private func makeFile() throws -> URL {
+    let url = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    try Data().write(to: url)
+    return url
+  }
+
+  @Test("resolvedInputs returnsLLVMLineCoverageAlone")
+  func test_resolvedInputs_returnsLLVMLineCoverageAlone() throws {
+    // GIVEN — only an LLVM coverage file
+    let file = try makeFile()
+    defer { try? FileManager.default.removeItem(at: file) }
+    let sut = try Options.parse(["--llvm-line-coverage", file.path])
+
+    // WHEN
+    let inputs = try sut.resolvedInputs()
+
+    // THEN
+    #expect(inputs == Options.Inputs(report: .none, llvmLineCoverage: URL(fileURLWithPath: file.path)))
+  }
+
+  @Test("resolvedInputs combinesXUnitWithLLVMLineCoverage")
+  func test_resolvedInputs_combinesXUnitWithLLVMLineCoverage() throws {
+    // GIVEN — the Linux path: an xUnit report and an LLVM coverage file
+    let xunit = try makeFile()
+    let llvm = try makeFile()
+    defer {
+      try? FileManager.default.removeItem(at: xunit)
+      try? FileManager.default.removeItem(at: llvm)
+    }
+    let sut = try Options.parse(["--xunit", xunit.path, "--llvm-line-coverage", llvm.path])
+
+    // WHEN
+    let inputs = try sut.resolvedInputs()
+
+    // THEN
+    #expect(
+      inputs
+        == Options.Inputs(
+          report: .xunit(URL(fileURLWithPath: xunit.path)),
+          llvmLineCoverage: URL(fileURLWithPath: llvm.path),
+        )
+    )
+  }
+
+  @Test("resolvedInputs throwsForMissingLLVMLineCoverageFile")
+  func test_resolvedInputs_throwsForMissingLLVMLineCoverageFile() throws {
+    // GIVEN — an explicitly requested file that does not exist
+    let sut = try Options.parse(["--llvm-line-coverage", "/nonexistent/lcov.json"])
+
+    // WHEN / THEN
+    #expect(throws: ValidationError.self) { try sut.resolvedInputs() }
+  }
+
+  @Test("resolvedInputs throwsWhenLLVMLineCoverageContradictsNoCoverage")
+  func test_resolvedInputs_throwsWhenLLVMLineCoverageContradictsNoCoverage() throws {
+    // GIVEN
+    let file = try makeFile()
+    defer { try? FileManager.default.removeItem(at: file) }
+    let sut = try Options.parse(["--llvm-line-coverage", file.path, "--no-line-coverage"])
+
+    // WHEN / THEN
+    #expect(throws: ValidationError.self) { try sut.resolvedInputs() }
+  }
+
+  #if os(macOS)
+    @Test("resolvedInputs throwsWhenXCResultIsCombinedWithLLVMLineCoverage")
+    func test_resolvedInputs_throwsWhenXCResultIsCombinedWithLLVMLineCoverage() throws {
+      // GIVEN — an xcresult already carries line coverage
+      let file = try makeFile()
+      defer { try? FileManager.default.removeItem(at: file) }
+      let sut = try Options.parse(["--xcresult", file.path, "--llvm-line-coverage", file.path])
+
+      // WHEN / THEN
+      #expect(throws: ValidationError.self) { try sut.resolvedInputs() }
     }
   #endif
 }

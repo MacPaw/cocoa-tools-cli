@@ -12,6 +12,8 @@ enum SemanticConventions {
     static let testCaseDuration: String = "cicd.test.case.duration"
     /// Total wall-clock duration of the test run.
     static let testRunDuration: String = "cicd.test.run.duration"
+    /// Number of executable lines, broken down by whether they were covered — a MacPaw extension.
+    static let testLineCoverageCount: String = "cicd.test.coverage.line.count"
   }
 
   /// Data point attribute names.
@@ -20,6 +22,18 @@ enum SemanticConventions {
     static let testCaseResultStatus: String = "test.case.result.status"
     /// Name of the suite a test case belongs to — registered as `test.suite.name`.
     static let testSuiteName: String = "test.suite.name"
+    /// Name of the target coverage is reported for — a MacPaw extension.
+    static let testLineCoverageTargetName: String = "test.coverage.target.name"
+    /// Whether the counted lines were executed — a MacPaw extension.
+    static let testLineCoverageStatus: String = "test.coverage.line.status"
+  }
+
+  /// Values of the `test.coverage.line.status` attribute.
+  enum LineCoverageStatus {
+    /// Executable lines that were executed.
+    static let covered: String = "covered"
+    /// Executable lines that were not executed.
+    static let uncovered: String = "uncovered"
   }
 
   /// Resource attribute names.
@@ -55,6 +69,8 @@ enum SemanticConventions {
     static let milliseconds: String = "ms"
     /// A dimensionless count.
     static let count: String = "1"
+    /// Lines of source code, as a UCUM annotation.
+    static let lines: String = "{line}"
   }
 
   /// Name reported as the instrumentation scope for every metric.
