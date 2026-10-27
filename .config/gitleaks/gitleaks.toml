@@ -13,4 +13,4 @@ paths = ['''(?:^|/)\.build(?:/.*)?$''', '''(?:^|/)DerivedData(?:/.*)?$''']
 
 [[allowlists]]
 description = "Placeholder API key value used in docs examples"
-stopwords = ["sk-1234567890abcdef"]
+stopwords = ["sk-1234567890abcdef", "secret123456789", "AKIA123456789"]
