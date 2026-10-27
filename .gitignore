@@ -26,6 +26,8 @@ Binary/
 
 # Local artifacts
 /artifacts
+
+# hk local output
 /hk.log
 /output.log
 /patches
