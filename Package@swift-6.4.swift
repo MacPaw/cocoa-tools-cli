@@ -29,7 +29,10 @@ enum SwiftConfidentialSource {
 
   var confidentialKitTargetDependency: PackageDescription.Target.Dependency {
     .product(
-      name: "ConfidentialKit", package: "swift-confidential", condition: .when(platforms: [.macOS]))
+      name: "ConfidentialKit",
+      package: "swift-confidential",
+      condition: .when(platforms: [.macOS]),
+    )
   }
 
   var targetDependency: PackageDescription.Target.Dependency {
@@ -38,8 +41,10 @@ enum SwiftConfidentialSource {
     case .fork:
       #if os(macOS)
         .product(
-          name: "ConfidentialObfuscator", package: "swift-confidential",
-          condition: .when(platforms: [.macOS]))
+          name: "ConfidentialObfuscator",
+          package: "swift-confidential",
+          condition: .when(platforms: [.macOS]),
+        )
       #else
         .target(name: "Dummy")
       #endif
@@ -81,7 +86,8 @@ enum Targets {
 
     if tests {
       targets.append(
-        .testTarget(name: "\(name)Tests", dependencies: [.target(name: name)] + testsDependencies))
+        .testTarget(name: "\(name)Tests", dependencies: [.target(name: name)] + testsDependencies)
+      )
     }
 
     return targets
@@ -98,7 +104,11 @@ enum Targets {
     commandTestsDependencies: [PackageDescription.Target.Dependency] = [],
   ) -> [PackageDescription.Target] {
     targetBundle(
-      name: name, dependencies: dependencies, tests: tests, testsDependencies: testsDependencies)
+      name: name,
+      dependencies: dependencies,
+      tests: tests,
+      testsDependencies: testsDependencies,
+    )
       + targetBundle(
         name: "\(name)Command",
         dependencies: [
@@ -191,20 +201,27 @@ enum Targets {
 
   static var sharedLogger: [PackageDescription.Target] {
     targetBundle(
-      name: "SharedLogger", dependencies: [.product(name: "Logging", package: "swift-log")],
-      tests: false)
+      name: "SharedLogger",
+      dependencies: [.product(name: "Logging", package: "swift-log")],
+      tests: false,
+    )
   }
 
   static var secretsInterface: [PackageDescription.Target] {
     targetBundle(name: "SecretsInterface", tests: false)
       + targetBundle(
-        name: "SecretsInterfaceTesting", dependencies: [.target(name: "SecretsInterface")],
-        tests: false)
+        name: "SecretsInterfaceTesting",
+        dependencies: [.target(name: "SecretsInterface")],
+        tests: false,
+      )
   }
 
   static var hashicorpVaultReader: [PackageDescription.Target] {
     targetBundle(
-      name: "HashiCorpVaultReader", dependencies: [.target(name: "SecretsInterface")], tests: true)
+      name: "HashiCorpVaultReader",
+      dependencies: [.target(name: "SecretsInterface")],
+      tests: true,
+    )
   }
 
   static var xcResultParsing: [PackageDescription.Target] {
@@ -310,14 +327,18 @@ let package = Package(
   ],
   dependencies: [
     .package(
-      url: "https://github.com/apple/swift-argument-parser.git", .upToNextMajor(from: "1.8.2")),
+      url: "https://github.com/apple/swift-argument-parser.git",
+      .upToNextMajor(from: "1.8.2"),
+    ),
     .package(url: "https://github.com/swiftlang/swift-format.git", .upToNextMajor(from: "604.0.0")),
     .package(url: "https://github.com/swiftlang/swift-syntax.git", .upToNextMajor(from: "604.0.0")),
     .package(url: "https://github.com/apple/swift-log.git", .upToNextMajor(from: "1.15.0")),
     yamsSource.packageDependency,
     .package(
-      url: "https://github.com/apple/swift-configuration.git", from: "1.2.0",
-      traits: [.defaults, "YAML"]),
+      url: "https://github.com/apple/swift-configuration.git",
+      from: "1.2.0",
+      traits: [.defaults, "YAML"],
+    ),
   ],
   targets: [
     .executableTarget(
