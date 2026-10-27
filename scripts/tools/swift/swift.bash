@@ -202,6 +202,12 @@ swift_run_build_or_tests() {
     USE_STATIC_SWIFT_STDLIB=true
   elif [ -n "${ARCH}" ]; then
     TARGET_ARGS+=("--arch" "${ARCH}")
+
+    # The default build system of Swift 6.4 cannot find the host executables of macros when
+    # cross-building x86_64 on an arm64 Mac, so those builds use the native build system.
+    if [ "${PLATFORM}" == "darwin" ] && [ "${ARCH}" == "x86_64" ]; then
+      TARGET_ARGS+=("--build-system" "native")
+    fi
   fi
 
   if [ "${PLATFORM}" == "linux" ]; then
