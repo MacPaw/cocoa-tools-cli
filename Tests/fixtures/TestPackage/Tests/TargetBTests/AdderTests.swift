@@ -13,4 +13,14 @@ struct AdderTests {
     // THEN
     #expect(sut == 8)
   }
+
+  @Test("isNegative returnsTrueForNegativeInteger")
+  func test_isNegative_returnsTrueForNegativeInteger() {
+    // GIVEN
+    let value = -1
+    // WHEN
+    let sut = isNegative(value)
+    // THEN
+    #expect(sut)
+  }
 }

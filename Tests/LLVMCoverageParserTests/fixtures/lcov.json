@@ -33,14 +33,14 @@
               "percent": 0
             },
             "functions": {
-              "count": 2,
-              "covered": 1,
-              "percent": 50
+              "count": 3,
+              "covered": 2,
+              "percent": 66.666666666666657
             },
             "lines": {
-              "count": 6,
-              "covered": 3,
-              "percent": 50
+              "count": 9,
+              "covered": 6,
+              "percent": 66.666666666666657
             }
           }
         },
@@ -96,13 +96,13 @@
               "percent": 0
             },
             "functions": {
-              "count": 1,
-              "covered": 1,
+              "count": 2,
+              "covered": 2,
               "percent": 100
             },
             "lines": {
-              "count": 9,
-              "covered": 9,
+              "count": 17,
+              "covered": 17,
               "percent": 100
             }
           }
@@ -116,14 +116,14 @@
           "percent": 0
         },
         "functions": {
-          "count": 18,
-          "covered": 10,
-          "percent": 55.555555555555557
+          "count": 20,
+          "covered": 12,
+          "percent": 60
         },
         "lines": {
-          "count": 121,
-          "covered": 71,
-          "percent": 58.677685950413228
+          "count": 132,
+          "covered": 82,
+          "percent": 62.121212121212125
         }
       }
     }

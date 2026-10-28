@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testsuites>
-    <testsuite name="TestResults" errors="0" tests="1" failures="0" skipped="0" time="0.000370375">
-        <testcase classname="TargetBTests.AdderTests" name="test_add_returnsSumOfTwoIntegers()" time="9.7292e-05"/>
+    <testsuite name="TestResults" errors="0" tests="2" failures="0" skipped="0" time="0.000456583">
+        <testcase classname="TargetBTests.AdderTests" name="test_add_returnsSumOfTwoIntegers()" time="9.0791e-05"/>
+        <testcase classname="TargetBTests.AdderTests" name="test_isNegative_returnsTrueForNegativeInteger()" time="9.4083e-05"/>
     </testsuite>
-    <testsuite name="TestResults" errors="0" tests="1" failures="0" skipped="0" time="0.000386667">
-        <testcase classname="TargetATests.GreeterTests" name="test_greet_returnsFormattedGreeting()" time="9.3334e-05"/>
+    <testsuite name="TestResults" errors="0" tests="1" failures="0" skipped="0" time="0.000363333">
+        <testcase classname="TargetATests.GreeterTests" name="test_greet_returnsFormattedGreeting()" time="8.3e-05"/>
     </testsuite>
-    <testsuite name="TestResults" errors="0" tests="2" failures="2" skipped="1" time="0.000745083">
+    <testsuite name="TestResults" errors="0" tests="2" failures="2" skipped="1" time="0.0007745">
         <testcase classname="RecordingTests.RecordingTestsTesting" name="test_intentionalSkip()">
             <skipped>intentional skip for xUnit fixture generation</skipped>
         </testcase>
-        <testcase classname="RecordingTests.RecordingTestsTesting" name="test_expectFalse()" time="0.000385291">
-            <failure message="Expectation failed: Bool(false) (error)"/>
-        </testcase>
-        <testcase classname="RecordingTests.RecordingTestsTesting" name="test_throwError()" time="0.000418125">
+        <testcase classname="RecordingTests.RecordingTestsTesting" name="test_throwError()" time="0.000437709">
             <failure message="Caught error: RecordingError() (error)"/>
+        </testcase>
+        <testcase classname="RecordingTests.RecordingTestsTesting" name="test_expectFalse()" time="0.000420625">
+            <failure message="Expectation failed: Bool(false) (error)"/>
         </testcase>
     </testsuite>
 </testsuites>
