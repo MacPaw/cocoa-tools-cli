@@ -161,7 +161,7 @@
                       "kind": "DataQuery",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "sum(last_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\",test_case_result_status=\"pass\"}[$__interval])) / clamp_min(sum(last_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\"}[$__interval])), 1)",
+                        "expr": "(sum(sum_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\",test_case_result_status=\"pass\"}[$__interval])) or vector(0)) / (sum(sum_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\",test_case_result_status=~\"pass|fail\"}[$__interval])) > 0)",
                         "instant": false,
                         "legendFormat": "Pass rate",
                         "range": true
@@ -176,7 +176,7 @@
               "transformations": []
             }
           },
-          "description": "Pass rate per interval.",
+          "description": "Pass rate per interval: passed among passed and failed test cases, skipped ones are not counted.",
           "id": 11,
           "links": [],
           "title": "Pass rate over time",
@@ -521,7 +521,7 @@
                       "kind": "DataQuery",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "sum by (test_suite_name) (last_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\",test_case_result_status=\"fail\"}[$__range]))",
+                        "expr": "sum by (test_suite_name) (sum_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\",test_case_result_status=\"fail\"}[$__range]))",
                         "format": "table",
                         "instant": true,
                         "legendFormat": "Failed",
@@ -544,7 +544,7 @@
                       "kind": "DataQuery",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "sum by (test_suite_name) (last_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\"}[$__range]))",
+                        "expr": "sum by (test_suite_name) (sum_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\"}[$__range]))",
                         "format": "table",
                         "instant": true,
                         "legendFormat": "Total",
@@ -567,7 +567,7 @@
                       "kind": "DataQuery",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "sum by (test_suite_name) (last_over_time(cicd_test_case_duration_sum{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\"}[$__range])) / clamp_min(sum by (test_suite_name) (last_over_time(cicd_test_case_duration_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\"}[$__range])), 1)",
+                        "expr": "sum by (test_suite_name) (sum_over_time(cicd_test_case_duration_sum{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\"}[$__range])) / clamp_min(sum by (test_suite_name) (sum_over_time(cicd_test_case_duration_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\"}[$__range])), 1)",
                         "format": "table",
                         "instant": true,
                         "legendFormat": "Mean duration",
@@ -576,6 +576,29 @@
                       "version": "v0"
                     },
                     "refId": "C"
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "${datasource}"
+                      },
+                      "group": "prometheus",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "(sum by (test_suite_name) (sum_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\",test_case_result_status=\"pass\"}[$__range])) or (sum by (test_suite_name) (sum_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\",test_case_result_status=~\"pass|fail\"}[$__range])) * 0)) / (sum by (test_suite_name) (sum_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\",test_case_result_status=~\"pass|fail\"}[$__range])) > 0)",
+                        "format": "table",
+                        "instant": true,
+                        "legendFormat": "Pass rate",
+                        "range": false
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "D"
                   }
                 }
               ],
@@ -598,11 +621,18 @@
                       "excludeByName": {
                         "Time": true
                       },
-                      "indexByName": {},
+                      "indexByName": {
+                        "Value #A": 1,
+                        "Value #B": 2,
+                        "Value #C": 4,
+                        "Value #D": 3,
+                        "test_suite_name": 0
+                      },
                       "renameByName": {
                         "Value #A": "Failed",
                         "Value #B": "Total",
                         "Value #C": "Mean duration",
+                        "Value #D": "Pass rate",
                         "test_suite_name": "Suite"
                       }
                     }
@@ -611,7 +641,7 @@
               ]
             }
           },
-          "description": "Latest counts and mean case duration for each test suite. Needs the per-suite breakdown enabled when reporting.",
+          "description": "Failed and total test cases, pass rate (skipped tests are not counted, N/A when nothing passed or failed) and mean case duration for each test suite, summed over every run in the selected range. Needs the per-suite breakdown enabled when reporting.",
           "id": 15,
           "links": [],
           "title": "Per-suite results",
@@ -685,6 +715,72 @@
                         }
                       }
                     ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Pass rate"
+                    },
+                    "properties": [
+                      {
+                        "id": "unit",
+                        "value": "percentunit"
+                      },
+                      {
+                        "id": "decimals",
+                        "value": 1
+                      },
+                      {
+                        "id": "min",
+                        "value": 0
+                      },
+                      {
+                        "id": "max",
+                        "value": 1
+                      },
+                      {
+                        "id": "thresholds",
+                        "value": {
+                          "mode": "absolute",
+                          "steps": [
+                            {
+                              "color": "red",
+                              "value": -1000000000
+                            },
+                            {
+                              "color": "orange",
+                              "value": 0.9
+                            },
+                            {
+                              "color": "green",
+                              "value": 0.99
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "id": "custom.cellOptions",
+                        "value": {
+                          "type": "color-background"
+                        }
+                      },
+                      {
+                        "id": "mappings",
+                        "value": [
+                          {
+                            "options": {
+                              "match": "null",
+                              "result": {
+                                "color": "#8e8e8e",
+                                "index": 0,
+                                "text": "N/A"
+                              }
+                            },
+                            "type": "special"
+                          }
+                        ]
+                      }
+                    ]
                   }
                 ]
               },
@@ -730,7 +826,7 @@
                       "kind": "DataQuery",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "topk(10, sum by (test_suite_name) (last_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\",test_case_result_status=\"fail\"}[$__range])))",
+                        "expr": "topk(10, sum by (test_suite_name) (sum_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\",test_case_result_status=\"fail\"}[$__range])))",
                         "instant": true,
                         "legendFormat": "{{test_suite_name}}",
                         "range": false
@@ -745,7 +841,7 @@
               "transformations": []
             }
           },
-          "description": "Latest failed test cases per suite.",
+          "description": "Failed test cases per suite in the selected range, summed over every run.",
           "id": 16,
           "links": [],
           "title": "Failed test cases by suite",
@@ -1044,7 +1140,7 @@
                       "kind": "DataQuery",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "sum by (test_suite_name, test_case_name) (count_over_time({service_name=\"macpaw-test\", vcs_repository_name=~\"$repo\"} | test_case_name!=\"\" | cicd_pipeline_name=~\"$pipeline\" | cicd_pipeline_stage_name=~\"$stage\" | cicd_pipeline_task_name=~\"$job\" | test_suite_name=~\"$suite\" | test_case_result_status=\"fail\" [$__range]))",
+                        "expr": "sum by (test_suite_name, test_case_name) (sum_over_time({service_name=\"macpaw-test\", vcs_repository_name=~\"$repo\"} | test_case_name!=\"\" | cicd_pipeline_name=~\"$pipeline\" | cicd_pipeline_stage_name=~\"$stage\" | cicd_pipeline_task_name=~\"$job\" | test_suite_name=~\"$suite\" | label_format is_fail=`{{ if eq .test_case_result_status \"fail\" }}1{{ else }}0{{ end }}` | unwrap is_fail | __error__=\"\" [$__range]))",
                         "legendFormat": "Failed",
                         "queryType": "instant"
                       },
@@ -1170,7 +1266,7 @@
               ]
             }
           },
-          "description": "Every test with its passed, failed and skipped counts over the selected range, pass rate (N/A when nothing passed or failed) and mean execution time per execution, sorted by pass rate descending. Read from the per-test-case logs in Loki, not from metrics.",
+          "description": "Every test with its passed, failed (0 when none) and skipped counts over the selected range, pass rate (N/A when nothing passed or failed) and mean execution time per execution, sorted by pass rate descending. Read from the per-test-case logs in Loki, not from metrics.",
           "id": 19,
           "links": [],
           "title": "Executed tests",
@@ -1395,7 +1491,7 @@
                       "kind": "DataQuery",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "sum(last_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\",test_case_result_status=\"pass\"}[$__range])) / clamp_min(sum(last_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\"}[$__range])), 1)",
+                        "expr": "(sum(sum_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\",test_case_result_status=\"pass\"}[$__range])) or vector(0)) / (sum(sum_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\",test_case_result_status=~\"pass|fail\"}[$__range])) > 0)",
                         "instant": true,
                         "legendFormat": "Pass rate",
                         "range": false
@@ -1410,7 +1506,7 @@
               "transformations": []
             }
           },
-          "description": "Share of executed test cases that passed, from the latest value of each CI run in the selected range.",
+          "description": "Share of passed among passed and failed test cases in the selected range, summed over every run (skipped ones are not counted).",
           "id": 2,
           "links": [],
           "title": "Pass rate",
@@ -1488,7 +1584,7 @@
                       "kind": "DataQuery",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "sum by (test_case_result_status) (last_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\"}[$__interval]))",
+                        "expr": "sum by (test_case_result_status) (sum_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\"}[$__interval]))",
                         "instant": false,
                         "legendFormat": "{{test_case_result_status}}",
                         "range": true
@@ -1503,7 +1599,7 @@
               "transformations": []
             }
           },
-          "description": "Latest test case counts per result status within each interval.",
+          "description": "Test cases executed per result status within each interval, summed over every run.",
           "id": 3,
           "links": [],
           "title": "Test cases by result",
@@ -1600,7 +1696,7 @@
                       "kind": "DataQuery",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "sum(last_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\",test_case_result_status=\"fail\"}[$__range]))",
+                        "expr": "sum(sum_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\",test_case_result_status=\"fail\"}[$__range]))",
                         "instant": true,
                         "legendFormat": "Failed test cases",
                         "range": false
@@ -1615,7 +1711,7 @@
               "transformations": []
             }
           },
-          "description": "Latest number of failed test cases across runs in the selected range.",
+          "description": "Failed test cases in the selected range, summed over every run.",
           "id": 4,
           "links": [],
           "title": "Failed test cases",
@@ -1687,7 +1783,7 @@
                       "kind": "DataQuery",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "sum(last_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\"}[$__range]))",
+                        "expr": "sum(sum_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\"}[$__range]))",
                         "instant": true,
                         "legendFormat": "Test cases",
                         "range": false
@@ -1702,7 +1798,7 @@
               "transformations": []
             }
           },
-          "description": "Latest total number of test cases across runs in the selected range.",
+          "description": "Total test cases executed in the selected range, summed over every run.",
           "id": 5,
           "links": [],
           "title": "Test cases",

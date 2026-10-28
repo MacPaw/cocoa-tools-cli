@@ -32,5 +32,11 @@ and Coverage target.
   Loki rejects log lines older than its `reject_old_samples_max_age` (a week by default), so a back-dated
   `--timestamp` or `BUILD_FINISHTIME` outside that window drops the logs while the metrics still land.
 - Metrics are one-shot gauges per CI run, so queries use `last_over_time` rather than `rate`.
-- *Per-target line coverage* shows, per target, the highest latest value among the series that report it (`max`, not `sum`),
-  so a target measured by several jobs is not counted several times.
+- Test case counts (*Test cases*, *Failed test cases*, *Test cases by result*, *Failed test cases by suite*, *Per-suite results*) and the
+  *Pass rate* panels sum every sample in the selected range. mpct pushes one sample per run and Mimir keeps each run as its own series
+  (the OTLP `service.instance.id` becomes the `instance` label), so the sum covers every run, and a run pushed twice counts twice.
+  Pass rate is the share of passed among passed and failed, skipped tests are not counted. *Per-target line coverage* is different:
+  coverage lines are not additive across runs, so it shows the highest latest value per target (`max`).
+- *Per-suite results* sums every run in the selected range (failed, total, and the pass rate of passed among passed and failed; mean
+  duration is total time over total cases). The *Failed* column of *Executed tests* is 0 for tests that never failed, so the column
+  is always present.
