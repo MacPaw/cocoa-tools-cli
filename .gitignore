@@ -27,6 +27,9 @@ Binary/
 # Local artifacts
 /artifacts
 
+# Created inside xcresult bundles when xcresulttool opens them
+**/*.xcresult/database.sqlite3
+
 # hk local output
 /hk.log
 /output.log
