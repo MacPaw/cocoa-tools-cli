@@ -53,6 +53,8 @@ extension TestRun.Suite {
     public var status: Status
     /// Execution duration of the test case, in seconds.
     public var duration: TimeInterval
+    /// Why the test case failed, when the report carries a reason.
+    public var failureMessage: String?
 
     /// Initializes a test case.
     ///
@@ -60,10 +62,12 @@ extension TestRun.Suite {
     ///   - name: Name of the test case.
     ///   - status: Outcome of the test case.
     ///   - duration: Execution duration of the test case, in seconds.
-    public init(name: String, status: Status, duration: TimeInterval) {
+    ///   - failureMessage: Why the test case failed, when the report carries a reason.
+    public init(name: String, status: Status, duration: TimeInterval, failureMessage: String? = .none) {
       self.name = name
       self.status = status
       self.duration = duration
+      self.failureMessage = failureMessage
     }
   }
 }

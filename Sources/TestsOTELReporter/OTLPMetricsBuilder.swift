@@ -13,8 +13,8 @@ struct OTLPMetricsBuilder {
 
   /// Whether metrics carry a `test.suite.name` breakdown.
   let isPerSuiteEnabled: Bool
-  /// Whether metrics carry a `test.case.name` breakdown.
-  let isPerTestEnabled: Bool
+  /// Value of the `service.name` resource attribute.
+  let serviceName: String
   /// Timestamp recorded on every data point.
   let timestamp: Date
 
@@ -34,7 +34,12 @@ struct OTLPMetricsBuilder {
     cicd: CI.CICD,
     ciProviderName: String?,
   ) -> OTLPMetricsRequest {
-    let resource = resourceAttributes(repository: repository, cicd: cicd, ciProviderName: ciProviderName)
+    let resource = OTLPResourceAttributes.make(
+      serviceName: serviceName,
+      repository: repository,
+      cicd: cicd,
+      ciProviderName: ciProviderName,
+    )
     let labels = Self.dataPointLabels(from: resource)
 
     return OTLPMetricsRequest(
@@ -62,7 +67,9 @@ struct OTLPMetricsBuilder {
   /// - Parameter testRun: The completed test run.
   /// - Returns: The metrics to export.
   private func metrics(for testRun: TestRun) -> [OTLPMetricsRequest.Metric] {
-    [caseCountMetric(for: testRun), caseDurationMetric(for: testRun), runDurationMetric(for: testRun)]
+    [caseCountMetric(for: testRun), caseDurationMetric(for: testRun)]
+      + (isPerSuiteEnabled ? [suiteDurationMetric(for: testRun)] : [])
+      + [runDurationMetric(for: testRun)]
   }
 
   /// Builds the test case count gauge, broken down by result status.
@@ -129,10 +136,43 @@ struct OTLPMetricsBuilder {
     )
   }
 
+  /// Builds the gauge of summed test case durations per suite.
+  ///
+  /// The sum of its cases, not the suite's own wall-clock time: reports carry no suite timing, and
+  /// parallel execution makes the two differ. Only built with the per-suite breakdown, since
+  /// without it there is no suite to attribute the figure to.
+  ///
+  /// - Parameter testRun: The completed test run.
+  /// - Returns: The `cicd.test.suite.duration` metric.
+  private func suiteDurationMetric(for testRun: TestRun) -> OTLPMetricsRequest.Metric {
+    OTLPMetricsRequest.Metric(
+      name: SemanticConventions.Metric.testSuiteDuration,
+      description: "Summed duration of the test cases in a suite.",
+      unit: SemanticConventions.Unit.milliseconds,
+      gauge: OTLPMetricsRequest.Gauge(
+        dataPoints: testRun.suites.map { suite in
+          OTLPMetricsRequest.NumberDataPoint(
+            attributes: [
+              suiteAttribute(suite.name),
+              OTLPMetricsRequest.KeyValue(
+                key: SemanticConventions.Attribute.testSuiteRunStatus,
+                stringValue: suite.testCases.runStatus,
+              ),
+            ],
+            timeUnixNano: Self.unixNano(timestamp),
+            asInt: .none,
+            asDouble: suite.testCases.reduce(0) { $0 + $1.duration } * 1000,
+          )
+        }
+      ),
+      histogram: .none,
+    )
+  }
+
   /// Builds the total run duration gauge.
   ///
   /// Always run-level: a per-suite breakdown of a single total would report the same number
-  /// under several names.
+  /// under several names. Carries the run's `test.suite.run.status`.
   ///
   /// - Parameter testRun: The completed test run.
   /// - Returns: The `cicd.test.run.duration` metric.
@@ -143,7 +183,12 @@ struct OTLPMetricsBuilder {
       unit: SemanticConventions.Unit.milliseconds,
       gauge: OTLPMetricsRequest.Gauge(dataPoints: [
         OTLPMetricsRequest.NumberDataPoint(
-          attributes: [],
+          attributes: [
+            OTLPMetricsRequest.KeyValue(
+              key: SemanticConventions.Attribute.testSuiteRunStatus,
+              stringValue: testRun.testCases.runStatus,
+            )
+          ],
           timeUnixNano: Self.unixNano(timestamp),
           asInt: .none,
           asDouble: testRun.duration * 1000,
@@ -212,30 +257,13 @@ struct OTLPMetricsBuilder {
 
   /// Splits a test run into the groups that become data points.
   ///
-  /// With the per-test breakdown enabled there is one group per test case name within its suite
-  /// (a name repeated by parameterized cases forms one group). With only the per-suite breakdown
-  /// there is one group per suite; otherwise the whole run forms a single unattributed group.
+  /// With the per-suite breakdown there is one group per suite; otherwise the whole run forms a
+  /// single unattributed group. Individual test cases are never a group: their names go to logs,
+  /// since a series per test case grows without bound.
   ///
   /// - Parameter testRun: The completed test run.
   /// - Returns: The groups to emit data points for.
   private func groups(for testRun: TestRun) -> [Group] {
-    if isPerTestEnabled {
-      return testRun.suites.flatMap { suite in
-        var names: [String] = []
-        for testCase in suite.testCases where !names.contains(testCase.name) { names.append(testCase.name) }
-
-        return names.map { name in
-          Group(
-            attributes: (isPerSuiteEnabled ? [suiteAttribute(suite.name)] : [])
-              + [
-                OTLPMetricsRequest.KeyValue(key: SemanticConventions.Attribute.testCaseName, stringValue: name)
-              ],
-            testCases: suite.testCases.filter { $0.name == name },
-          )
-        }
-      }
-    }
-
     guard isPerSuiteEnabled else {
       return [Group(attributes: [], testCases: testRun.testCases)]
     }
@@ -254,41 +282,6 @@ struct OTLPMetricsBuilder {
   /// - Returns: The `test.suite.name` attribute.
   private func suiteAttribute(_ name: String) -> OTLPMetricsRequest.KeyValue {
     OTLPMetricsRequest.KeyValue(key: SemanticConventions.Attribute.testSuiteName, stringValue: name)
-  }
-
-  // MARK: - Resource
-
-  /// Collects the resource attributes describing where the run executed.
-  ///
-  /// Attributes the CI cannot report are omitted rather than sent empty, so that a backend can
-  /// tell "not reported" from "reported as blank".
-  ///
-  /// - Parameters:
-  ///   - repository: Repository metadata for the run.
-  ///   - cicd: Pipeline metadata for the run.
-  ///   - ciProviderName: Name of the CI the run executed on.
-  /// - Returns: The resource attributes to export.
-  private func resourceAttributes(
-    repository: CI.Repository,
-    cicd: CI.CICD,
-    ciProviderName: String?,
-  ) -> [OTLPMetricsRequest.KeyValue] {
-    let attributes: [(key: String, value: String?)] = [
-      (SemanticConventions.Resource.vcsProviderName, repository.provider),
-      (SemanticConventions.Resource.vcsOwnerName, repository.organizationName),
-      (SemanticConventions.Resource.vcsRepositoryName, repository.repositoryName),
-      (SemanticConventions.Resource.cicdPipelineName, cicd.pipelineName),
-      (SemanticConventions.Resource.cicdPipelineTaskName, cicd.run.taskName),
-      (SemanticConventions.Resource.cicdPipelineStageName, cicd.run.stageName),
-      (SemanticConventions.Resource.cicdPipelineRunID, cicd.run.id),
-      (SemanticConventions.Resource.cicdPipelineRunNumber, cicd.run.number),
-      (SemanticConventions.Resource.cicdPipelineRunURL, cicd.run.url?.absoluteString),
-      (SemanticConventions.Resource.cicdProviderName, ciProviderName),
-    ]
-
-    return attributes.compactMap { key, value in
-      value.map { OTLPMetricsRequest.KeyValue(key: key, stringValue: $0) }
-    }
   }
 
   // MARK: - Helpers

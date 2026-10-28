@@ -117,6 +117,8 @@ extension OTLPMetricsRequest {
   struct AnyValue: Encodable {
     /// The value, when it is a string.
     var stringValue: String?
+    /// The value, when it is a floating-point number.
+    var doubleValue: Double?
   }
 }
 
@@ -139,6 +141,15 @@ extension OTLPMetricsRequest.KeyValue {
   ///   - key: Attribute name.
   ///   - value: Attribute value.
   init(key: String, stringValue value: String) {
-    self.init(key: key, value: OTLPMetricsRequest.AnyValue(stringValue: value))
+    self.init(key: key, value: OTLPMetricsRequest.AnyValue(stringValue: value, doubleValue: .none))
+  }
+
+  /// Creates a floating-point attribute.
+  ///
+  /// - Parameters:
+  ///   - key: Attribute name.
+  ///   - value: Attribute value.
+  init(key: String, doubleValue value: Double) {
+    self.init(key: key, value: OTLPMetricsRequest.AnyValue(stringValue: .none, doubleValue: value))
   }
 }

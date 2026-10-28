@@ -8,9 +8,10 @@ import SharedLogger
 
 /// Exports metrics about a completed test run to an OpenTelemetry collector.
 ///
-/// The reporter derives three test metrics — test case counts by result status, a histogram of
-/// test case durations, and the total run duration — plus per-target line coverage, and pushes
-/// them to an OTLP/HTTP endpoint as JSON.
+/// The reporter derives test metrics — test case counts by result status, a histogram of test
+/// case durations, summed suite durations and the total run duration — plus per-target line
+/// coverage, and pushes them to an OTLP/HTTP endpoint as JSON. Individual test cases are sent as
+/// log records, so that their names never become metric series.
 public struct TestsOTELReporter {
   /// Configuration for this push.
   public let configuration: Configuration
@@ -55,7 +56,7 @@ public struct TestsOTELReporter {
   public func payload(testRun: TestRun?, lineCoverage: LineCoverage?) throws -> Data {
     let request = OTLPMetricsBuilder(
       isPerSuiteEnabled: configuration.isPerSuiteEnabled,
-      isPerTestEnabled: configuration.isPerTestEnabled,
+      serviceName: configuration.serviceName,
       timestamp: configuration.timestamp,
     )
     .build(
@@ -72,6 +73,27 @@ public struct TestsOTELReporter {
     return try encoder.encode(request)
   }
 
+  /// Builds the OTLP logs payloads for a test run without sending them.
+  ///
+  /// - Parameter testRun: The completed test run.
+  /// - Returns: The JSON-encoded OTLP `ExportLogsServiceRequest`s, one per batch of test cases, or
+  ///   none when the run has no test cases.
+  /// - Throws: An encoding error if a payload cannot be serialized.
+  public func logPayloads(for testRun: TestRun) throws -> [Data] {
+    let requests = OTLPLogsBuilder(serviceName: configuration.serviceName, timestamp: configuration.timestamp)
+      .build(
+        testRun: testRun,
+        repository: ci.repository,
+        cicd: ci.cicd,
+        ciProviderName: ci.type.name,
+      )
+
+    let encoder = JSONEncoder()
+    encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+
+    return try requests.map { try encoder.encode($0) }
+  }
+
   /// Exports the metrics for a test run.
   ///
   /// When the configuration requests a dry run, the payload is built and returned without any
@@ -85,16 +107,17 @@ public struct TestsOTELReporter {
     try await report(testRun: testRun, lineCoverage: .none)
   }
 
-  /// Exports the metrics for a test run and its line coverage.
+  /// Exports the metrics for a test run and its line coverage, then its per-test-case logs.
   ///
-  /// When the configuration requests a dry run, the payload is built and returned without any
-  /// network request being made.
+  /// Metrics are sent first, so a failing logs export cannot keep them from being delivered.
+  /// When the configuration requests a dry run, the payloads are built and returned without any
+  /// network request being made; use ``logPayloads(for:)`` for the logs.
   ///
   /// - Parameters:
   ///   - testRun: The completed test run, if there is one to report.
   ///   - lineCoverage: Line coverage of the run, if there is any to report.
-  /// - Returns: The JSON-encoded payload that was sent, or would have been sent.
-  /// - Throws: ``Error`` if the collector rejects the export, or a `URLSession` error.
+  /// - Returns: The JSON-encoded metrics payload that was sent, or would have been sent.
+  /// - Throws: ``Error`` if the collector rejects an export, or a `URLSession` error.
   @discardableResult
   public func report(testRun: TestRun?, lineCoverage: LineCoverage?) async throws -> Data {
     logCIContext()
@@ -105,13 +128,33 @@ public struct TestsOTELReporter {
       return payload
     }
 
-    var request = URLRequest(url: configuration.metricsURL)
+    log.debug("Exporting test metrics to \(configuration.metricsURL)")
+    try await send(payload, to: configuration.metricsURL, headers: configuration.headers)
+
+    if let testRun {
+      let logPayloads = try logPayloads(for: testRun)
+      log.debug("Exporting test case logs to \(configuration.logsURL) in \(logPayloads.count) requests")
+      for logPayload in logPayloads {
+        try await send(logPayload, to: configuration.logsURL, headers: configuration.logsHeaders)
+      }
+    }
+
+    return payload
+  }
+
+  /// POSTs a JSON payload to a collector.
+  ///
+  /// - Parameters:
+  ///   - body: The JSON-encoded payload.
+  ///   - url: The URL to send it to.
+  ///   - headers: Headers sent with the request.
+  /// - Throws: ``Error`` if the collector rejects the payload, or a `URLSession` error.
+  private func send(_ body: Data, to url: URL, headers: [String: String]) async throws {
+    var request = URLRequest(url: url)
     request.httpMethod = "POST"
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-    for (name, value) in configuration.headers { request.setValue(value, forHTTPHeaderField: name) }
-    request.httpBody = payload
-
-    log.debug("Exporting test metrics to \(configuration.metricsURL)")
+    for (name, value) in headers { request.setValue(value, forHTTPHeaderField: name) }
+    request.httpBody = body
 
     let (data, response) = try await urlSession.data(for: request)
 
@@ -119,8 +162,6 @@ public struct TestsOTELReporter {
     guard (200..<300).contains(httpResponse.statusCode) else {
       throw Error.wrongStatusCode(httpResponse.statusCode, body: String(data: data, encoding: .utf8))
     }
-
-    return payload
   }
 }
 

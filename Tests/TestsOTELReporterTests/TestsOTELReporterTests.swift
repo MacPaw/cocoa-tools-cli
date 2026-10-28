@@ -31,40 +31,96 @@ struct TestsOTELReporterTests {
   ///
   /// - Parameters:
   ///   - isPerSuiteEnabled: Whether metrics carry a suite breakdown.
-  ///   - isPerTestEnabled: Whether metrics carry a test case breakdown.
+  ///   - serviceName: Value of the `service.name` resource attribute.
   ///   - ci: The CI to derive resource attributes from.
   /// - Returns: The configured reporter.
   /// - Throws: An error if the endpoint URL cannot be built.
   private func makeSUT(
     isPerSuiteEnabled: Bool = true,
-    isPerTestEnabled: Bool = false,
+    serviceName: String = TestsOTELReporter.Configuration.defaultServiceName,
     ci: any CIInterface = MockCI(),
   ) throws -> TestsOTELReporter {
     TestsOTELReporter(
       configuration: TestsOTELReporter.Configuration(
         endpoint: try #require(URL(string: "https://collector.example")),
         isPerSuiteEnabled: isPerSuiteEnabled,
-        isPerTestEnabled: isPerTestEnabled,
+        serviceName: serviceName,
         timestamp: Date(timeIntervalSince1970: 1_700_000_000),
       ),
       ci: ci,
     )
   }
 
-  @Test("payload emitsThreeAgreedMetrics")
-  func test_payload_emitsThreeAgreedMetrics() throws {
+  @Test("payload emitsTheAgreedMetrics")
+  func test_payload_emitsTheAgreedMetrics() throws {
     // GIVEN — a reporter over a two-suite run
     let sut = try makeSUT()
 
     // WHEN — the payload is built
     let payload = try OTLPPayload(data: try sut.payload(for: Self.testRun))
 
-    // THEN — exactly the three agreed metrics are present
+    // THEN — exactly the agreed metrics are present
     #expect(
       Set(payload.metricsByName.keys) == [
-        "cicd.test.case.count", "cicd.test.case.duration", "cicd.test.run.duration",
+        "cicd.test.case.count", "cicd.test.case.duration", "cicd.test.suite.duration", "cicd.test.run.duration",
       ]
     )
+  }
+
+  @Test("payload omitsSuiteDurationWhenPerSuiteDisabled")
+  func test_payload_omitsSuiteDurationWhenPerSuiteDisabled() throws {
+    // GIVEN — a reporter with the per-suite breakdown disabled
+    let sut = try makeSUT(isPerSuiteEnabled: false)
+
+    // WHEN — the payload is built
+    let payload = try payload(from: sut)
+
+    // THEN — there is no suite to attribute a duration to
+    #expect(payload.metricsByName["cicd.test.suite.duration"] == nil)
+  }
+
+  @Test("payload sumsCaseDurationsPerSuiteInMilliseconds")
+  func test_payload_sumsCaseDurationsPerSuiteInMilliseconds() throws {
+    // GIVEN — a reporter over suites whose cases last 2ms + 8ms and 300ms + 0ms
+    let sut = try makeSUT()
+
+    // WHEN — the suite duration data points are read
+    let dataPoints = try payload(from: sut).gaugeDataPoints("cicd.test.suite.duration")
+
+    // THEN — each suite reports the sum of its cases, in milliseconds
+    #expect(dataPoints.count == 2)
+    #expect(try duration(in: dataPoints, suite: "GreeterTests") == 10)
+    #expect(try duration(in: dataPoints, suite: "RecordingTests") == 300)
+  }
+
+  @Test("payload derivesSuiteRunStatusFromItsCases")
+  func test_payload_derivesSuiteRunStatusFromItsCases() throws {
+    // GIVEN — a passing suite, a failing one and a suite where everything was skipped
+    let testRun = TestRun(
+      suites: [
+        TestRun.Suite(name: "Passing", testCases: [.init(name: "a", status: .pass, duration: 0)]),
+        TestRun.Suite(
+          name: "Failing",
+          testCases: [.init(name: "b", status: .pass, duration: 0), .init(name: "c", status: .fail, duration: 0)],
+        ),
+        TestRun.Suite(name: "Skipped", testCases: [.init(name: "d", status: .skip, duration: 0)]),
+      ],
+      duration: 1,
+    )
+    let sut = try makeSUT()
+
+    // WHEN — the suite duration data points are read
+    let payload = try OTLPPayload(data: try sut.payload(for: testRun))
+    let dataPoints = try payload.gaugeDataPoints("cicd.test.suite.duration")
+    let statuses = Dictionary(
+      uniqueKeysWithValues: dataPoints.map {
+        let attributes = OTLPPayload.attributes(of: $0)
+        return (attributes["test.suite.name"] ?? "", attributes["test.suite.run.status"] ?? "")
+      }
+    )
+
+    // THEN — a failure wins, and only an all-skipped suite is skipped
+    #expect(statuses == ["Passing": "success", "Failing": "failure", "Skipped": "skipped"])
   }
 
   @Test("payload countsCasesByStatusPerSuite")
@@ -103,10 +159,22 @@ struct TestsOTELReporterTests {
     let dataPoints = try payload(from: sut).gaugeDataPoints("cicd.test.run.duration")
     let dataPoint = try #require(dataPoints.first)
 
-    // THEN — a single unattributed point carrying milliseconds
+    // THEN — a single point carrying milliseconds, and nothing but the run status
     #expect(dataPoints.count == 1)
-    #expect(OTLPPayload.attributes(of: dataPoint).isEmpty)
+    #expect(Set(OTLPPayload.attributes(of: dataPoint).keys) == ["test.suite.run.status"])
     #expect(dataPoint["asDouble"] as? Double == 1500)
+  }
+
+  @Test("payload reportsRunStatusOnRunDuration")
+  func test_payload_reportsRunStatusOnRunDuration() throws {
+    // GIVEN — a run in which one test case failed
+    let sut = try makeSUT()
+
+    // WHEN — the run duration data point is read
+    let dataPoint = try #require(try payload(from: sut).gaugeDataPoints("cicd.test.run.duration").first)
+
+    // THEN — the run is a failure
+    #expect(OTLPPayload.attributes(of: dataPoint)["test.suite.run.status"] == "failure")
   }
 
   @Test("payload bucketsCaseDurationsInMilliseconds")
@@ -192,6 +260,7 @@ struct TestsOTELReporterTests {
     // THEN — every data point of every metric carries the filterable attributes, but not the run id
     let dataPoints =
       try payload.gaugeDataPoints("cicd.test.case.count")
+      + payload.gaugeDataPoints("cicd.test.suite.duration")
       + payload.gaugeDataPoints("cicd.test.run.duration")
       + payload.histogramDataPoints("cicd.test.case.duration")
     #expect(!dataPoints.isEmpty)
@@ -205,26 +274,61 @@ struct TestsOTELReporterTests {
     }
   }
 
-  @Test("payload breaksCountsAndDurationsDownPerTestCase")
-  func test_payload_breaksCountsAndDurationsDownPerTestCase() throws {
-    // GIVEN — a reporter with the per-test breakdown enabled
-    let sut = try makeSUT(isPerTestEnabled: true)
+  @Test("payload keepsTestCaseNamesOffMetrics")
+  func test_payload_keepsTestCaseNamesOffMetrics() throws {
+    // GIVEN — a reporter over a run with named test cases
+    let sut = try makeSUT()
 
-    // WHEN — the payload is built
+    // WHEN — every data point of every metric is collected
     let payload = try payload(from: sut)
+    let dataPoints =
+      try payload.gaugeDataPoints("cicd.test.case.count")
+      + payload.gaugeDataPoints("cicd.test.suite.duration")
+      + payload.gaugeDataPoints("cicd.test.run.duration")
+      + payload.histogramDataPoints("cicd.test.case.duration")
 
-    // THEN — each test case has its own count per status and its own duration sample
-    let counts = try payload.gaugeDataPoints("cicd.test.case.count")
-      .filter { OTLPPayload.attributes(of: $0)["test.case.name"] == "records" }
-    #expect(counts.count == 3)
-    #expect(
-      counts.first { OTLPPayload.attributes(of: $0)["test.case.result.status"] == "fail" }?["asInt"] as? String == "1"
-    )
-    let durations = try payload.histogramDataPoints("cicd.test.case.duration")
-    #expect(durations.count == 4)
-    let records = try #require(durations.first { OTLPPayload.attributes(of: $0)["test.case.name"] == "records" })
-    #expect(OTLPPayload.attributes(of: records)["test.suite.name"] == "RecordingTests")
-    #expect(records["sum"] as? Double == 300)
+    // THEN — none is labelled with a test case name, which would be a series per test
+    #expect(!dataPoints.isEmpty)
+    #expect(dataPoints.allSatisfy { OTLPPayload.attributes(of: $0)["test.case.name"] == nil })
+  }
+
+  @Test("payload carriesServiceNameAndInstanceID")
+  func test_payload_carriesServiceNameAndInstanceID() throws {
+    // GIVEN — a configured service name and a CI reporting run number 7
+    let ci = MockCI(cicd: CI.CICD(run: CI.CICD.Run(id: "42", number: "7")))
+    let sut = try makeSUT(serviceName: "my-service", ci: ci)
+
+    // WHEN — the resource attributes are read
+    let attributes = try payload(from: sut).resourceAttributes
+
+    // THEN — the instance id names the service and the run
+    #expect(attributes["service.name"] == "my-service")
+    #expect(attributes["service.instance.id"] == "my-service-7")
+  }
+
+  @Test("payload fallsBackToRunIDForInstanceID")
+  func test_payload_fallsBackToRunIDForInstanceID() throws {
+    // GIVEN — a CI reporting a run id but no run number
+    let sut = try makeSUT(ci: MockCI(cicd: CI.CICD(run: CI.CICD.Run(id: "42"))))
+
+    // WHEN — the resource attributes are read
+    let attributes = try payload(from: sut).resourceAttributes
+
+    // THEN — the run id stands in for the number
+    #expect(attributes["service.instance.id"] == "macpaw-test-42")
+  }
+
+  @Test("payload omitsInstanceIDWhenCIReportsNoRun")
+  func test_payload_omitsInstanceIDWhenCIReportsNoRun() throws {
+    // GIVEN — a CI reporting no run metadata
+    let sut = try makeSUT()
+
+    // WHEN — the resource attributes are read
+    let attributes = try payload(from: sut).resourceAttributes
+
+    // THEN — the service is named, but there is no instance to identify
+    #expect(attributes["service.name"] == "macpaw-test")
+    #expect(attributes["service.instance.id"] == nil)
   }
 
   @Test("payload timestampsEveryDataPointWithTheConfiguredInstant")
@@ -251,6 +355,18 @@ struct TestsOTELReporterTests {
   /// - Throws: An error if the payload cannot be built or decoded.
   private func payload(from sut: TestsOTELReporter) throws -> OTLPPayload {
     try OTLPPayload(data: try sut.payload(for: Self.testRun))
+  }
+
+  /// Reads the duration reported for one suite.
+  ///
+  /// - Parameters:
+  ///   - dataPoints: The suite duration data points.
+  ///   - suite: Suite name to look up.
+  /// - Returns: The duration, in milliseconds.
+  /// - Throws: An error if the suite has no data point.
+  private func duration(in dataPoints: [[String: Any]], suite: String) throws -> Double? {
+    let dataPoint = try #require(dataPoints.first { OTLPPayload.attributes(of: $0)["test.suite.name"] == suite })
+    return dataPoint["asDouble"] as? Double
   }
 
   /// Collects case counts by status for one suite.

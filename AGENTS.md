@@ -51,12 +51,25 @@ Endpoint and headers fall back to `OTEL_EXPORTER_OTLP_ENDPOINT` / `OTEL_EXPORTER
 no default endpoint. `OTEL_EXPORTER_OTLP_ENDPOINT` is a **base** URL — `v1/metrics` is appended, per the
 OTLP spec.
 
-Emits three gauges/histograms, all with millisecond durations: `cicd.test.case.count`
-(attributed by `test.case.result.status`), `cicd.test.case.duration`, `cicd.test.run.duration`.
-Resource attributes come from `CI.current.repository` / `.cicd`. The filterable ones (repository, pipeline,
+Emits gauges/histograms, all with millisecond durations: `cicd.test.case.count`
+(attributed by `test.case.result.status`), `cicd.test.case.duration`, `cicd.test.suite.duration` (summed case
+durations per suite, per-suite only), `cicd.test.run.duration`. The suite and run duration carry
+`test.suite.run.status` (`success` / `failure` / `skipped`; `timed_out` / `aborted` cannot be told apart in a report).
+Resource attributes come from `CI.current.repository` / `.cicd`, plus `service.name` (`OTEL_SERVICE_NAME`, default
+`macpaw-test`, shared with the Playwright reporter) and `service.instance.id` (`<service>-<run number>`, falling back
+to the run id). The filterable ones (repository, pipeline,
 stage, job) are repeated as data-point attributes, since backends do not promote resource attributes to
 metric labels by default; run id / number / URL stay on the resource only (a label per run would explode series).
 `mpct` logs the CI context it attaches before each export.
+
+Test case names are never metric labels (a series per test grows without bound). Each case is one OTLP **log record**
+(`test.case.name`, `test.suite.name`, `test.case.result.status`, `test.case.duration` in ms; severity INFO / ERROR /
+WARN for pass / fail / skip; body is the name plus the failure message), sent after the metrics in batches of 500 with
+the same resource. Destination: `--loki-otlp-endpoint` / `LOKI_OTLP_ENDPOINT` is a **base** URL like the OTLP
+one: `v1/logs` is appended, so it must carry Loki's own prefix (`http://loki:3100/otlp`); unset, logs go to the OTLP
+endpoint. `--loki-otlp-header` /
+`LOKI_OTLP_HEADERS` replace the metrics headers for logs when set. A failing logs export fails the command (metrics are
+already delivered); there is no opt-out flag.
 
 Line coverage is one more gauge, `cicd.test.coverage.line.count` (unit `{line}`): per target, a `covered` and an
 `uncovered` data point (`test.coverage.target.name`, `test.coverage.line.status`). Their sum is the executable

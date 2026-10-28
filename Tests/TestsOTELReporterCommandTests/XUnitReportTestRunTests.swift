@@ -89,6 +89,25 @@ struct XUnitReportTestRunTests {
     #expect(sut.testCases.map(\.status) == [.pass, .fail, .skip])
   }
 
+  @Test("init carriesTheFailureMessage")
+  func test_init_carriesTheFailureMessage() {
+    // GIVEN — a failing case and a passing one
+    let report = report(testCases: [
+      testCase(className: "Tests.Suite", name: "passes"),
+      testCase(
+        className: "Tests.Suite",
+        name: "fails",
+        failure: XUnitReport.TestSuite.TestCase.Failure(message: "boom", type: "Issue", body: .none),
+      ),
+    ])
+
+    // WHEN
+    let sut = TestRun(report: report)
+
+    // THEN — only the failing case carries a reason
+    #expect(sut.testCases.map(\.failureMessage) == [nil, "boom"])
+  }
+
   @Test("init prefersSkipOverFailureWhenBothAreReported")
   func test_init_prefersSkipOverFailureWhenBothAreReported() {
     // GIVEN — a case marked skipped that also carries failure details

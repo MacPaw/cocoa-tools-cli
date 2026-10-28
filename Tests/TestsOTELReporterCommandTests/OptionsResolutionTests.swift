@@ -15,6 +15,113 @@ struct OptionsResolutionTests {
     try Options.parse(arguments)
   }
 
+  // MARK: - Loki
+
+  @Test("resolvedLokiEndpoint prefersFlagOverEnvironment")
+  func test_resolvedLokiEndpoint_prefersFlagOverEnvironment() throws {
+    // GIVEN — both the flag and the environment variable are set
+    let sut = try makeSUT(["--loki-otlp-endpoint", "https://flag.example"])
+
+    // WHEN
+    let endpoint = try sut.resolvedLokiEndpoint(environment: ["LOKI_OTLP_ENDPOINT": "https://env.example"])
+
+    // THEN
+    #expect(endpoint?.absoluteString == "https://flag.example")
+  }
+
+  @Test("resolvedLokiEndpoint fallsBackToEnvironment")
+  func test_resolvedLokiEndpoint_fallsBackToEnvironment() throws {
+    // GIVEN — only the environment variable is set
+    let sut = try makeSUT()
+
+    // WHEN
+    let endpoint = try sut.resolvedLokiEndpoint(environment: ["LOKI_OTLP_ENDPOINT": "https://env.example"])
+
+    // THEN
+    #expect(endpoint?.absoluteString == "https://env.example")
+  }
+
+  @Test("resolvedLokiEndpoint isNilWhenUnset")
+  func test_resolvedLokiEndpoint_isNilWhenUnset() throws {
+    // GIVEN — neither source supplies a Loki endpoint, and an empty variable counts as unset
+    let sut = try makeSUT()
+
+    // WHEN / THEN — logs then go to the OTLP endpoint
+    #expect(try sut.resolvedLokiEndpoint(environment: [:]) == nil)
+    #expect(try sut.resolvedLokiEndpoint(environment: ["LOKI_OTLP_ENDPOINT": ""]) == nil)
+  }
+
+  @Test("resolvedLokiEndpoint throwsForValueWithoutScheme")
+  func test_resolvedLokiEndpoint_throwsForValueWithoutScheme() throws {
+    // GIVEN
+    let sut = try makeSUT(["--loki-otlp-endpoint", "loki.example:3100"])
+
+    // WHEN / THEN
+    #expect(throws: ValidationError.self) { try sut.resolvedLokiEndpoint(environment: [:]) }
+  }
+
+  @Test("resolvedLokiHeaders isNilWhenNoneAreConfigured")
+  func test_resolvedLokiHeaders_isNilWhenNoneAreConfigured() throws {
+    // GIVEN — metrics headers in the environment, but nothing Loki-specific
+    let sut = try makeSUT(["--header", "authorization=metrics"])
+
+    // WHEN
+    let headers = try sut.resolvedLokiHeaders(environment: ["OTEL_EXPORTER_OTLP_HEADERS": "x=y"])
+
+    // THEN — the metrics headers are used for logs, not merged into Loki's
+    #expect(headers == nil)
+  }
+
+  @Test("resolvedLokiHeaders mergesFlagsOverEnvironment")
+  func test_resolvedLokiHeaders_mergesFlagsOverEnvironment() throws {
+    // GIVEN — a Loki header in the environment, overridden by a flag, plus one more
+    let sut = try makeSUT(["--loki-otlp-header", "authorization=flag", "--loki-otlp-header", "x-scope-orgid=macpaw"])
+
+    // WHEN
+    let headers = try sut.resolvedLokiHeaders(environment: ["LOKI_OTLP_HEADERS": "authorization=env"])
+
+    // THEN
+    #expect(headers == ["authorization": "flag", "x-scope-orgid": "macpaw"])
+  }
+
+  @Test("resolvedLokiHeaders throwsForEntryWithoutSeparator")
+  func test_resolvedLokiHeaders_throwsForEntryWithoutSeparator() throws {
+    // GIVEN
+    let sut = try makeSUT(["--loki-otlp-header", "garbage"])
+
+    // WHEN / THEN
+    #expect(throws: ValidationError.self) { try sut.resolvedLokiHeaders(environment: [:]) }
+  }
+
+  // MARK: - Service name
+
+  @Test("resolvedServiceName readsTheEnvironment")
+  func test_resolvedServiceName_readsTheEnvironment() throws {
+    // GIVEN
+    let sut = try makeSUT()
+
+    // WHEN / THEN
+    #expect(sut.resolvedServiceName(environment: ["OTEL_SERVICE_NAME": "my-service"]) == "my-service")
+  }
+
+  @Test("resolvedServiceName defaultsToTheSharedName")
+  func test_resolvedServiceName_defaultsToTheSharedName() throws {
+    // GIVEN — an unset variable, and an empty one as CI declares them
+    let sut = try makeSUT()
+
+    // WHEN / THEN — both land under the name the Playwright reporter uses
+    #expect(sut.resolvedServiceName(environment: [:]) == "macpaw-test")
+    #expect(sut.resolvedServiceName(environment: ["OTEL_SERVICE_NAME": ""]) == "macpaw-test")
+  }
+
+  // MARK: - Removed options
+
+  @Test("parse rejectsTheRemovedPerTestFlag")
+  func test_parse_rejectsTheRemovedPerTestFlag() {
+    // GIVEN / WHEN / THEN — test case names now go to logs, so there is nothing to switch off
+    #expect(throws: (any Error).self) { try Options.parse(["--no-per-test"]) }
+  }
+
   // MARK: - Endpoint
 
   @Test("resolvedEndpoint prefersFlagOverEnvironment")

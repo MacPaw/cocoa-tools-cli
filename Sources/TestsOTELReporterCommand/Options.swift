@@ -51,20 +51,32 @@ struct Options: ParsableArguments {
   )
   var header: [String] = []
 
+  @Option(
+    name: .long,
+    help: """
+      Base URL of a Loki endpoint for per-test-case logs, without the signal path — `v1/logs` is \
+      appended, so include Loki's `otlp` prefix, e.g. `http://loki:3100/otlp`. \
+      Defaults to $LOKI_OTLP_ENDPOINT; when neither is set, logs go to the OTLP endpoint.
+      """,
+  )
+  var lokiOtlpEndpoint: String?
+
+  @Option(
+    name: .long,
+    parsing: .upToNextOption,
+    help: """
+      Header to send with the logs export, as `key=value`. Repeatable. \
+      Merged over headers parsed from $LOKI_OTLP_HEADERS. When neither is set, \
+      the metrics headers are sent.
+      """,
+  )
+  var lokiOtlpHeader: [String] = []
+
   @Flag(
     inversion: .prefixedNo,
     help: "Break metrics down by test suite with the `test.suite.name` attribute",
   )
   var perSuite: Bool = true
-
-  @Flag(
-    inversion: .prefixedNo,
-    help: """
-      Break metrics down by test case with the `test.case.name` attribute. \
-      Every test case becomes its own series, so pass `--no-per-test` where that volume is not acceptable.
-      """,
-  )
-  var perTest: Bool = true
 
   @Option(name: .long, help: "Sample timestamp in milliseconds since the Unix epoch")
   var timestamp: Int?

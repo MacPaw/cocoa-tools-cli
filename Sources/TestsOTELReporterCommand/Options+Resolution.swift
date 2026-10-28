@@ -9,6 +9,12 @@ extension Options {
     static let endpoint: String = "OTEL_EXPORTER_OTLP_ENDPOINT"
     /// Comma-separated `key=value` headers sent with the export.
     static let headers: String = "OTEL_EXPORTER_OTLP_HEADERS"
+    /// Base URL of a Loki endpoint for logs.
+    static let lokiEndpoint: String = "LOKI_OTLP_ENDPOINT"
+    /// Comma-separated `key=value` headers sent with the logs export.
+    static let lokiHeaders: String = "LOKI_OTLP_HEADERS"
+    /// Value of the `service.name` resource attribute.
+    static let serviceName: String = "OTEL_SERVICE_NAME"
     /// Run finish time, reused from the Azure Pipelines CAS metrics for a shared sample instant.
     static let buildFinishTime: String = "BUILD_FINISHTIME"
   }
@@ -81,18 +87,23 @@ extension Options {
   /// - Returns: The base URL of the OTLP endpoint.
   /// - Throws: `ValidationError` when no endpoint is configured, or it is not a valid URL.
   func resolvedEndpoint(environment: [String: String]) throws -> URL {
-    let rawValue: String? = endpoint ?? environment[EnvironmentKey.endpoint].flatMap { $0.isEmpty ? .none : $0 }
+    let rawValue: String? = endpoint ?? Self.nonEmpty(environment[EnvironmentKey.endpoint])
 
     guard let rawValue else {
       throw ValidationError("--endpoint is required, or set $\(EnvironmentKey.endpoint)")
     }
-    guard let url = URL(string: rawValue), let scheme = url.scheme?.lowercased(), url.host != nil,
-      scheme == "http" || scheme == "https"
-    else {
-      throw ValidationError("Invalid OTLP endpoint URL, expected an http(s) URL: \(rawValue)")
-    }
+    return try Self.validatedURL(rawValue, description: "OTLP endpoint")
+  }
 
-    return url
+  /// Resolves the Loki base URL from the flag, falling back to the environment.
+  ///
+  /// - Parameter environment: Environment variables to fall back to.
+  /// - Returns: The base URL of the Loki endpoint, or `nil` when logs should go to the OTLP endpoint.
+  /// - Throws: `ValidationError` when the configured value is not a valid URL.
+  func resolvedLokiEndpoint(environment: [String: String]) throws -> URL? {
+    let rawValue: String? = lokiOtlpEndpoint ?? Self.nonEmpty(environment[EnvironmentKey.lokiEndpoint])
+
+    return try rawValue.map { try Self.validatedURL($0, description: "Loki endpoint") }
   }
 
   /// Resolves the headers sent with the export.
@@ -104,22 +115,39 @@ extension Options {
   /// - Returns: The headers to send, keyed by header name.
   /// - Throws: `ValidationError` when a `--header` value is not in `key=value` form.
   func resolvedHeaders(environment: [String: String]) throws -> [String: String] {
-    var headers: [String: String] = OTLPHeaders.parse(environment[EnvironmentKey.headers] ?? "")
+    try Self.mergedHeaders(
+      environment: environment[EnvironmentKey.headers] ?? "",
+      flags: header,
+      option: "--header",
+    )
+  }
 
-    for entry in header {
-      guard let separatorIndex = entry.firstIndex(of: "=") else {
-        throw ValidationError("Invalid --header value, expected key=value: \(entry)")
-      }
+  /// Resolves the headers sent with the logs export.
+  ///
+  /// Merged like ``resolvedHeaders(environment:)``, but from the Loki-specific sources only,
+  /// since Loki often authenticates differently from the metrics backend.
+  ///
+  /// - Parameter environment: Environment variables to read headers from.
+  /// - Returns: The headers to send, or `nil` when none are configured and the metrics headers
+  ///   should be used.
+  /// - Throws: `ValidationError` when a `--loki-otlp-header` value is not in `key=value` form.
+  func resolvedLokiHeaders(environment: [String: String]) throws -> [String: String]? {
+    let rawEnvironment: String? = Self.nonEmpty(environment[EnvironmentKey.lokiHeaders])
+    guard rawEnvironment != nil || !lokiOtlpHeader.isEmpty else { return .none }
 
-      let key = entry[..<separatorIndex].trimmingCharacters(in: .whitespaces)
-      guard !key.isEmpty else {
-        throw ValidationError("Invalid --header value, key is empty: \(entry)")
-      }
+    return try Self.mergedHeaders(
+      environment: rawEnvironment ?? "",
+      flags: lokiOtlpHeader,
+      option: "--loki-otlp-header",
+    )
+  }
 
-      headers[key] = entry[entry.index(after: separatorIndex)...].trimmingCharacters(in: .whitespaces)
-    }
-
-    return headers
+  /// Resolves the `service.name` resource attribute.
+  ///
+  /// - Parameter environment: Environment variables to read the name from.
+  /// - Returns: `$OTEL_SERVICE_NAME`, or the shared default when it is unset or empty.
+  func resolvedServiceName(environment: [String: String]) -> String {
+    Self.nonEmpty(environment[EnvironmentKey.serviceName]) ?? TestsOTELReporter.Configuration.defaultServiceName
   }
 
   /// Resolves the timestamp recorded on every data point.
@@ -142,6 +170,58 @@ extension Options {
     }
 
     return now
+  }
+
+  /// Treats an empty string like an unset value.
+  ///
+  /// - Parameter value: The raw value.
+  /// - Returns: The value, or `nil` when it is absent or empty.
+  private static func nonEmpty(_ value: String?) -> String? {
+    value.flatMap { $0.isEmpty ? .none : $0 }
+  }
+
+  /// Parses an http(s) URL, or reports a validation error.
+  ///
+  /// - Parameters:
+  ///   - rawValue: The raw URL.
+  ///   - description: What the URL is, used in the error message.
+  /// - Returns: The parsed URL.
+  /// - Throws: `ValidationError` when the value is not an http(s) URL.
+  private static func validatedURL(_ rawValue: String, description: String) throws -> URL {
+    guard let url = URL(string: rawValue), let scheme = url.scheme?.lowercased(), url.host != nil,
+      scheme == "http" || scheme == "https"
+    else {
+      throw ValidationError("Invalid \(description) URL, expected an http(s) URL: \(rawValue)")
+    }
+
+    return url
+  }
+
+  /// Merges `key=value` flag entries over headers parsed from an environment variable.
+  ///
+  /// - Parameters:
+  ///   - environment: The raw environment variable value.
+  ///   - flags: The `key=value` entries given on the command line.
+  ///   - option: Name of the option the entries came from, used in the error message.
+  /// - Returns: The merged headers, keyed by header name.
+  /// - Throws: `ValidationError` when an entry is not in `key=value` form.
+  private static func mergedHeaders(environment: String, flags: [String], option: String) throws -> [String: String] {
+    var headers: [String: String] = OTLPHeaders.parse(environment)
+
+    for entry in flags {
+      guard let separatorIndex = entry.firstIndex(of: "=") else {
+        throw ValidationError("Invalid \(option) value, expected key=value: \(entry)")
+      }
+
+      let key = entry[..<separatorIndex].trimmingCharacters(in: .whitespaces)
+      guard !key.isEmpty else {
+        throw ValidationError("Invalid \(option) value, key is empty: \(entry)")
+      }
+
+      headers[key] = entry[entry.index(after: separatorIndex)...].trimmingCharacters(in: .whitespaces)
+    }
+
+    return headers
   }
 
   /// Builds a URL for an existing file, or reports a validation error.

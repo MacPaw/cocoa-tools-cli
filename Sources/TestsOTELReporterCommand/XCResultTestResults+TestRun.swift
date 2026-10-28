@@ -11,6 +11,8 @@
     static let testSuite: String = "Test Suite"
     /// A test bundle, which encloses suites and occasionally bare test cases.
     static let unitTestBundle: String = "Unit test bundle"
+    /// The reason a test case failed, nested under the failing case.
+    static let failureMessage: String = "Failure Message"
   }
 
   extension TestRun {
@@ -60,7 +62,22 @@
         name: node.name,
         status: Status(result: node.result),
         duration: node.durationInSeconds ?? 0,
+        failureMessage: Self.failureMessage(of: node),
       )
+    }
+  }
+
+  extension TestRun.Suite.TestCase {
+    /// Joins the `Failure Message` children of a `Test Case` node.
+    ///
+    /// - Parameter node: The result node.
+    /// - Returns: The failure messages, one per line, or `nil` when the case has none.
+    fileprivate static func failureMessage(of node: XCResultTestResults.TestNode) -> String? {
+      let messages: [String] = (node.children ?? [])
+        .filter { $0.nodeType == NodeType.failureMessage }
+        .map(\.name)
+
+      return messages.isEmpty ? .none : messages.joined(separator: "\n")
     }
   }
 

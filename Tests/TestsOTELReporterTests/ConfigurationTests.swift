@@ -24,6 +24,52 @@ struct ConfigurationTests {
     // WHEN / THEN — the signal path is appended to it, not substituted for it
     #expect(sut.metricsURL.absoluteString == "https://collector.example/mycollector/v1/metrics")
   }
+
+  @Test("logsURL defaultsToStandardSignalPathOnTheMetricsEndpoint")
+  func test_logsURL_defaultsToStandardSignalPathOnTheMetricsEndpoint() throws {
+    // GIVEN — no Loki endpoint
+    let sut = TestsOTELReporter.Configuration(endpoint: try #require(URL(string: "https://collector.example:4318")))
+
+    // WHEN / THEN — logs follow the collector, with the standard OTLP path
+    #expect(sut.logsURL.absoluteString == "https://collector.example:4318/v1/logs")
+  }
+
+  @Test("logsURL appendsOnlyTheSignalPathToTheLokiEndpoint")
+  func test_logsURL_appendsOnlyTheSignalPathToTheLokiEndpoint() throws {
+    // GIVEN — a Loki base URL that already carries Loki's OTLP prefix
+    let sut = TestsOTELReporter.Configuration(
+      endpoint: try #require(URL(string: "https://collector.example")),
+      lokiEndpoint: try #require(URL(string: "https://loki.example:3100/otlp")),
+    )
+
+    // WHEN / THEN — the signal path is appended exactly as for the OTLP endpoint, and the collector is not involved
+    #expect(sut.logsURL.absoluteString == "https://loki.example:3100/otlp/v1/logs")
+  }
+
+  @Test("logsHeaders fallsBackToTheMetricsHeaders")
+  func test_logsHeaders_fallsBackToTheMetricsHeaders() throws {
+    // GIVEN — metrics headers and no Loki headers
+    let sut = TestsOTELReporter.Configuration(
+      endpoint: try #require(URL(string: "https://collector.example")),
+      headers: ["authorization": "metrics"],
+    )
+
+    // WHEN / THEN
+    #expect(sut.logsHeaders == ["authorization": "metrics"])
+  }
+
+  @Test("logsHeaders prefersLokiHeaders")
+  func test_logsHeaders_prefersLokiHeaders() throws {
+    // GIVEN — both sets of headers
+    let sut = TestsOTELReporter.Configuration(
+      endpoint: try #require(URL(string: "https://collector.example")),
+      headers: ["authorization": "metrics"],
+      lokiHeaders: ["authorization": "loki"],
+    )
+
+    // WHEN / THEN — Loki's credentials are not mixed with the metrics ones
+    #expect(sut.logsHeaders == ["authorization": "loki"])
+  }
 }
 
 @Suite

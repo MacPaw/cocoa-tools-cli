@@ -38,6 +38,11 @@ extension TestRun.Suite.TestCase {
       else if testCase.failure != nil { .fail }
       else { .pass }
 
-    self.init(name: testCase.name, status: status, duration: testCase.time)
+    self.init(
+      name: testCase.name,
+      status: status,
+      duration: testCase.time,
+      failureMessage: testCase.failure?.message,
+    )
   }
 }

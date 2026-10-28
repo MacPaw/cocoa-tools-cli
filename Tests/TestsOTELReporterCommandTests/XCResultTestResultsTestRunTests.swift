@@ -118,6 +118,44 @@
       #expect(sut.testCases.map(\.status) == [.pass, .fail, .skip, .pass, .skip])
     }
 
+    @Test("init carriesFailureMessagesOfFailedCases")
+    func test_init_carriesFailureMessagesOfFailedCases() throws {
+      // GIVEN — a failing case with two failure messages, and a passing one with none
+      let testResults = try testResults(
+        json: """
+          {
+            "devices": [],
+            "testNodes": [{
+              "name": "Suite",
+              "nodeType": "Test Suite",
+              "children": [
+                {"name": "a()", "nodeType": "Test Case", "result": "Passed"},
+                {
+                  "name": "b()",
+                  "nodeType": "Test Case",
+                  "result": "Failed",
+                  "children": [
+                    {"name": "Greeter.swift:12: XCTAssertEqual failed", "nodeType": "Failure Message", "result": "Failed"},
+                    {"name": "Greeter.swift:14: XCTAssertTrue failed", "nodeType": "Failure Message", "result": "Failed"}
+                  ]
+                }
+              ]
+            }]
+          }
+          """
+      )
+
+      // WHEN
+      let sut = TestRun(testResults: testResults)
+
+      // THEN — the failing case lists its messages one per line, the passing one has none
+      #expect(
+        sut.testCases.map(\.failureMessage) == [
+          nil, "Greeter.swift:12: XCTAssertEqual failed\nGreeter.swift:14: XCTAssertTrue failed",
+        ]
+      )
+    }
+
     @Test("init sumsCaseDurationsForRunDuration")
     func test_init_sumsCaseDurationsForRunDuration() throws {
       // GIVEN — results carrying per-case durations but no run-level total

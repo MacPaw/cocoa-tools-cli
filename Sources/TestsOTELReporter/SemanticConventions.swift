@@ -10,14 +10,20 @@ enum SemanticConventions {
     static let testCaseCount: String = "cicd.test.case.count"
     /// Distribution of individual test case durations.
     static let testCaseDuration: String = "cicd.test.case.duration"
+    /// Summed duration of the test cases in a suite — a MacPaw extension.
+    static let testSuiteDuration: String = "cicd.test.suite.duration"
     /// Total wall-clock duration of the test run.
     static let testRunDuration: String = "cicd.test.run.duration"
     /// Number of executable lines, broken down by whether they were covered — a MacPaw extension.
     static let testLineCoverageCount: String = "cicd.test.coverage.line.count"
   }
 
-  /// Data point attribute names.
+  /// Data point and log record attribute names.
   enum Attribute {
+    /// Outcome of a suite or of the whole run — registered as `test.suite.run.status`.
+    static let testSuiteRunStatus: String = "test.suite.run.status"
+    /// Execution duration of a test case, in milliseconds — a MacPaw extension, sent on log records.
+    static let testCaseDuration: String = "test.case.duration"
     /// Outcome of a test case — registered as `test.case.result.status`.
     static let testCaseResultStatus: String = "test.case.result.status"
     /// Name of the suite a test case belongs to — registered as `test.suite.name`.
@@ -30,6 +36,19 @@ enum SemanticConventions {
     static let testLineCoverageStatus: String = "test.coverage.line.status"
   }
 
+  /// Values of the `test.suite.run.status` attribute.
+  ///
+  /// `timed_out`, `aborted` and `in_progress` are registered too, but a finished report file
+  /// cannot tell them apart from a failure, so the reporter never emits them.
+  enum SuiteRunStatus {
+    /// Every test case passed, or there were none to fail.
+    static let success: String = "success"
+    /// At least one test case failed.
+    static let failure: String = "failure"
+    /// Every test case was skipped.
+    static let skipped: String = "skipped"
+  }
+
   /// Values of the `test.coverage.line.status` attribute.
   enum LineCoverageStatus {
     /// Executable lines that were executed.
@@ -40,6 +59,10 @@ enum SemanticConventions {
 
   /// Resource attribute names.
   enum Resource {
+    /// Logical name of the service that produced the telemetry.
+    static let serviceName: String = "service.name"
+    /// Identifier of one run of the service, unique per CI run.
+    static let serviceInstanceID: String = "service.instance.id"
     /// Version control provider hosting the repository.
     static let vcsProviderName: String = "vcs.provider.name"
     /// Organization, owner, or user the repository belongs to.

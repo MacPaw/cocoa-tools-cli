@@ -80,10 +80,17 @@ to `OTEL_EXPORTER_OTLP_ENDPOINT` and `OTEL_EXPORTER_OTLP_HEADERS`; there is no b
 a missing endpoint is a validation error rather than silent data loss.
 
 **Key Features:**
-- Emits `cicd.test.case.count` (by result status), `cicd.test.case.duration`, and `cicd.test.run.duration`
-- Per-suite breakdown via `test.suite.name`, disabled with `--no-per-suite`
-- Per-test breakdown via `test.case.name` (one series per test case), disabled with `--no-per-test`
-- Resource attributes (`vcs.*`, `cicd.*`) derived from the detected CI
+- Emits `cicd.test.case.count` (by result status), `cicd.test.case.duration`, `cicd.test.suite.duration`
+  (summed case durations per suite) and `cicd.test.run.duration`
+- Per-suite breakdown via `test.suite.name`, disabled with `--no-per-suite` (which also drops `cicd.test.suite.duration`)
+- `test.suite.run.status` (`success` / `failure` / `skipped`) on the suite and run duration metrics
+- Individual test cases are sent as OTLP **logs**, one record per case (name, suite, status, duration in
+  `test.case.*` attributes; the failure message in the body of failed cases), never as metric labels. Records go to
+  `--loki-otlp-endpoint` / `LOKI_OTLP_ENDPOINT` (a base URL such as `http://loki:3100/otlp`; `v1/logs` is appended) with
+  `--loki-otlp-header` / `LOKI_OTLP_HEADERS`, or else to the OTLP endpoint with the metrics headers. At most 500 records per request. Metrics are sent first; a failing logs export still fails the
+  command, so append `|| true` where that should not turn a build red
+- Resource attributes (`service.*`, `vcs.*`, `cicd.*`) derived from the detected CI. `service.name` comes from
+  `OTEL_SERVICE_NAME` (default `macpaw-test`), `service.instance.id` is `<service>-<run number>`
 - `--dry-run` prints the payload without sending it; `--no-fail-on-error` keeps a green build green
 
 ### [secrets obfuscate](docs/Commands/ObfuscateSecretsCommand.md)
