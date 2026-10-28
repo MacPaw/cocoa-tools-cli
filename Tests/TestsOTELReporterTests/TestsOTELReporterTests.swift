@@ -31,14 +31,20 @@ struct TestsOTELReporterTests {
   ///
   /// - Parameters:
   ///   - isPerSuiteEnabled: Whether metrics carry a suite breakdown.
+  ///   - isPerTestEnabled: Whether metrics carry a test case breakdown.
   ///   - ci: The CI to derive resource attributes from.
   /// - Returns: The configured reporter.
   /// - Throws: An error if the endpoint URL cannot be built.
-  private func makeSUT(isPerSuiteEnabled: Bool = true, ci: any CIInterface = MockCI()) throws -> TestsOTELReporter {
+  private func makeSUT(
+    isPerSuiteEnabled: Bool = true,
+    isPerTestEnabled: Bool = false,
+    ci: any CIInterface = MockCI(),
+  ) throws -> TestsOTELReporter {
     TestsOTELReporter(
       configuration: TestsOTELReporter.Configuration(
         endpoint: try #require(URL(string: "https://collector.example")),
         isPerSuiteEnabled: isPerSuiteEnabled,
+        isPerTestEnabled: isPerTestEnabled,
         timestamp: Date(timeIntervalSince1970: 1_700_000_000),
       ),
       ci: ci,
@@ -197,6 +203,28 @@ struct TestsOTELReporterTests {
       #expect(attributes["cicd.pipeline.task.name"] == "Test")
       #expect(attributes["cicd.pipeline.run.id"] == nil)
     }
+  }
+
+  @Test("payload breaksCountsAndDurationsDownPerTestCase")
+  func test_payload_breaksCountsAndDurationsDownPerTestCase() throws {
+    // GIVEN — a reporter with the per-test breakdown enabled
+    let sut = try makeSUT(isPerTestEnabled: true)
+
+    // WHEN — the payload is built
+    let payload = try payload(from: sut)
+
+    // THEN — each test case has its own count per status and its own duration sample
+    let counts = try payload.gaugeDataPoints("cicd.test.case.count")
+      .filter { OTLPPayload.attributes(of: $0)["test.case.name"] == "records" }
+    #expect(counts.count == 3)
+    #expect(
+      counts.first { OTLPPayload.attributes(of: $0)["test.case.result.status"] == "fail" }?["asInt"] as? String == "1"
+    )
+    let durations = try payload.histogramDataPoints("cicd.test.case.duration")
+    #expect(durations.count == 4)
+    let records = try #require(durations.first { OTLPPayload.attributes(of: $0)["test.case.name"] == "records" })
+    #expect(OTLPPayload.attributes(of: records)["test.suite.name"] == "RecordingTests")
+    #expect(records["sum"] as? Double == 300)
   }
 
   @Test("payload timestampsEveryDataPointWithTheConfiguredInstant")

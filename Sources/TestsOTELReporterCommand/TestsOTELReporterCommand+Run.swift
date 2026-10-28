@@ -36,6 +36,7 @@ extension TestsOTELReporterCommand {
         endpoint: try options.resolvedEndpoint(environment: environment),
         headers: try options.resolvedHeaders(environment: environment),
         isPerSuiteEnabled: options.perSuite,
+        isPerTestEnabled: options.perTest,
         timestamp: options.resolvedTimestamp(environment: environment),
         isDryRun: options.dryRun,
       )

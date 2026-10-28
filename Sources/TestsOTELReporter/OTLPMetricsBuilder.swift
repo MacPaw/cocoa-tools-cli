@@ -13,6 +13,8 @@ struct OTLPMetricsBuilder {
 
   /// Whether metrics carry a `test.suite.name` breakdown.
   let isPerSuiteEnabled: Bool
+  /// Whether metrics carry a `test.case.name` breakdown.
+  let isPerTestEnabled: Bool
   /// Timestamp recorded on every data point.
   let timestamp: Date
 
@@ -210,27 +212,48 @@ struct OTLPMetricsBuilder {
 
   /// Splits a test run into the groups that become data points.
   ///
-  /// With the per-suite breakdown enabled there is one group per suite; otherwise the whole run
-  /// forms a single unattributed group.
+  /// With the per-test breakdown enabled there is one group per test case name within its suite
+  /// (a name repeated by parameterized cases forms one group). With only the per-suite breakdown
+  /// there is one group per suite; otherwise the whole run forms a single unattributed group.
   ///
   /// - Parameter testRun: The completed test run.
   /// - Returns: The groups to emit data points for.
   private func groups(for testRun: TestRun) -> [Group] {
+    if isPerTestEnabled {
+      return testRun.suites.flatMap { suite in
+        var names: [String] = []
+        for testCase in suite.testCases where !names.contains(testCase.name) { names.append(testCase.name) }
+
+        return names.map { name in
+          Group(
+            attributes: (isPerSuiteEnabled ? [suiteAttribute(suite.name)] : [])
+              + [
+                OTLPMetricsRequest.KeyValue(key: SemanticConventions.Attribute.testCaseName, stringValue: name)
+              ],
+            testCases: suite.testCases.filter { $0.name == name },
+          )
+        }
+      }
+    }
+
     guard isPerSuiteEnabled else {
       return [Group(attributes: [], testCases: testRun.testCases)]
     }
 
     return testRun.suites.map { suite in
       Group(
-        attributes: [
-          OTLPMetricsRequest.KeyValue(
-            key: SemanticConventions.Attribute.testSuiteName,
-            stringValue: suite.name,
-          )
-        ],
+        attributes: [suiteAttribute(suite.name)],
         testCases: suite.testCases,
       )
     }
+  }
+
+  /// Builds the suite name attribute.
+  ///
+  /// - Parameter name: The suite name.
+  /// - Returns: The `test.suite.name` attribute.
+  private func suiteAttribute(_ name: String) -> OTLPMetricsRequest.KeyValue {
+    OTLPMetricsRequest.KeyValue(key: SemanticConventions.Attribute.testSuiteName, stringValue: name)
   }
 
   // MARK: - Resource

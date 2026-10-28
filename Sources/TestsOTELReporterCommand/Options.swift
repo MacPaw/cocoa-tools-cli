@@ -57,6 +57,15 @@ struct Options: ParsableArguments {
   )
   var perSuite: Bool = true
 
+  @Flag(
+    inversion: .prefixedNo,
+    help: """
+      Break metrics down by test case with the `test.case.name` attribute. \
+      Every test case becomes its own series, so pass `--no-per-test` where that volume is not acceptable.
+      """,
+  )
+  var perTest: Bool = true
+
   @Option(name: .long, help: "Sample timestamp in milliseconds since the Unix epoch")
   var timestamp: Int?
 

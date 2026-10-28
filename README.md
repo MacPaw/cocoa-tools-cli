@@ -82,6 +82,7 @@ a missing endpoint is a validation error rather than silent data loss.
 **Key Features:**
 - Emits `cicd.test.case.count` (by result status), `cicd.test.case.duration`, and `cicd.test.run.duration`
 - Per-suite breakdown via `test.suite.name`, disabled with `--no-per-suite`
+- Per-test breakdown via `test.case.name` (one series per test case), disabled with `--no-per-test`
 - Resource attributes (`vcs.*`, `cicd.*`) derived from the detected CI
 - `--dry-run` prints the payload without sending it; `--no-fail-on-error` keeps a green build green
 

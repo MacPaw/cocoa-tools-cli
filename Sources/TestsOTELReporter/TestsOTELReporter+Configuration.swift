@@ -13,6 +13,10 @@ extension TestsOTELReporter {
     public var headers: [String: String]
     /// Whether metrics carry a `test.suite.name` breakdown.
     public var isPerSuiteEnabled: Bool
+    /// Whether metrics carry a `test.case.name` breakdown.
+    ///
+    /// Every test case becomes its own series, so disable it where that volume is not acceptable.
+    public var isPerTestEnabled: Bool
     /// Timestamp recorded on every data point.
     public var timestamp: Date
     /// Whether to build the payload without sending it.
@@ -24,18 +28,21 @@ extension TestsOTELReporter {
     ///   - endpoint: Base URL of the OTLP endpoint, without the signal path.
     ///   - headers: Headers sent with the export request.
     ///   - isPerSuiteEnabled: Whether metrics carry a `test.suite.name` breakdown.
+    ///   - isPerTestEnabled: Whether metrics carry a `test.case.name` breakdown.
     ///   - timestamp: Timestamp recorded on every data point.
     ///   - isDryRun: Whether to build the payload without sending it.
     public init(
       endpoint: URL,
       headers: [String: String] = [:],
       isPerSuiteEnabled: Bool = true,
+      isPerTestEnabled: Bool = true,
       timestamp: Date = Date(),
       isDryRun: Bool = false,
     ) {
       self.endpoint = endpoint
       self.headers = headers
       self.isPerSuiteEnabled = isPerSuiteEnabled
+      self.isPerTestEnabled = isPerTestEnabled
       self.timestamp = timestamp
       self.isDryRun = isDryRun
     }

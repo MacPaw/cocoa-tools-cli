@@ -22,6 +22,8 @@ enum SemanticConventions {
     static let testCaseResultStatus: String = "test.case.result.status"
     /// Name of the suite a test case belongs to — registered as `test.suite.name`.
     static let testSuiteName: String = "test.suite.name"
+    /// Name of an individual test case — registered as `test.case.name`.
+    static let testCaseName: String = "test.case.name"
     /// Name of the target coverage is reported for — a MacPaw extension.
     static let testLineCoverageTargetName: String = "test.coverage.target.name"
     /// Whether the counted lines were executed — a MacPaw extension.

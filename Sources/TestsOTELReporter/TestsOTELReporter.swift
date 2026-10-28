@@ -55,6 +55,7 @@ public struct TestsOTELReporter {
   public func payload(testRun: TestRun?, lineCoverage: LineCoverage?) throws -> Data {
     let request = OTLPMetricsBuilder(
       isPerSuiteEnabled: configuration.isPerSuiteEnabled,
+      isPerTestEnabled: configuration.isPerTestEnabled,
       timestamp: configuration.timestamp,
     )
     .build(
