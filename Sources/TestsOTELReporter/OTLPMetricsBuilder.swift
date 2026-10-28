@@ -32,16 +32,20 @@ struct OTLPMetricsBuilder {
     cicd: CI.CICD,
     ciProviderName: String?,
   ) -> OTLPMetricsRequest {
-    OTLPMetricsRequest(
+    let resource = resourceAttributes(repository: repository, cicd: cicd, ciProviderName: ciProviderName)
+    let labels = Self.dataPointLabels(from: resource)
+
+    return OTLPMetricsRequest(
       resourceMetrics: [
         OTLPMetricsRequest.ResourceMetrics(
           resource: OTLPMetricsRequest.Resource(
-            attributes: resourceAttributes(repository: repository, cicd: cicd, ciProviderName: ciProviderName)
+            attributes: resource
           ),
           scopeMetrics: [
             OTLPMetricsRequest.ScopeMetrics(
               scope: OTLPMetricsRequest.Scope(name: SemanticConventions.scopeName),
-              metrics: (testRun.map(metrics(for:)) ?? []) + (lineCoverage.map(lineCoverageMetrics(for:)) ?? []),
+              metrics: ((testRun.map(metrics(for:)) ?? []) + (lineCoverage.map(lineCoverageMetrics(for:)) ?? []))
+                .map { Self.adding(labels, to: $0) },
             )
           ],
         )
@@ -265,6 +269,55 @@ struct OTLPMetricsBuilder {
   }
 
   // MARK: - Helpers
+
+  /// Resource attributes that are also sent on every data point.
+  ///
+  /// Backends only turn resource attributes into metric labels when configured to, so without
+  /// these the dashboard filters have nothing to select on. Run-unique values (run id, number, URL)
+  /// are left on the resource, as labels they would create a series per run.
+  private static let labelledResourceAttributes: Set<String> = [
+    SemanticConventions.Resource.vcsRepositoryName,
+    SemanticConventions.Resource.cicdPipelineName,
+    SemanticConventions.Resource.cicdPipelineStageName,
+    SemanticConventions.Resource.cicdPipelineTaskName,
+  ]
+
+  /// Picks the resource attributes that are repeated on data points.
+  ///
+  /// - Parameter resource: The resource attributes of the export.
+  /// - Returns: The attributes to add to every data point.
+  private static func dataPointLabels(from resource: [OTLPMetricsRequest.KeyValue]) -> [OTLPMetricsRequest.KeyValue] {
+    resource.filter { labelledResourceAttributes.contains($0.key) }
+  }
+
+  /// Adds attributes to every data point of a metric.
+  ///
+  /// - Parameters:
+  ///   - labels: The attributes to add.
+  ///   - metric: The metric to extend.
+  /// - Returns: The metric with the attributes on each data point.
+  private static func adding(_ labels: [OTLPMetricsRequest.KeyValue], to metric: OTLPMetricsRequest.Metric)
+    -> OTLPMetricsRequest.Metric
+  {
+    var metric = metric
+    if var gauge = metric.gauge {
+      gauge.dataPoints = gauge.dataPoints.map { dataPoint in
+        var dataPoint = dataPoint
+        dataPoint.attributes += labels
+        return dataPoint
+      }
+      metric.gauge = gauge
+    }
+    if var histogram = metric.histogram {
+      histogram.dataPoints = histogram.dataPoints.map { dataPoint in
+        var dataPoint = dataPoint
+        dataPoint.attributes += labels
+        return dataPoint
+      }
+      metric.histogram = histogram
+    }
+    return metric
+  }
 
   /// Buckets a set of values into an OTLP histogram data point.
   ///

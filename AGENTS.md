@@ -53,7 +53,10 @@ OTLP spec.
 
 Emits three gauges/histograms, all with millisecond durations: `cicd.test.case.count`
 (attributed by `test.case.result.status`), `cicd.test.case.duration`, `cicd.test.run.duration`.
-Resource attributes come from `CI.current.repository` / `.cicd`.
+Resource attributes come from `CI.current.repository` / `.cicd`. The filterable ones (repository, pipeline,
+stage, job) are repeated as data-point attributes, since backends do not promote resource attributes to
+metric labels by default; run id / number / URL stay on the resource only (a label per run would explode series).
+`mpct` logs the CI context it attaches before each export.
 
 Line coverage is one more gauge, `cicd.test.coverage.line.count` (unit `{line}`): per target, a `covered` and an
 `uncovered` data point (`test.coverage.target.name`, `test.coverage.line.status`). Their sum is the executable

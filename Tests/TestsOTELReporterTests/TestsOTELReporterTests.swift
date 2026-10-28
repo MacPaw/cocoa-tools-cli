@@ -171,6 +171,34 @@ struct TestsOTELReporterTests {
     #expect(attributes["cicd.pipeline.run.url.full"] == "https://dev.azure.com/macpaw/mpct/_build/results?buildId=42")
   }
 
+  @Test("payload repeatsFilterableCIAttributesOnEveryDataPoint")
+  func test_payload_repeatsFilterableCIAttributesOnEveryDataPoint() throws {
+    // GIVEN — a CI reporting repository, pipeline, stage, job and run metadata
+    let ci = MockCI(
+      repository: CI.Repository(organizationName: "MacPaw", repositoryName: "mpct", provider: "github"),
+      cicd: CI.CICD(pipelineName: "CI", run: CI.CICD.Run(id: "42", taskName: "Test", stageName: "Build")),
+    )
+    let sut = try makeSUT(ci: ci)
+
+    // WHEN — the payload is built
+    let payload = try payload(from: sut)
+
+    // THEN — every data point of every metric carries the filterable attributes, but not the run id
+    let dataPoints =
+      try payload.gaugeDataPoints("cicd.test.case.count")
+      + payload.gaugeDataPoints("cicd.test.run.duration")
+      + payload.histogramDataPoints("cicd.test.case.duration")
+    #expect(!dataPoints.isEmpty)
+    for dataPoint in dataPoints {
+      let attributes = OTLPPayload.attributes(of: dataPoint)
+      #expect(attributes["vcs.repository.name"] == "mpct")
+      #expect(attributes["cicd.pipeline.name"] == "CI")
+      #expect(attributes["cicd.pipeline.stage.name"] == "Build")
+      #expect(attributes["cicd.pipeline.task.name"] == "Test")
+      #expect(attributes["cicd.pipeline.run.id"] == nil)
+    }
+  }
+
   @Test("payload timestampsEveryDataPointWithTheConfiguredInstant")
   func test_payload_timestampsEveryDataPointWithTheConfiguredInstant() throws {
     // GIVEN — a reporter configured with a fixed timestamp

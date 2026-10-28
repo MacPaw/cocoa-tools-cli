@@ -96,6 +96,7 @@ public struct TestsOTELReporter {
   /// - Throws: ``Error`` if the collector rejects the export, or a `URLSession` error.
   @discardableResult
   public func report(testRun: TestRun?, lineCoverage: LineCoverage?) async throws -> Data {
+    logCIContext()
     let payload = try payload(testRun: testRun, lineCoverage: lineCoverage)
 
     guard !configuration.isDryRun else {
@@ -119,6 +120,39 @@ public struct TestsOTELReporter {
     }
 
     return payload
+  }
+}
+
+extension TestsOTELReporter {
+  /// Logs the CI metadata that is attached to the export as resource attributes.
+  ///
+  /// Attributes the CI cannot report are omitted from the payload, so they are logged as a
+  /// warning: the matching dashboard variables stay empty.
+  private func logCIContext() {
+    let repository = ci.repository
+    let run = ci.cicd.run
+    let values: [(name: String, value: String?)] = [
+      (SemanticConventions.Resource.cicdProviderName, ci.type.name),
+      (SemanticConventions.Resource.vcsProviderName, repository.provider),
+      (SemanticConventions.Resource.vcsOwnerName, repository.organizationName),
+      (SemanticConventions.Resource.vcsRepositoryName, repository.repositoryName),
+      (SemanticConventions.Resource.cicdPipelineName, ci.cicd.pipelineName),
+      (SemanticConventions.Resource.cicdPipelineStageName, run.stageName),
+      (SemanticConventions.Resource.cicdPipelineTaskName, run.taskName),
+      (SemanticConventions.Resource.cicdPipelineRunID, run.id),
+      (SemanticConventions.Resource.cicdPipelineRunNumber, run.number),
+      (SemanticConventions.Resource.cicdPipelineRunURL, run.url?.absoluteString),
+    ]
+
+    log.info("CI context attached to the export:")
+    for (name, value) in values {
+      if let value {
+        log.info("  \(name) = \(value)")
+      }
+      else {
+        log.warning("  \(name) is not reported by \(ci.type.name); omitted from the export")
+      }
+    }
   }
 }
 
