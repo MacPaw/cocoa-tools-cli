@@ -125,8 +125,7 @@ extension OTLPMetricsRequest {
   enum AggregationTemporality: Int {
     /// Values cover only the reported interval.
     ///
-    /// A CI run is a one-shot process whose counts start at zero and end with the run, so its
-    /// measurements describe that run alone rather than a running total.
+    /// Not used for histograms: Prometheus-compatible backends such as Mimir reject delta histograms.
     case delta = 1
     /// Values accumulate since the start of a longer-lived process.
     case cumulative = 2

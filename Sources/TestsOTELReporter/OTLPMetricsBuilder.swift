@@ -96,6 +96,9 @@ struct OTLPMetricsBuilder {
 
   /// Builds the test case duration histogram.
   ///
+  /// Cumulative rather than delta: Prometheus-compatible backends (Mimir) reject delta histograms.
+  /// Each run is a one-shot process, so its cumulative total equals its own measurements.
+  ///
   /// - Parameter testRun: The completed test run.
   /// - Returns: The `cicd.test.case.duration` metric.
   private func caseDurationMetric(for testRun: TestRun) -> OTLPMetricsRequest.Metric {
@@ -115,7 +118,7 @@ struct OTLPMetricsBuilder {
       gauge: .none,
       histogram: OTLPMetricsRequest.Histogram(
         dataPoints: dataPoints,
-        aggregationTemporality: OTLPMetricsRequest.AggregationTemporality.delta.rawValue,
+        aggregationTemporality: OTLPMetricsRequest.AggregationTemporality.cumulative.rawValue,
       ),
     )
   }
