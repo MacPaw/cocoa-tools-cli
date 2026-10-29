@@ -11,6 +11,10 @@ enum OTLPResourceAttributes {
   /// Attributes the CI cannot report are omitted rather than sent empty, so that a backend can
   /// tell "not reported" from "reported as blank".
   ///
+  /// There is no `service.instance.id`: Mimir turns it into the `instance` label of every series,
+  /// so a per-run value would start new series on every run. Runs instead share a series per
+  /// pipeline, stage and job, one sample each.
+  ///
   /// - Parameters:
   ///   - serviceName: Value of `service.name`.
   ///   - repository: Repository metadata for the run.
@@ -25,7 +29,6 @@ enum OTLPResourceAttributes {
   ) -> [OTLPMetricsRequest.KeyValue] {
     let attributes: [(key: String, value: String?)] = [
       (SemanticConventions.Resource.serviceName, serviceName),
-      (SemanticConventions.Resource.serviceInstanceID, instanceID(serviceName: serviceName, run: cicd.run)),
       (SemanticConventions.Resource.vcsProviderName, repository.provider),
       (SemanticConventions.Resource.vcsOwnerName, repository.organizationName),
       (SemanticConventions.Resource.vcsRepositoryName, repository.repositoryName),
@@ -41,18 +44,5 @@ enum OTLPResourceAttributes {
     return attributes.compactMap { key, value in
       value.map { OTLPMetricsRequest.KeyValue(key: key, stringValue: $0) }
     }
-  }
-
-  /// Builds `service.instance.id`, which tells one CI run's telemetry apart from another's.
-  ///
-  /// The CI model carries no retry attempt, so a re-run of the same pipeline run shares an id.
-  ///
-  /// - Parameters:
-  ///   - serviceName: Value of `service.name`.
-  ///   - run: Pipeline run metadata.
-  /// - Returns: `<service>-<run number>`, falling back to the run id, or `nil` when the CI
-  ///   reports neither.
-  private static func instanceID(serviceName: String, run: CI.CICD.Run) -> String? {
-    (run.number ?? run.id).map { "\(serviceName)-\($0)" }
   }
 }

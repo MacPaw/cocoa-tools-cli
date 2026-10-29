@@ -292,8 +292,8 @@ struct TestsOTELReporterTests {
     #expect(dataPoints.allSatisfy { OTLPPayload.attributes(of: $0)["test.case.name"] == nil })
   }
 
-  @Test("payload carriesServiceNameAndInstanceID")
-  func test_payload_carriesServiceNameAndInstanceID() throws {
+  @Test("payload carriesServiceNameWithoutInstanceID")
+  func test_payload_carriesServiceNameWithoutInstanceID() throws {
     // GIVEN — a configured service name and a CI reporting run number 7
     let ci = MockCI(cicd: CI.CICD(run: CI.CICD.Run(id: "42", number: "7")))
     let sut = try makeSUT(serviceName: "my-service", ci: ci)
@@ -301,33 +301,8 @@ struct TestsOTELReporterTests {
     // WHEN — the resource attributes are read
     let attributes = try payload(from: sut).resourceAttributes
 
-    // THEN — the instance id names the service and the run
+    // THEN — no per-run instance id, which Mimir would turn into a per-run `instance` label
     #expect(attributes["service.name"] == "my-service")
-    #expect(attributes["service.instance.id"] == "my-service-7")
-  }
-
-  @Test("payload fallsBackToRunIDForInstanceID")
-  func test_payload_fallsBackToRunIDForInstanceID() throws {
-    // GIVEN — a CI reporting a run id but no run number
-    let sut = try makeSUT(ci: MockCI(cicd: CI.CICD(run: CI.CICD.Run(id: "42"))))
-
-    // WHEN — the resource attributes are read
-    let attributes = try payload(from: sut).resourceAttributes
-
-    // THEN — the run id stands in for the number
-    #expect(attributes["service.instance.id"] == "macpaw-test-42")
-  }
-
-  @Test("payload omitsInstanceIDWhenCIReportsNoRun")
-  func test_payload_omitsInstanceIDWhenCIReportsNoRun() throws {
-    // GIVEN — a CI reporting no run metadata
-    let sut = try makeSUT()
-
-    // WHEN — the resource attributes are read
-    let attributes = try payload(from: sut).resourceAttributes
-
-    // THEN — the service is named, but there is no instance to identify
-    #expect(attributes["service.name"] == "macpaw-test")
     #expect(attributes["service.instance.id"] == nil)
   }
 

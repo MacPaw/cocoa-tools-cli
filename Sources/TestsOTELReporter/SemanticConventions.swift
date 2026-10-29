@@ -61,8 +61,6 @@ enum SemanticConventions {
   enum Resource {
     /// Logical name of the service that produced the telemetry.
     static let serviceName: String = "service.name"
-    /// Identifier of one run of the service, unique per CI run.
-    static let serviceInstanceID: String = "service.instance.id"
     /// Version control provider hosting the repository.
     static let vcsProviderName: String = "vcs.provider.name"
     /// Organization, owner, or user the repository belongs to.

@@ -124,7 +124,7 @@ struct TestsOTELReporterLogsTests {
 
     // THEN — Loki and Mimir can be joined on identical resource attributes
     #expect(logs.resourceAttributes == metrics.resourceAttributes)
-    #expect(logs.resourceAttributes["service.instance.id"] == "macpaw-test-7")
+    #expect(logs.resourceAttributes["cicd.pipeline.run.number"] == "7")
   }
 
   @Test("logPayloads emitsNothingForARunWithoutTestCases")

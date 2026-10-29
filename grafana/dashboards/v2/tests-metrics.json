@@ -49,7 +49,7 @@
                       "kind": "DataQuery",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "avg(last_over_time(cicd_test_run_duration{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\"}[$__interval]))",
+                        "expr": "sum(sum_over_time(cicd_test_run_duration{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\"}[$__interval])) / sum(count_over_time(cicd_test_run_duration{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\"}[$__interval]))",
                         "instant": false,
                         "legendFormat": "Run duration",
                         "range": true
@@ -64,7 +64,7 @@
               "transformations": []
             }
           },
-          "description": "Total test run duration per run.",
+          "description": "Mean total test run duration of the runs in each interval.",
           "id": 10,
           "links": [],
           "title": "Run duration",
@@ -274,7 +274,7 @@
                       "kind": "DataQuery",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "histogram_quantile(0.5, sum by (le) (last_over_time(cicd_test_case_duration_bucket{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\"}[$__interval])))",
+                        "expr": "histogram_quantile(0.5, sum by (le) (sum_over_time(cicd_test_case_duration_bucket{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\"}[$__interval])))",
                         "instant": false,
                         "legendFormat": "p50",
                         "range": true
@@ -296,7 +296,7 @@
                       "kind": "DataQuery",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "histogram_quantile(0.95, sum by (le) (last_over_time(cicd_test_case_duration_bucket{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\"}[$__interval])))",
+                        "expr": "histogram_quantile(0.95, sum by (le) (sum_over_time(cicd_test_case_duration_bucket{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\"}[$__interval])))",
                         "instant": false,
                         "legendFormat": "p95",
                         "range": true
@@ -1866,7 +1866,7 @@
                       "kind": "DataQuery",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "avg(last_over_time(cicd_test_run_duration{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\"}[$__range]))",
+                        "expr": "sum(sum_over_time(cicd_test_run_duration{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\"}[$__range])) / sum(count_over_time(cicd_test_run_duration{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\"}[$__range]))",
                         "instant": true,
                         "legendFormat": "Average run duration",
                         "range": false
@@ -1957,7 +1957,7 @@
                       "kind": "DataQuery",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "histogram_quantile(0.95, sum by (le) (last_over_time(cicd_test_case_duration_bucket{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\"}[$__range])))",
+                        "expr": "histogram_quantile(0.95, sum by (le) (sum_over_time(cicd_test_case_duration_bucket{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\"}[$__range])))",
                         "instant": true,
                         "legendFormat": "p95 test case duration",
                         "range": false
@@ -1972,7 +1972,7 @@
               "transformations": []
             }
           },
-          "description": "95th percentile of individual test case durations, from the cumulative histogram buckets of each run.",
+          "description": "95th percentile of individual test case durations, over the histogram buckets of every run in the selected range.",
           "id": 7,
           "links": [],
           "title": "p95 test case duration",
