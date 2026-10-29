@@ -179,7 +179,7 @@ struct TestsOTELReporterTests {
 
   @Test("payload bucketsCaseDurationsInMilliseconds")
   func test_payload_bucketsCaseDurationsInMilliseconds() throws {
-    // GIVEN — a suite with cases of 2ms and 8ms against boundaries of 0, 5, 10, …
+    // GIVEN — a suite with cases of 2ms and 8ms against boundaries of 0, 0.1, 0.25, 0.5, 1, 2.5, 5, 10, …
     let sut = try makeSUT()
 
     // WHEN — the histogram point for that suite is read
@@ -188,12 +188,12 @@ struct TestsOTELReporterTests {
       dataPoints.first { OTLPPayload.attributes(of: $0)["test.suite.name"] == "GreeterTests" }
     )
 
-    // THEN — the values land in the 0–5 and 5–10 buckets, and the sum is in milliseconds
+    // THEN — the values land in the 1–2.5 and 5–10 buckets, and the sum is in milliseconds
     #expect(dataPoint["count"] as? String == "2")
     #expect(dataPoint["sum"] as? Double == 10)
     #expect(dataPoint["min"] as? Double == 2)
     #expect(dataPoint["max"] as? Double == 8)
-    #expect((dataPoint["bucketCounts"] as? [String])?.prefix(4) == ["0", "1", "1", "0"])
+    #expect((dataPoint["bucketCounts"] as? [String])?.prefix(8) == ["0", "0", "0", "0", "0", "1", "0", "1"])
   }
 
   @Test("payload omitsResourceAttributesTheCICannotReport")

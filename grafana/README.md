@@ -38,7 +38,7 @@ and Coverage target.
   *Pass rate* panels sum every sample in the selected range (`sum_over_time`), so the sum covers every run, and a run pushed twice
   counts twice. Pass rate is the share of passed among passed and failed, skipped tests are not counted.
 - *Average run duration* and *Run duration* are the mean over runs (`sum_over_time` / `count_over_time`), and the duration
-  percentiles sum the histogram buckets of every run. Line coverage is not additive across runs, so the coverage panels take the
+  percentiles sum the histogram buckets of every run. Buckets are 0.1, 0.25, 0.5, 1 and 2.5 ms below 5 ms, then 5 ms and up; runs pushed before the finer buckets were added have none of them, so a percentile over a range that mixes both is only accurate for tests slower than 5 ms. Line coverage is not additive across runs, so the coverage panels take the
   latest run per series (`last_over_time`); *Per-target line coverage* shows the highest of those per target (`max`).
 - Mimir rejects a sample older than the newest one in its series unless `out_of_order_time_window` is set. Concurrent runs of
   one job, or a back-dated `--timestamp` / `BUILD_FINISHTIME`, can push out of order, so set the window (an hour or more) on the

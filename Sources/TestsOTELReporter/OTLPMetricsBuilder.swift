@@ -6,9 +6,12 @@ struct OTLPMetricsBuilder {
   /// Upper bucket boundaries, in milliseconds, for the test case duration histogram.
   ///
   /// These are the OpenTelemetry default explicit boundaries, which are tuned for millisecond
-  /// latencies — hence the millisecond unit on the duration metrics.
+  /// latencies — hence the millisecond unit on the duration metrics — with finer buckets below
+  /// 5 ms added. Unit tests routinely finish in well under a millisecond, and with the default
+  /// `(0, 5]` as the first bucket `histogram_quantile` can only interpolate between 0 and 5 ms,
+  /// so every percentile of a fast suite comes out as the same number.
   static let durationBucketBoundaries: [Double] = [
-    0, 5, 10, 25, 50, 75, 100, 250, 500, 750, 1000, 2500, 5000, 7500, 10000,
+    0, 0.1, 0.25, 0.5, 1, 2.5, 5, 10, 25, 50, 75, 100, 250, 500, 750, 1000, 2500, 5000, 7500, 10000,
   ]
 
   /// Whether metrics carry a `test.suite.name` breakdown.
