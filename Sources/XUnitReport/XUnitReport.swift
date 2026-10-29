@@ -5,6 +5,13 @@ public struct XUnitReport: Sendable {
   /// The test suites contained in this report.
   public let testSuites: [TestSuite]
 
+  /// Initializes an xUnit report with the given test suites.
+  ///
+  /// - Parameter testSuites: The test suites contained in this report.
+  public init(testSuites: [TestSuite]) {
+    self.testSuites = testSuites
+  }
+
   /// Loads and parses an xUnit XML report at the given URL.
   ///
   /// - Parameter url: The file URL of the xUnit XML report.

@@ -1,9 +1,9 @@
 import Foundation
 import Testing
 import TestsOTELReporter
+import XUnitReport
 
 @testable import TestsOTELReporterCommand
-@testable import XUnitReport
 
 @Suite
 struct XUnitReportTestRunTests {

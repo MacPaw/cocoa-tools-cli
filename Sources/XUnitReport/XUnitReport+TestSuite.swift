@@ -15,5 +15,33 @@ extension XUnitReport {
     public let time: Double
     /// The test cases within this suite.
     public let testCases: [TestCase]
+
+    /// Initializes a test suite.
+    ///
+    /// - Parameters:
+    ///   - name: The name of the test suite.
+    ///   - tests: Total number of test cases.
+    ///   - failures: Number of test cases that failed.
+    ///   - errors: Number of test cases that errored.
+    ///   - skipped: Number of test cases that were skipped.
+    ///   - time: Total execution time in seconds.
+    ///   - testCases: The test cases within this suite.
+    public init(
+      name: String,
+      tests: Int = 0,
+      failures: Int = 0,
+      errors: Int = 0,
+      skipped: Int = 0,
+      time: Double = 0,
+      testCases: [TestCase] = [],
+    ) {
+      self.name = name
+      self.tests = tests
+      self.failures = failures
+      self.errors = errors
+      self.skipped = skipped
+      self.time = time
+      self.testCases = testCases
+    }
   }
 }
