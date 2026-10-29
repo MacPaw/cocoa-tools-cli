@@ -23,7 +23,7 @@ enum YamlMocks {
           # Test: Should not call FakeProvider provider
           op:
             item: "[TEST] mpct.import-secrets.shared-item"
-            labels: 
+            labels:
               - item1-secret
             labelsMap:
               item1-secret: ITEM1_SECRET
@@ -32,13 +32,13 @@ enum YamlMocks {
           # Test: Must get value from FakeProvider first and not call OnePassword
           fake-source:
             path: /test/mpct/item1/multiline
-            keys: 
+            keys:
               - item1-multiline
             keysMap:
               item1-multiline: ITEM1_MULTILINE
           op:
             item: '[TEST] mpct.import-secrets.shared-item'
-            labels: 
+            labels:
               - item1-multiline
             keysMap:
               item1-multiline: ITEM1_MULTILINE
@@ -47,25 +47,25 @@ enum YamlMocks {
           # Test: Must get value from OnePassword provider first and not call FakeProvider
           op:
             item: '[TEST] mpct.import-secrets.database-item'
-            labels: 
+            labels:
               - item2-secret
           fake-source:
             path: /test/mpct/item2/secret
-            keys: 
+            keys:
               - item2-secret
       - prefix: TEST_MPCT_SECRET4_FAKE_ONLY_
         sources:
           # Test: Should not call OnePassword provider
           fake-source:
             path: /test/mpct/item4/secret
-            keys: 
+            keys:
               - key
       - prefix: TEST_MPCT_SECRET5_OP_MISSING_FAKE_EXISTS_
         sources:
           # Test: Must get value from OnePassword provider first (but there is no such item)  and then call FakeProvider
           op:
             item: '[TEST] mpct.import-secrets.non-existent-item'
-            labels: 
+            labels:
               - item5-secret
           fake-source:
             path: /test/mpct/item5/secret
@@ -76,25 +76,25 @@ enum YamlMocks {
           # Test: Must get value from OnePassword provider first (but there is no such item)  and then call FakeProvider and fail
           op:
             item: '[TEST] mpct.import-secrets.non-existent-item'
-            labels: 
+            labels:
               - item6-secret
           fake-source:
             path: /test/mpct/item6/secret
-            keys: 
+            keys:
               - missing
       - prefix: TEST_MPCT_SECRET7_VAULT_KV_
         sources:
           vault:
             keyValue:
               path: path/secret7
-              keys: 
+              keys:
                 - key
       - prefix: TEST_MPCT_SECRET7_VAULT_AWS_
         sources:
           vault:
             aws:
               role: role1
-              keys: 
+              keys:
                 - key1
       - prefix: TEST_MPCT_SECRET8_VAULT_AWS_
         sources:

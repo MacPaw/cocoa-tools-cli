@@ -13,7 +13,7 @@
    ```bash
    make bootstrap
    ```
-   
+
    This installs necessary tools via `mise`:
    - **`op`** - 1Password CLI for secrets management
    - **`swift-confidential`** - CLI from [github.com/securevale/swift-confidential](https://github.com/securevale/swift-confidential)

@@ -28,9 +28,16 @@ mpct is a modular Swift CLI project targeting macOS 15+ that helps engineers wit
 ```
 mpct
 ├── envsubst              # Environment variable substitution
-└── secrets               # Secret management commands
-    ├── export            # Export secrets from providers
-    └── obfuscate         # Generate obfuscated Swift code
+├── secrets               # Secret management commands
+│   ├── export            # Export secrets from providers
+│   └── obfuscate         # Generate obfuscated Swift code
+└── tests                 # Test result tools
+    ├── coverage
+    │   └── parse         # Export xcresult coverage
+    ├── results
+    │   └── parse         # Fetch xcresult test results
+    └── report
+        └── otel          # Push test metrics to an OpenTelemetry collector
 ```
 
 ### [envsubst](docs/Commands/EnvSubstCommand.md)
@@ -59,6 +66,33 @@ mpct secrets export --config secrets.yaml --source op --destination mise
 - Multiple export formats (dotenv, mise, stdout)
 - YAML-based configuration
 - Environment variable substitution in configs
+
+### tests report otel
+Push metrics about a completed test run to an OpenTelemetry collector over OTLP/HTTP.
+
+```bash
+mpct tests report otel --xcresult Build/tests.xcresult --endpoint https://collector.example
+mpct tests report otel --xunit .build/tests.xml --dry-run
+```
+
+Accepts `--xcresult` (macOS only; reports tests and coverage), or `--xunit` and/or `--llvm-line-coverage` (cross-platform). At least one input is required; `--xcresult` cannot be combined with the others. The endpoint and headers fall back
+to `OTEL_EXPORTER_OTLP_ENDPOINT` and `OTEL_EXPORTER_OTLP_HEADERS`; there is no built-in default, so
+a missing endpoint is a validation error rather than silent data loss.
+
+**Key Features:**
+- Emits `cicd.test.case.count` (by result status), `cicd.test.case.duration`, `cicd.test.suite.duration`
+  (summed case durations per suite) and `cicd.test.run.duration`
+- Per-suite breakdown via `test.suite.name`, disabled with `--no-per-suite` (which also drops `cicd.test.suite.duration`)
+- `test.suite.run.status` (`success` / `failure` / `skipped`) on the suite and run duration metrics
+- Individual test cases are sent as OTLP **logs**, one record per case (name, suite, status, duration in
+  `test.case.*` attributes; the failure message in the body of failed cases), never as metric labels. Records go to
+  `--loki-otlp-endpoint` / `LOKI_OTLP_ENDPOINT` (a base URL such as `http://loki:3100/otlp`; `v1/logs` is appended) with
+  `--loki-otlp-header` / `LOKI_OTLP_HEADERS`, or else to the OTLP endpoint with the metrics headers. At most 500 records per request. Metrics are sent first; a failing logs export still fails the
+  command, so append `|| true` where that should not turn a build red
+- Resource attributes (`service.*`, `vcs.*`, `cicd.*`) derived from the detected CI. `service.name` comes from
+  `OTEL_SERVICE_NAME` (default `macpaw-test`); there is no `service.instance.id`, so runs share series. On GitHub Actions,
+  set `JOB_NAME` (for example `${{ github.job }}-${{ matrix.os }}`) in matrix jobs, since `GITHUB_JOB` is shared by every leg
+- `--dry-run` prints the payload without sending it; `--no-fail-on-error` keeps a green build green
 
 ### [secrets obfuscate](docs/Commands/ObfuscateSecretsCommand.md)
 Generate obfuscated Swift code for secrets.
@@ -107,6 +141,28 @@ Comprehensive semantic versioning implementation with compile-time macro support
 
 
 ### Supporting Libraries
+
+#### XUnitReport
+Cross-platform xUnit XML parser (macOS and Linux).
+
+- **Features**: Parses `<testsuites>` → `<testsuite>` → `<testcase>` → `<failure>` hierarchy; decomposes `classname` into `moduleName`/`suiteName`
+- **Use Cases**: Parsing xUnit output from `swift test --xunit-output`, CI test result processing
+- **Entry point**: `XUnitReport.load(from: URL) throws -> XUnitReport`
+
+#### LLVMCoverageParser
+Cross-platform LLVM coverage JSON parser (macOS and Linux).
+
+- **Features**: Parses `llvm.coverage.json.export` produced by `swift test --enable-code-coverage`; exposes per-file and aggregate coverage stats (lines, functions, branches)
+- **Fixture stripping**: The test fixture strips segments (line-by-line execution data), the top-level functions array (23k+ mangled Swift symbols), and summary fields not modelled by the parser: `instantiations`, `regions`, `mcdc`
+- **Use Cases**: Parsing LLVM JSON coverage reports, CI coverage result processing
+- **Entry point**: `LLVMCoverage.load(from: URL) throws -> LLVMCoverage`
+
+#### TestsOTELReporter
+OpenTelemetry metrics reporter for completed test runs.
+
+- **Features**: Normalizes `.xcresult`, xUnit and LLVM coverage reports into one model; builds the OTLP metrics payload (and per-test-case logs) as JSON and pushes it over HTTP; no OpenTelemetry SDK dependency
+- **Use Cases**: Feeding CI test outcomes into Grafana/Mimir alongside the Xcode CAS metrics
+- **Entry point**: `TestsOTELReporter(configuration:).report(testRun: TestRun?, lineCoverage: LineCoverage?) async throws -> Data`
 
 #### Shell
 Shell command execution utilities with mise integration.

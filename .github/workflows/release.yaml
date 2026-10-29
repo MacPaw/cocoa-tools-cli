@@ -43,7 +43,7 @@ jobs:
   gate:
     name: Gate
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(vars.CI_RUNS_ON || '{}').standard || 'ubuntu-latest' }}
     permissions:
       contents: read
       # Required to read the artifacts of the Build run that triggered this workflow.
@@ -81,7 +81,7 @@ jobs:
     needs:
       - gate
     if: ${{ needs.gate.outputs.should-proceed == 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(vars.CI_RUNS_ON || '{}').standard || 'ubuntu-latest' }}
     permissions:
       contents: write
       # Required by actions/attest-build-provenance to sign the attestation.

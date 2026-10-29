@@ -39,16 +39,16 @@ secrets:
   - name: apiKey
     value: "${API_KEY:?API key is required}"
     accessModifier: "${API_ACCESS_MODIFIER:-internal}"
-  
+
   - name: databaseURL
     value: "${DATABASE_URL:?Database URL is required}"
-  
+
   - name: trustedCertificates
     value:
       - "${CERT_1:?First certificate is required}"
       - "${CERT_2:?Second certificate is required}"
       - "${CERT_3:-}"  # Optional third certificate
-    
+
   - name: debugMode
     value: "${DEBUG_MODE:-false}"
     namespace: create Debug
@@ -121,10 +121,10 @@ defaultAccessModifier: "${ACCESS_MODIFIER:-internal}"
 secrets:
   - name: apiKey
     value: "${API_KEY:?API key is required}"
-  
-  - name: databaseURL  
+
+  - name: databaseURL
     value: "${DATABASE_URL:?Database URL is required}"
-    
+
   - name: environment
     value: "${ENVIRONMENT:-development}"
 ```
@@ -149,10 +149,10 @@ defaultAccessModifier: public
 secrets:
   - name: apiKey
     value: sk-1234567890abcdef
-  
+
   - name: databaseURL
     value: postgres://user:pass@localhost/db
-    
+
   - name: environment
     value: production
 ```
@@ -170,19 +170,19 @@ public enum Secrets {
 
     @ConfidentialKit.Obfuscated<Swift.String>(deobfuscateData)
     public static var apiKey: ConfidentialKit.Obfuscation.Secret = .init(
-        data: [/* obfuscated data */], 
+        data: [/* obfuscated data */],
         nonce: /* cryptographically secure random number */
     )
 
     @ConfidentialKit.Obfuscated<Swift.String>(deobfuscateData)
     public static var databaseURL: ConfidentialKit.Obfuscation.Secret = .init(
-        data: [/* obfuscated data */], 
+        data: [/* obfuscated data */],
         nonce: /* cryptographically secure random number */
     )
 
     @ConfidentialKit.Obfuscated<Swift.String>(deobfuscateData)
     public static var environment: ConfidentialKit.Obfuscation.Secret = .init(
-        data: [/* obfuscated data */], 
+        data: [/* obfuscated data */],
         nonce: /* cryptographically secure random number */
     )
 

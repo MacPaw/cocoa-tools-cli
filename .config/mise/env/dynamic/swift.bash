@@ -2,9 +2,18 @@
 # Swift package metadata from `swift package dump-package`.
 # Sourced by mise with tools = true so `swift` / `jq` are on PATH.
 
+# Re-entrancy guard: `swift` is a mise shim, so calling it from here makes mise
+# re-evaluate this env script, which calls `swift` again, forking forever (hangs git hooks).
+# The guard is unset again at the end so it never leaks into the resolved environment.
+if [[ -n ${MPCT_MISE_ENV_RESOLVING:-} ]]; then
+  return 0
+fi
+export MPCT_MISE_ENV_RESOLVING=1
+
 export SWIFT_VERSION
 
-REPOSITORY_ROOT_DIR="${REPOSITORY_ROOT_DIR:-"$(git rev-parse --show-toplevel 2> /dev/null || pwd)"}"
+# Derive the root from this file (.config/mise/env/dynamic), not cwd or git: hooks run from other dirs.
+REPOSITORY_ROOT_DIR="${REPOSITORY_ROOT_DIR:-"$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)"}"
 
 echo "Resolving Swift Version"
 if [[ -f "${REPOSITORY_ROOT_DIR}/.swift-version" ]]; then
@@ -32,6 +41,7 @@ if [[ $(echo "${SWIFT_VERSION}" | grep -o '\.' | wc -l) -eq 1 ]]; then
   SWIFT_VERSION="${SWIFT_VERSION}.0"
   echo "    SWIFT_VERSION=${SWIFT_VERSION}"
 fi
-SWIFT_VERSION="${SWIFT_VERSION:-"6.3.3"}"
+SWIFT_VERSION="${SWIFT_VERSION:-"6.4.0"}"
 echo "SWIFT_VERSION=${SWIFT_VERSION}"
 export SWIFT_VERSION
+unset MPCT_MISE_ENV_RESOLVING

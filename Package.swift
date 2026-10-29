@@ -179,6 +179,87 @@ enum Targets {
   static var hashicorpVaultReader: [PackageDescription.Target] {
     targetBundle(name: "HashiCorpVaultReader", dependencies: [.target(name: "SecretsInterface")], tests: true)
   }
+
+  static var xcResultParsing: [PackageDescription.Target] {
+    targetBundle(name: "XCResultParsing", dependencies: [.target(name: "Shell")], tests: false)
+      + [
+        .testTarget(
+          name: "XCResultParsingTests",
+          dependencies: [.target(name: "XCResultParsing"), .target(name: "SharedLogger")],
+          resources: [
+            .copy("fixtures/test-package.xcresult"),
+            .copy("fixtures/coverage-diff.json"),
+          ],
+        )
+      ]
+  }
+
+  static var xUnitReport: [PackageDescription.Target] {
+    targetBundle(name: "XUnitReport", tests: false)
+      + [
+        .testTarget(
+          name: "XUnitReportTests",
+          dependencies: [.target(name: "XUnitReport"), .target(name: "SharedLogger")],
+          resources: [
+            .copy("fixtures/test-package-xUnit-swift-testing.xml")
+          ],
+        )
+      ]
+  }
+
+  static var llvmCoverageParser: [PackageDescription.Target] {
+    targetBundle(name: "LLVMCoverageParser", tests: false)
+      + [
+        .testTarget(
+          name: "LLVMCoverageParserTests",
+          dependencies: [.target(name: "LLVMCoverageParser"), .target(name: "SharedLogger")],
+          resources: [
+            .copy("fixtures/lcov.json"),
+            .copy("fixtures/llvm-diff-before.json"),
+            .copy("fixtures/llvm-diff-after.json"),
+          ],
+        )
+      ]
+  }
+
+  static var testsCoverage: [PackageDescription.Target] {
+    targetBundle(
+      name: "TestsCoverageCommand",
+      dependencies: [
+        .target(name: "XCResultParsing", condition: .when(platforms: [.macOS])),
+        .product(name: "ArgumentParser", package: "swift-argument-parser"),
+      ],
+      tests: false,
+    )
+  }
+
+  static var testsResults: [PackageDescription.Target] {
+    targetBundle(
+      name: "TestsResultsCommand",
+      dependencies: [
+        .target(name: "XCResultParsing", condition: .when(platforms: [.macOS])),
+        .product(name: "ArgumentParser", package: "swift-argument-parser"),
+      ],
+      tests: false,
+    )
+  }
+
+  static var testsOTELReporter: [PackageDescription.Target] {
+    commandBundle(
+      name: "TestsOTELReporter",
+      dependencies: [.target(name: "CI")],
+      testsDependencies: [.target(name: "CI")],
+      commandDependencies: [
+        .target(name: "XCResultParsing", condition: .when(platforms: [.macOS])), .target(name: "XUnitReport"),
+        .target(name: "LLVMCoverageParser"),
+      ],
+      commandTests: true,
+      commandTestsDependencies: [
+        .target(name: "XCResultParsing", condition: .when(platforms: [.macOS])), .target(name: "XUnitReport"),
+        .target(name: "LLVMCoverageParser"),
+      ],
+    )
+  }
 }
 
 let package = Package(
@@ -194,6 +275,10 @@ let package = Package(
     .library(name: "ENV", targets: ["ENV"]), .library(name: "CI", targets: ["CI"]),
     .library(name: "SecretsInterfaceTesting", targets: ["SecretsInterfaceTesting"]),
     .library(name: "SecretsInterface", targets: ["SecretsInterface"]),
+    .library(name: "XCResultParsing", targets: ["XCResultParsing"]),
+    .library(name: "XUnitReport", targets: ["XUnitReport"]),
+    .library(name: "LLVMCoverageParser", targets: ["LLVMCoverageParser"]),
+    .library(name: "TestsOTELReporter", targets: ["TestsOTELReporter"]),
   ],
   dependencies: [
     .package(url: "https://github.com/apple/swift-argument-parser.git", .upToNextMajor(from: "1.6.1")),
@@ -201,6 +286,7 @@ let package = Package(
     .package(url: "https://github.com/swiftlang/swift-syntax.git", .upToNextMajor(from: "602.0.0")),
     .package(url: "https://github.com/apple/swift-log.git", .upToNextMajor(from: "1.6.4")),
     swiftConfidentialSource.packageDependency, yamsSource.packageDependency,
+    .package(url: "https://github.com/apple/swift-configuration.git", from: "1.2.0", traits: [.defaults, "YAML"]),
   ],
   targets: [
     .executableTarget(
@@ -209,6 +295,8 @@ let package = Package(
         .product(name: "ArgumentParser", package: "swift-argument-parser"), .target(name: "EnvSubstCommand"),
         .target(name: "ObfuscateSecretsCommand", condition: .when(platforms: [.macOS])),
         .target(name: "ExportSecretsCommand"), .target(name: "SemanticVersion"), .target(name: "SemanticVersionMacro"),
+        .target(name: "TestsCoverageCommand"), .target(name: "TestsResultsCommand"),
+        .target(name: "TestsOTELReporterCommand"),
       ],
       packageAccess: true,
       plugins: [.plugin(name: "SemanticVersionBuildToolPlugin")],
@@ -219,7 +307,9 @@ let package = Package(
 
   ] + Targets.shell + Targets.envSubst + Targets.exportSecrets + Targets.importSecrets + Targets.obfuscateSecrets
     + Targets.semanticVersion + Targets.env + Targets.ci + Targets.hashicorpVaultReader + Targets.sharedLogger
-    + Targets.secretsInterface,
+    + Targets.secretsInterface + Targets.xcResultParsing + Targets.xUnitReport + Targets.llvmCoverageParser
+    + Targets.testsCoverage
+    + Targets.testsResults + Targets.testsOTELReporter,
 
   swiftLanguageModes: [.version(swiftLanguageVersion)],
 )

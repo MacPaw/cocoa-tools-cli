@@ -2,7 +2,7 @@ import ENV
 import Foundation
 
 extension CI {
-  /// Azure Pipelines CI.
+  /// GitHub Actions CI.
   struct GitHubActions {
     let type: CIType = CIType.gitHubActions
 
@@ -26,7 +26,7 @@ extension CI.GitHubActions: CIInterface {
 }
 
 extension CIType {
-  /// Azure Pipelines CI type.
+  /// GitHub Actions CI type.
   public static let gitHubActions: CIType = CIType(name: "GitHub Actions")
 }
 
@@ -72,5 +72,51 @@ extension CI.GitHubActions.Environment {
 
   func setVariable(name: String, value: String, isOutput: Bool) throws {
     try _appendValueToFile(name: name, value: value, isOutput: isOutput)
+  }
+}
+
+extension CI.GitHubActions {
+  /// Source control repository metadata for the current run.
+  var repository: CI.Repository {
+    CI.Repository(
+      organizationName: _env.firstNonEmpty(of: "ORGANIZATION_NAME", "GITHUB_REPOSITORY_OWNER"),
+      repositoryName: _env.firstNonEmpty(of: "REPOSITORY_NAME")
+        ?? _env.firstNonEmpty(of: "GITHUB_REPOSITORY").map(CI.repositoryName(fromSlug:)),
+      provider: "github",
+    )
+  }
+
+  /// Pipeline metadata for the current run.
+  ///
+  /// `GITHUB_JOB` is the job id, which every leg of a matrix shares, so `JOB_NAME` overrides it —
+  /// set it to something like `${{ github.job }}-${{ matrix.os }}` to keep the legs' series apart.
+  var cicd: CI.CICD {
+    CI.CICD(
+      pipelineName: _env.firstNonEmpty(of: "GITHUB_WORKFLOW"),
+      run: CI.CICD.Run(
+        id: _env.firstNonEmpty(of: "GITHUB_RUN_ID"),
+        number: _env.firstNonEmpty(of: "GITHUB_RUN_NUMBER"),
+        taskName: _env.firstNonEmpty(of: "JOB_NAME", "GITHUB_JOB"),
+        stageName: .none,
+        url: runURL,
+      ),
+    )
+  }
+
+  /// Web URL of the current workflow run, assembled from the server, repository slug, and run identifier.
+  private var runURL: URL? {
+    guard
+      let serverURL = _env.firstNonEmpty(of: "GITHUB_SERVER_URL"),
+      let slug = _env.firstNonEmpty(of: "GITHUB_REPOSITORY"),
+      let runID = _env.firstNonEmpty(of: "GITHUB_RUN_ID"),
+      let base = URL(string: serverURL)
+    else { return .none }
+
+    return
+      base
+      .appendingPathComponent(slug)
+      .appendingPathComponent("actions")
+      .appendingPathComponent("runs")
+      .appendingPathComponent(runID)
   }
 }

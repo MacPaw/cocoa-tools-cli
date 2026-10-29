@@ -54,7 +54,7 @@ let result = try EnvSubst.substitute(template)
 // With custom environment
 let customEnv = ["NAME": "Alice", "GREETING": "Hi"]
 let greeting = try EnvSubst.substitute(
-    "Hello $NAME", 
+    "Hello $NAME",
     environment: customEnv
 )
 // Result: "Hello Alice"

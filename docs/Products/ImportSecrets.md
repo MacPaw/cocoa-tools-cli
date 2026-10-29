@@ -24,12 +24,12 @@ version: <Int>
 # Source configurations with default parameters.
 sourceConfigurations:
   # Keys are the secret source provider keys: `op` or `vault`.
-  op: 
+  op:
   vault:
 
 # An array of secrets.
 secrets:
-   
+
   - # Prefix is optional string for the fetched secret.
     prefix: <String>
     # An object that contains source configuration for secret providers.
@@ -43,7 +43,7 @@ secrets:
     sources:
       # Keys are the secret source provider keys: `op` or `vault`.
       # For the configuration, please see the corresponding docs below.
-      op: 
+      op:
       vault:
 
   - ...
@@ -67,11 +67,11 @@ version: 1
 # Global provider configurations
 sourceConfigurations:
   # 1Password configuration
-  op:  
+  op:
     account: myacc        # Default account
     vault: "Development"  # Default vault
   # HashiCorp Vault configuration
-  vault: 
+  vault:
     # Vault address.
     vaultAddress: ${VAULT_ADDR:-"https://vault.example.com:8200"}
       # Vault API version. Default is v1.
@@ -103,12 +103,12 @@ secrets:
     sources:
       op:
         item: "Database Config"
-        labels: 
+        labels:
           - "connection-string"
           - "admin-username"
         labelsMap:
           admin-username: USERNAME # Will result in DB_USERNAME because of prefix.
-  
+
   - prefix: AWS_STAGING_
     sources:
       vault:
@@ -120,7 +120,7 @@ secrets:
         item: staging keys
         labels:
           - my-key
-  
+
   - prefix: AWS_PROD_
     sources:
       vault:
@@ -132,7 +132,7 @@ secrets:
       account: "another_acc"  # Override default account
       vault: "Production"     # Override default vault
       item: "API Keys"
-      labels: 
+      labels:
         - production_key
 
 # Global secret names mapping.
@@ -173,7 +173,7 @@ secrets:
     sources:
       op:
         item: "${DB_ITEM_NAME}"
-        labels: 
+        labels:
           - "${DB_FIELD_NAME:-connection-string}"
 ```
 
@@ -246,33 +246,33 @@ sourceConfigurations:
   vault:
     # Required: Vault server address
     vaultAddress: "https://vault.example.com:8200"
-    
+
     # Optional: API version (defaults to "v1")
     apiVersion: "v1"
-    
+
     # Required: Authentication method
     authenticationMethod: "token"  # or "appRole"
-    
+
     # Required: Authentication credentials
     authenticationCredentials:
       # For token authentication
       token:
         # Required: An authorization token
-        vaultToken: "..." 
-      
+        vaultToken: "..."
+
       # For AppRole authentication (alternative to token)
       appRole:
         # Required: A role ID
         roleId: "role-id-here"
         # Required: A secret ID
         secretId: "secret-id-here"
-    
+
     # Optional: Default engine configurations
     engines:
       # KeyValue engine defaults
       keyValue:
         defaultSecretMountPath: "secret"  # Default mount path
-      
+
       # AWS engine defaults
       aws:
         defaultEnginePath: "aws"  # Default engine path
@@ -304,7 +304,7 @@ secrets:
           - "secret_key"
         keysMap:                          # Optional. Keys mapping
           access_key: ACCESS_KEY          #           Maps `access_key` to the `ACCESS_KEY`
-  
+
 ```
 
 #### Authentication Methods
@@ -332,7 +332,7 @@ sourceConfigurations:
         secretId: "${VAULT_APP_ROLE_SECRET_ID}"
 ```
 
-You can specify both `authenticationCredentials` at the same time and use `EnvSubst` for the `authenticationMethod`, 
+You can specify both `authenticationCredentials` at the same time and use `EnvSubst` for the `authenticationMethod`,
 
 #### Supported Engines
 
@@ -356,10 +356,10 @@ Create custom secret providers:
 // 1. Define your source type
 struct MySource: SecretSourceProtocol, Decodable {
     typealias Configuration = MyConfiguration
-    
+
     let identifier: String
     let field: String
-    
+
     mutating func validate(with configuration: MyConfiguration?) throws {
         // Validation logic
     }
@@ -369,7 +369,7 @@ struct MySource: SecretSourceProtocol, Decodable {
 struct MyConfiguration: SecretConfigurationProtocol, Decodable {
     static let configurationKey = "my_provider"
     let endpoint: String
-    
+
     mutating func validate() throws {
         // Validation logic
     }
@@ -378,9 +378,9 @@ struct MyConfiguration: SecretConfigurationProtocol, Decodable {
 // 3. Create fetcher
 struct MyFetcher: SecretFetcherProtocol {
     typealias Source = MySource
-    
+
     func fetch(
-        secrets: [String: MySource], 
+        secrets: [String: MySource],
         sourceConfiguration: MyConfiguration?
     ) async throws -> SecretsFetchResult {
         // Fetching logic
@@ -394,9 +394,9 @@ struct MyFetcher: SecretFetcherProtocol {
 struct MyProvider: SecretProviderProtocol {
     typealias Source = MySource
     typealias Fetcher = MyFetcher
-    
+
     let fetcher: MyFetcher
-    
+
     init(fetcher: MyFetcher = MyFetcher()) {
         self.fetcher = fetcher
     }

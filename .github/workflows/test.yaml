@@ -109,7 +109,7 @@ jobs:
       # Required so the swift-cache action can delete the existing main build cache
       # before saving a fresh one (cache keys are immutable).
       actions: write
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(vars.CI_RUNS_ON || '{}').standard || 'ubuntu-latest' }}
     container: ${{ needs.load-env.outputs.container-image-name }}:${{ needs.load-env.outputs.container-image-tag }}
 
     steps:
@@ -147,7 +147,7 @@ jobs:
     needs:
       - test
       - lint
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(vars.CI_RUNS_ON || '{}').standard || 'ubuntu-latest' }}
     # Runs on every non-cancelled path so this required check always reports a real conclusion.
     # A skipped check counts as passing in branch protection, so the action below fails the job
     # instead of an `if:` guard skipping it.

@@ -22,4 +22,26 @@ public protocol CIInterface: Sendable {
 
   /// Environment variables management.
   var env: any CIEnvInterface { get }
+
+  /// Source control repository metadata for the current run.
+  ///
+  /// Defaults to empty metadata for CIs that cannot report it.
+  var repository: CI.Repository { get }
+
+  /// Pipeline metadata for the current run.
+  ///
+  /// Defaults to empty metadata for CIs that cannot report it.
+  var cicd: CI.CICD { get }
+}
+
+extension CIInterface {
+  /// Source control repository metadata for the current run.
+  ///
+  /// - Returns: Empty metadata, unless the conforming CI overrides it.
+  public var repository: CI.Repository { CI.Repository() }
+
+  /// Pipeline metadata for the current run.
+  ///
+  /// - Returns: Empty metadata, unless the conforming CI overrides it.
+  public var cicd: CI.CICD { CI.CICD() }
 }

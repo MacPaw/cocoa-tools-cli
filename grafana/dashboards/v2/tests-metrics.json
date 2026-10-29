@@ -1,0 +1,2772 @@
+{
+  "apiVersion": "dashboard.grafana.app/v2",
+  "kind": "Dashboard",
+  "metadata": {
+    "name": "vms89wv"
+  },
+  "spec": {
+    "annotations": [
+      {
+        "kind": "AnnotationQuery",
+        "spec": {
+          "builtIn": true,
+          "enable": true,
+          "hide": true,
+          "iconColor": "rgba(0, 211, 255, 1)",
+          "name": "Annotations & Alerts",
+          "query": {
+            "datasource": {
+              "name": "-- Grafana --"
+            },
+            "group": "grafana",
+            "kind": "DataQuery",
+            "spec": {},
+            "version": "v0"
+          }
+        }
+      }
+    ],
+    "cursorSync": "Crosshair",
+    "description": "Test results, durations and line coverage pushed by `mpct tests report otel` from CI runs.",
+    "editable": true,
+    "elements": {
+      "panel-10": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "${datasource}"
+                      },
+                      "group": "prometheus",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum(sum_over_time(cicd_test_run_duration{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\"}[$__interval])) / sum(count_over_time(cicd_test_run_duration{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\"}[$__interval]))",
+                        "instant": false,
+                        "legendFormat": "Run duration",
+                        "range": true
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "Mean total test run duration of the runs in each interval.",
+          "id": 10,
+          "links": [],
+          "title": "Run duration",
+          "vizConfig": {
+            "group": "timeseries",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "drawStyle": "line",
+                    "fillOpacity": 10,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "insertNulls": false,
+                    "lineInterpolation": "linear",
+                    "lineWidth": 2,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "auto",
+                    "spanNulls": true,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  },
+                  "mappings": [],
+                  "min": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": -1000000000
+                      }
+                    ]
+                  },
+                  "unit": "ms"
+                },
+                "overrides": []
+              },
+              "options": {
+                "legend": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "tooltip": {
+                  "mode": "multi",
+                  "sort": "desc"
+                }
+              }
+            },
+            "version": "10.4.0"
+          }
+        }
+      },
+      "panel-11": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "${datasource}"
+                      },
+                      "group": "prometheus",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "(sum(sum_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\",test_case_result_status=\"pass\"}[$__interval])) or vector(0)) / (sum(sum_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\",test_case_result_status=~\"pass|fail\"}[$__interval])) > 0)",
+                        "instant": false,
+                        "legendFormat": "Pass rate",
+                        "range": true
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "Pass rate per interval: passed among passed and failed test cases, skipped ones are not counted.",
+          "id": 11,
+          "links": [],
+          "title": "Pass rate over time",
+          "vizConfig": {
+            "group": "timeseries",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "drawStyle": "line",
+                    "fillOpacity": 10,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "insertNulls": false,
+                    "lineInterpolation": "linear",
+                    "lineWidth": 2,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "auto",
+                    "spanNulls": true,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  },
+                  "mappings": [],
+                  "max": 1,
+                  "min": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": -1000000000
+                      }
+                    ]
+                  },
+                  "unit": "percentunit"
+                },
+                "overrides": []
+              },
+              "options": {
+                "legend": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "tooltip": {
+                  "mode": "multi",
+                  "sort": "desc"
+                }
+              }
+            },
+            "version": "10.4.0"
+          }
+        }
+      },
+      "panel-12": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "${datasource}"
+                      },
+                      "group": "prometheus",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "histogram_quantile(0.5, sum by (le) (sum_over_time(cicd_test_case_duration_bucket{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\"}[$__interval])))",
+                        "instant": false,
+                        "legendFormat": "p50",
+                        "range": true
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "${datasource}"
+                      },
+                      "group": "prometheus",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "histogram_quantile(0.95, sum by (le) (sum_over_time(cicd_test_case_duration_bucket{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\"}[$__interval])))",
+                        "instant": false,
+                        "legendFormat": "p95",
+                        "range": true
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "B"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "Percentiles of individual test case durations.",
+          "id": 12,
+          "links": [],
+          "title": "p50 / p95 test case duration",
+          "vizConfig": {
+            "group": "timeseries",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "drawStyle": "line",
+                    "fillOpacity": 10,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "insertNulls": false,
+                    "lineInterpolation": "linear",
+                    "lineWidth": 2,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "auto",
+                    "spanNulls": true,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  },
+                  "mappings": [],
+                  "min": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": -1000000000
+                      }
+                    ]
+                  },
+                  "unit": "ms"
+                },
+                "overrides": []
+              },
+              "options": {
+                "legend": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "tooltip": {
+                  "mode": "multi",
+                  "sort": "desc"
+                }
+              }
+            },
+            "version": "10.4.0"
+          }
+        }
+      },
+      "panel-13": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "${datasource}"
+                      },
+                      "group": "prometheus",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum(last_over_time(cicd_test_coverage_line_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_coverage_target_name=~\"$target\",test_coverage_line_status=\"covered\"}[$__interval])) / clamp_min(sum(last_over_time(cicd_test_coverage_line_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_coverage_target_name=~\"$target\",test_coverage_line_status=\"covered\"}[$__interval])) + sum(last_over_time(cicd_test_coverage_line_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_coverage_target_name=~\"$target\",test_coverage_line_status=\"uncovered\"}[$__interval])), 1)",
+                        "instant": false,
+                        "legendFormat": "Line coverage",
+                        "range": true
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "Covered share of executable lines per interval.",
+          "id": 13,
+          "links": [],
+          "title": "Line coverage over time",
+          "vizConfig": {
+            "group": "timeseries",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "drawStyle": "line",
+                    "fillOpacity": 10,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "insertNulls": false,
+                    "lineInterpolation": "linear",
+                    "lineWidth": 2,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "auto",
+                    "spanNulls": true,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  },
+                  "mappings": [],
+                  "max": 1,
+                  "min": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": -1000000000
+                      }
+                    ]
+                  },
+                  "unit": "percentunit"
+                },
+                "overrides": []
+              },
+              "options": {
+                "legend": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "tooltip": {
+                  "mode": "multi",
+                  "sort": "desc"
+                }
+              }
+            },
+            "version": "10.4.0"
+          }
+        }
+      },
+      "panel-15": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "${datasource}"
+                      },
+                      "group": "prometheus",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum by (test_suite_name) (sum_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\",test_case_result_status=\"fail\"}[$__range]))",
+                        "format": "table",
+                        "instant": true,
+                        "legendFormat": "Failed",
+                        "range": false
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "${datasource}"
+                      },
+                      "group": "prometheus",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum by (test_suite_name) (sum_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\"}[$__range]))",
+                        "format": "table",
+                        "instant": true,
+                        "legendFormat": "Total",
+                        "range": false
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "B"
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "${datasource}"
+                      },
+                      "group": "prometheus",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum by (test_suite_name) (sum_over_time(cicd_test_case_duration_sum{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\"}[$__range])) / clamp_min(sum by (test_suite_name) (sum_over_time(cicd_test_case_duration_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\"}[$__range])), 1)",
+                        "format": "table",
+                        "instant": true,
+                        "legendFormat": "Mean duration",
+                        "range": false
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "C"
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "${datasource}"
+                      },
+                      "group": "prometheus",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "(sum by (test_suite_name) (sum_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\",test_case_result_status=\"pass\"}[$__range])) or (sum by (test_suite_name) (sum_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\",test_case_result_status=~\"pass|fail\"}[$__range])) * 0)) / (sum by (test_suite_name) (sum_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\",test_case_result_status=~\"pass|fail\"}[$__range])) > 0)",
+                        "format": "table",
+                        "instant": true,
+                        "legendFormat": "Pass rate",
+                        "range": false
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "D"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": [
+                {
+                  "group": "merge",
+                  "kind": "merge",
+                  "spec": {
+                    "id": "merge",
+                    "options": {}
+                  }
+                },
+                {
+                  "group": "organize",
+                  "kind": "organize",
+                  "spec": {
+                    "id": "organize",
+                    "options": {
+                      "excludeByName": {
+                        "Time": true
+                      },
+                      "indexByName": {
+                        "Value #A": 1,
+                        "Value #B": 2,
+                        "Value #C": 4,
+                        "Value #D": 3,
+                        "test_suite_name": 0
+                      },
+                      "renameByName": {
+                        "Value #A": "Failed",
+                        "Value #B": "Total",
+                        "Value #C": "Mean duration",
+                        "Value #D": "Pass rate",
+                        "test_suite_name": "Suite"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "description": "Failed and total test cases, pass rate (skipped tests are not counted, N/A when nothing passed or failed) and mean case duration for each test suite, summed over every run in the selected range. Needs the per-suite breakdown enabled when reporting.",
+          "id": 15,
+          "links": [],
+          "title": "Per-suite results",
+          "vizConfig": {
+            "group": "table",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "custom": {
+                    "align": "auto",
+                    "cellOptions": {
+                      "type": "auto"
+                    },
+                    "inspect": false
+                  },
+                  "mappings": [],
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": -1000000000
+                      }
+                    ]
+                  }
+                },
+                "overrides": [
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Mean duration"
+                    },
+                    "properties": [
+                      {
+                        "id": "unit",
+                        "value": "ms"
+                      },
+                      {
+                        "id": "decimals",
+                        "value": 3
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Failed"
+                    },
+                    "properties": [
+                      {
+                        "id": "thresholds",
+                        "value": {
+                          "mode": "absolute",
+                          "steps": [
+                            {
+                              "color": "green",
+                              "value": -1000000000
+                            },
+                            {
+                              "color": "red",
+                              "value": 1
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "id": "custom.cellOptions",
+                        "value": {
+                          "type": "color-text"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Pass rate"
+                    },
+                    "properties": [
+                      {
+                        "id": "unit",
+                        "value": "percentunit"
+                      },
+                      {
+                        "id": "decimals",
+                        "value": 1
+                      },
+                      {
+                        "id": "min",
+                        "value": 0
+                      },
+                      {
+                        "id": "max",
+                        "value": 1
+                      },
+                      {
+                        "id": "thresholds",
+                        "value": {
+                          "mode": "absolute",
+                          "steps": [
+                            {
+                              "color": "red",
+                              "value": -1000000000
+                            },
+                            {
+                              "color": "orange",
+                              "value": 0.9
+                            },
+                            {
+                              "color": "green",
+                              "value": 0.99
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "id": "custom.cellOptions",
+                        "value": {
+                          "type": "color-background"
+                        }
+                      },
+                      {
+                        "id": "mappings",
+                        "value": [
+                          {
+                            "options": {
+                              "match": "null",
+                              "result": {
+                                "color": "#8e8e8e",
+                                "index": 0,
+                                "text": "N/A"
+                              }
+                            },
+                            "type": "special"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              "options": {
+                "cellHeight": "sm",
+                "footer": {
+                  "countRows": false,
+                  "fields": "",
+                  "reducer": [
+                    "sum"
+                  ],
+                  "show": false
+                },
+                "showHeader": true,
+                "sortBy": [
+                  {
+                    "desc": true,
+                    "displayName": "Failed"
+                  }
+                ]
+              }
+            },
+            "version": "10.4.0"
+          }
+        }
+      },
+      "panel-16": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "${datasource}"
+                      },
+                      "group": "prometheus",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "topk(10, sum by (test_suite_name) (sum_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\",test_case_result_status=\"fail\"}[$__range])))",
+                        "instant": true,
+                        "legendFormat": "{{test_suite_name}}",
+                        "range": false
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "Failed test cases per suite in the selected range, summed over every run.",
+          "id": 16,
+          "links": [],
+          "title": "Failed test cases by suite",
+          "vizConfig": {
+            "group": "bargauge",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "thresholds"
+                  },
+                  "mappings": [],
+                  "min": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": -1000000000
+                      },
+                      {
+                        "color": "red",
+                        "value": 1
+                      }
+                    ]
+                  },
+                  "unit": "short"
+                },
+                "overrides": []
+              },
+              "options": {
+                "displayMode": "gradient",
+                "minVizHeight": 16,
+                "minVizWidth": 8,
+                "namePlacement": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "showUnfilled": true,
+                "sizing": "auto",
+                "valueMode": "color"
+              }
+            },
+            "version": "10.4.0"
+          }
+        }
+      },
+      "panel-17": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "${datasource}"
+                      },
+                      "group": "prometheus",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "max by (test_coverage_target_name) (last_over_time(cicd_test_coverage_line_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_coverage_target_name=~\"$target\",test_coverage_line_status=\"covered\"}[$__range]))",
+                        "format": "table",
+                        "instant": true,
+                        "legendFormat": "Covered",
+                        "range": false
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "${datasource}"
+                      },
+                      "group": "prometheus",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "max by (test_coverage_target_name) (last_over_time(cicd_test_coverage_line_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_coverage_target_name=~\"$target\",test_coverage_line_status=\"uncovered\"}[$__range]))",
+                        "format": "table",
+                        "instant": true,
+                        "legendFormat": "Uncovered",
+                        "range": false
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "B"
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "${datasource}"
+                      },
+                      "group": "prometheus",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "max by (test_coverage_target_name) (last_over_time(cicd_test_coverage_line_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_coverage_target_name=~\"$target\",test_coverage_line_status=\"covered\"}[$__range])) / clamp_min(max by (test_coverage_target_name) (last_over_time(cicd_test_coverage_line_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_coverage_target_name=~\"$target\",test_coverage_line_status=\"covered\"}[$__range])) + max by (test_coverage_target_name) (last_over_time(cicd_test_coverage_line_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_coverage_target_name=~\"$target\",test_coverage_line_status=\"uncovered\"}[$__range])), 1)",
+                        "format": "table",
+                        "instant": true,
+                        "legendFormat": "Coverage",
+                        "range": false
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "C"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": [
+                {
+                  "group": "merge",
+                  "kind": "merge",
+                  "spec": {
+                    "id": "merge",
+                    "options": {}
+                  }
+                },
+                {
+                  "group": "organize",
+                  "kind": "organize",
+                  "spec": {
+                    "id": "organize",
+                    "options": {
+                      "excludeByName": {
+                        "Time": true
+                      },
+                      "indexByName": {},
+                      "renameByName": {
+                        "Value #A": "Covered",
+                        "Value #B": "Uncovered",
+                        "Value #C": "Coverage",
+                        "test_coverage_target_name": "Target"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "description": "Covered, uncovered and total executable lines for each coverage target, from the latest run. When several jobs report the same target, the highest value is shown, not their sum.",
+          "id": 17,
+          "links": [],
+          "title": "Per-target line coverage",
+          "vizConfig": {
+            "group": "table",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "custom": {
+                    "align": "auto",
+                    "cellOptions": {
+                      "type": "auto"
+                    },
+                    "inspect": false
+                  },
+                  "mappings": [],
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": -1000000000
+                      }
+                    ]
+                  }
+                },
+                "overrides": [
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Coverage"
+                    },
+                    "properties": [
+                      {
+                        "id": "unit",
+                        "value": "percentunit"
+                      },
+                      {
+                        "id": "decimals",
+                        "value": 1
+                      },
+                      {
+                        "id": "thresholds",
+                        "value": {
+                          "mode": "absolute",
+                          "steps": [
+                            {
+                              "color": "red",
+                              "value": -1000000000
+                            },
+                            {
+                              "color": "orange",
+                              "value": 0.6
+                            },
+                            {
+                              "color": "green",
+                              "value": 0.8
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "id": "custom.cellOptions",
+                        "value": {
+                          "type": "color-background"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              "options": {
+                "cellHeight": "sm",
+                "footer": {
+                  "countRows": false,
+                  "fields": "",
+                  "reducer": [
+                    "sum"
+                  ],
+                  "show": false
+                },
+                "showHeader": true,
+                "sortBy": [
+                  {
+                    "desc": false,
+                    "displayName": "Coverage"
+                  }
+                ]
+              }
+            },
+            "version": "10.4.0"
+          }
+        }
+      },
+      "panel-19": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "${loki}"
+                      },
+                      "group": "loki",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum by (test_suite_name, test_case_name) (count_over_time({service_name=\"macpaw-test\", vcs_repository_name=~\"$repo\"} | test_case_name!=\"\" | cicd_pipeline_name=~\"$pipeline\" | cicd_pipeline_stage_name=~\"$stage\" | cicd_pipeline_task_name=~\"$job\" | test_suite_name=~\"$suite\" | test_case_result_status=\"pass\" [$__range]))",
+                        "legendFormat": "Passed",
+                        "queryType": "instant"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "${loki}"
+                      },
+                      "group": "loki",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum by (test_suite_name, test_case_name) (sum_over_time({service_name=\"macpaw-test\", vcs_repository_name=~\"$repo\"} | test_case_name!=\"\" | cicd_pipeline_name=~\"$pipeline\" | cicd_pipeline_stage_name=~\"$stage\" | cicd_pipeline_task_name=~\"$job\" | test_suite_name=~\"$suite\" | label_format is_fail=`{{ if eq .test_case_result_status \"fail\" }}1{{ else }}0{{ end }}` | unwrap is_fail | __error__=\"\" [$__range]))",
+                        "legendFormat": "Failed",
+                        "queryType": "instant"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "B"
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "${loki}"
+                      },
+                      "group": "loki",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "avg by (test_suite_name, test_case_name) (avg_over_time({service_name=\"macpaw-test\", vcs_repository_name=~\"$repo\"} | test_case_name!=\"\" | cicd_pipeline_name=~\"$pipeline\" | cicd_pipeline_stage_name=~\"$stage\" | cicd_pipeline_task_name=~\"$job\" | test_suite_name=~\"$suite\" | test_case_result_status=~\"pass|fail\" | label_format is_pass=`{{ if eq .test_case_result_status \"pass\" }}1{{ else }}0{{ end }}` | unwrap is_pass | __error__=\"\" [$__range]))",
+                        "legendFormat": "Pass rate",
+                        "queryType": "instant"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "C"
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "${loki}"
+                      },
+                      "group": "loki",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "avg by (test_suite_name, test_case_name) (avg_over_time({service_name=\"macpaw-test\", vcs_repository_name=~\"$repo\"} | test_case_name!=\"\" | cicd_pipeline_name=~\"$pipeline\" | cicd_pipeline_stage_name=~\"$stage\" | cicd_pipeline_task_name=~\"$job\" | test_suite_name=~\"$suite\" | unwrap test_case_duration | __error__=\"\" [$__range]))",
+                        "legendFormat": "Execution time",
+                        "queryType": "instant"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "D"
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "${loki}"
+                      },
+                      "group": "loki",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum by (test_suite_name, test_case_name) (count_over_time({service_name=\"macpaw-test\", vcs_repository_name=~\"$repo\"} | test_case_name!=\"\" | cicd_pipeline_name=~\"$pipeline\" | cicd_pipeline_stage_name=~\"$stage\" | cicd_pipeline_task_name=~\"$job\" | test_suite_name=~\"$suite\" | test_case_result_status=\"skip\" [$__range]))",
+                        "legendFormat": "Skipped",
+                        "queryType": "instant"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "E"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": [
+                {
+                  "group": "labelsToFields",
+                  "kind": "labelsToFields",
+                  "spec": {
+                    "id": "labelsToFields",
+                    "options": {
+                      "mode": "columns"
+                    }
+                  }
+                },
+                {
+                  "group": "merge",
+                  "kind": "merge",
+                  "spec": {
+                    "id": "merge",
+                    "options": {}
+                  }
+                },
+                {
+                  "group": "organize",
+                  "kind": "organize",
+                  "spec": {
+                    "id": "organize",
+                    "options": {
+                      "excludeByName": {
+                        "Time": true
+                      },
+                      "indexByName": {
+                        "Value #A": 2,
+                        "Value #B": 3,
+                        "Value #C": 5,
+                        "Value #D": 6,
+                        "Value #E": 4,
+                        "test_case_name": 1,
+                        "test_suite_name": 0
+                      },
+                      "renameByName": {
+                        "Value #A": "Passed",
+                        "Value #B": "Failed",
+                        "Value #C": "Pass rate",
+                        "Value #D": "Execution time",
+                        "Value #E": "Skipped",
+                        "test_case_name": "Test",
+                        "test_suite_name": "Suite"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "description": "Every test with its passed, failed (0 when none) and skipped counts over the selected range, pass rate (N/A when nothing passed or failed) and mean execution time per execution, sorted by pass rate descending. Read from the per-test-case logs in Loki, not from metrics.",
+          "id": 19,
+          "links": [],
+          "title": "Executed tests",
+          "vizConfig": {
+            "group": "table",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "custom": {
+                    "align": "auto",
+                    "cellOptions": {
+                      "type": "auto"
+                    },
+                    "inspect": false
+                  },
+                  "mappings": [],
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": -1000000000
+                      }
+                    ]
+                  }
+                },
+                "overrides": [
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Passed"
+                    },
+                    "properties": [
+                      {
+                        "id": "noValue",
+                        "value": "0"
+                      },
+                      {
+                        "id": "unit",
+                        "value": "short"
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Failed"
+                    },
+                    "properties": [
+                      {
+                        "id": "noValue",
+                        "value": "0"
+                      },
+                      {
+                        "id": "unit",
+                        "value": "short"
+                      },
+                      {
+                        "id": "thresholds",
+                        "value": {
+                          "mode": "absolute",
+                          "steps": [
+                            {
+                              "color": "green",
+                              "value": -1000000000
+                            },
+                            {
+                              "color": "red",
+                              "value": 1
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "id": "custom.cellOptions",
+                        "value": {
+                          "type": "color-text"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Skipped"
+                    },
+                    "properties": [
+                      {
+                        "id": "noValue",
+                        "value": "0"
+                      },
+                      {
+                        "id": "unit",
+                        "value": "short"
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Pass rate"
+                    },
+                    "properties": [
+                      {
+                        "id": "unit",
+                        "value": "percentunit"
+                      },
+                      {
+                        "id": "decimals",
+                        "value": 1
+                      },
+                      {
+                        "id": "min",
+                        "value": 0
+                      },
+                      {
+                        "id": "max",
+                        "value": 1
+                      },
+                      {
+                        "id": "thresholds",
+                        "value": {
+                          "mode": "absolute",
+                          "steps": [
+                            {
+                              "color": "red",
+                              "value": -1000000000
+                            },
+                            {
+                              "color": "orange",
+                              "value": 0.9
+                            },
+                            {
+                              "color": "green",
+                              "value": 0.99
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "id": "custom.cellOptions",
+                        "value": {
+                          "type": "color-background"
+                        }
+                      },
+                      {
+                        "id": "mappings",
+                        "value": [
+                          {
+                            "options": {
+                              "match": "null",
+                              "result": {
+                                "color": "#8e8e8e",
+                                "index": 0,
+                                "text": "N/A"
+                              }
+                            },
+                            "type": "special"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Execution time"
+                    },
+                    "properties": [
+                      {
+                        "id": "unit",
+                        "value": "ms"
+                      },
+                      {
+                        "id": "decimals",
+                        "value": 3
+                      }
+                    ]
+                  }
+                ]
+              },
+              "options": {
+                "cellHeight": "sm",
+                "footer": {
+                  "countRows": false,
+                  "fields": "",
+                  "reducer": [
+                    "sum"
+                  ],
+                  "show": false
+                },
+                "showHeader": true,
+                "sortBy": [
+                  {
+                    "desc": true,
+                    "displayName": "Pass rate"
+                  }
+                ]
+              }
+            },
+            "version": "10.4.0"
+          }
+        }
+      },
+      "panel-2": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "${datasource}"
+                      },
+                      "group": "prometheus",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "(sum(sum_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\",test_case_result_status=\"pass\"}[$__range])) or vector(0)) / (sum(sum_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\",test_case_result_status=~\"pass|fail\"}[$__range])) > 0)",
+                        "instant": true,
+                        "legendFormat": "Pass rate",
+                        "range": false
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "Share of passed among passed and failed test cases in the selected range, summed over every run (skipped ones are not counted).",
+          "id": 2,
+          "links": [],
+          "title": "Pass rate",
+          "vizConfig": {
+            "group": "stat",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "thresholds"
+                  },
+                  "decimals": 1,
+                  "mappings": [],
+                  "max": 1,
+                  "min": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "red",
+                        "value": -1000000000
+                      },
+                      {
+                        "color": "orange",
+                        "value": 0.9
+                      },
+                      {
+                        "color": "green",
+                        "value": 0.99
+                      }
+                    ]
+                  },
+                  "unit": "percentunit"
+                },
+                "overrides": []
+              },
+              "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "auto",
+                "wideLayout": true
+              }
+            },
+            "version": "10.4.0"
+          }
+        }
+      },
+      "panel-3": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "${datasource}"
+                      },
+                      "group": "prometheus",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum(sum_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\",test_case_result_status=\"fail\"}[$__interval]))",
+                        "instant": false,
+                        "legendFormat": "Failed",
+                        "range": true
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "${datasource}"
+                      },
+                      "group": "prometheus",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum(sum_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\",test_case_result_status=\"skip\"}[$__interval]))",
+                        "instant": false,
+                        "legendFormat": "Skipped",
+                        "range": true
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "B"
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "${datasource}"
+                      },
+                      "group": "prometheus",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum(sum_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\",test_case_result_status=\"pass\"}[$__interval]))",
+                        "instant": false,
+                        "legendFormat": "Passed",
+                        "range": true
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "C"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "Test cases executed per result status within each interval, summed over every run.",
+          "id": 3,
+          "links": [],
+          "title": "Test cases by result",
+          "vizConfig": {
+            "group": "timeseries",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "drawStyle": "line",
+                    "fillOpacity": 10,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "insertNulls": false,
+                    "lineInterpolation": "linear",
+                    "lineWidth": 2,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "auto",
+                    "spanNulls": true,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "normal"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  },
+                  "mappings": [],
+                  "min": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": -1000000000
+                      }
+                    ]
+                  },
+                  "unit": "short"
+                },
+                "overrides": [
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Failed"
+                    },
+                    "properties": [
+                      {
+                        "id": "color",
+                        "value": {
+                          "fixedColor": "red",
+                          "mode": "fixed"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Skipped"
+                    },
+                    "properties": [
+                      {
+                        "id": "color",
+                        "value": {
+                          "fixedColor": "#8e8e8e",
+                          "mode": "fixed"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Passed"
+                    },
+                    "properties": [
+                      {
+                        "id": "color",
+                        "value": {
+                          "fixedColor": "green",
+                          "mode": "fixed"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              "options": {
+                "legend": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "tooltip": {
+                  "mode": "multi",
+                  "sort": "desc"
+                }
+              }
+            },
+            "version": "10.4.0"
+          }
+        }
+      },
+      "panel-4": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "${datasource}"
+                      },
+                      "group": "prometheus",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum(sum_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\",test_case_result_status=\"fail\"}[$__range]))",
+                        "instant": true,
+                        "legendFormat": "Failed test cases",
+                        "range": false
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "Failed test cases in the selected range, summed over every run.",
+          "id": 4,
+          "links": [],
+          "title": "Failed test cases",
+          "vizConfig": {
+            "group": "stat",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "thresholds"
+                  },
+                  "mappings": [],
+                  "min": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": -1000000000
+                      },
+                      {
+                        "color": "red",
+                        "value": 1
+                      }
+                    ]
+                  },
+                  "unit": "short"
+                },
+                "overrides": []
+              },
+              "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "auto",
+                "wideLayout": true
+              }
+            },
+            "version": "10.4.0"
+          }
+        }
+      },
+      "panel-5": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "${datasource}"
+                      },
+                      "group": "prometheus",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum(sum_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\"}[$__range]))",
+                        "instant": true,
+                        "legendFormat": "Test cases",
+                        "range": false
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "Total test cases executed in the selected range, summed over every run.",
+          "id": 5,
+          "links": [],
+          "title": "Test cases",
+          "vizConfig": {
+            "group": "stat",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "thresholds"
+                  },
+                  "mappings": [],
+                  "min": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "blue",
+                        "value": -1000000000
+                      }
+                    ]
+                  },
+                  "unit": "short"
+                },
+                "overrides": []
+              },
+              "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "auto",
+                "wideLayout": true
+              }
+            },
+            "version": "10.4.0"
+          }
+        }
+      },
+      "panel-6": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "${datasource}"
+                      },
+                      "group": "prometheus",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum(sum_over_time(cicd_test_run_duration{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\"}[$__range])) / sum(count_over_time(cicd_test_run_duration{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\"}[$__range]))",
+                        "instant": true,
+                        "legendFormat": "Average run duration",
+                        "range": false
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "Mean total test run duration across runs in the selected range.",
+          "id": 6,
+          "links": [],
+          "title": "Average run duration",
+          "vizConfig": {
+            "group": "stat",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "thresholds"
+                  },
+                  "mappings": [],
+                  "min": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": -1000000000
+                      },
+                      {
+                        "color": "orange",
+                        "value": 600000
+                      },
+                      {
+                        "color": "red",
+                        "value": 1200000
+                      }
+                    ]
+                  },
+                  "unit": "ms"
+                },
+                "overrides": []
+              },
+              "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "auto",
+                "wideLayout": true
+              }
+            },
+            "version": "10.4.0"
+          }
+        }
+      },
+      "panel-7": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "${datasource}"
+                      },
+                      "group": "prometheus",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "histogram_quantile(0.95, sum by (le) (sum_over_time(cicd_test_case_duration_bucket{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\"}[$__range])))",
+                        "instant": true,
+                        "legendFormat": "p95 test case duration",
+                        "range": false
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "95th percentile of individual test case durations, over the histogram buckets of every run in the selected range.",
+          "id": 7,
+          "links": [],
+          "title": "p95 test case duration",
+          "vizConfig": {
+            "group": "stat",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "thresholds"
+                  },
+                  "mappings": [],
+                  "min": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": -1000000000
+                      },
+                      {
+                        "color": "orange",
+                        "value": 1000
+                      },
+                      {
+                        "color": "red",
+                        "value": 5000
+                      }
+                    ]
+                  },
+                  "unit": "ms"
+                },
+                "overrides": []
+              },
+              "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "auto",
+                "wideLayout": true
+              }
+            },
+            "version": "10.4.0"
+          }
+        }
+      },
+      "panel-8": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "${datasource}"
+                      },
+                      "group": "prometheus",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum(last_over_time(cicd_test_coverage_line_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_coverage_target_name=~\"$target\",test_coverage_line_status=\"covered\"}[$__range])) / clamp_min(sum(last_over_time(cicd_test_coverage_line_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_coverage_target_name=~\"$target\",test_coverage_line_status=\"covered\"}[$__range])) + sum(last_over_time(cicd_test_coverage_line_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_coverage_target_name=~\"$target\",test_coverage_line_status=\"uncovered\"}[$__range])), 1)",
+                        "instant": true,
+                        "legendFormat": "Line coverage",
+                        "range": false
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "Covered share of executable lines, over the selected coverage targets.",
+          "id": 8,
+          "links": [],
+          "title": "Line coverage",
+          "vizConfig": {
+            "group": "stat",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "thresholds"
+                  },
+                  "decimals": 1,
+                  "mappings": [],
+                  "max": 1,
+                  "min": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "red",
+                        "value": -1000000000
+                      },
+                      {
+                        "color": "orange",
+                        "value": 0.6
+                      },
+                      {
+                        "color": "green",
+                        "value": 0.8
+                      }
+                    ]
+                  },
+                  "unit": "percentunit"
+                },
+                "overrides": []
+              },
+              "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "auto",
+                "wideLayout": true
+              }
+            },
+            "version": "10.4.0"
+          }
+        }
+      }
+    },
+    "layout": {
+      "kind": "RowsLayout",
+      "spec": {
+        "rows": [
+          {
+            "kind": "RowsLayoutRow",
+            "spec": {
+              "collapse": false,
+              "layout": {
+                "kind": "GridLayout",
+                "spec": {
+                  "items": [
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-2"
+                        },
+                        "height": 5,
+                        "width": 6,
+                        "x": 0,
+                        "y": 0
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-3"
+                        },
+                        "height": 8,
+                        "width": 18,
+                        "x": 6,
+                        "y": 0
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-4"
+                        },
+                        "height": 5,
+                        "width": 6,
+                        "x": 0,
+                        "y": 5
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-5"
+                        },
+                        "height": 6,
+                        "width": 6,
+                        "x": 0,
+                        "y": 10
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-6"
+                        },
+                        "height": 8,
+                        "width": 6,
+                        "x": 6,
+                        "y": 8
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-7"
+                        },
+                        "height": 8,
+                        "width": 6,
+                        "x": 12,
+                        "y": 8
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-8"
+                        },
+                        "height": 8,
+                        "width": 6,
+                        "x": 18,
+                        "y": 8
+                      }
+                    }
+                  ]
+                }
+              },
+              "title": "Overview"
+            }
+          },
+          {
+            "kind": "RowsLayoutRow",
+            "spec": {
+              "collapse": false,
+              "layout": {
+                "kind": "GridLayout",
+                "spec": {
+                  "items": [
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-10"
+                        },
+                        "height": 8,
+                        "width": 12,
+                        "x": 0,
+                        "y": 0
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-11"
+                        },
+                        "height": 8,
+                        "width": 12,
+                        "x": 12,
+                        "y": 0
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-12"
+                        },
+                        "height": 8,
+                        "width": 12,
+                        "x": 0,
+                        "y": 8
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-13"
+                        },
+                        "height": 8,
+                        "width": 12,
+                        "x": 12,
+                        "y": 8
+                      }
+                    }
+                  ]
+                }
+              },
+              "title": "Trends"
+            }
+          },
+          {
+            "kind": "RowsLayoutRow",
+            "spec": {
+              "collapse": false,
+              "layout": {
+                "kind": "GridLayout",
+                "spec": {
+                  "items": [
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-15"
+                        },
+                        "height": 10,
+                        "width": 16,
+                        "x": 0,
+                        "y": 0
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-16"
+                        },
+                        "height": 10,
+                        "width": 8,
+                        "x": 16,
+                        "y": 0
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-17"
+                        },
+                        "height": 10,
+                        "width": 24,
+                        "x": 0,
+                        "y": 10
+                      }
+                    }
+                  ]
+                }
+              },
+              "title": "Per suite and target"
+            }
+          },
+          {
+            "kind": "RowsLayoutRow",
+            "spec": {
+              "collapse": false,
+              "layout": {
+                "kind": "GridLayout",
+                "spec": {
+                  "items": [
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-19"
+                        },
+                        "height": 14,
+                        "width": 24,
+                        "x": 0,
+                        "y": 0
+                      }
+                    }
+                  ]
+                }
+              },
+              "title": "Tests"
+            }
+          }
+        ]
+      }
+    },
+    "links": [],
+    "liveNow": false,
+    "preload": false,
+    "tags": [
+      "ci",
+      "tests",
+      "coverage",
+      "mpct"
+    ],
+    "timeSettings": {
+      "autoRefresh": "5m",
+      "autoRefreshIntervals": [
+        "5m",
+        "15m",
+        "30m",
+        "1h",
+        "6h",
+        "12h",
+        "1d"
+      ],
+      "fiscalYearStartMonth": 0,
+      "from": "now-30d",
+      "hideTimepicker": false,
+      "timezone": "browser",
+      "to": "now"
+    },
+    "title": "Cocoa Tests",
+    "variables": [
+      {
+        "kind": "DatasourceVariable",
+        "spec": {
+          "allowCustomValue": true,
+          "current": {
+            "text": "",
+            "value": ""
+          },
+          "hide": "dontHide",
+          "includeAll": false,
+          "label": "Datasource",
+          "multi": false,
+          "name": "datasource",
+          "options": [],
+          "pluginId": "prometheus",
+          "refresh": "onDashboardLoad",
+          "regex": "",
+          "skipUrlSync": false
+        }
+      },
+      {
+        "kind": "DatasourceVariable",
+        "spec": {
+          "allowCustomValue": true,
+          "current": {
+            "text": "",
+            "value": ""
+          },
+          "hide": "dontHide",
+          "includeAll": false,
+          "label": "Loki",
+          "multi": false,
+          "name": "loki",
+          "options": [],
+          "pluginId": "loki",
+          "refresh": "onDashboardLoad",
+          "regex": "",
+          "skipUrlSync": false
+        }
+      },
+      {
+        "kind": "QueryVariable",
+        "spec": {
+          "allValue": ".*",
+          "allowCustomValue": true,
+          "current": {
+            "text": [
+              "All"
+            ],
+            "value": [
+              "$__all"
+            ]
+          },
+          "definition": "label_values(cicd_test_case_count, vcs_repository_name)",
+          "hide": "dontHide",
+          "includeAll": true,
+          "label": "Repository",
+          "multi": true,
+          "name": "repo",
+          "options": [],
+          "query": {
+            "datasource": {
+              "name": "${datasource}"
+            },
+            "group": "prometheus",
+            "kind": "DataQuery",
+            "spec": {
+              "query": "label_values(cicd_test_case_count, vcs_repository_name)",
+              "refId": "PrometheusVariableQuery-repo"
+            },
+            "version": "v0"
+          },
+          "refresh": "onDashboardLoad",
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": "alphabeticalAsc"
+        }
+      },
+      {
+        "kind": "QueryVariable",
+        "spec": {
+          "allValue": ".*",
+          "allowCustomValue": true,
+          "current": {
+            "text": [
+              "All"
+            ],
+            "value": [
+              "$__all"
+            ]
+          },
+          "definition": "label_values(cicd_test_case_count{vcs_repository_name=~\"$repo\"}, cicd_pipeline_name)",
+          "hide": "dontHide",
+          "includeAll": true,
+          "label": "Pipeline",
+          "multi": true,
+          "name": "pipeline",
+          "options": [],
+          "query": {
+            "datasource": {
+              "name": "${datasource}"
+            },
+            "group": "prometheus",
+            "kind": "DataQuery",
+            "spec": {
+              "query": "label_values(cicd_test_case_count{vcs_repository_name=~\"$repo\"}, cicd_pipeline_name)",
+              "refId": "PrometheusVariableQuery-pipeline"
+            },
+            "version": "v0"
+          },
+          "refresh": "onDashboardLoad",
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": "alphabeticalAsc"
+        }
+      },
+      {
+        "kind": "QueryVariable",
+        "spec": {
+          "allValue": ".*",
+          "allowCustomValue": true,
+          "current": {
+            "text": [
+              "All"
+            ],
+            "value": [
+              "$__all"
+            ]
+          },
+          "definition": "label_values(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\"}, cicd_pipeline_stage_name)",
+          "hide": "dontHide",
+          "includeAll": true,
+          "label": "Stage",
+          "multi": true,
+          "name": "stage",
+          "options": [],
+          "query": {
+            "datasource": {
+              "name": "${datasource}"
+            },
+            "group": "prometheus",
+            "kind": "DataQuery",
+            "spec": {
+              "query": "label_values(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\"}, cicd_pipeline_stage_name)",
+              "refId": "PrometheusVariableQuery-stage"
+            },
+            "version": "v0"
+          },
+          "refresh": "onDashboardLoad",
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": "alphabeticalAsc"
+        }
+      },
+      {
+        "kind": "QueryVariable",
+        "spec": {
+          "allValue": ".*",
+          "allowCustomValue": true,
+          "current": {
+            "text": [
+              "All"
+            ],
+            "value": [
+              "$__all"
+            ]
+          },
+          "definition": "label_values(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\"}, cicd_pipeline_task_name)",
+          "hide": "dontHide",
+          "includeAll": true,
+          "label": "Job",
+          "multi": true,
+          "name": "job",
+          "options": [],
+          "query": {
+            "datasource": {
+              "name": "${datasource}"
+            },
+            "group": "prometheus",
+            "kind": "DataQuery",
+            "spec": {
+              "query": "label_values(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\"}, cicd_pipeline_task_name)",
+              "refId": "PrometheusVariableQuery-job"
+            },
+            "version": "v0"
+          },
+          "refresh": "onDashboardLoad",
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": "alphabeticalAsc"
+        }
+      },
+      {
+        "kind": "QueryVariable",
+        "spec": {
+          "allValue": ".*",
+          "allowCustomValue": true,
+          "current": {
+            "text": [
+              "All"
+            ],
+            "value": [
+              "$__all"
+            ]
+          },
+          "definition": "label_values(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\"}, test_suite_name)",
+          "hide": "dontHide",
+          "includeAll": true,
+          "label": "Test suite",
+          "multi": true,
+          "name": "suite",
+          "options": [],
+          "query": {
+            "datasource": {
+              "name": "${datasource}"
+            },
+            "group": "prometheus",
+            "kind": "DataQuery",
+            "spec": {
+              "query": "label_values(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\"}, test_suite_name)",
+              "refId": "PrometheusVariableQuery-suite"
+            },
+            "version": "v0"
+          },
+          "refresh": "onDashboardLoad",
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": "alphabeticalAsc"
+        }
+      },
+      {
+        "kind": "QueryVariable",
+        "spec": {
+          "allValue": ".*",
+          "allowCustomValue": true,
+          "current": {
+            "text": [
+              "All"
+            ],
+            "value": [
+              "$__all"
+            ]
+          },
+          "definition": "label_values(cicd_test_coverage_line_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\"}, test_coverage_target_name)",
+          "hide": "dontHide",
+          "includeAll": true,
+          "label": "Coverage target",
+          "multi": true,
+          "name": "target",
+          "options": [],
+          "query": {
+            "datasource": {
+              "name": "${datasource}"
+            },
+            "group": "prometheus",
+            "kind": "DataQuery",
+            "spec": {
+              "query": "label_values(cicd_test_coverage_line_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\"}, test_coverage_target_name)",
+              "refId": "PrometheusVariableQuery-target"
+            },
+            "version": "v0"
+          },
+          "refresh": "onDashboardLoad",
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": "alphabeticalAsc"
+        }
+      }
+    ]
+  }
+}

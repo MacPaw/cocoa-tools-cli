@@ -70,12 +70,19 @@ public enum Shell {
     if let environment { process.environment = environment }
 
     try process.run()
+    // Drain both pipes before waitUntilExit to prevent deadlock when the process writes more
+    // than the ~64 KB pipe buffer to either (e.g. xccov output, or a flood of warnings). stderr
+    // is read on another thread, since a blocking read of one pipe would stall the other.
+    let stderrBuffer = PipeBuffer()
+    let stderrDrained = DispatchGroup()
+    let stderrHandle: FileHandle = stderrPipe.fileHandleForReading
+    DispatchQueue.global().async(group: stderrDrained) { stderrBuffer.data = stderrHandle.readDataToEndOfFile() }
+    let stdoutData: Data = stdoutPipe.fileHandleForReading.readDataToEndOfFile()
+    stderrDrained.wait()
     process.waitUntilExit()
 
-    let stdoutData: Data = stdoutPipe.fileHandleForReading.readDataToEndOfFile()
-
     guard process.terminationStatus == 0 else {
-      let stderrData = stderrPipe.fileHandleForReading.readDataToEndOfFile()
+      let stderrData = stderrBuffer.data
       var stderr: String? = String(data: stderrData, encoding: .utf8)
       if trim { stderr = stderr?.trimmingCharacters(in: .whitespacesAndNewlines) }
       guard let stderr else { throw Error("Can't parse stderr output from the \(executableURL.filePath)") }
@@ -126,4 +133,12 @@ public enum Shell {
 
     return stdoutString
   }
+}
+
+/// Holds the output read from a pipe on another thread.
+///
+/// Written once by the reading thread and read only after it has finished, so access needs no lock.
+private final class PipeBuffer: @unchecked Sendable {
+  /// The bytes read from the pipe.
+  var data: Data = Data()
 }

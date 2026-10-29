@@ -12,3 +12,21 @@ extension ENV {
     }
   }
 }
+
+extension ENV {
+  /// Get the first non-empty value among the given keys.
+  ///
+  /// Keys are probed in order, and values that are present but empty are skipped, since CI
+  /// providers routinely export defined-but-empty variables for metadata they do not have.
+  ///
+  /// - Parameter keys: Keys to probe, in order of preference.
+  /// - Returns: The first non-empty value, or `nil` when no key holds one.
+  func firstNonEmpty(of keys: String...) -> String? {
+    for key in keys {
+      let value: String? = self[key]
+      guard let value, !value.isEmpty else { continue }
+      return value
+    }
+    return .none
+  }
+}
