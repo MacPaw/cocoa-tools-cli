@@ -108,6 +108,29 @@ struct XUnitReportTestRunTests {
     #expect(sut.testCases.map(\.failureMessage) == [nil, "boom"])
   }
 
+  @Test("init carriesTheFailureBody")
+  func test_init_carriesTheFailureBody() {
+    // GIVEN — one failure with only a body, one with a message and a stack trace
+    let report = report(testCases: [
+      testCase(
+        className: "Tests.Suite",
+        name: "bodyOnly",
+        failure: XUnitReport.TestSuite.TestCase.Failure(message: "", type: "", body: "XCTAssertEqual failed"),
+      ),
+      testCase(
+        className: "Tests.Suite",
+        name: "both",
+        failure: XUnitReport.TestSuite.TestCase.Failure(message: "boom", type: "", body: "at Foo.swift:12"),
+      ),
+    ])
+
+    // WHEN
+    let sut = TestRun(report: report)
+
+    // THEN
+    #expect(sut.testCases.map(\.failureMessage) == ["XCTAssertEqual failed", "boom\nat Foo.swift:12"])
+  }
+
   @Test("init prefersSkipOverFailureWhenBothAreReported")
   func test_init_prefersSkipOverFailureWhenBothAreReported() {
     // GIVEN — a case marked skipped that also carries failure details

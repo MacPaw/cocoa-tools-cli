@@ -42,7 +42,19 @@ extension TestRun.Suite.TestCase {
       name: testCase.name,
       status: status,
       duration: testCase.time,
-      failureMessage: testCase.failure?.message,
+      failureMessage: testCase.failure.flatMap(Self.failureMessage(of:)),
     )
+  }
+
+  /// Joins the message attribute and text body of a failure.
+  ///
+  /// Producers put the reason in either — or the summary in the attribute and the stack trace in
+  /// the body — so both are kept.
+  ///
+  /// - Parameter failure: The parsed failure.
+  /// - Returns: The non-empty parts, one per line, or `nil` when both are empty.
+  private static func failureMessage(of failure: XUnitReport.TestSuite.TestCase.Failure) -> String? {
+    let parts: [String] = [failure.message, failure.body ?? ""].filter { !$0.isEmpty }
+    return parts.isEmpty ? .none : parts.joined(separator: "\n")
   }
 }
