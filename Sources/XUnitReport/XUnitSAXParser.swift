@@ -23,7 +23,7 @@ final class XUnitSAXParser: NSObject, XMLParserDelegate, @unchecked Sendable {
   private var pendingFailure: XUnitReport.TestSuite.TestCase.Failure?
   private var testCaseIsSkipped = false
 
-  // Current <failure> state
+  // Current <failure> / <error> state
   private var failureMessage: String?
   private var failureType: String?
   private var characters = ""
@@ -69,7 +69,8 @@ final class XUnitSAXParser: NSObject, XMLParserDelegate, @unchecked Sendable {
       testCaseTime = Double(attributes["time"] ?? "") ?? 0
       pendingFailure = nil
       testCaseIsSkipped = false
-    case "failure":
+    // JUnit reports an unexpected throw or crash as <error>, which fails the case all the same.
+    case "failure", "error":
       failureMessage = attributes["message"]
       failureType = attributes["type"]
     case "skipped":
@@ -90,7 +91,7 @@ final class XUnitSAXParser: NSObject, XMLParserDelegate, @unchecked Sendable {
     qualifiedName _: String?,
   ) {
     switch elementName {
-    case "failure":
+    case "failure", "error":
       let body = characters.trimmingCharacters(in: .whitespacesAndNewlines)
       pendingFailure = XUnitReport.TestSuite.TestCase.Failure(
         message: failureMessage ?? "",

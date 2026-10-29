@@ -65,4 +65,22 @@ struct XUnitReportTests {
     #expect(messages.contains { $0.hasPrefix("Expectation failed:") })
     #expect(messages.contains { $0.hasPrefix("Caught error:") })
   }
+
+  @Test("parse treatsErrorElementAsFailure")
+  func test_parse_treatsErrorElementAsFailure() throws {
+    // GIVEN
+    let xml = """
+      <testsuites><testsuite name="S" tests="1" errors="1">
+      <testcase classname="S.C" name="t"><error message="boom" type="Crash">trace</error></testcase>
+      </testsuite></testsuites>
+      """
+    let sut = XUnitSAXParser()
+    // WHEN
+    let report = try sut.parse(data: Data(xml.utf8))
+    // THEN
+    let failure = try #require(report.testSuites.first?.testCases.first?.failure)
+    #expect(failure.message == "boom")
+    #expect(failure.type == "Crash")
+    #expect(failure.body == "trace")
+  }
 }
