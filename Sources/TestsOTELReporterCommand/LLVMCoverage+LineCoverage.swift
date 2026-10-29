@@ -58,15 +58,16 @@ extension LineCoverage {
 
     // The root nearest to the file wins, so a repository that itself sits under a `Tests` or
     // `Sources` directory does not shadow the package layout inside it.
-    guard
-      let rootIndex = directories.indices.last(where: { index in
-        ["Sources", "Tests"].contains(directories[index]) && directories.index(after: index) < directories.endIndex
-      })
-    else {
+    guard let rootIndex = directories.lastIndex(where: { ["Sources", "Tests"].contains($0) }) else {
       return fallbackTargetName
     }
+    // Checked before the target directory, so a file directly in `Tests/` (`LinuxMain.swift`) is
+    // dropped like the rest of the test code.
     guard includeTestTargets || directories[rootIndex] != "Tests" else { return .none }
 
-    return String(directories[directories.index(after: rootIndex)])
+    let targetIndex = directories.index(after: rootIndex)
+    guard targetIndex < directories.endIndex else { return fallbackTargetName }
+
+    return String(directories[targetIndex])
   }
 }

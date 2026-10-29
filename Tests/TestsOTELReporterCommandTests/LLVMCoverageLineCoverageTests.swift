@@ -92,6 +92,20 @@ struct LLVMCoverageLineCoverageTests {
 }
 
 extension LLVMCoverageLineCoverageTests {
+  @Test("init dropsFilesDirectlyInTests")
+  func test_init_dropsFilesDirectlyInTests() throws {
+    // GIVEN — a test helper with no test target directory above it
+    let llvmCoverage = try makeLLVMCoverage([
+      ("/repo/Sources/Core/A.swift", 1, 2), ("/repo/Tests/LinuxMain.swift", 3, 3),
+    ])
+
+    // WHEN
+    let sut = LineCoverage(llvmCoverage: llvmCoverage, includeTestTargets: false)
+
+    // THEN — it is test code, not `other`
+    #expect(sut.targets == [LineCoverage.Target(name: "Core", coveredLines: 1, executableLines: 2)])
+  }
+
   @Test("init usesPackageLayoutNearestTheFile")
   func test_init_usesPackageLayoutNearestTheFile() throws {
     // GIVEN — a package that itself lives under a `Tests` directory, like the repo's fixtures
