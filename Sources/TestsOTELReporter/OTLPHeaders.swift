@@ -8,6 +8,10 @@ public enum OTLPHeaders {
   /// empty key, are ignored rather than treated as an error, since a malformed header should not
   /// prevent otherwise-valid headers from being sent. Values may themselves contain `=`.
   ///
+  /// Values are percent-decoded, as the OTel spec defines the variable in W3C Baggage format —
+  /// `Authorization=Basic%20…` is sent as `Basic …`. A value that is not valid percent-encoding is
+  /// sent as written.
+  ///
   /// - Parameter rawValue: The raw environment variable value.
   /// - Returns: The parsed headers, keyed by header name.
   public static func parse(_ rawValue: String) -> [String: String] {
@@ -18,7 +22,8 @@ public enum OTLPHeaders {
         let key = entry[..<separatorIndex].trimmingCharacters(in: .whitespaces)
         guard !key.isEmpty else { return }
 
-        headers[key] = entry[entry.index(after: separatorIndex)...].trimmingCharacters(in: .whitespaces)
+        let value = entry[entry.index(after: separatorIndex)...].trimmingCharacters(in: .whitespaces)
+        headers[key] = value.removingPercentEncoding ?? value
       }
   }
 }

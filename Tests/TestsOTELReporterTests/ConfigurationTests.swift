@@ -122,6 +122,18 @@ struct OTLPHeadersTests {
     #expect(sut == ["api-key": "secret"])
   }
 
+  @Test("parse percentDecodesValues")
+  func test_parse_percentDecodesValues() {
+    // GIVEN — the W3C Baggage form Grafana Cloud documents
+    let rawValue = "authorization=Basic%20dXNlcjpwYXNz,x-bad=100%"
+
+    // WHEN
+    let sut = OTLPHeaders.parse(rawValue)
+
+    // THEN — invalid percent-encoding is kept as written
+    #expect(sut == ["authorization": "Basic dXNlcjpwYXNz", "x-bad": "100%"])
+  }
+
   @Test("parse returnsEmptyForEmptyValue")
   func test_parse_returnsEmptyForEmptyValue() {
     // GIVEN / WHEN — an unset variable reaches the parser as an empty string
