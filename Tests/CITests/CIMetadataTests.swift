@@ -83,6 +83,15 @@ struct GitHubActionsMetadataTests {
     #expect(cicd.run.url?.absoluteString == "https://github.com/MacPaw/mpct/actions/runs/42")
   }
 
+  @Test("cicd prefersJobNameOverJobID")
+  func test_cicd_prefersJobNameOverJobID() {
+    // GIVEN — a matrix leg, whose GITHUB_JOB every other leg shares
+    let sut = makeSUT(overrides: ["JOB_NAME": "test-macos"])
+
+    // WHEN / THEN
+    #expect(sut.cicd.run.taskName == "test-macos")
+  }
+
   @Test("cicd omitsRunURLWhenServerIsUnknown")
   func test_cicd_omitsRunURLWhenServerIsUnknown() {
     // GIVEN — a run without the server URL variable

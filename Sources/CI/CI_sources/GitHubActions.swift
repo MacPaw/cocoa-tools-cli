@@ -87,13 +87,16 @@ extension CI.GitHubActions {
   }
 
   /// Pipeline metadata for the current run.
+  ///
+  /// `GITHUB_JOB` is the job id, which every leg of a matrix shares, so `JOB_NAME` overrides it —
+  /// set it to something like `${{ github.job }}-${{ matrix.os }}` to keep the legs' series apart.
   var cicd: CI.CICD {
     CI.CICD(
       pipelineName: _env.firstNonEmpty(of: "GITHUB_WORKFLOW"),
       run: CI.CICD.Run(
         id: _env.firstNonEmpty(of: "GITHUB_RUN_ID"),
         number: _env.firstNonEmpty(of: "GITHUB_RUN_NUMBER"),
-        taskName: _env.firstNonEmpty(of: "GITHUB_JOB"),
+        taskName: _env.firstNonEmpty(of: "JOB_NAME", "GITHUB_JOB"),
         stageName: .none,
         url: runURL,
       ),
