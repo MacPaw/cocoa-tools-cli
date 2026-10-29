@@ -249,8 +249,9 @@ extension Options {
   /// - Parameter rawValue: The raw variable value.
   /// - Returns: The parsed date, or `nil` when the value is not ISO 8601.
   static func parseBuildFinishTime(_ rawValue: String) -> Date? {
+    let milliseconds = rawValue.replacing(/\.(\d{3})\d+/) { ".\($0.output.1)" }
     if let date = ISO8601DateFormatter.make(formatOptions: [.withInternetDateTime, .withFractionalSeconds])
-      .date(from: rawValue)
+      .date(from: milliseconds)
     {
       return date
     }

@@ -28,13 +28,10 @@ extension TestsOTELReporterCommand {
   /// export: a run containing failing tests still exits zero, since the command reports results
   /// rather than gating on them.
   ///
-  /// - Throws: An export error, unless `--no-fail-on-error` was passed.
+  /// - Throws: A parse or export error, unless `--no-fail-on-error` was passed.
   public func run() async throws {
     let environment: [String: String] = Self.environment
     let inputs: Options.Inputs = try options.resolvedInputs()
-    let testRun: TestRun? = try inputs.report.map(Self.testRun(for:))
-    let lineCoverage: LineCoverage? = try self.lineCoverage(for: inputs)
-
     let reporter = TestsOTELReporter(
       configuration: TestsOTELReporter.Configuration(
         endpoint: try options.resolvedEndpoint(environment: environment),
@@ -49,6 +46,8 @@ extension TestsOTELReporterCommand {
     )
 
     do {
+      let testRun: TestRun? = try inputs.report.map(Self.testRun(for:))
+      let lineCoverage: LineCoverage? = try self.lineCoverage(for: inputs)
       let payload: Data = try await reporter.report(testRun: testRun, lineCoverage: lineCoverage)
 
       if options.dryRun {
@@ -69,7 +68,7 @@ extension TestsOTELReporterCommand {
     }
     catch {
       guard options.failOnError else {
-        log.warning("Failed to export test metrics: \(error)")
+        log.warning("Failed to report test metrics: \(error)")
         return
       }
       throw error

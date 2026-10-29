@@ -16,6 +16,12 @@
   }
 
   extension TestRun {
+    /// Suite name for test cases that are not enclosed by any suite or bundle.
+    ///
+    /// A fixed name keeps such cases from each becoming their own suite, which would give every
+    /// test its own metric series.
+    fileprivate static let fallbackSuiteName: String = "Unknown"
+
     /// Creates a test run from parsed `.xcresult` test results.
     ///
     /// The result tree nests test cases under suites, bundles, and a test plan at varying depths,
@@ -30,7 +36,7 @@
       func visit(_ node: XCResultTestResults.TestNode, suiteName: String?) {
         switch node.nodeType {
         case NodeType.testCase:
-          let name = suiteName ?? node.name
+          let name = suiteName ?? Self.fallbackSuiteName
           if casesBySuite[name] == nil { suiteNames.append(name) }
           casesBySuite[name, default: []].append(Suite.TestCase(node: node))
 
@@ -46,10 +52,15 @@
 
       let suites: [Suite] = suiteNames.map { Suite(name: $0, testCases: casesBySuite[$0] ?? []) }
 
-      self.init(
-        suites: suites,
-        duration: suites.flatMap(\.testCases).reduce(0) { $0 + $1.duration },
-      )
+      // The root nodes carry the run's wall-clock duration; summing case durations would
+      // overstate it when tests run in parallel, so that is only the fallback.
+      let wallClock: [TimeInterval] = testResults.testNodes.compactMap(\.durationInSeconds)
+      let duration: TimeInterval =
+        wallClock.isEmpty
+        ? suites.flatMap(\.testCases).reduce(0) { $0 + $1.duration }
+        : wallClock.reduce(0, +)
+
+      self.init(suites: suites, duration: duration)
     }
   }
 

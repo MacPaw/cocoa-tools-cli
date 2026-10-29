@@ -98,10 +98,10 @@ final class XUnitSAXParser: NSObject, XMLParserDelegate, @unchecked Sendable {
         body: body.isEmpty ? nil : body,
       )
     case "testcase":
-      guard let className = testCaseClassName, let name = testCaseName else { return }
+      guard let name = testCaseName else { return }
       testCases.append(
         XUnitReport.TestSuite.TestCase(
-          className: className,
+          className: testCaseClassName ?? suiteName ?? "",
           name: name,
           time: testCaseTime,
           failure: pendingFailure,

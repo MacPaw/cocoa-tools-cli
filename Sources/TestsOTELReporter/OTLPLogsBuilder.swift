@@ -12,9 +12,19 @@ struct OTLPLogsBuilder {
   /// rejects — nginx defaults to 1 MB.
   static let maxRecordsPerRequest: Int = 500
 
+  /// Most characters of a failure message kept in a log record.
+  static let maxFailureMessageLength: Int = 2_000
+
+  /// Rough size budget of one request, in bytes, kept under a proxy's 1 MB body limit.
+  static let maxBytesPerRequest: Int = 512 * 1024
+
+  /// Bytes a record takes beyond its text: attribute keys, timestamps, and JSON punctuation.
+  private static let recordOverheadBytes: Int = 512
+
   /// Value of the `service.name` resource attribute.
   let serviceName: String
-  /// Timestamp recorded on every log record.
+  /// Timestamp recorded on the first log record; each later one is a nanosecond after the last,
+  /// so records with the same body and resource are not collapsed as duplicates.
   let timestamp: Date
 
   /// Builds the export requests for a test run.
@@ -40,26 +50,52 @@ struct OTLPLogsBuilder {
         ciProviderName: ciProviderName,
       )
     )
-    let records: [OTLPLogsRequest.LogRecord] = testRun.suites.flatMap { suite in
-      suite.testCases.map { logRecord(for: $0, suiteName: suite.name) }
-    }
+    let records: [OTLPLogsRequest.LogRecord] = testRun.suites
+      .flatMap { suite in suite.testCases.map { (suite: suite.name, testCase: $0) } }
+      .enumerated()
+      .map { index, entry in logRecord(for: entry.testCase, suiteName: entry.suite, offset: index) }
 
-    return stride(from: 0, to: records.count, by: Self.maxRecordsPerRequest)
-      .map { start in
-        OTLPLogsRequest(
-          resourceLogs: [
-            OTLPLogsRequest.ResourceLogs(
-              resource: resource,
-              scopeLogs: [
-                OTLPLogsRequest.ScopeLogs(
-                  scope: OTLPMetricsRequest.Scope(name: SemanticConventions.scopeName),
-                  logRecords: Array(records[start..<min(start + Self.maxRecordsPerRequest, records.count)]),
-                )
-              ],
-            )
-          ]
-        )
+    var batches: [[OTLPLogsRequest.LogRecord]] = []
+    var batch: [OTLPLogsRequest.LogRecord] = []
+    var batchBytes = 0
+    for record in records {
+      let bytes = Self.estimatedBytes(of: record)
+      if !batch.isEmpty, batch.count >= Self.maxRecordsPerRequest || batchBytes + bytes > Self.maxBytesPerRequest {
+        batches.append(batch)
+        batch = []
+        batchBytes = 0
       }
+      batch.append(record)
+      batchBytes += bytes
+    }
+    if !batch.isEmpty { batches.append(batch) }
+
+    return batches.map { logRecords in
+      OTLPLogsRequest(
+        resourceLogs: [
+          OTLPLogsRequest.ResourceLogs(
+            resource: resource,
+            scopeLogs: [
+              OTLPLogsRequest.ScopeLogs(
+                scope: OTLPMetricsRequest.Scope(name: SemanticConventions.scopeName),
+                logRecords: logRecords,
+              )
+            ],
+          )
+        ]
+      )
+    }
+  }
+
+  /// Estimates the serialized size of a log record.
+  ///
+  /// - Parameter record: The log record.
+  /// - Returns: The size of its text plus a fixed overhead, in bytes.
+  private static func estimatedBytes(of record: OTLPLogsRequest.LogRecord) -> Int {
+    let text =
+      (record.body.stringValue?.utf8.count ?? 0)
+      + record.attributes.reduce(0) { $0 + ($1.value.stringValue?.utf8.count ?? 0) }
+    return text + recordOverheadBytes
   }
 
   /// Builds the log record of a single test case.
@@ -67,8 +103,13 @@ struct OTLPLogsBuilder {
   /// - Parameters:
   ///   - testCase: The test case.
   ///   - suiteName: Name of the suite it belongs to.
+  ///   - offset: Position of the record in the run, added to the timestamp in nanoseconds.
   /// - Returns: The log record.
-  private func logRecord(for testCase: TestRun.Suite.TestCase, suiteName: String) -> OTLPLogsRequest.LogRecord {
+  private func logRecord(
+    for testCase: TestRun.Suite.TestCase,
+    suiteName: String,
+    offset: Int,
+  ) -> OTLPLogsRequest.LogRecord {
     let severity =
       switch testCase.status {
       case .pass: OTLPLogsRequest.Severity.info
@@ -77,7 +118,7 @@ struct OTLPLogsBuilder {
       }
 
     return OTLPLogsRequest.LogRecord(
-      timeUnixNano: OTLPMetricsBuilder.unixNano(timestamp),
+      timeUnixNano: OTLPMetricsBuilder.unixNano(timestamp, offsetNanoseconds: offset),
       severityNumber: severity.number,
       severityText: severity.text,
       body: OTLPMetricsRequest.AnyValue(stringValue: Self.body(for: testCase), doubleValue: .none),
@@ -104,6 +145,6 @@ struct OTLPLogsBuilder {
     guard testCase.status == .fail, let message = testCase.failureMessage, !message.isEmpty else {
       return testCase.name
     }
-    return "\(testCase.name): \(message)"
+    return "\(testCase.name): \(message.prefix(maxFailureMessageLength))"
   }
 }

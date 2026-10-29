@@ -9,7 +9,7 @@ extension LineCoverage {
   ///
   /// An LLVM export is per file and knows nothing about targets, so the target is the SwiftPM
   /// directory right after the `Sources/` nearest to the file. Files in dependency checkouts
-  /// (`.build`) are dropped, as are files under `Tests/` unless test targets are included, in
+  /// (`.build`, `checkouts`, `SourcePackages`) are dropped, as are files under `Tests/` unless test targets are included, in
   /// which case the directory right after `Tests/` names the target. Files that match neither
   /// layout are grouped under ``fallbackTargetName`` rather than dropped, so that no executable
   /// line goes unreported.
@@ -51,7 +51,10 @@ extension LineCoverage {
     // The last component is the file itself, so only the directories before it can name a target.
     let directories: ArraySlice<Substring> = components.dropLast()
 
-    guard !directories.contains(".build") else { return .none }
+    // `.build` and `checkouts` hold SwiftPM dependencies, `SourcePackages` Xcode's.
+    guard !directories.contains(where: { [".build", "checkouts", "SourcePackages"].contains($0) }) else {
+      return .none
+    }
 
     // The root nearest to the file wins, so a repository that itself sits under a `Tests` or
     // `Sources` directory does not shadow the package layout inside it.

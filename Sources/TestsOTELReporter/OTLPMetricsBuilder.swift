@@ -370,10 +370,12 @@ struct OTLPMetricsBuilder {
 
   /// Formats a date as nanoseconds since the Unix epoch.
   ///
-  /// - Parameter date: The date to format.
+  /// - Parameters:
+  ///   - date: The date to format.
+  ///   - offsetNanoseconds: Nanoseconds added to the date.
   /// - Returns: The nanosecond timestamp, as the string OTLP's JSON mapping requires for 64-bit
-  ///   integers.
-  static func unixNano(_ date: Date) -> String {
-    String(UInt64((date.timeIntervalSince1970 * 1_000_000_000).rounded()))
+  ///   integers. Dates before the epoch are clamped to zero, as the field is unsigned.
+  static func unixNano(_ date: Date, offsetNanoseconds: Int = 0) -> String {
+    String(UInt64(max(0, (date.timeIntervalSince1970 * 1_000_000_000).rounded())) + UInt64(max(0, offsetNanoseconds)))
   }
 }
