@@ -111,4 +111,33 @@ struct LLVMCoverageDiffTests {
     // THEN — StructE line coverage regressed
     #expect(structEDelta.summaryDelta.lines.percentDelta < 0)
   }
+
+  @Test("diff includesEveryDataEntry")
+  func test_diff_includesEveryDataEntry() throws {
+    // GIVEN — an after export covering two binaries, the second adding a file
+    let stat = { (covered: Int, count: Int) in "{\"count\":\(count),\"covered\":\(covered),\"percent\":0}" }
+    let summary = { (covered: Int, count: Int) in
+      "{\"lines\":\(stat(covered, count)),\"functions\":\(stat(0, 0)),\"branches\":\(stat(0, 0))}"
+    }
+    let entry = { (file: String, covered: Int, count: Int) in
+      "{\"files\":[{\"filename\":\"\(file)\",\"summary\":\(summary(covered, count))}],\"totals\":\(summary(covered, count))}"
+    }
+    let decode = { (entries: [String]) in
+      try JSONDecoder()
+        .decode(
+          LLVMCoverage.self,
+          from: Data("{\"version\":\"3.0.1\",\"data\":[\(entries.joined(separator: ","))]}".utf8),
+        )
+    }
+    let before = try decode([entry("/a.swift", 1, 2)])
+    let after = try decode([entry("/a.swift", 1, 2), entry("/b.swift", 3, 4)])
+
+    // WHEN
+    let sut = LLVMCoverageDiff.diff(before: before, after: after)
+
+    // THEN
+    #expect(sut.addedFiles.map(\.filename) == ["/b.swift"])
+    #expect(sut.totalsDelta.lines.countDelta == 4)
+    #expect(sut.totalsDelta.lines.coveredDelta == 3)
+  }
 }

@@ -25,8 +25,9 @@ public struct LLVMCoverageDiff: Codable, Sendable {
     after: LLVMCoverage,
     pathEquivalence: (before: String, after: String)? = nil,
   ) -> LLVMCoverageDiff {
-    let beforeFiles = before.data.first?.files ?? []
-    let afterFiles = after.data.first?.files ?? []
+    // An export holds one entry per binary; all of them count, as in the line coverage report.
+    let beforeFiles = before.data.flatMap(\.files)
+    let afterFiles = after.data.flatMap(\.files)
 
     let beforePrefix = pathEquivalence?.before ?? ""
     let afterPrefix = pathEquivalence?.after ?? ""
@@ -56,8 +57,8 @@ public struct LLVMCoverageDiff: Codable, Sendable {
       )
     }
 
-    let beforeTotals = before.data.first?.totals ?? .zero
-    let afterTotals = after.data.first?.totals ?? .zero
+    let beforeTotals = LLVMCoverage.Summary.total(of: before)
+    let afterTotals = LLVMCoverage.Summary.total(of: after)
 
     return LLVMCoverageDiff(
       addedFiles: addedFiles,
@@ -109,6 +110,42 @@ extension LLVMCoverage.Summary {
       lines: LLVMCoverage.Stat(count: 0, covered: 0, notCovered: nil, percent: 0),
       functions: LLVMCoverage.Stat(count: 0, covered: 0, notCovered: nil, percent: 0),
       branches: LLVMCoverage.Stat(count: 0, covered: 0, notCovered: 0, percent: 0),
+    )
+  }
+
+  /// Sums the totals of every entry in an export.
+  ///
+  /// A single entry's totals are returned as reported, keeping LLVM's own percentages.
+  ///
+  /// - Parameter coverage: The coverage export.
+  /// - Returns: The combined totals, or ``zero`` for an export with no entries.
+  fileprivate static func total(of coverage: LLVMCoverage) -> LLVMCoverage.Summary {
+    guard coverage.data.count > 1 else { return coverage.data.first?.totals ?? .zero }
+
+    return coverage.data.map(\.totals)
+      .reduce(.zero) { sum, totals in
+        LLVMCoverage.Summary(
+          lines: sum.lines.adding(totals.lines),
+          functions: sum.functions.adding(totals.functions),
+          branches: sum.branches.adding(totals.branches),
+        )
+      }
+  }
+}
+
+extension LLVMCoverage.Stat {
+  /// Adds another stat's counts to this one and recomputes the percentage.
+  ///
+  /// - Parameter other: The stat to add.
+  /// - Returns: The combined stat.
+  fileprivate func adding(_ other: LLVMCoverage.Stat) -> LLVMCoverage.Stat {
+    let count = count + other.count
+    let covered = covered + other.covered
+    return LLVMCoverage.Stat(
+      count: count,
+      covered: covered,
+      notCovered: notCovered.flatMap { lhs in other.notCovered.map { lhs + $0 } },
+      percent: count == 0 ? 0 : Double(covered) / Double(count) * 100,
     )
   }
 }
