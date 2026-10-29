@@ -6,7 +6,7 @@ in one dashboard. It is a Grafana v2 dashboard resource (`apiVersion: dashboard.
 
 Import it via **Dashboards → New → Import** and pick the Prometheus/Mimir
 datasource (the dashboard refers to it through `${datasource}`) and the Loki datasource
-(`${loki}`, used by the *Executed tests* table only).
+(`${loki}`, used by the *Executed tests* and *Flaky tests* tables only).
 
 Filters, chained like the Xcode CAS dashboard: Repository → Pipeline → Stage → Job, plus Test suite
 and Coverage target.
@@ -31,6 +31,12 @@ and Coverage target.
   range multiplies the request count; if the panel warns `too many outstanding requests`, shorten the dashboard range.
   Loki rejects log lines older than its `reject_old_samples_max_age` (a week by default), so a back-dated
   `--timestamp` or `BUILD_FINISHTIME` outside that window drops the logs while the metrics still land.
+- The *Executed tests* row is hidden while Repository, Pipeline, Stage, Job and Test suite are all on *All* (a conditional-rendering rule on the row, which needs Grafana 12 or newer), so its five Loki queries do not run until a filter is narrowed; while it is hidden, a short text panel in its place asks you to pick a filter.
+- The *Flaky tests* table lists the 100 tests that both passed and failed in the range, ranked by failure count and then by
+  pass rate (lowest first). The ranking runs in LogQL (`topk(100, failed and on(suite, test) passed)`), the passed counts are
+  restricted to the same set with `and on(...)`, and the pass rate is computed in the panel. This keeps the panel small, but not
+  Loki's work: `topk` runs after the scan, so the panel reads the same log lines as *Executed tests* (two selectors for each
+  query, five scans in all). Shorten the range to lower the load.
 - Metrics are one-shot gauges, one sample per CI run, so queries use `*_over_time` rather than `rate`. mpct sends no
   `service.instance.id` (Mimir would make it the `instance` label), so runs of the same pipeline, stage and job share a series
   and each adds a sample. The queries also hold for a reporter that does send a per-run instance id.

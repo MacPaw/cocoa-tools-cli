@@ -826,7 +826,7 @@
                       "kind": "DataQuery",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "topk(10, sum by (test_suite_name) (sum_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\",test_case_result_status=\"fail\"}[$__range])))",
+                        "expr": "topk(10, sum by (test_suite_name) (sum_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\",test_case_result_status=\"fail\"}[$__range])) > 0)",
                         "instant": true,
                         "legendFormat": "{{test_suite_name}}",
                         "range": false
@@ -841,7 +841,7 @@
               "transformations": []
             }
           },
-          "description": "Failed test cases per suite in the selected range, summed over every run.",
+          "description": "Suites with failed test cases in the selected range, summed over every run; the ten with the most failures.",
           "id": 16,
           "links": [],
           "title": "Failed test cases by suite",
@@ -1266,7 +1266,7 @@
               ]
             }
           },
-          "description": "Every test with its passed, failed (0 when none) and skipped counts over the selected range, pass rate (N/A when nothing passed or failed) and mean execution time per execution, sorted by pass rate descending. Read from the per-test-case logs in Loki, not from metrics.",
+          "description": "Every test with its passed, failed (0 when none) and skipped counts over the selected range, pass rate (N/A when nothing passed or failed) and mean execution time per execution, sorted by pass rate descending. Read from the per-test-case logs in Loki, not from metrics. Shown only once Repository, Pipeline, Stage, Job or Test suite is narrowed from All, so the Loki queries do not run for the whole range.",
           "id": 19,
           "links": [],
           "title": "Executed tests",
@@ -1559,6 +1559,363 @@
                 "showPercentChange": false,
                 "textMode": "auto",
                 "wideLayout": true
+              }
+            },
+            "version": "10.4.0"
+          }
+        }
+      },
+      "panel-20": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "${loki}"
+                      },
+                      "group": "loki",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "(sum by (test_suite_name, test_case_name) (count_over_time({service_name=\"macpaw-test\", vcs_repository_name=~\"$repo\"} | test_case_name!=\"\" | cicd_pipeline_name=~\"$pipeline\" | cicd_pipeline_stage_name=~\"$stage\" | cicd_pipeline_task_name=~\"$job\" | test_suite_name=~\"$suite\" | test_case_result_status=\"pass\" [$__range]))) and on (test_suite_name, test_case_name) topk(100, (sum by (test_suite_name, test_case_name) (count_over_time({service_name=\"macpaw-test\", vcs_repository_name=~\"$repo\"} | test_case_name!=\"\" | cicd_pipeline_name=~\"$pipeline\" | cicd_pipeline_stage_name=~\"$stage\" | cicd_pipeline_task_name=~\"$job\" | test_suite_name=~\"$suite\" | test_case_result_status=\"fail\" [$__range]))) and on (test_suite_name, test_case_name) (sum by (test_suite_name, test_case_name) (count_over_time({service_name=\"macpaw-test\", vcs_repository_name=~\"$repo\"} | test_case_name!=\"\" | cicd_pipeline_name=~\"$pipeline\" | cicd_pipeline_stage_name=~\"$stage\" | cicd_pipeline_task_name=~\"$job\" | test_suite_name=~\"$suite\" | test_case_result_status=\"pass\" [$__range]))))",
+                        "legendFormat": "Passed",
+                        "queryType": "instant"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "${loki}"
+                      },
+                      "group": "loki",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "topk(100, (sum by (test_suite_name, test_case_name) (count_over_time({service_name=\"macpaw-test\", vcs_repository_name=~\"$repo\"} | test_case_name!=\"\" | cicd_pipeline_name=~\"$pipeline\" | cicd_pipeline_stage_name=~\"$stage\" | cicd_pipeline_task_name=~\"$job\" | test_suite_name=~\"$suite\" | test_case_result_status=\"fail\" [$__range]))) and on (test_suite_name, test_case_name) (sum by (test_suite_name, test_case_name) (count_over_time({service_name=\"macpaw-test\", vcs_repository_name=~\"$repo\"} | test_case_name!=\"\" | cicd_pipeline_name=~\"$pipeline\" | cicd_pipeline_stage_name=~\"$stage\" | cicd_pipeline_task_name=~\"$job\" | test_suite_name=~\"$suite\" | test_case_result_status=\"pass\" [$__range]))))",
+                        "legendFormat": "Failed",
+                        "queryType": "instant"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "B"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": [
+                {
+                  "group": "labelsToFields",
+                  "kind": "labelsToFields",
+                  "spec": {
+                    "id": "labelsToFields",
+                    "options": {
+                      "mode": "columns"
+                    }
+                  }
+                },
+                {
+                  "group": "merge",
+                  "kind": "merge",
+                  "spec": {
+                    "id": "merge",
+                    "options": {}
+                  }
+                },
+                {
+                  "group": "organize",
+                  "kind": "organize",
+                  "spec": {
+                    "id": "organize",
+                    "options": {
+                      "renameByName": {
+                        "Value #A": "Passed",
+                        "Value #B": "Failed"
+                      }
+                    }
+                  }
+                },
+                {
+                  "group": "calculateField",
+                  "kind": "calculateField",
+                  "spec": {
+                    "id": "calculateField",
+                    "options": {
+                      "alias": "Total",
+                      "mode": "reduceRow",
+                      "reduceRow": {
+                        "include": [
+                          "Passed",
+                          "Failed"
+                        ],
+                        "reducer": "sum"
+                      },
+                      "replaceFields": false
+                    }
+                  }
+                },
+                {
+                  "group": "calculateField",
+                  "kind": "calculateField",
+                  "spec": {
+                    "id": "calculateField",
+                    "options": {
+                      "alias": "Pass rate",
+                      "binary": {
+                        "left": "Passed",
+                        "operator": "/",
+                        "right": "Total"
+                      },
+                      "mode": "binary",
+                      "replaceFields": false
+                    }
+                  }
+                },
+                {
+                  "group": "organize",
+                  "kind": "organize",
+                  "spec": {
+                    "id": "organize",
+                    "options": {
+                      "excludeByName": {
+                        "Time": true,
+                        "Total": true
+                      },
+                      "indexByName": {
+                        "Failed": 2,
+                        "Pass rate": 4,
+                        "Passed": 3,
+                        "test_case_name": 1,
+                        "test_suite_name": 0
+                      },
+                      "renameByName": {
+                        "test_case_name": "Test",
+                        "test_suite_name": "Suite"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "description": "The 100 tests that both passed and failed in the selected range, ranked by failure count, then by pass rate (lowest first). Read from the per-test-case logs in Loki; the ranking runs in LogQL, so only 100 rows reach the panel.",
+          "id": 20,
+          "links": [],
+          "title": "Flaky tests",
+          "vizConfig": {
+            "group": "table",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "custom": {
+                    "align": "auto",
+                    "cellOptions": {
+                      "type": "auto"
+                    },
+                    "inspect": false
+                  },
+                  "mappings": [],
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": -1000000000
+                      }
+                    ]
+                  }
+                },
+                "overrides": [
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Passed"
+                    },
+                    "properties": [
+                      {
+                        "id": "noValue",
+                        "value": "0"
+                      },
+                      {
+                        "id": "unit",
+                        "value": "short"
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Failed"
+                    },
+                    "properties": [
+                      {
+                        "id": "unit",
+                        "value": "short"
+                      },
+                      {
+                        "id": "thresholds",
+                        "value": {
+                          "mode": "absolute",
+                          "steps": [
+                            {
+                              "color": "green",
+                              "value": -1000000000
+                            },
+                            {
+                              "color": "red",
+                              "value": 1
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "id": "custom.cellOptions",
+                        "value": {
+                          "type": "color-text"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Pass rate"
+                    },
+                    "properties": [
+                      {
+                        "id": "unit",
+                        "value": "percentunit"
+                      },
+                      {
+                        "id": "decimals",
+                        "value": 1
+                      },
+                      {
+                        "id": "min",
+                        "value": 0
+                      },
+                      {
+                        "id": "max",
+                        "value": 1
+                      },
+                      {
+                        "id": "thresholds",
+                        "value": {
+                          "mode": "absolute",
+                          "steps": [
+                            {
+                              "color": "red",
+                              "value": -1000000000
+                            },
+                            {
+                              "color": "orange",
+                              "value": 0.9
+                            },
+                            {
+                              "color": "green",
+                              "value": 0.99
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "id": "custom.cellOptions",
+                        "value": {
+                          "type": "color-background"
+                        }
+                      },
+                      {
+                        "id": "mappings",
+                        "value": [
+                          {
+                            "options": {
+                              "match": "null",
+                              "result": {
+                                "color": "#8e8e8e",
+                                "index": 0,
+                                "text": "N/A"
+                              }
+                            },
+                            "type": "special"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              "options": {
+                "cellHeight": "sm",
+                "footer": {
+                  "countRows": false,
+                  "fields": "",
+                  "reducer": [
+                    "sum"
+                  ],
+                  "show": false
+                },
+                "showHeader": true,
+                "sortBy": [
+                  {
+                    "desc": true,
+                    "displayName": "Failed"
+                  },
+                  {
+                    "desc": false,
+                    "displayName": "Pass rate"
+                  }
+                ]
+              }
+            },
+            "version": "10.4.0"
+          }
+        }
+      },
+      "panel-21": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 21,
+          "links": [],
+          "title": "Executed tests",
+          "vizConfig": {
+            "group": "text",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+              },
+              "options": {
+                "code": {
+                  "language": "plaintext",
+                  "showLineNumbers": false,
+                  "showMiniMap": false
+                },
+                "content": "Select a **Repository**, **Pipeline**, **Stage**, **Job** or **Test suite** above to list the executed tests. The list is read from Loki, so it is not loaded while every filter is on *All*.",
+                "mode": "markdown"
               }
             },
             "version": "10.4.0"
@@ -2454,7 +2811,7 @@
                       "spec": {
                         "element": {
                           "kind": "ElementReference",
-                          "name": "panel-19"
+                          "name": "panel-20"
                         },
                         "height": 14,
                         "width": 24,
@@ -2466,6 +2823,158 @@
                 }
               },
               "title": "Tests"
+            }
+          },
+          {
+            "kind": "RowsLayoutRow",
+            "spec": {
+              "collapse": false,
+              "conditionalRendering": {
+                "kind": "ConditionalRenderingGroup",
+                "spec": {
+                  "condition": "and",
+                  "items": [
+                    {
+                      "kind": "ConditionalRenderingVariable",
+                      "spec": {
+                        "operator": "equals",
+                        "value": "All",
+                        "variable": "repo"
+                      }
+                    },
+                    {
+                      "kind": "ConditionalRenderingVariable",
+                      "spec": {
+                        "operator": "equals",
+                        "value": "All",
+                        "variable": "pipeline"
+                      }
+                    },
+                    {
+                      "kind": "ConditionalRenderingVariable",
+                      "spec": {
+                        "operator": "equals",
+                        "value": "All",
+                        "variable": "stage"
+                      }
+                    },
+                    {
+                      "kind": "ConditionalRenderingVariable",
+                      "spec": {
+                        "operator": "equals",
+                        "value": "All",
+                        "variable": "job"
+                      }
+                    },
+                    {
+                      "kind": "ConditionalRenderingVariable",
+                      "spec": {
+                        "operator": "equals",
+                        "value": "All",
+                        "variable": "suite"
+                      }
+                    }
+                  ],
+                  "visibility": "show"
+                }
+              },
+              "layout": {
+                "kind": "GridLayout",
+                "spec": {
+                  "items": [
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-21"
+                        },
+                        "height": 3,
+                        "width": 24,
+                        "x": 0,
+                        "y": 0
+                      }
+                    }
+                  ]
+                }
+              },
+              "title": "Executed tests"
+            }
+          },
+          {
+            "kind": "RowsLayoutRow",
+            "spec": {
+              "collapse": false,
+              "conditionalRendering": {
+                "kind": "ConditionalRenderingGroup",
+                "spec": {
+                  "condition": "or",
+                  "items": [
+                    {
+                      "kind": "ConditionalRenderingVariable",
+                      "spec": {
+                        "operator": "notEquals",
+                        "value": "All",
+                        "variable": "repo"
+                      }
+                    },
+                    {
+                      "kind": "ConditionalRenderingVariable",
+                      "spec": {
+                        "operator": "notEquals",
+                        "value": "All",
+                        "variable": "pipeline"
+                      }
+                    },
+                    {
+                      "kind": "ConditionalRenderingVariable",
+                      "spec": {
+                        "operator": "notEquals",
+                        "value": "All",
+                        "variable": "stage"
+                      }
+                    },
+                    {
+                      "kind": "ConditionalRenderingVariable",
+                      "spec": {
+                        "operator": "notEquals",
+                        "value": "All",
+                        "variable": "job"
+                      }
+                    },
+                    {
+                      "kind": "ConditionalRenderingVariable",
+                      "spec": {
+                        "operator": "notEquals",
+                        "value": "All",
+                        "variable": "suite"
+                      }
+                    }
+                  ],
+                  "visibility": "show"
+                }
+              },
+              "layout": {
+                "kind": "GridLayout",
+                "spec": {
+                  "items": [
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-19"
+                        },
+                        "height": 14,
+                        "width": 24,
+                        "x": 0,
+                        "y": 0
+                      }
+                    }
+                  ]
+                }
+              },
+              "title": "Executed tests"
             }
           }
         ]
