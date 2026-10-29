@@ -62,8 +62,8 @@ echo "Running TestPackage tests for xunit output..."
   echo "  Going to ${TEST_PKG}"
   cd "${TEST_PKG}"
   echo "  Running Tests for xunit output..."
-  XUNIT_PATH="${REPO_ROOT}/Tests/XUnitReportTests/fixtures/test-package-xUnit.xml"
-  rm "${REPO_ROOT}/Tests/XUnitReportTests/fixtures/test-package-xUnit-swift-testing.xml" || true
+  XUNIT_PATH="${REPO_ROOT}/Tests/XUnitReportTests/fixtures/test-package-xUnit-swift-testing.xml"
+  rm "${XUNIT_PATH}" || true
   MPCT_TESTS_RECORD_FAILURES=1 swift test --enable-code-coverage --xunit-output "${XUNIT_PATH}" || true
 )
 echo "  → test-package-xUnit-swift-testing.xml"

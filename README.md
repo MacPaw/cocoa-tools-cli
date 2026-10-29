@@ -142,12 +142,12 @@ Comprehensive semantic versioning implementation with compile-time macro support
 
 ### Supporting Libraries
 
-#### XUnitParser
+#### XUnitReport
 Cross-platform xUnit XML parser (macOS and Linux).
 
 - **Features**: Parses `<testsuites>` → `<testsuite>` → `<testcase>` → `<failure>` hierarchy; decomposes `classname` into `moduleName`/`suiteName`
 - **Use Cases**: Parsing xUnit output from `swift test --xunit-output`, CI test result processing
-- **Entry point**: `TestSuites.load(from: URL) throws -> TestSuites`
+- **Entry point**: `XUnitReport.load(from: URL) throws -> XUnitReport`
 
 #### LLVMCoverageParser
 Cross-platform LLVM coverage JSON parser (macOS and Linux).
@@ -160,9 +160,9 @@ Cross-platform LLVM coverage JSON parser (macOS and Linux).
 #### TestsOTELReporter
 OpenTelemetry metrics reporter for completed test runs.
 
-- **Features**: Normalizes `.xcresult` and xUnit reports into one model; builds the OTLP metrics payload as JSON and pushes it over HTTP; no OpenTelemetry SDK dependency
+- **Features**: Normalizes `.xcresult`, xUnit and LLVM coverage reports into one model; builds the OTLP metrics payload (and per-test-case logs) as JSON and pushes it over HTTP; no OpenTelemetry SDK dependency
 - **Use Cases**: Feeding CI test outcomes into Grafana/Mimir alongside the Xcode CAS metrics
-- **Entry point**: `TestsOTELReporter(configuration:).report(_ testRun: TestRun) async throws`
+- **Entry point**: `TestsOTELReporter(configuration:).report(testRun: TestRun?, lineCoverage: LineCoverage?) async throws -> Data`
 
 #### Shell
 Shell command execution utilities with mise integration.

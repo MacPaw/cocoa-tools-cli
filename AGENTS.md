@@ -19,7 +19,7 @@ Swift CLI for macOS CI/CD tooling. Modular SPM package, Swift 6.1, macOS 15+.
 | `SemanticVersion` | SemVer 2.0 type + build-tool plugin embedding `.config/semantic-version/version` |
 | `SharedLogger` | `swift-log` singleton; all targets depend on it automatically |
 | `XCResultParsing` | `xcresulttool` CLI wrapper + Codable types for coverage and test results |
-| `XUnitParser` | xUnit XML parser — `TestSuites.load(from:)` → `TestSuites`/`TestSuite`/`TestCase`/`Failure` |
+| `XUnitReport` | xUnit XML parser — `XUnitReport.load(from:)` → `XUnitReport`/`TestSuite`/`TestCase`/`Failure` |
 | `LLVMCoverageParser` | LLVM coverage JSON parser — `LLVMCoverage.load(from:)` → `LLVMCoverage`/`File`/`Summary`/`Stat` |
 | `TestsCoverageCommand` | `mpct tests coverage parse` — exports and prints coverage report |
 | `TestsResultsCommand` | `mpct tests results parse` — fetches and prints test result summary |
