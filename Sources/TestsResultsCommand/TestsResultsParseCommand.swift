@@ -19,6 +19,8 @@ struct TestsResultsParseCommand: AsyncParsableCommand {
       guard FileManager.default.fileExists(atPath: xcresult) else {
         throw ValidationError("xcresult bundle not found: \(xcresult)")
       }
+    #else
+      throw ValidationError("--xcresult is only supported on macOS")
     #endif
   }
 
