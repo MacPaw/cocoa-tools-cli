@@ -83,4 +83,16 @@ struct XUnitReportTests {
     #expect(failure.type == "Crash")
     #expect(failure.body == "trace")
   }
+
+  @Test("parse throwsOnMalformedXML")
+  func test_parse_throwsOnMalformedXML() {
+    // GIVEN — malformed XML missing a closing tag
+    let xml = "<testsuites><testsuite name=\"S\""
+    let sut = XUnitSAXParser()
+
+    // WHEN & THEN — parsing throws an error
+    #expect(throws: (any Error).self) {
+      try sut.parse(data: Data(xml.utf8))
+    }
+  }
 }

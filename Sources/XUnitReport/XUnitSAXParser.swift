@@ -39,9 +39,12 @@ final class XUnitSAXParser: NSObject, XMLParserDelegate, @unchecked Sendable {
       unsafe xmlParser.delegate = self
     #endif
     // Linux: Returns YES in the event of a successful parse, and NO in case of error.
-    _ = xmlParser.parse()
-    if let error = parseError {
+    let success = xmlParser.parse()
+    if let error = parseError ?? xmlParser.parserError {
       throw error
+    }
+    if !success {
+      throw CocoaError(.fileReadCorruptFile)
     }
     return XUnitReport(testSuites: suites)
   }
