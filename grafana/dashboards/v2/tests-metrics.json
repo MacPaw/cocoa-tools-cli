@@ -1606,9 +1606,9 @@
                       "kind": "DataQuery",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "sum(sum_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\",test_case_result_status=\"pass\"}[$__interval]))",
+                        "expr": "sum(sum_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\",test_case_result_status=\"skip\"}[$__interval]))",
                         "instant": false,
-                        "legendFormat": "Passed",
+                        "legendFormat": "Skipped",
                         "range": true
                       },
                       "version": "v0"
@@ -1628,9 +1628,9 @@
                       "kind": "DataQuery",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "sum(sum_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\",test_case_result_status=\"skip\"}[$__interval]))",
+                        "expr": "sum(sum_over_time(cicd_test_case_count{vcs_repository_name=~\"$repo\",cicd_pipeline_name=~\"$pipeline\",cicd_pipeline_stage_name=~\"$stage\",cicd_pipeline_task_name=~\"$job\",test_suite_name=~\"$suite\",test_case_result_status=\"pass\"}[$__interval]))",
                         "instant": false,
-                        "legendFormat": "Skipped",
+                        "legendFormat": "Passed",
                         "range": true
                       },
                       "version": "v0"
@@ -1719,13 +1719,13 @@
                   {
                     "matcher": {
                       "id": "byName",
-                      "options": "Passed"
+                      "options": "Skipped"
                     },
                     "properties": [
                       {
                         "id": "color",
                         "value": {
-                          "fixedColor": "green",
+                          "fixedColor": "#8e8e8e",
                           "mode": "fixed"
                         }
                       }
@@ -1734,13 +1734,13 @@
                   {
                     "matcher": {
                       "id": "byName",
-                      "options": "Skipped"
+                      "options": "Passed"
                     },
                     "properties": [
                       {
                         "id": "color",
                         "value": {
-                          "fixedColor": "#8e8e8e",
+                          "fixedColor": "green",
                           "mode": "fixed"
                         }
                       }
