@@ -2,7 +2,7 @@ import ENV
 import Foundation
 
 extension CI {
-  /// Azure Pipelines CI.
+  /// GitHub Actions CI.
   struct GitHubActions {
     let type: CIType = CIType.gitHubActions
 
@@ -26,7 +26,7 @@ extension CI.GitHubActions: CIInterface {
 }
 
 extension CIType {
-  /// Azure Pipelines CI type.
+  /// GitHub Actions CI type.
   public static let gitHubActions: CIType = CIType(name: "GitHub Actions")
 }
 
