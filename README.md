@@ -75,7 +75,7 @@ mpct tests report otel --xcresult Build/tests.xcresult --endpoint https://collec
 mpct tests report otel --xunit .build/tests.xml --dry-run
 ```
 
-Accepts exactly one of `--xcresult` (macOS only) or `--xunit`. The endpoint and headers fall back
+Accepts `--xcresult` (macOS only; reports tests and coverage), or `--xunit` and/or `--llvm-line-coverage` (cross-platform). At least one input is required; `--xcresult` cannot be combined with the others. The endpoint and headers fall back
 to `OTEL_EXPORTER_OTLP_ENDPOINT` and `OTEL_EXPORTER_OTLP_HEADERS`; there is no built-in default, so
 a missing endpoint is a validation error rather than silent data loss.
 
