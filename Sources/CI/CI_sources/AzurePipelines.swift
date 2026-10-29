@@ -116,12 +116,16 @@ extension CI.AzurePipelines {
 
   /// Extracts the organization name from an Azure DevOps collection URL.
   ///
-  /// Collection URLs take the form `https://dev.azure.com/{organization}/`, so the organization
-  /// is the last non-empty path component.
+  /// Collection URLs take the form `https://dev.azure.com/{organization}/`, where the
+  /// organization is the last non-empty path component, or the legacy
+  /// `https://{organization}.visualstudio.com/`, where it is the first host label.
   ///
   /// - Parameter collectionURL: The collection URL reported by Azure Pipelines.
-  /// - Returns: The organization name, or `nil` when the URL carries no path component.
+  /// - Returns: The organization name, or `nil` when the URL carries neither form.
   private static func organizationName(fromCollectionURL collectionURL: URL) -> String? {
-    collectionURL.pathComponents.last { $0 != "/" && !$0.isEmpty }
+    if let host = collectionURL.host?.lowercased(), host.hasSuffix(".visualstudio.com") {
+      return host.split(separator: ".").first.map(String.init)
+    }
+    return collectionURL.pathComponents.last { $0 != "/" && !$0.isEmpty }
   }
 }

@@ -139,6 +139,15 @@ struct AzurePipelinesMetadataTests {
     #expect(repository.provider == "github")
   }
 
+  @Test("repository derivesOrganizationFromLegacyCollectionURL")
+  func test_repository_derivesOrganizationFromLegacyCollectionURL() {
+    // GIVEN — an organization still on the visualstudio.com domain
+    let sut = makeSUT(overrides: ["SYSTEM_COLLECTIONURI": "https://macpaw.visualstudio.com/"])
+
+    // WHEN / THEN — the organization is the subdomain
+    #expect(sut.repository.organizationName == "macpaw")
+  }
+
   @Test("repository prefersTemplateVariablesOverBuiltInOnes")
   func test_repository_prefersTemplateVariablesOverBuiltInOnes() {
     // GIVEN — the cocoa-ci-templates variables are set alongside Azure's
