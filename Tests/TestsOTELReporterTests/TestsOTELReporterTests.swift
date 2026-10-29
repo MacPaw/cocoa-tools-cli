@@ -196,6 +196,31 @@ struct TestsOTELReporterTests {
     #expect((dataPoint["bucketCounts"] as? [String])?.prefix(8) == ["0", "0", "0", "0", "0", "1", "0", "1"])
   }
 
+  @Test("payload bucketsMinutesLongCasesBelowTheOverflowBucket")
+  func test_payload_bucketsMinutesLongCasesBelowTheOverflowBucket() throws {
+    // GIVEN — a UI test that ran for 2.5 minutes
+    let testRun = TestRun(
+      suites: [
+        TestRun.Suite(
+          name: "UITests",
+          testCases: [TestRun.Suite.TestCase(name: "slow", status: .pass, duration: 150)],
+        )
+      ],
+      duration: 150,
+    )
+    let sut = try makeSUT()
+
+    // WHEN
+    let dataPoints = try OTLPPayload(data: try sut.payload(for: testRun)).histogramDataPoints("cicd.test.case.duration")
+    let dataPoint = try #require(dataPoints.first)
+    let counts = try #require(dataPoint["bucketCounts"] as? [String])
+    let bounds = try #require(dataPoint["explicitBounds"] as? [Double])
+
+    // THEN — it lands in the (120000, 300000] ms bucket, not the overflow one
+    #expect(counts[try #require(bounds.firstIndex(of: 300_000))] == "1")
+    #expect(counts.last == "0")
+  }
+
   @Test("payload omitsResourceAttributesTheCICannotReport")
   func test_payload_omitsResourceAttributesTheCICannotReport() throws {
     // GIVEN — a CI reporting an owner and repository but no pipeline metadata
