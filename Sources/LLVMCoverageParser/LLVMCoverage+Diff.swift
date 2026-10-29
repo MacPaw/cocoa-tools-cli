@@ -1,6 +1,8 @@
 /// A diff between two LLVM coverage exports, computed in Swift without any external tool.
 public struct LLVMCoverageDiff: Codable, Sendable {
   /// Source files present in `after` but not in `before`.
+  ///
+  /// Filenames are normalized when path equivalence is provided.
   public var addedFiles: [LLVMCoverage.File]
   /// Source files present in `before` but not in `after`.
   ///
@@ -41,7 +43,10 @@ public struct LLVMCoverageDiff: Codable, Sendable {
       uniquingKeysWith: { first, _ in first },
     )
 
-    let addedFiles = afterFiles.filter { beforeMap[normalize($0.filename, prefix: afterPrefix)] == nil }
+    let addedFiles =
+      afterFiles
+      .filter { beforeMap[normalize($0.filename, prefix: afterPrefix)] == nil }
+      .map { LLVMCoverage.File(filename: normalize($0.filename, prefix: afterPrefix), summary: $0.summary) }
 
     let removedFiles = beforeFiles.compactMap { file -> RemovedFile? in
       let key = normalize(file.filename, prefix: beforePrefix)
