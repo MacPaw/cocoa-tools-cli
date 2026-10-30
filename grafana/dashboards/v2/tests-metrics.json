@@ -1000,11 +1000,33 @@
                       }
                     }
                   }
+                },
+                {
+                  "group": "filterByValue",
+                  "kind": "filterByValue",
+                  "spec": {
+                    "id": "filterByValue",
+                    "options": {
+                      "filters": [
+                        {
+                          "config": {
+                            "id": "equal",
+                            "options": {
+                              "value": 0
+                            }
+                          },
+                          "fieldName": "Coverage"
+                        }
+                      ],
+                      "match": "any",
+                      "type": "exclude"
+                    }
+                  }
                 }
               ]
             }
           },
-          "description": "Covered, uncovered and total executable lines for each coverage target, from the latest run. When several jobs report the same target, the highest value is shown, not their sum.",
+          "description": "Covered, uncovered and total executable lines for each coverage target, from the latest run. When several jobs report the same target, the highest value is shown, not their sum. Targets with 0% coverage are hidden.",
           "id": 17,
           "links": [],
           "title": "Per-target line coverage",
@@ -1119,7 +1141,7 @@
                       "kind": "DataQuery",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "sum by (test_suite_name, test_case_name) (count_over_time({service_name=\"macpaw-test\", vcs_repository_name=~\"$repo\"} | test_case_name!=\"\" | cicd_pipeline_name=~\"$pipeline\" | cicd_pipeline_stage_name=~\"$stage\" | cicd_pipeline_task_name=~\"$job\" | test_suite_name=~\"$suite\" | test_case_result_status=\"pass\" [$__range]))",
+                        "expr": "sum by (test_suite_name, test_case_name) (count_over_time({service_name=\"macpaw-test\", vcs_repository_name=~\"$repo\"} | test_case_name!=\"\" | cicd_pipeline_name=~\"$pipeline\" | cicd_pipeline_stage_name=~\"$stage\" | cicd_pipeline_task_name=~\"$job\" | test_suite_name=~\"$suite\" | test_case_result_status=\"pass\" | keep test_suite_name, test_case_name [$__range]))",
                         "legendFormat": "Passed",
                         "queryType": "instant"
                       },
@@ -1140,7 +1162,7 @@
                       "kind": "DataQuery",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "sum by (test_suite_name, test_case_name) (sum_over_time({service_name=\"macpaw-test\", vcs_repository_name=~\"$repo\"} | test_case_name!=\"\" | cicd_pipeline_name=~\"$pipeline\" | cicd_pipeline_stage_name=~\"$stage\" | cicd_pipeline_task_name=~\"$job\" | test_suite_name=~\"$suite\" | label_format is_fail=`{{ if eq .test_case_result_status \"fail\" }}1{{ else }}0{{ end }}` | unwrap is_fail | __error__=\"\" [$__range]))",
+                        "expr": "sum by (test_suite_name, test_case_name) (sum_over_time({service_name=\"macpaw-test\", vcs_repository_name=~\"$repo\"} | test_case_name!=\"\" | cicd_pipeline_name=~\"$pipeline\" | cicd_pipeline_stage_name=~\"$stage\" | cicd_pipeline_task_name=~\"$job\" | test_suite_name=~\"$suite\" | label_format is_fail=`{{ if eq .test_case_result_status \"fail\" }}1{{ else }}0{{ end }}` | keep test_suite_name, test_case_name, is_fail | unwrap is_fail | __error__=\"\" [$__range]))",
                         "legendFormat": "Failed",
                         "queryType": "instant"
                       },
@@ -1161,7 +1183,7 @@
                       "kind": "DataQuery",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "avg by (test_suite_name, test_case_name) (avg_over_time({service_name=\"macpaw-test\", vcs_repository_name=~\"$repo\"} | test_case_name!=\"\" | cicd_pipeline_name=~\"$pipeline\" | cicd_pipeline_stage_name=~\"$stage\" | cicd_pipeline_task_name=~\"$job\" | test_suite_name=~\"$suite\" | test_case_result_status=~\"pass|fail\" | label_format is_pass=`{{ if eq .test_case_result_status \"pass\" }}1{{ else }}0{{ end }}` | unwrap is_pass | __error__=\"\" [$__range]))",
+                        "expr": "avg by (test_suite_name, test_case_name) (avg_over_time({service_name=\"macpaw-test\", vcs_repository_name=~\"$repo\"} | test_case_name!=\"\" | cicd_pipeline_name=~\"$pipeline\" | cicd_pipeline_stage_name=~\"$stage\" | cicd_pipeline_task_name=~\"$job\" | test_suite_name=~\"$suite\" | test_case_result_status=~\"pass|fail\" | label_format is_pass=`{{ if eq .test_case_result_status \"pass\" }}1{{ else }}0{{ end }}` | keep test_suite_name, test_case_name, is_pass | unwrap is_pass | __error__=\"\" [$__range]))",
                         "legendFormat": "Pass rate",
                         "queryType": "instant"
                       },
@@ -1182,7 +1204,7 @@
                       "kind": "DataQuery",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "avg by (test_suite_name, test_case_name) (avg_over_time({service_name=\"macpaw-test\", vcs_repository_name=~\"$repo\"} | test_case_name!=\"\" | cicd_pipeline_name=~\"$pipeline\" | cicd_pipeline_stage_name=~\"$stage\" | cicd_pipeline_task_name=~\"$job\" | test_suite_name=~\"$suite\" | unwrap test_case_duration | __error__=\"\" [$__range]))",
+                        "expr": "avg by (test_suite_name, test_case_name) (avg_over_time({service_name=\"macpaw-test\", vcs_repository_name=~\"$repo\"} | test_case_name!=\"\" | cicd_pipeline_name=~\"$pipeline\" | cicd_pipeline_stage_name=~\"$stage\" | cicd_pipeline_task_name=~\"$job\" | test_suite_name=~\"$suite\" | keep test_suite_name, test_case_name, test_case_duration | unwrap test_case_duration | __error__=\"\" [$__range]))",
                         "legendFormat": "Execution time",
                         "queryType": "instant"
                       },
@@ -1203,7 +1225,7 @@
                       "kind": "DataQuery",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "sum by (test_suite_name, test_case_name) (count_over_time({service_name=\"macpaw-test\", vcs_repository_name=~\"$repo\"} | test_case_name!=\"\" | cicd_pipeline_name=~\"$pipeline\" | cicd_pipeline_stage_name=~\"$stage\" | cicd_pipeline_task_name=~\"$job\" | test_suite_name=~\"$suite\" | test_case_result_status=\"skip\" [$__range]))",
+                        "expr": "sum by (test_suite_name, test_case_name) (count_over_time({service_name=\"macpaw-test\", vcs_repository_name=~\"$repo\"} | test_case_name!=\"\" | cicd_pipeline_name=~\"$pipeline\" | cicd_pipeline_stage_name=~\"$stage\" | cicd_pipeline_task_name=~\"$job\" | test_suite_name=~\"$suite\" | test_case_result_status=\"skip\" | keep test_suite_name, test_case_name [$__range]))",
                         "legendFormat": "Skipped",
                         "queryType": "instant"
                       },
@@ -1584,7 +1606,7 @@
                       "kind": "DataQuery",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(sum by (test_suite_name, test_case_name) (count_over_time({service_name=\"macpaw-test\", vcs_repository_name=~\"$repo\"} | test_case_name!=\"\" | cicd_pipeline_name=~\"$pipeline\" | cicd_pipeline_stage_name=~\"$stage\" | cicd_pipeline_task_name=~\"$job\" | test_suite_name=~\"$suite\" | test_case_result_status=\"pass\" [$__range]))) and on (test_suite_name, test_case_name) topk(100, (sum by (test_suite_name, test_case_name) (count_over_time({service_name=\"macpaw-test\", vcs_repository_name=~\"$repo\"} | test_case_name!=\"\" | cicd_pipeline_name=~\"$pipeline\" | cicd_pipeline_stage_name=~\"$stage\" | cicd_pipeline_task_name=~\"$job\" | test_suite_name=~\"$suite\" | test_case_result_status=\"fail\" [$__range]))) and on (test_suite_name, test_case_name) (sum by (test_suite_name, test_case_name) (count_over_time({service_name=\"macpaw-test\", vcs_repository_name=~\"$repo\"} | test_case_name!=\"\" | cicd_pipeline_name=~\"$pipeline\" | cicd_pipeline_stage_name=~\"$stage\" | cicd_pipeline_task_name=~\"$job\" | test_suite_name=~\"$suite\" | test_case_result_status=\"pass\" [$__range]))))",
+                        "expr": "(sum by (test_suite_name, test_case_name) (count_over_time({service_name=\"macpaw-test\", vcs_repository_name=~\"$repo\"} | test_case_name!=\"\" | cicd_pipeline_name=~\"$pipeline\" | cicd_pipeline_stage_name=~\"$stage\" | cicd_pipeline_task_name=~\"$job\" | test_suite_name=~\"$suite\" | test_case_result_status=\"pass\" | keep test_suite_name, test_case_name [$__range])) and on (test_suite_name, test_case_name) topk(100, sum by (test_suite_name, test_case_name) (count_over_time({service_name=\"macpaw-test\", vcs_repository_name=~\"$repo\"} | test_case_name!=\"\" | cicd_pipeline_name=~\"$pipeline\" | cicd_pipeline_stage_name=~\"$stage\" | cicd_pipeline_task_name=~\"$job\" | test_suite_name=~\"$suite\" | test_case_result_status=\"fail\" | keep test_suite_name, test_case_name [$__range])))) or on (test_suite_name, test_case_name) (topk(100, sum by (test_suite_name, test_case_name) (count_over_time({service_name=\"macpaw-test\", vcs_repository_name=~\"$repo\"} | test_case_name!=\"\" | cicd_pipeline_name=~\"$pipeline\" | cicd_pipeline_stage_name=~\"$stage\" | cicd_pipeline_task_name=~\"$job\" | test_suite_name=~\"$suite\" | test_case_result_status=\"fail\" | keep test_suite_name, test_case_name [$__range]))) * 0)",
                         "legendFormat": "Passed",
                         "queryType": "instant"
                       },
@@ -1605,7 +1627,7 @@
                       "kind": "DataQuery",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "topk(100, (sum by (test_suite_name, test_case_name) (count_over_time({service_name=\"macpaw-test\", vcs_repository_name=~\"$repo\"} | test_case_name!=\"\" | cicd_pipeline_name=~\"$pipeline\" | cicd_pipeline_stage_name=~\"$stage\" | cicd_pipeline_task_name=~\"$job\" | test_suite_name=~\"$suite\" | test_case_result_status=\"fail\" [$__range]))) and on (test_suite_name, test_case_name) (sum by (test_suite_name, test_case_name) (count_over_time({service_name=\"macpaw-test\", vcs_repository_name=~\"$repo\"} | test_case_name!=\"\" | cicd_pipeline_name=~\"$pipeline\" | cicd_pipeline_stage_name=~\"$stage\" | cicd_pipeline_task_name=~\"$job\" | test_suite_name=~\"$suite\" | test_case_result_status=\"pass\" [$__range]))))",
+                        "expr": "topk(100, sum by (test_suite_name, test_case_name) (count_over_time({service_name=\"macpaw-test\", vcs_repository_name=~\"$repo\"} | test_case_name!=\"\" | cicd_pipeline_name=~\"$pipeline\" | cicd_pipeline_stage_name=~\"$stage\" | cicd_pipeline_task_name=~\"$job\" | test_suite_name=~\"$suite\" | test_case_result_status=\"fail\" | keep test_suite_name, test_case_name [$__range])))",
                         "legendFormat": "Failed",
                         "queryType": "instant"
                       },
@@ -1711,7 +1733,7 @@
               ]
             }
           },
-          "description": "The 100 tests that both passed and failed in the selected range, ranked by failure count, then by pass rate (lowest first). Read from the per-test-case logs in Loki; the ranking runs in LogQL, so only 100 rows reach the panel.",
+          "description": "The 100 tests that failed at least once in the selected range, ranked by failure count, then by pass rate (lowest first). Read from the per-test-case logs in Loki; the ranking runs in LogQL, so only 100 rows reach the panel.",
           "id": 20,
           "links": [],
           "title": "Flaky tests",
