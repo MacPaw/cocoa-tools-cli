@@ -62,13 +62,17 @@ stage, job) are repeated as data-point attributes, since backends do not promote
 metric labels by default; run id / number / URL stay on the resource only (a label per run would explode series).
 `mpct` logs the CI context it attaches before each export.
 
-Test case names are never metric labels (a series per test grows without bound). Each case is one OTLP **log record**
-(`test.case.name`, `test.suite.name`, `test.case.result.status`, `test.case.duration` in ms; severity INFO / ERROR /
-WARN for pass / fail / skip; body is the name plus the failure message), sent after the metrics in batches of 500 with
-the same resource. Destination: `--loki-otlp-endpoint` / `LOKI_OTLP_ENDPOINT` is a **base** URL like the OTLP
-one: `v1/logs` is appended, so it must carry Loki's own prefix (`http://loki:3100/otlp`); unset, logs go to the OTLP
-endpoint. `--loki-otlp-header` /
-`LOKI_OTLP_HEADERS` replace the metrics headers for logs when set. A failing logs export fails the command (metrics are
+Test case names are never metric labels (a series per test grows without bound). They go to **traces**: one trace per run,
+with a root span for the run, a child span per suite and a grandchild span per case. A case span carries `test.case.name`,
+`test.suite.name`, `test.case.result.status` and `test.case.duration` (ms); a failed case gets error status with its message
+(capped at 2000 characters) in the status message and in `test.case.failure.message`. Reports have no start times, so the layout
+is synthesized: the run ends at the timestamp, suites follow one another from its start and cases follow one another within a
+suite, so durations are accurate but start times and ordering are approximate. The trace ID is a hash of the CI run
+(repository, pipeline, run id and number, stage, job) so re-exporting a job overwrites its trace (the CI abstraction has no
+attempt number); without a run id it is random. Spans are sent after the metrics in batches of 500 with the same resource.
+Destination: `--tempo-otlp-endpoint` / `TEMPO_OTLP_ENDPOINT` is a **base** URL like the OTLP one: `v1/traces` is appended, so it
+must carry any path prefix (`http://tempo:4318`); unset, traces go to the OTLP endpoint. `--tempo-otlp-header` /
+`TEMPO_OTLP_HEADERS` replace the metrics headers for traces when set. A failing traces export fails the command (metrics are
 already delivered); there is no opt-out flag.
 
 Line coverage is one more gauge, `cicd.test.coverage.line.count` (unit `{line}`): per target, a `covered` and an

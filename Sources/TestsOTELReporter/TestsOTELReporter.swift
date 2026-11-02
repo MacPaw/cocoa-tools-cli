@@ -11,7 +11,7 @@ import SharedLogger
 /// The reporter derives test metrics — test case counts by result status, a histogram of test
 /// case durations, summed suite durations and the total run duration — plus per-target line
 /// coverage, and pushes them to an OTLP/HTTP endpoint as JSON. Individual test cases are sent as
-/// log records, so that their names never become metric series.
+/// spans of one trace per run, so that their names never become metric series.
 public struct TestsOTELReporter {
   /// Configuration for this push.
   public let configuration: Configuration
@@ -73,14 +73,14 @@ public struct TestsOTELReporter {
     return try encoder.encode(request)
   }
 
-  /// Builds the OTLP logs payloads for a test run without sending them.
+  /// Builds the OTLP traces payloads for a test run without sending them.
   ///
   /// - Parameter testRun: The completed test run.
-  /// - Returns: The JSON-encoded OTLP `ExportLogsServiceRequest`s, one per batch of test cases, or
+  /// - Returns: The JSON-encoded OTLP `ExportTraceServiceRequest`s, one per batch of spans, or
   ///   none when the run has no test cases.
   /// - Throws: An encoding error if a payload cannot be serialized.
-  public func logPayloads(for testRun: TestRun) throws -> [Data] {
-    let requests = OTLPLogsBuilder(serviceName: configuration.serviceName, timestamp: configuration.timestamp)
+  public func tracePayloads(for testRun: TestRun) throws -> [Data] {
+    let requests = OTLPTracesBuilder(serviceName: configuration.serviceName, timestamp: configuration.timestamp)
       .build(
         testRun: testRun,
         repository: ci.repository,
@@ -107,11 +107,11 @@ public struct TestsOTELReporter {
     try await report(testRun: testRun, lineCoverage: .none)
   }
 
-  /// Exports the metrics for a test run and its line coverage, then its per-test-case logs.
+  /// Exports the metrics for a test run and its line coverage, then its per-test-case traces.
   ///
-  /// Metrics are sent first, so a failing logs export cannot keep them from being delivered.
+  /// Metrics are sent first, so a failing traces export cannot keep them from being delivered.
   /// When the configuration requests a dry run, the payloads are built and returned without any
-  /// network request being made; use ``logPayloads(for:)`` for the logs.
+  /// network request being made; use ``tracePayloads(for:)`` for the traces.
   ///
   /// - Parameters:
   ///   - testRun: The completed test run, if there is one to report.
@@ -132,10 +132,10 @@ public struct TestsOTELReporter {
     try await send(payload, to: configuration.metricsURL, headers: configuration.headers)
 
     if let testRun {
-      let logPayloads = try logPayloads(for: testRun)
-      log.debug("Exporting test case logs to \(configuration.logsURL) in \(logPayloads.count) requests")
-      for logPayload in logPayloads {
-        try await send(logPayload, to: configuration.logsURL, headers: configuration.logsHeaders)
+      let tracePayloads = try tracePayloads(for: testRun)
+      log.debug("Exporting test case traces to \(configuration.tracesURL) in \(tracePayloads.count) requests")
+      for tracePayload in tracePayloads {
+        try await send(tracePayload, to: configuration.tracesURL, headers: configuration.tracesHeaders)
       }
     }
 

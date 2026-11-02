@@ -84,10 +84,14 @@ a missing endpoint is a validation error rather than silent data loss.
   (summed case durations per suite) and `cicd.test.run.duration`
 - Per-suite breakdown via `test.suite.name`, disabled with `--no-per-suite` (which also drops `cicd.test.suite.duration`)
 - `test.suite.run.status` (`success` / `failure` / `skipped`) on the suite and run duration metrics
-- Individual test cases are sent as OTLP **logs**, one record per case (name, suite, status, duration in
-  `test.case.*` attributes; the failure message in the body of failed cases), never as metric labels. Records go to
-  `--loki-otlp-endpoint` / `LOKI_OTLP_ENDPOINT` (a base URL such as `http://loki:3100/otlp`; `v1/logs` is appended) with
-  `--loki-otlp-header` / `LOKI_OTLP_HEADERS`, or else to the OTLP endpoint with the metrics headers. At most 500 records per request. Metrics are sent first; a failing logs export still fails the
+- Individual test cases are sent as OTLP **traces**: one trace per run, with a span for the run, one per suite and one per
+  case (name, suite, status, duration in `test.case.*` attributes; a failed case gets error status, with its message in the
+  status and in `test.case.failure.message`), never as metric labels. Reports carry durations but no start times, so spans are
+  laid out back-to-back ending at the run timestamp: durations are accurate, start times and ordering are approximate. The trace ID
+  is derived from the CI run (repository, pipeline, run id and number, stage, job), so exporting a job again overwrites its
+  trace; without a run id it is random. Spans go to `--tempo-otlp-endpoint` / `TEMPO_OTLP_ENDPOINT` (a base URL such as
+  `http://tempo:4318`; `v1/traces` is appended) with `--tempo-otlp-header` / `TEMPO_OTLP_HEADERS`, or else to the OTLP endpoint
+  with the metrics headers. At most 500 spans per request. Metrics are sent first; a failing traces export still fails the
   command, so append `|| true` where that should not turn a build red
 - Resource attributes (`service.*`, `vcs.*`, `cicd.*`) derived from the detected CI. `service.name` comes from
   `OTEL_SERVICE_NAME` (default `macpaw-test`); there is no `service.instance.id`, so runs share series. On GitHub Actions,
