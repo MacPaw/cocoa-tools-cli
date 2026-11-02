@@ -15,82 +15,82 @@ struct OptionsResolutionTests {
     try Options.parse(arguments)
   }
 
-  // MARK: - Loki
+  // MARK: - Tempo
 
-  @Test("resolvedLokiEndpoint prefersFlagOverEnvironment")
-  func test_resolvedLokiEndpoint_prefersFlagOverEnvironment() throws {
+  @Test("resolvedTempoEndpoint prefersFlagOverEnvironment")
+  func test_resolvedTempoEndpoint_prefersFlagOverEnvironment() throws {
     // GIVEN — both the flag and the environment variable are set
-    let sut = try makeSUT(["--loki-otlp-endpoint", "https://flag.example"])
+    let sut = try makeSUT(["--tempo-otlp-endpoint", "https://flag.example"])
 
     // WHEN
-    let endpoint = try sut.resolvedLokiEndpoint(environment: ["LOKI_OTLP_ENDPOINT": "https://env.example"])
+    let endpoint = try sut.resolvedTempoEndpoint(environment: ["TEMPO_OTLP_ENDPOINT": "https://env.example"])
 
     // THEN
     #expect(endpoint?.absoluteString == "https://flag.example")
   }
 
-  @Test("resolvedLokiEndpoint fallsBackToEnvironment")
-  func test_resolvedLokiEndpoint_fallsBackToEnvironment() throws {
+  @Test("resolvedTempoEndpoint fallsBackToEnvironment")
+  func test_resolvedTempoEndpoint_fallsBackToEnvironment() throws {
     // GIVEN — only the environment variable is set
     let sut = try makeSUT()
 
     // WHEN
-    let endpoint = try sut.resolvedLokiEndpoint(environment: ["LOKI_OTLP_ENDPOINT": "https://env.example"])
+    let endpoint = try sut.resolvedTempoEndpoint(environment: ["TEMPO_OTLP_ENDPOINT": "https://env.example"])
 
     // THEN
     #expect(endpoint?.absoluteString == "https://env.example")
   }
 
-  @Test("resolvedLokiEndpoint isNilWhenUnset")
-  func test_resolvedLokiEndpoint_isNilWhenUnset() throws {
-    // GIVEN — neither source supplies a Loki endpoint, and an empty variable counts as unset
+  @Test("resolvedTempoEndpoint isNilWhenUnset")
+  func test_resolvedTempoEndpoint_isNilWhenUnset() throws {
+    // GIVEN — neither source supplies a Tempo endpoint, and an empty variable counts as unset
     let sut = try makeSUT()
 
-    // WHEN / THEN — logs then go to the OTLP endpoint
-    #expect(try sut.resolvedLokiEndpoint(environment: [:]) == nil)
-    #expect(try sut.resolvedLokiEndpoint(environment: ["LOKI_OTLP_ENDPOINT": ""]) == nil)
+    // WHEN / THEN — traces then go to the OTLP endpoint
+    #expect(try sut.resolvedTempoEndpoint(environment: [:]) == nil)
+    #expect(try sut.resolvedTempoEndpoint(environment: ["TEMPO_OTLP_ENDPOINT": ""]) == nil)
   }
 
-  @Test("resolvedLokiEndpoint throwsForValueWithoutScheme")
-  func test_resolvedLokiEndpoint_throwsForValueWithoutScheme() throws {
+  @Test("resolvedTempoEndpoint throwsForValueWithoutScheme")
+  func test_resolvedTempoEndpoint_throwsForValueWithoutScheme() throws {
     // GIVEN
-    let sut = try makeSUT(["--loki-otlp-endpoint", "loki.example:3100"])
+    let sut = try makeSUT(["--tempo-otlp-endpoint", "tempo.example:4318"])
 
     // WHEN / THEN
-    #expect(throws: ValidationError.self) { try sut.resolvedLokiEndpoint(environment: [:]) }
+    #expect(throws: ValidationError.self) { try sut.resolvedTempoEndpoint(environment: [:]) }
   }
 
-  @Test("resolvedLokiHeaders isNilWhenNoneAreConfigured")
-  func test_resolvedLokiHeaders_isNilWhenNoneAreConfigured() throws {
-    // GIVEN — metrics headers in the environment, but nothing Loki-specific
+  @Test("resolvedTempoHeaders isNilWhenNoneAreConfigured")
+  func test_resolvedTempoHeaders_isNilWhenNoneAreConfigured() throws {
+    // GIVEN — metrics headers in the environment, but nothing Tempo-specific
     let sut = try makeSUT(["--header", "authorization=metrics"])
 
     // WHEN
-    let headers = try sut.resolvedLokiHeaders(environment: ["OTEL_EXPORTER_OTLP_HEADERS": "x=y"])
+    let headers = try sut.resolvedTempoHeaders(environment: ["OTEL_EXPORTER_OTLP_HEADERS": "x=y"])
 
-    // THEN — the metrics headers are used for logs, not merged into Loki's
+    // THEN — the metrics headers are used for traces, not merged into Tempo's
     #expect(headers == nil)
   }
 
-  @Test("resolvedLokiHeaders mergesFlagsOverEnvironment")
-  func test_resolvedLokiHeaders_mergesFlagsOverEnvironment() throws {
-    // GIVEN — a Loki header in the environment, overridden by a flag, plus one more
-    let sut = try makeSUT(["--loki-otlp-header", "authorization=flag", "--loki-otlp-header", "x-scope-orgid=macpaw"])
+  @Test("resolvedTempoHeaders mergesFlagsOverEnvironment")
+  func test_resolvedTempoHeaders_mergesFlagsOverEnvironment() throws {
+    // GIVEN — a Tempo header in the environment, overridden by a flag, plus one more
+    let sut = try makeSUT(["--tempo-otlp-header", "authorization=flag", "--tempo-otlp-header", "x-scope-orgid=macpaw"])
 
     // WHEN
-    let headers = try sut.resolvedLokiHeaders(environment: ["LOKI_OTLP_HEADERS": "authorization=env"])
+    let headers = try sut.resolvedTempoHeaders(environment: ["TEMPO_OTLP_HEADERS": "authorization=env"])
 
     // THEN
     #expect(headers == ["authorization": "flag", "x-scope-orgid": "macpaw"])
   }
 
-  @Test("resolvedLokiHeaders throwsForEntryWithoutSeparator")
-  func test_resolvedLokiHeaders_throwsForEntryWithoutSeparator() throws {
+  @Test("resolvedTempoHeaders throwsForEntryWithoutSeparator")
+  func test_resolvedTempoHeaders_throwsForEntryWithoutSeparator() throws {
     // GIVEN
-    let sut = try makeSUT(["--loki-otlp-header", "garbage"])
+    let sut = try makeSUT(["--tempo-otlp-header", "garbage"])
 
     // WHEN / THEN
-    #expect(throws: ValidationError.self) { try sut.resolvedLokiHeaders(environment: [:]) }
+    #expect(throws: ValidationError.self) { try sut.resolvedTempoHeaders(environment: [:]) }
   }
 
   // MARK: - Service name
@@ -118,7 +118,7 @@ struct OptionsResolutionTests {
 
   @Test("parse rejectsTheRemovedPerTestFlag")
   func test_parse_rejectsTheRemovedPerTestFlag() {
-    // GIVEN / WHEN / THEN — test case names now go to logs, so there is nothing to switch off
+    // GIVEN / WHEN / THEN — test case names now go to traces, so there is nothing to switch off
     #expect(throws: (any Error).self) { try Options.parse(["--no-per-test"]) }
   }
 

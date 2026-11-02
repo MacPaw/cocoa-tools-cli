@@ -1130,109 +1130,92 @@
             "spec": {
               "queries": [
                 {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "hidden": false,
-                    "query": {
-                      "datasource": {
-                        "name": "${loki}"
-                      },
-                      "group": "loki",
-                      "kind": "DataQuery",
-                      "spec": {
-                        "editorMode": "code",
-                        "expr": "sum by (test_suite_name, test_case_name) (count_over_time({service_name=\"macpaw-test\", vcs_repository_name=~\"$repo\"} | test_case_name!=\"\" | cicd_pipeline_name=~\"$pipeline\" | cicd_pipeline_stage_name=~\"$stage\" | cicd_pipeline_task_name=~\"$job\" | test_suite_name=~\"$suite\" | test_case_result_status=\"pass\" | keep test_suite_name, test_case_name [$__range]))",
-                        "legendFormat": "Passed",
-                        "queryType": "instant"
-                      },
-                      "version": "v0"
+                  "hidden": false,
+                  "query": {
+                    "datasource": {
+                      "name": "${tempo}"
                     },
-                    "refId": "A"
-                  }
+                    "group": "tempo",
+                    "kind": "DataQuery",
+                    "spec": {
+                      "filters": [],
+                      "legendFormat": "Passed",
+                      "limit": 20,
+                      "metricsQueryType": "instant",
+                      "query": "{ resource.service.name=\"macpaw-test\" && resource.vcs.repository.name=~\"$repo\" && resource.cicd.pipeline.name=~\"$pipeline\" && resource.cicd.pipeline.stage.name=~\"$stage\" && resource.cicd.pipeline.task.name=~\"$job\" && span.test.suite.name=~\"$suite\" && span.test.case.name!=\"\" && span.test.case.result.status=\"pass\" } | count_over_time() by (span.test.suite.name, span.test.case.name)",
+                      "queryType": "traceql",
+                      "refId": "A",
+                      "tableType": "traces"
+                    },
+                    "version": "v0"
+                  },
+                  "refId": "A"
                 },
                 {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "hidden": false,
-                    "query": {
-                      "datasource": {
-                        "name": "${loki}"
-                      },
-                      "group": "loki",
-                      "kind": "DataQuery",
-                      "spec": {
-                        "editorMode": "code",
-                        "expr": "sum by (test_suite_name, test_case_name) (sum_over_time({service_name=\"macpaw-test\", vcs_repository_name=~\"$repo\"} | test_case_name!=\"\" | cicd_pipeline_name=~\"$pipeline\" | cicd_pipeline_stage_name=~\"$stage\" | cicd_pipeline_task_name=~\"$job\" | test_suite_name=~\"$suite\" | label_format is_fail=`{{ if eq .test_case_result_status \"fail\" }}1{{ else }}0{{ end }}` | keep test_suite_name, test_case_name, is_fail | unwrap is_fail | __error__=\"\" [$__range]))",
-                        "legendFormat": "Failed",
-                        "queryType": "instant"
-                      },
-                      "version": "v0"
+                  "hidden": false,
+                  "query": {
+                    "datasource": {
+                      "name": "${tempo}"
                     },
-                    "refId": "B"
-                  }
+                    "group": "tempo",
+                    "kind": "DataQuery",
+                    "spec": {
+                      "filters": [],
+                      "legendFormat": "Failed",
+                      "limit": 20,
+                      "metricsQueryType": "instant",
+                      "query": "{ resource.service.name=\"macpaw-test\" && resource.vcs.repository.name=~\"$repo\" && resource.cicd.pipeline.name=~\"$pipeline\" && resource.cicd.pipeline.stage.name=~\"$stage\" && resource.cicd.pipeline.task.name=~\"$job\" && span.test.suite.name=~\"$suite\" && span.test.case.name!=\"\" && span.test.case.result.status=\"fail\" } | count_over_time() by (span.test.suite.name, span.test.case.name)",
+                      "queryType": "traceql",
+                      "refId": "B",
+                      "tableType": "traces"
+                    },
+                    "version": "v0"
+                  },
+                  "refId": "B"
                 },
                 {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "hidden": false,
-                    "query": {
-                      "datasource": {
-                        "name": "${loki}"
-                      },
-                      "group": "loki",
-                      "kind": "DataQuery",
-                      "spec": {
-                        "editorMode": "code",
-                        "expr": "avg by (test_suite_name, test_case_name) (avg_over_time({service_name=\"macpaw-test\", vcs_repository_name=~\"$repo\"} | test_case_name!=\"\" | cicd_pipeline_name=~\"$pipeline\" | cicd_pipeline_stage_name=~\"$stage\" | cicd_pipeline_task_name=~\"$job\" | test_suite_name=~\"$suite\" | test_case_result_status=~\"pass|fail\" | label_format is_pass=`{{ if eq .test_case_result_status \"pass\" }}1{{ else }}0{{ end }}` | keep test_suite_name, test_case_name, is_pass | unwrap is_pass | __error__=\"\" [$__range]))",
-                        "legendFormat": "Pass rate",
-                        "queryType": "instant"
-                      },
-                      "version": "v0"
+                  "hidden": false,
+                  "query": {
+                    "datasource": {
+                      "name": "${tempo}"
                     },
-                    "refId": "C"
-                  }
+                    "group": "tempo",
+                    "kind": "DataQuery",
+                    "spec": {
+                      "filters": [],
+                      "legendFormat": "Skipped",
+                      "limit": 20,
+                      "metricsQueryType": "instant",
+                      "query": "{ resource.service.name=\"macpaw-test\" && resource.vcs.repository.name=~\"$repo\" && resource.cicd.pipeline.name=~\"$pipeline\" && resource.cicd.pipeline.stage.name=~\"$stage\" && resource.cicd.pipeline.task.name=~\"$job\" && span.test.suite.name=~\"$suite\" && span.test.case.name!=\"\" && span.test.case.result.status=\"skip\" } | count_over_time() by (span.test.suite.name, span.test.case.name)",
+                      "queryType": "traceql",
+                      "refId": "C",
+                      "tableType": "traces"
+                    },
+                    "version": "v0"
+                  },
+                  "refId": "C"
                 },
                 {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "hidden": false,
-                    "query": {
-                      "datasource": {
-                        "name": "${loki}"
-                      },
-                      "group": "loki",
-                      "kind": "DataQuery",
-                      "spec": {
-                        "editorMode": "code",
-                        "expr": "avg by (test_suite_name, test_case_name) (avg_over_time({service_name=\"macpaw-test\", vcs_repository_name=~\"$repo\"} | test_case_name!=\"\" | cicd_pipeline_name=~\"$pipeline\" | cicd_pipeline_stage_name=~\"$stage\" | cicd_pipeline_task_name=~\"$job\" | test_suite_name=~\"$suite\" | keep test_suite_name, test_case_name, test_case_duration | unwrap test_case_duration | __error__=\"\" [$__range]))",
-                        "legendFormat": "Execution time",
-                        "queryType": "instant"
-                      },
-                      "version": "v0"
+                  "hidden": false,
+                  "query": {
+                    "datasource": {
+                      "name": "${tempo}"
                     },
-                    "refId": "D"
-                  }
-                },
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "hidden": false,
-                    "query": {
-                      "datasource": {
-                        "name": "${loki}"
-                      },
-                      "group": "loki",
-                      "kind": "DataQuery",
-                      "spec": {
-                        "editorMode": "code",
-                        "expr": "sum by (test_suite_name, test_case_name) (count_over_time({service_name=\"macpaw-test\", vcs_repository_name=~\"$repo\"} | test_case_name!=\"\" | cicd_pipeline_name=~\"$pipeline\" | cicd_pipeline_stage_name=~\"$stage\" | cicd_pipeline_task_name=~\"$job\" | test_suite_name=~\"$suite\" | test_case_result_status=\"skip\" | keep test_suite_name, test_case_name [$__range]))",
-                        "legendFormat": "Skipped",
-                        "queryType": "instant"
-                      },
-                      "version": "v0"
+                    "group": "tempo",
+                    "kind": "DataQuery",
+                    "spec": {
+                      "filters": [],
+                      "legendFormat": "Execution time",
+                      "limit": 20,
+                      "metricsQueryType": "instant",
+                      "query": "{ resource.service.name=\"macpaw-test\" && resource.vcs.repository.name=~\"$repo\" && resource.cicd.pipeline.name=~\"$pipeline\" && resource.cicd.pipeline.stage.name=~\"$stage\" && resource.cicd.pipeline.task.name=~\"$job\" && span.test.suite.name=~\"$suite\" && span.test.case.name!=\"\" } | avg_over_time(span.test.case.duration) by (span.test.suite.name, span.test.case.name)",
+                      "queryType": "traceql",
+                      "refId": "D",
+                      "tableType": "traces"
                     },
-                    "refId": "E"
-                  }
+                    "version": "v0"
+                  },
+                  "refId": "D"
                 }
               ],
               "queryOptions": {},
@@ -1261,26 +1244,73 @@
                   "spec": {
                     "id": "organize",
                     "options": {
-                      "excludeByName": {
-                        "Time": true
-                      },
-                      "indexByName": {
-                        "Value #A": 2,
-                        "Value #B": 3,
-                        "Value #C": 5,
-                        "Value #D": 6,
-                        "Value #E": 4,
-                        "test_case_name": 1,
-                        "test_suite_name": 0
-                      },
                       "renameByName": {
                         "Value #A": "Passed",
                         "Value #B": "Failed",
-                        "Value #C": "Pass rate",
-                        "Value #D": "Execution time",
-                        "Value #E": "Skipped",
-                        "test_case_name": "Test",
-                        "test_suite_name": "Suite"
+                        "Value #C": "Skipped",
+                        "Value #D": "Execution time"
+                      }
+                    }
+                  }
+                },
+                {
+                  "group": "calculateField",
+                  "kind": "calculateField",
+                  "spec": {
+                    "id": "calculateField",
+                    "options": {
+                      "alias": "Total",
+                      "mode": "reduceRow",
+                      "reduceRow": {
+                        "include": [
+                          "Passed",
+                          "Failed"
+                        ],
+                        "reducer": "sum"
+                      },
+                      "replaceFields": false
+                    }
+                  }
+                },
+                {
+                  "group": "calculateField",
+                  "kind": "calculateField",
+                  "spec": {
+                    "id": "calculateField",
+                    "options": {
+                      "alias": "Pass rate",
+                      "binary": {
+                        "left": "Passed",
+                        "operator": "/",
+                        "right": "Total"
+                      },
+                      "mode": "binary",
+                      "replaceFields": false
+                    }
+                  }
+                },
+                {
+                  "group": "organize",
+                  "kind": "organize",
+                  "spec": {
+                    "id": "organize",
+                    "options": {
+                      "excludeByName": {
+                        "Time": true,
+                        "Total": true
+                      },
+                      "indexByName": {
+                        "Execution time": 6,
+                        "Failed": 3,
+                        "Pass rate": 5,
+                        "Passed": 2,
+                        "Skipped": 4,
+                        "span.test.case.name": 1,
+                        "span.test.suite.name": 0
+                      },
+                      "renameByName": {
+                        "span.test.case.name": "Test",
+                        "span.test.suite.name": "Suite"
                       }
                     }
                   }
@@ -1288,7 +1318,7 @@
               ]
             }
           },
-          "description": "Every test with its passed, failed (0 when none) and skipped counts over the selected range, pass rate (N/A when nothing passed or failed) and mean execution time per execution, sorted by pass rate descending. Read from the per-test-case logs in Loki, not from metrics. Shown only once Repository, Pipeline, Stage, Job or Test suite is narrowed from All, so the Loki queries do not run for the whole range.",
+          "description": "Every test with its passed, failed (0 when none) and skipped counts over the selected range, pass rate (N/A when nothing passed or failed) and mean execution time per execution, sorted by pass rate descending. Read from the per-test-case spans in Tempo (TraceQL metrics), not from metrics. Shown only once Repository, Pipeline, Stage, Job or Test suite is narrowed from All, so the Tempo queries do not run for the whole range.",
           "id": 19,
           "links": [],
           "title": "Executed tests",
@@ -1448,6 +1478,17 @@
                               }
                             },
                             "type": "special"
+                          },
+                          {
+                            "options": {
+                              "match": "nan",
+                              "result": {
+                                "color": "#8e8e8e",
+                                "index": 1,
+                                "text": "N/A"
+                              }
+                            },
+                            "type": "special"
                           }
                         ]
                       }
@@ -1595,46 +1636,48 @@
             "spec": {
               "queries": [
                 {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "hidden": false,
-                    "query": {
-                      "datasource": {
-                        "name": "${loki}"
-                      },
-                      "group": "loki",
-                      "kind": "DataQuery",
-                      "spec": {
-                        "editorMode": "code",
-                        "expr": "(sum by (test_suite_name, test_case_name) (count_over_time({service_name=\"macpaw-test\", vcs_repository_name=~\"$repo\"} | test_case_name!=\"\" | cicd_pipeline_name=~\"$pipeline\" | cicd_pipeline_stage_name=~\"$stage\" | cicd_pipeline_task_name=~\"$job\" | test_suite_name=~\"$suite\" | test_case_result_status=\"pass\" | keep test_suite_name, test_case_name [$__range])) and on (test_suite_name, test_case_name) topk(100, sum by (test_suite_name, test_case_name) (count_over_time({service_name=\"macpaw-test\", vcs_repository_name=~\"$repo\"} | test_case_name!=\"\" | cicd_pipeline_name=~\"$pipeline\" | cicd_pipeline_stage_name=~\"$stage\" | cicd_pipeline_task_name=~\"$job\" | test_suite_name=~\"$suite\" | test_case_result_status=\"fail\" | keep test_suite_name, test_case_name [$__range])))) or on (test_suite_name, test_case_name) (topk(100, sum by (test_suite_name, test_case_name) (count_over_time({service_name=\"macpaw-test\", vcs_repository_name=~\"$repo\"} | test_case_name!=\"\" | cicd_pipeline_name=~\"$pipeline\" | cicd_pipeline_stage_name=~\"$stage\" | cicd_pipeline_task_name=~\"$job\" | test_suite_name=~\"$suite\" | test_case_result_status=\"fail\" | keep test_suite_name, test_case_name [$__range]))) * 0)",
-                        "legendFormat": "Passed",
-                        "queryType": "instant"
-                      },
-                      "version": "v0"
+                  "hidden": false,
+                  "query": {
+                    "datasource": {
+                      "name": "${tempo}"
                     },
-                    "refId": "A"
-                  }
+                    "group": "tempo",
+                    "kind": "DataQuery",
+                    "spec": {
+                      "filters": [],
+                      "legendFormat": "Passed",
+                      "limit": 20,
+                      "metricsQueryType": "instant",
+                      "query": "{ resource.service.name=\"macpaw-test\" && resource.vcs.repository.name=~\"$repo\" && resource.cicd.pipeline.name=~\"$pipeline\" && resource.cicd.pipeline.stage.name=~\"$stage\" && resource.cicd.pipeline.task.name=~\"$job\" && span.test.suite.name=~\"$suite\" && span.test.case.name!=\"\" && span.test.case.result.status=\"pass\" } | count_over_time() by (span.test.suite.name, span.test.case.name)",
+                      "queryType": "traceql",
+                      "refId": "A",
+                      "tableType": "traces"
+                    },
+                    "version": "v0"
+                  },
+                  "refId": "A"
                 },
                 {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "hidden": false,
-                    "query": {
-                      "datasource": {
-                        "name": "${loki}"
-                      },
-                      "group": "loki",
-                      "kind": "DataQuery",
-                      "spec": {
-                        "editorMode": "code",
-                        "expr": "topk(100, sum by (test_suite_name, test_case_name) (count_over_time({service_name=\"macpaw-test\", vcs_repository_name=~\"$repo\"} | test_case_name!=\"\" | cicd_pipeline_name=~\"$pipeline\" | cicd_pipeline_stage_name=~\"$stage\" | cicd_pipeline_task_name=~\"$job\" | test_suite_name=~\"$suite\" | test_case_result_status=\"fail\" | keep test_suite_name, test_case_name [$__range])))",
-                        "legendFormat": "Failed",
-                        "queryType": "instant"
-                      },
-                      "version": "v0"
+                  "hidden": false,
+                  "query": {
+                    "datasource": {
+                      "name": "${tempo}"
                     },
-                    "refId": "B"
-                  }
+                    "group": "tempo",
+                    "kind": "DataQuery",
+                    "spec": {
+                      "filters": [],
+                      "legendFormat": "Failed",
+                      "limit": 20,
+                      "metricsQueryType": "instant",
+                      "query": "{ resource.service.name=\"macpaw-test\" && resource.vcs.repository.name=~\"$repo\" && resource.cicd.pipeline.name=~\"$pipeline\" && resource.cicd.pipeline.stage.name=~\"$stage\" && resource.cicd.pipeline.task.name=~\"$job\" && span.test.suite.name=~\"$suite\" && span.test.case.name!=\"\" && span.test.case.result.status=\"fail\" } | count_over_time() by (span.test.suite.name, span.test.case.name)",
+                      "queryType": "traceql",
+                      "refId": "B",
+                      "tableType": "traces"
+                    },
+                    "version": "v0"
+                  },
+                  "refId": "B"
                 }
               ],
               "queryOptions": {},
@@ -1667,6 +1710,28 @@
                         "Value #A": "Passed",
                         "Value #B": "Failed"
                       }
+                    }
+                  }
+                },
+                {
+                  "group": "filterByValue",
+                  "kind": "filterByValue",
+                  "spec": {
+                    "id": "filterByValue",
+                    "options": {
+                      "filters": [
+                        {
+                          "config": {
+                            "id": "greater",
+                            "options": {
+                              "value": 0
+                            }
+                          },
+                          "fieldName": "Failed"
+                        }
+                      ],
+                      "match": "all",
+                      "type": "include"
                     }
                   }
                 },
@@ -1707,6 +1772,35 @@
                   }
                 },
                 {
+                  "group": "sortBy",
+                  "kind": "sortBy",
+                  "spec": {
+                    "id": "sortBy",
+                    "options": {
+                      "fields": {},
+                      "sort": [
+                        {
+                          "desc": true,
+                          "field": "Failed"
+                        },
+                        {
+                          "field": "Pass rate"
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "group": "limit",
+                  "kind": "limit",
+                  "spec": {
+                    "id": "limit",
+                    "options": {
+                      "limitField": 100
+                    }
+                  }
+                },
+                {
                   "group": "organize",
                   "kind": "organize",
                   "spec": {
@@ -1720,12 +1814,12 @@
                         "Failed": 2,
                         "Pass rate": 4,
                         "Passed": 3,
-                        "test_case_name": 1,
-                        "test_suite_name": 0
+                        "span.test.case.name": 1,
+                        "span.test.suite.name": 0
                       },
                       "renameByName": {
-                        "test_case_name": "Test",
-                        "test_suite_name": "Suite"
+                        "span.test.case.name": "Test",
+                        "span.test.suite.name": "Suite"
                       }
                     }
                   }
@@ -1733,7 +1827,7 @@
               ]
             }
           },
-          "description": "The 100 tests that failed at least once in the selected range, ranked by failure count, then by pass rate (lowest first). Read from the per-test-case logs in Loki; the ranking runs in LogQL, so only 100 rows reach the panel.",
+          "description": "The 100 tests that failed at least once in the selected range, ranked by failure count, then by pass rate (lowest first). Read from the per-test-case spans in Tempo; the filter and ranking run in Grafana transformations, after TraceQL metrics return the passed and failed counts of every test.",
           "id": 20,
           "links": [],
           "title": "Flaky tests",
@@ -1936,7 +2030,7 @@
                   "showLineNumbers": false,
                   "showMiniMap": false
                 },
-                "content": "Select a **Repository**, **Pipeline**, **Stage**, **Job** or **Test suite** above to list the executed tests. The list is read from Loki, so it is not loaded while every filter is on *All*.",
+                "content": "Select a **Repository**, **Pipeline**, **Stage**, **Job** or **Test suite** above to list the executed tests. The list is read from Tempo, so it is not loaded while every filter is on *All*.",
                 "mode": "markdown"
               }
             },
@@ -3060,11 +3154,11 @@
           },
           "hide": "dontHide",
           "includeAll": false,
-          "label": "Loki",
+          "label": "Tempo",
           "multi": false,
-          "name": "loki",
+          "name": "tempo",
           "options": [],
-          "pluginId": "loki",
+          "pluginId": "tempo",
           "refresh": "onDashboardLoad",
           "regex": "",
           "skipUrlSync": false

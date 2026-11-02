@@ -1,9 +1,9 @@
 import CI
 import Foundation
 
-/// Builds the resource attributes shared by the metrics and logs payloads.
+/// Builds the resource attributes shared by the metrics and traces payloads.
 ///
-/// Both signals describe the same run, so they must carry identical resources — Loki and Mimir
+/// Both signals describe the same run, so they must carry identical resources — Tempo and Mimir
 /// are joined on these attributes in a dashboard.
 enum OTLPResourceAttributes {
   /// Collects the resource attributes describing where the run executed.
