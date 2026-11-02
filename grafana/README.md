@@ -32,11 +32,13 @@ and Coverage target.
   Loki rejects log lines older than its `reject_old_samples_max_age` (a week by default), so a back-dated
   `--timestamp` or `BUILD_FINISHTIME` outside that window drops the logs while the metrics still land.
 - The *Executed tests* row is hidden while Repository, Pipeline, Stage, Job and Test suite are all on *All* (a conditional-rendering rule on the row, which needs Grafana 12 or newer), so its five Loki queries do not run until a filter is narrowed; while it is hidden, a short text panel in its place asks you to pick a filter.
-- The *Flaky tests* table lists the 100 tests that both passed and failed in the range, ranked by failure count and then by
-  pass rate (lowest first). The ranking runs in LogQL (`topk(100, failed and on(suite, test) passed)`), the passed counts are
-  restricted to the same set with `and on(...)`, and the pass rate is computed in the panel. This keeps the panel small, but not
-  Loki's work: `topk` runs after the scan, so the panel reads the same log lines as *Executed tests* (two selectors for each
-  query, five scans in all). Shorten the range to lower the load.
+- The *Flaky tests* table lists the 100 tests that failed at least once in the range (a test that never passed shows a pass rate of 0%), ranked by failure count and then by
+  pass rate (lowest first). The ranking runs in LogQL (`topk(100, failed)`), the passed counts are
+  restricted to the same set with `and on(...)` (filled with 0 for tests that never passed), and the pass rate is computed in the panel. This keeps the panel small, but not
+  Loki's work: `topk` runs after the scan, so the panel reads the same log lines as *Executed tests* (several selectors for each
+  query, so several scans). Shorten the range to lower the load.
+  Each Loki selector ends in `| keep test_suite_name, test_case_name`, so a series is one test rather than one test per
+  stream and run; without it Loki stops at `maximum of series (10000) reached for a single query`.
 - Metrics are one-shot gauges, one sample per CI run, so queries use `*_over_time` rather than `rate`. mpct sends no
   `service.instance.id` (Mimir would make it the `instance` label), so runs of the same pipeline, stage and job share a series
   and each adds a sample. The queries also hold for a reporter that does send a per-run instance id.
@@ -45,7 +47,7 @@ and Coverage target.
   counts twice. Pass rate is the share of passed among passed and failed, skipped tests are not counted.
 - *Average run duration* and *Run duration* are the mean over runs (`sum_over_time` / `count_over_time`), and the duration
   percentiles sum the histogram buckets of every run. Buckets are 0.1, 0.25, 0.5, 1 and 2.5 ms below 5 ms, then 5 ms up to 10 s, then 30 s, 1, 2, 5, 10 and 30 min (a slower test counts as 30 min); runs pushed before the finer buckets were added have none of them, so a percentile over a range that mixes both is only accurate for tests slower than 5 ms. Line coverage is not additive across runs, so the coverage panels take the
-  latest run per series (`last_over_time`); *Per-target line coverage* shows the highest of those per target (`max`).
+  latest run per series (`last_over_time`); *Per-target line coverage* shows the highest of those per target (`max`), without targets at 0% coverage.
 - Mimir rejects a sample older than the newest one in its series unless `out_of_order_time_window` is set. Concurrent runs of
   one job, or a back-dated `--timestamp` / `BUILD_FINISHTIME`, can push out of order, so set the window (an hour or more) on the
   tenant.
