@@ -103,6 +103,7 @@ mpct secrets obfuscate --swift-confidential-config config.yaml --output Sources/
 
 **Key Features:**
 - Swift-confidential integration
+- `--generator cryptokit`: CryptoKit-sealed literals with no package dependency
 - Environment variable substitution
 - Secret importing integration
 - Build-time code generation
