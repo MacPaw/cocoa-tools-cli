@@ -28,7 +28,8 @@
         let member = try accessor(for: secret, accessModifier: accessModifier)
         if let index = namespaces.firstIndex(where: { $0.declaration == namespace.declaration }) {
           namespaces[index].members.append(member)
-        } else {
+        }
+        else {
           var namespace = namespace
           namespace.members = [member]
           namespaces.append(namespace)
@@ -54,7 +55,9 @@
     static func seal(_ payload: Data, name: String) throws -> (key: [UInt8], box: [UInt8]) {
       let material = Data(name.utf8) + Data([0]) + payload
       let key = SymmetricKey(data: SHA256.hash(data: Data("mpct.secrets.key".utf8) + material))
-      let nonce = try ChaChaPoly.Nonce(data: Array(SHA256.hash(data: Data("mpct.secrets.nonce".utf8) + material)).prefix(12))
+      let nonce = try ChaChaPoly.Nonce(
+        data: Array(SHA256.hash(data: Data("mpct.secrets.nonce".utf8) + material)).prefix(12)
+      )
       let box = try ChaChaPoly.seal(payload, using: key, nonce: nonce)
       return (key.withUnsafeBytes { Array($0) }, Array(box.combined))
     }
@@ -65,8 +68,8 @@
       }
       let (type, function, payload): (String, String, Data) =
         switch secret.value {
-        case let .string(value): ("String", "string", Data(value.utf8))
-        case let .strings(values): ("[String]", "strings", try JSONEncoder().encode(values))
+        case .string(let value): ("String", "string", Data(value.utf8))
+        case .strings(let values): ("[String]", "strings", try JSONEncoder().encode(values))
         }
       let sealed = try seal(payload, name: secret.name)
       return """
@@ -80,9 +83,10 @@
     }
 
     private static func byteArray(_ bytes: [UInt8], indent: Int) -> String {
-      let rows = stride(from: 0, to: bytes.count, by: 16).map { start in
-        bytes[start..<min(start + 16, bytes.count)].map { String(format: "0x%02x", $0) }.joined(separator: ", ")
-      }
+      let rows = stride(from: 0, to: bytes.count, by: 16)
+        .map { start in
+          bytes[start..<min(start + 16, bytes.count)].map { String(format: "0x%02x", $0) }.joined(separator: ", ")
+        }
       let pad = String(repeating: " ", count: indent + 4)
       return "[\n" + rows.map { pad + $0 }.joined(separator: ",\n") + "\n" + String(repeating: " ", count: indent) + "]"
     }
@@ -138,7 +142,8 @@
           let container = try decoder.singleValueContainer()
           if let value = try? container.decode(String.self) {
             self = .string(value)
-          } else {
+          }
+          else {
             self = .strings(try container.decode([String].self))
           }
         }
@@ -168,7 +173,9 @@
           opening = "extension \(words[1]) {"
           module = words[3]
         default:
-          throw GeneratorError(#"Namespace "\#(declaration)" isn't "create Name", "extend Name" or "extend Name from Module""#)
+          throw GeneratorError(
+            #"Namespace "\#(declaration)" isn't "create Name", "extend Name" or "extend Name from Module""#
+          )
         }
         self.declaration = declaration
       }

@@ -133,7 +133,10 @@ enum Targets {
   static var obfuscateSecrets: [PackageDescription.Target] {
     commandBundle(
       name: "ObfuscateSecrets",
-      dependencies: [.target(name: "EnvSubst"), .target(name: "Shell"), .product(name: "Yams", package: "Yams"), swiftConfidentialSource.targetDependency],
+      dependencies: [
+        .target(name: "EnvSubst"), .target(name: "Shell"), .product(name: "Yams", package: "Yams"),
+        swiftConfidentialSource.targetDependency,
+      ],
       testsDependencies: [swiftConfidentialSource.targetDependency],
       commandDependencies: [.target(name: "EnvSubstCommand"), .target(name: "ExportSecretsCommand")],
     )
