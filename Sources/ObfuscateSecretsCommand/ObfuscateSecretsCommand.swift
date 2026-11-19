@@ -42,6 +42,10 @@ import Foundation
     )
     var outputURL: URL
 
+    /// The code generator that writes the output source.
+    @Option(help: "The code generator: swift-confidential (needs ConfidentialKit) or cryptokit (no dependency)")
+    var generator: Generator = .swiftConfidential
+
     /// Creates a new ObfuscateSecretsCommand instance.
     public init() {}
 
@@ -74,6 +78,16 @@ import Foundation
         environment.merge(secrets) { old, new in importSecretsOptions.overwriteExistingEnv ? new : old }
       }
 
+      if generator == .cryptokit {
+        try ObfuscateSecrets.substituteEnvAndGenerateWithCryptoKit(
+          inputFileURL: confidentialOptions.configurationURL,
+          outputFileURL: outputURL,
+          environment: environment,
+          options: envSusbstOptions.options,
+        )
+        return
+      }
+
       #if canImport(ConfidentialObfuscator)
         try ObfuscateSecrets.substituteEnvAndObfuscateWithLibrary(
           inputFileURL: confidentialOptions.configurationURL,
@@ -89,6 +103,16 @@ import Foundation
           options: envSusbstOptions.options,
         )
       #endif
+    }
+  }
+
+  extension ObfuscateSecretsCommand {
+    /// The code generator behind `secrets obfuscate`.
+    public enum Generator: String, CaseIterable, ExpressibleByArgument, Sendable {
+      /// swift-confidential's generator; the output depends on `ConfidentialKit`.
+      case swiftConfidential = "swift-confidential"
+      /// Encrypts each secret with ChaChaPoly; the output uses only CryptoKit.
+      case cryptokit
     }
   }
 #else
