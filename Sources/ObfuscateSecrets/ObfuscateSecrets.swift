@@ -30,7 +30,7 @@ extension ObfuscateSecrets {
     )
   }
 
-  private static func substituteEnv(
+  static func substituteEnv(
     inputFileURL: URL,
     environment: [String: String],
     options: EnvSubst.Options,

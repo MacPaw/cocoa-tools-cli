@@ -14,6 +14,15 @@ This approach allows you to create dynamic configuration templates that can be c
 - **Environment Variable Substitution**: Supports EnvSubst-style variable substitution in configuration files
 - **Secure Processing**: Safe handling of sensitive data during the transformation pipeline
 
+## CryptoKit Generator
+
+`ObfuscateSecrets.substituteEnvAndGenerateWithCryptoKit(inputFileURL:outputFileURL:)` reads the same configuration and writes Swift source that needs no package dependency:
+
+- Each value is sealed with ChaChaPoly. Accessors are plain `static var name: String` (or `[String]`) and decrypt with CryptoKit on each read.
+- Key and nonce derive from the secret's name and value, so the same configuration always produces the same file and compile caches keep hitting. A changed value changes both key and nonce.
+- An unchanged output file isn't rewritten, so its modification date stays.
+- Supported namespaces: `create Name`, `extend Name`, `extend Name from Module`. The `algorithm` keys are ignored.
+
 ## Configuration Format
 
 The module uses swift-confidential's YAML configuration format with added support for environment variable substitution. All swift-confidential configuration options are supported, plus the ability to use environment variables throughout the configuration.

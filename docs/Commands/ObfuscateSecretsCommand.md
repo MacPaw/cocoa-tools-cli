@@ -13,7 +13,7 @@ The added functionality:
 ## Usage
 
 ```bash
-mpct secrets obfuscate --swift-confidential-config <swift-confidential-config> [--no-unset] [--no-empty] [--fail-fast] [--import-secrets-config <import-secrets-config>] --secrets-source <secrets-source> ... [--overwrite-existing] --output <output>
+mpct secrets obfuscate --swift-confidential-config <swift-confidential-config> [--generator <generator>] [--no-unset] [--no-empty] [--fail-fast] [--import-secrets-config <import-secrets-config>] --secrets-source <secrets-source> ... [--overwrite-existing] --output <output>
 ```
 
 ## Arguments
@@ -21,6 +21,7 @@ mpct secrets obfuscate --swift-confidential-config <swift-confidential-config> [
 | Argument | Required | Description |
 |----------|----------|-------------|
 | `--swift-confidential-config` | Yes | Path to the swift-confidential configuration file that defines how secrets should be obfuscated and organized in the generated Swift code. |
+| `--generator` | No | Code generator. `swift-confidential` (default) emits `#Obfuscate` code that links ConfidentialKit and its swift-syntax macro. `cryptokit` emits ChaChaPoly-sealed literals decrypted with CryptoKit and needs no package dependency. |
 | `--output`, `-o` | Yes | Path to the output Swift source file where the generated code will be written. |
 | `--import-secrets-config` | No | Path to a secrets import configuration file (same format as used by ExportSecretsCommand). |
 | `--secrets-source` | No | Source provider to import secrets from. Can be specified multiple times.<br><br>**Available sources:**<br>• `op` - Import secrets from 1Password using the 1Password CLI |
@@ -46,6 +47,12 @@ When using secret import options, this YAML file defines which secrets to fetch 
 Generate obfuscated Swift code from a configuration file:
 ```bash
 mpct secrets obfuscate --swift-confidential-config confidential.yaml --output Sources/Secrets.swift
+```
+
+### Without a ConfidentialKit Dependency
+Generate code that decrypts with CryptoKit, so the app doesn't build the swift-confidential macro:
+```bash
+mpct secrets obfuscate --generator cryptokit --swift-confidential-config confidential.yaml --output Sources/Secrets.swift
 ```
 
 ### With Secret Import
@@ -103,6 +110,6 @@ The command will fail if:
 
 ## Dependencies
 
-- swift-confidential tool for code generation
+- swift-confidential tool for code generation (not needed with `--generator cryptokit`)
 - 1Password CLI (`op`) if using 1Password integration
 - Valid YAML configuration files
