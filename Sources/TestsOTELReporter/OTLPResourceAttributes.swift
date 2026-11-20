@@ -8,6 +8,10 @@ import Foundation
 enum OTLPResourceAttributes {
   /// Collects the resource attributes describing where the run executed.
   ///
+  /// Only values shared by every run of a job: the run id, number and URL are unique per run, so
+  /// on a resource they would start a new Loki stream or Mimir `target_info` series each time.
+  /// See ``runAttributes(cicd:)`` for where they go instead.
+  ///
   /// Attributes the CI cannot report are omitted rather than sent empty, so that a backend can
   /// tell "not reported" from "reported as blank".
   ///
@@ -35,9 +39,6 @@ enum OTLPResourceAttributes {
       (SemanticConventions.Resource.cicdPipelineName, cicd.pipelineName),
       (SemanticConventions.Resource.cicdPipelineTaskName, cicd.run.taskName),
       (SemanticConventions.Resource.cicdPipelineStageName, cicd.run.stageName),
-      (SemanticConventions.Resource.cicdPipelineRunID, cicd.run.id),
-      (SemanticConventions.Resource.cicdPipelineRunNumber, cicd.run.number),
-      (SemanticConventions.Resource.cicdPipelineRunURL, cicd.run.url?.absoluteString),
       (SemanticConventions.Resource.cicdProviderName, ciProviderName),
     ]
 

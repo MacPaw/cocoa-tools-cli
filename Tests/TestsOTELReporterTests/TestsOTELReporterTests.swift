@@ -241,8 +241,8 @@ struct TestsOTELReporterTests {
     #expect(attributes["cicd.pipeline.run.id"] == nil)
   }
 
-  @Test("payload mapsPipelineRunMetadataToResourceAttributes")
-  func test_payload_mapsPipelineRunMetadataToResourceAttributes() throws {
+  @Test("payload keepsRunUniqueAttributesOffTheResource")
+  func test_payload_keepsRunUniqueAttributesOffTheResource() throws {
     // GIVEN — a CI reporting full pipeline run metadata
     let ci = MockCI(
       cicd: CI.CICD(
@@ -261,13 +261,13 @@ struct TestsOTELReporterTests {
     // WHEN — the resource attributes are read
     let attributes = try payload(from: sut).resourceAttributes
 
-    // THEN — every run field is carried under its semantic convention name
+    // THEN — job-level fields are carried, run-unique ones are not: they would start a new series per run
     #expect(attributes["cicd.pipeline.name"] == "CI")
     #expect(attributes["cicd.pipeline.task.name"] == "Test")
     #expect(attributes["cicd.pipeline.stage.name"] == "Build")
-    #expect(attributes["cicd.pipeline.run.id"] == "42")
-    #expect(attributes["cicd.pipeline.run.number"] == "20260914.1")
-    #expect(attributes["cicd.pipeline.run.url.full"] == "https://dev.azure.com/macpaw/mpct/_build/results?buildId=42")
+    #expect(attributes["cicd.pipeline.run.id"] == nil)
+    #expect(attributes["cicd.pipeline.run.number"] == nil)
+    #expect(attributes["cicd.pipeline.run.url.full"] == nil)
   }
 
   @Test("payload repeatsFilterableCIAttributesOnEveryDataPoint")

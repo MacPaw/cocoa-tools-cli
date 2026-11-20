@@ -147,9 +147,9 @@ struct TestsOTELReporterLogsTests {
     let logs = try OTLPLogsPayload(data: try #require(try sut.logPayloads(for: Self.testRun).first))
     let metrics = try OTLPPayload(data: try sut.payload(for: Self.testRun))
 
-    // THEN — Loki and Mimir can be joined on identical resource attributes
+    // THEN — Loki and Mimir can be joined on identical resource attributes, none of them run-unique
     #expect(logs.resourceAttributes == metrics.resourceAttributes)
-    #expect(logs.resourceAttributes["cicd.pipeline.run.number"] == "7")
+    #expect(logs.resourceAttributes["cicd.pipeline.run.number"] == nil)
   }
 
   @Test("logPayloads emitsNothingForARunWithoutTestCases")
