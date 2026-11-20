@@ -1,8 +1,7 @@
+public import Foundation
+
 #if canImport(FoundationNetworking)
   public import FoundationNetworking
-  import Foundation
-#else
-  public import Foundation
 #endif
 
 extension TestsOTELReporter {
