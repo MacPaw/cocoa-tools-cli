@@ -50,7 +50,7 @@ extension TestsOTELReporter.Error: CustomStringConvertible {
   public var description: String {
     switch self {
     case .responseNotHTTP(let response, let url):
-      "OTLP export to \(url) got a non-HTTP response: \(response)"
+      "OTLP export to \(url) got a non-HTTP response (\(type(of: response)), \(response.mimeType ?? "unknown type"))"
     case .wrongStatusCode(let statusCode, let url, let body):
       "OTLP export to \(url) failed with status \(statusCode)\(body.map { ": \(Self.truncated($0))" } ?? "")"
     }
