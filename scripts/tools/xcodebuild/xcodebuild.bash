@@ -56,6 +56,12 @@ xcodebuild_run() {
     # Allow third-party macros
     "-skipMacroValidation"
 
+    # Prevent package signature validation
+    "-skipPackageSignatureValidation"
+
+    # Skip package plugin validation
+    "-skipPackagePluginValidation"
+
     # Build speed-up
     "RUN_CLANG_STATIC_ANALYZER=NO"
     "COMPILER_INDEX_STORE_ENABLE=NO"

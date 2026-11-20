@@ -128,14 +128,17 @@ public struct TestsOTELReporter {
       return payload
     }
 
-    log.debug("Exporting test metrics to \(configuration.metricsURL)")
-    try await send(payload, to: configuration.metricsURL, headers: configuration.headers)
+    try await send(payload, kind: "metrics", to: configuration.metricsURL, headers: configuration.headers)
 
     if let testRun {
       let logPayloads = try logPayloads(for: testRun)
-      log.debug("Exporting test case logs to \(configuration.logsURL) in \(logPayloads.count) requests")
-      for logPayload in logPayloads {
-        try await send(logPayload, to: configuration.logsURL, headers: configuration.logsHeaders)
+      for (index, logPayload) in logPayloads.enumerated() {
+        try await send(
+          logPayload,
+          kind: "logs (batch \(index + 1)/\(logPayloads.count))",
+          to: configuration.logsURL,
+          headers: configuration.logsHeaders,
+        )
       }
     }
 
@@ -146,27 +149,44 @@ public struct TestsOTELReporter {
   ///
   /// - Parameters:
   ///   - body: The JSON-encoded payload.
+  ///   - kind: What is being sent, for the log line, such as `metrics`.
   ///   - url: The URL to send it to.
   ///   - headers: Headers sent with the request.
   /// - Throws: ``Error`` if the collector rejects the payload, or a `URLSession` error.
-  private func send(_ body: Data, to url: URL, headers: [String: String]) async throws {
+  private func send(_ body: Data, kind: String, to url: URL, headers: [String: String]) async throws {
+    let safeURL = Error.redacted(url)
     var request = URLRequest(url: url)
     request.httpMethod = "POST"
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
     for (name, value) in headers { request.setValue(value, forHTTPHeaderField: name) }
     request.httpBody = body
 
-    let (data, response) = try await urlSession.data(for: request)
-
-    guard let httpResponse = response as? HTTPURLResponse else { throw Error.responseNotHTTP(response) }
-    guard (200..<300).contains(httpResponse.statusCode) else {
-      throw Error.wrongStatusCode(httpResponse.statusCode, body: String(data: data, encoding: .utf8))
+    let data: Data
+    let response: URLResponse
+    do {
+      (data, response) = try await urlSession.data(for: request)
     }
+    catch {
+      // `URLError` descriptions embed the unredacted URL, so log only its code and localized text.
+      let reason =
+        (error as? URLError).map { "\($0.localizedDescription) (code \($0.code.rawValue))" } ?? "\(type(of: error))"
+      log.error("Exporting \(kind) to \(safeURL) failed: \(reason)")
+      throw error
+    }
+
+    guard let httpResponse = response as? HTTPURLResponse else {
+      throw Error.responseNotHTTP(response, url: safeURL)
+    }
+    guard (200..<300).contains(httpResponse.statusCode) else {
+      throw Error.wrongStatusCode(httpResponse.statusCode, url: safeURL, body: String(data: data, encoding: .utf8))
+    }
+    log.info("Exported \(kind) to \(safeURL): HTTP \(httpResponse.statusCode), \(body.count) bytes")
   }
 }
 
 extension TestsOTELReporter {
-  /// Logs the CI metadata that is attached to the export as resource attributes.
+  /// Logs the CI metadata that is attached to the export: shared values as resource attributes,
+  /// run-unique ones on each log record.
   ///
   /// Attributes the CI cannot report are omitted from the payload, so they are logged as a
   /// warning: the matching dashboard variables stay empty.

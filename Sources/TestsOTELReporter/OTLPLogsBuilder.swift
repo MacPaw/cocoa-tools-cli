@@ -50,10 +50,13 @@ struct OTLPLogsBuilder {
         ciProviderName: ciProviderName,
       )
     )
+    let runAttributes = OTLPResourceAttributes.runAttributes(cicd: cicd)
     let records: [OTLPLogsRequest.LogRecord] = testRun.suites
       .flatMap { suite in suite.testCases.map { (suite: suite.name, testCase: $0) } }
       .enumerated()
-      .map { index, entry in logRecord(for: entry.testCase, suiteName: entry.suite, offset: index) }
+      .map { index, entry in
+        logRecord(for: entry.testCase, suiteName: entry.suite, runAttributes: runAttributes, offset: index)
+      }
 
     var batches: [[OTLPLogsRequest.LogRecord]] = []
     var batch: [OTLPLogsRequest.LogRecord] = []
@@ -103,11 +106,13 @@ struct OTLPLogsBuilder {
   /// - Parameters:
   ///   - testCase: The test case.
   ///   - suiteName: Name of the suite it belongs to.
+  ///   - runAttributes: Attributes identifying the run, repeated on every record.
   ///   - offset: Position of the record in the run, added to the timestamp in nanoseconds.
   /// - Returns: The log record.
   private func logRecord(
     for testCase: TestRun.Suite.TestCase,
     suiteName: String,
+    runAttributes: [OTLPMetricsRequest.KeyValue],
     offset: Int,
   ) -> OTLPLogsRequest.LogRecord {
     let severity =
@@ -133,7 +138,7 @@ struct OTLPLogsBuilder {
           key: SemanticConventions.Attribute.testCaseDuration,
           doubleValue: testCase.duration * 1000,
         ),
-      ],
+      ] + runAttributes,
     )
   }
 

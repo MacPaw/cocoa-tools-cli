@@ -90,7 +90,9 @@ a missing endpoint is a validation error rather than silent data loss.
   `--loki-otlp-header` / `LOKI_OTLP_HEADERS`, or else to the OTLP endpoint with the metrics headers. At most 500 records per request. Metrics are sent first; a failing logs export still fails the
   command, so append `|| true` where that should not turn a build red
 - Resource attributes (`service.*`, `vcs.*`, `cicd.*`) derived from the detected CI. `service.name` comes from
-  `OTEL_SERVICE_NAME` (default `macpaw-test`); there is no `service.instance.id`, so runs share series. On GitHub Actions,
+  `OTEL_SERVICE_NAME` (default `macpaw-test`); there is no `service.instance.id`, so runs share series. The run id, number and URL are not resource attributes (they change every run); they are sent
+  on each log record. In Loki, index only low-cardinality resource attributes (`service.name`, `vcs.repository.name`,
+  `cicd.pipeline.name`) as labels in `otlp_config`; the rest stays structured metadata, which the dashboard filters on. On GitHub Actions,
   set `JOB_NAME` (for example `${{ github.job }}-${{ matrix.os }}`) in matrix jobs, since `GITHUB_JOB` is shared by every leg
 - `--dry-run` prints the payload without sending it; `--no-fail-on-error` keeps a green build green
 
