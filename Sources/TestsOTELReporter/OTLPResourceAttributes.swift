@@ -45,4 +45,24 @@ enum OTLPResourceAttributes {
       value.map { OTLPMetricsRequest.KeyValue(key: key, stringValue: $0) }
     }
   }
+
+  /// Collects the attributes that identify one run, for backends that can store them cheaply.
+  ///
+  /// These are unique to every run, so on a resource or a metric label they would start a new
+  /// stream or series each time. They belong on individual log records, where Loki keeps them as
+  /// structured metadata: searchable, but not indexed.
+  ///
+  /// - Parameter cicd: Pipeline metadata for the run.
+  /// - Returns: The run id, number and URL the CI can report; the others are omitted.
+  static func runAttributes(cicd: CI.CICD) -> [OTLPMetricsRequest.KeyValue] {
+    let attributes: [(key: String, value: String?)] = [
+      (SemanticConventions.Resource.cicdPipelineRunID, cicd.run.id),
+      (SemanticConventions.Resource.cicdPipelineRunNumber, cicd.run.number),
+      (SemanticConventions.Resource.cicdPipelineRunURL, cicd.run.url?.absoluteString),
+    ]
+
+    return attributes.compactMap { key, value in
+      value.map { OTLPMetricsRequest.KeyValue(key: key, stringValue: $0) }
+    }
+  }
 }

@@ -30,12 +30,14 @@ struct TestsOTELReporterLogsTests {
   /// - Parameters:
   ///   - lokiEndpoint: Base URL of a separate Loki endpoint, if any.
   ///   - lokiHeaders: Headers for the logs request, if they differ from the metrics headers.
+  ///   - ci: The CI the run executed on.
   ///   - urlSession: URL session used for the export requests.
   /// - Returns: The configured reporter.
   /// - Throws: An error if the endpoint URL cannot be built.
   private func makeSUT(
     lokiEndpoint: String? = .none,
     lokiHeaders: [String: String]? = .none,
+    ci: MockCI = MockCI(cicd: CI.CICD(run: CI.CICD.Run(number: "7"))),
     urlSession: URLSession = .shared,
   ) throws -> TestsOTELReporter {
     TestsOTELReporter(
@@ -46,7 +48,7 @@ struct TestsOTELReporterLogsTests {
         lokiHeaders: lokiHeaders,
         timestamp: Date(timeIntervalSince1970: 1_700_000_000),
       ),
-      ci: MockCI(cicd: CI.CICD(run: CI.CICD.Run(number: "7"))),
+      ci: ci,
       urlSession: urlSession,
     )
   }
@@ -85,6 +87,29 @@ struct TestsOTELReporterLogsTests {
     #expect(attributes["test.suite.name"] == "GreeterTests")
     #expect(attributes["test.case.result.status"] == "fail")
     #expect(OTLPLogsPayload.doubleAttribute("test.case.duration", of: record) == 300)
+  }
+
+  @Test("logPayloads attachesRunAttributesToEveryRecord")
+  func test_logPayloads_attachesRunAttributesToEveryRecord() throws {
+    // GIVEN — a CI reporting the run id, number and URL
+    let ci = MockCI(
+      cicd: CI.CICD(
+        run: CI.CICD.Run(id: "42", number: "7", url: URL(string: "https://ci.example/runs/42"))
+      )
+    )
+    let sut = try makeSUT(ci: ci)
+
+    // WHEN
+    let payload = try OTLPLogsPayload(data: try #require(try sut.logPayloads(for: Self.testRun).first))
+
+    // THEN — every record carries them, so a failure links back to its run
+    #expect(payload.logRecords.count == 3)
+    for record in payload.logRecords {
+      let attributes = OTLPPayload.attributes(of: record)
+      #expect(attributes["cicd.pipeline.run.id"] == "42")
+      #expect(attributes["cicd.pipeline.run.number"] == "7")
+      #expect(attributes["cicd.pipeline.run.url.full"] == "https://ci.example/runs/42")
+    }
   }
 
   @Test("logPayloads mapsStatusToSeverity")
