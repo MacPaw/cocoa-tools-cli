@@ -1,7 +1,7 @@
 #:schema ./schema/mise.json
 
 # Minimum required mise version.
-min_version = "2026.7.16"
+min_version = "2026.11.10"
 
 [tools]
 # https://app-updates.agilebits.com/product_history/CLI2
@@ -12,12 +12,14 @@ min_version = "2026.7.16"
 # https://github.com/apple/container/releases/
 # Run Linux containers as lightweight virtual machines.
 # Used in the mise `test-linux` task to run tests in Linux container while running on macOS.
-container = { version = "1.6.1", os = ["macos"] }
+container = { version = "1", os = ["macos"] }
 
 # https://github.com/securevale/swift-confidential/releases/
 # Obfuscation tool for Swift.
 # Used in ObfuscateSecrets library.
-"github:securevale/swift-confidential" = { version = "latest", os = ["macos"] }
+"github:securevale/swift-confidential" = { version = "latest", os = [
+  "macos",
+], version_prefix = "" }
 
 # https://github.com/mvdan/sh/releases/
 # Formats shell scripts.
