@@ -167,7 +167,10 @@ public struct TestsOTELReporter {
       (data, response) = try await urlSession.data(for: request)
     }
     catch {
-      log.error("Exporting \(kind) to \(safeURL) failed: \(error)")
+      // `URLError` descriptions embed the unredacted URL, so log only its code and localized text.
+      let reason =
+        (error as? URLError).map { "\($0.localizedDescription) (code \($0.code.rawValue))" } ?? "\(type(of: error))"
+      log.error("Exporting \(kind) to \(safeURL) failed: \(reason)")
       throw error
     }
 

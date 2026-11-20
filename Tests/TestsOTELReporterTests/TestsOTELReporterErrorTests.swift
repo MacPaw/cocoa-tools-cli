@@ -63,6 +63,22 @@ struct TestsOTELReporterErrorTests {
     #expect(description.hasPrefix("OTLP export to http://collector:4318/v1/metrics got a non-HTTP response"))
   }
 
+  @Test("responseNotHTTP description does not leak the response URL")
+  func test_responseNotHTTP_descriptionHidesResponseURL() throws {
+    // GIVEN
+    let secretURL = try #require(URL(string: "http://user:secret@collector:4318/v1/metrics?token=abc"))
+    let safeURL = TestsOTELReporter.Error.redacted(secretURL)
+    let response = URLResponse(url: secretURL, mimeType: .none, expectedContentLength: 0, textEncodingName: .none)
+    let sut = TestsOTELReporter.Error.responseNotHTTP(response, url: safeURL)
+
+    // WHEN
+    let description = sut.description
+
+    // THEN
+    #expect(!description.contains("secret"))
+    #expect(!description.contains("token"))
+  }
+
   @Test("redacted removes user info, query and fragment")
   func test_redacted_removesCredentials() throws {
     // GIVEN
