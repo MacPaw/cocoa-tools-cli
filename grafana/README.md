@@ -1,12 +1,12 @@
 # Grafana dashboards
 
-Dashboard for the metrics and per-test-case logs pushed by `mpct tests report otel`:
+Dashboard for the metrics and per-test-case traces pushed by `mpct tests report otel`:
 [`dashboards/v2/tests-metrics.json`](dashboards/v2/tests-metrics.json) — test results, durations and line coverage
 in one dashboard. It is a Grafana v2 dashboard resource (`apiVersion: dashboard.grafana.app/v2`).
 
 Import it via **Dashboards → New → Import** and pick the Prometheus/Mimir
-datasource (the dashboard refers to it through `${datasource}`) and the Loki datasource
-(`${loki}`, used by the *Executed tests* and *Flaky tests* tables only).
+datasource (the dashboard refers to it through `${datasource}`) and the Tempo datasource
+(`${tempo}`, used by the *Executed tests* and *Flaky tests* tables only).
 
 Filters, chained like the Xcode CAS dashboard: Repository → Pipeline → Stage → Job, plus Test suite
 and Coverage target.
@@ -19,26 +19,23 @@ and Coverage target.
   `cicd_test_run_duration`, `cicd_test_coverage_line_count`). If the backend adds them
   (`_milliseconds`, `_ratio`), rename the metrics in the queries.
 - The *Test suite* variable and the per-suite panels need the per-suite breakdown when reporting.
-- The *Executed tests* table (pass rate is N/A for tests that were only skipped) reads the per-test-case **logs**
-  that mpct sends to Loki, not metrics: test names would otherwise be a series per test. It queries Loki with LogQL
-  and needs the logs to reach Loki's OTLP intake (`--loki-otlp-endpoint`, or a collector logs pipeline). Loki turns
-  the OTLP log attributes into structured metadata (`test_case_name`, `test_suite_name`, `test_case_result_status`,
-  `test_case_duration`). `service_name`, `vcs_repository_name` and `cicd_pipeline_name` are indexed (see the ops Loki config), so the
-  queries select on `service_name="macpaw-test"` and the repository inside the stream selector and filter on the rest after it;
-  a broad selector such as `service_name=~".+"` would read every service's logs.
-  Counts sum every run in the dashboard's range, pass rate is the share of passed among passed and failed executions (N/A when a
-  test only ever skipped), and execution time is the mean per execution. Loki splits a query into 24-hour pieces, so a long
-  range multiplies the request count; if the panel warns `too many outstanding requests`, shorten the dashboard range.
-  Loki rejects log lines older than its `reject_old_samples_max_age` (a week by default), so a back-dated
-  `--timestamp` or `BUILD_FINISHTIME` outside that window drops the logs while the metrics still land.
-- The *Executed tests* row is hidden while Repository, Pipeline, Stage, Job and Test suite are all on *All* (a conditional-rendering rule on the row, which needs Grafana 12 or newer), so its five Loki queries do not run until a filter is narrowed; while it is hidden, a short text panel in its place asks you to pick a filter.
-- The *Flaky tests* table lists the 100 tests that failed at least once in the range (a test that never passed shows a pass rate of 0%), ranked by failure count and then by
-  pass rate (lowest first). The ranking runs in LogQL (`topk(100, failed)`), the passed counts are
-  restricted to the same set with `and on(...)` (filled with 0 for tests that never passed), and the pass rate is computed in the panel. This keeps the panel small, but not
-  Loki's work: `topk` runs after the scan, so the panel reads the same log lines as *Executed tests* (several selectors for each
-  query, so several scans). Shorten the range to lower the load.
-  Each Loki selector ends in `| keep test_suite_name, test_case_name`, so a series is one test rather than one test per
-  stream and run; without it Loki stops at `maximum of series (10000) reached for a single query`.
+- The *Executed tests* table (pass rate is N/A for tests that were only skipped) reads the per-test-case **spans**
+  that mpct sends to Tempo, not metrics: test names would otherwise be a series per test. It queries Tempo with TraceQL
+  metrics (`count_over_time()` and `avg_over_time(span.test.case.duration)`, grouped by `span.test.suite.name` and
+  `span.test.case.name`) and needs the spans to reach Tempo's OTLP intake (`--tempo-otlp-endpoint`, or a collector traces
+  pipeline). **TraceQL metrics must be enabled on Tempo**: the `local-blocks` processor of the metrics generator, with
+  `flush_to_storage` so queries beyond the most recent data are answered, and retention longer than the dashboard range.
+  Counts sum every run in the range, pass rate is the share of passed among passed and failed executions (computed in the panel
+  from the two counts, N/A when a test only ever skipped), and execution time is the mean per execution. The queries select
+  on resource attributes (`resource.vcs.repository.name` and so on), so spans lacking an attribute that a filter selects (such
+  as a CI that reports no stage) match no filter value, including *All*; the metrics-based panels do not have this limit.
+- The *Executed tests* row is hidden while Repository, Pipeline, Stage, Job and Test suite are all on *All* (a conditional-rendering rule on the row, which needs Grafana 12 or newer), so its four Tempo queries do not run until a filter is narrowed; while it is hidden, a short text panel in its place asks you to pick a filter.
+- The *Flaky tests* table lists the 100 tests that failed at least once in the range (a test that never passed shows a pass rate
+  of 0%), ranked by failure count and then by pass rate (lowest first). TraceQL has no join, so the panel runs two queries
+  (passed and failed counts per test) and Grafana transformations keep the tests that failed, fill passed with 0, compute the
+  pass rate, sort and cut to 100. All tests are therefore read by Tempo before the cut; shorten the range to lower the load.
+- Span start times are approximate: reports carry no start times, so mpct lays spans out back-to-back ending at the run
+  timestamp. Durations are accurate. A back-dated `--timestamp` or `BUILD_FINISHTIME` must still fall inside Tempo's retention.
 - Metrics are one-shot gauges, one sample per CI run, so queries use `*_over_time` rather than `rate`. mpct sends no
   `service.instance.id` (Mimir would make it the `instance` label), so runs of the same pipeline, stage and job share a series
   and each adds a sample. The queries also hold for a reporter that does send a per-run instance id.

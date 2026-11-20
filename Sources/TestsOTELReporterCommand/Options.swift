@@ -54,23 +54,23 @@ struct Options: ParsableArguments {
   @Option(
     name: .long,
     help: """
-      Base URL of a Loki endpoint for per-test-case logs, without the signal path — `v1/logs` is \
-      appended, so include Loki's `otlp` prefix, e.g. `http://loki:3100/otlp`. \
-      Defaults to $LOKI_OTLP_ENDPOINT; when neither is set, logs go to the OTLP endpoint.
+      Base URL of a Tempo endpoint for per-test-case traces, without the signal path — `v1/traces` is \
+      appended, so include any path prefix, e.g. `http://tempo:4318`. \
+      Defaults to $TEMPO_OTLP_ENDPOINT; when neither is set, traces go to the OTLP endpoint.
       """,
   )
-  var lokiOtlpEndpoint: String?
+  var tempoOtlpEndpoint: String?
 
   @Option(
     name: .long,
     parsing: .upToNextOption,
     help: """
-      Header to send with the logs export, as `key=value`. Repeatable. \
-      Merged over headers parsed from $LOKI_OTLP_HEADERS. When neither is set, \
+      Header to send with the traces export, as `key=value`. Repeatable. \
+      Merged over headers parsed from $TEMPO_OTLP_HEADERS. When neither is set, \
       the metrics headers are sent.
       """,
   )
-  var lokiOtlpHeader: [String] = []
+  var tempoOtlpHeader: [String] = []
 
   @Flag(
     inversion: .prefixedNo,

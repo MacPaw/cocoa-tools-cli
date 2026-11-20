@@ -17,13 +17,13 @@ extension TestsOTELReporterCommand {
     _ = try options.resolvedInputs()
     _ = try options.resolvedEndpoint(environment: Self.environment)
     _ = try options.resolvedHeaders(environment: Self.environment)
-    _ = try options.resolvedLokiEndpoint(environment: Self.environment)
-    _ = try options.resolvedLokiHeaders(environment: Self.environment)
+    _ = try options.resolvedTempoEndpoint(environment: Self.environment)
+    _ = try options.resolvedTempoHeaders(environment: Self.environment)
   }
 
   /// Parses the report and exports its metrics.
   ///
-  /// Metrics are sent before the per-test-case logs, so a failing logs export still leaves the
+  /// Metrics are sent before the per-test-case traces, so a failing traces export still leaves the
   /// metrics delivered while the command exits non-zero. The exit status reflects only the
   /// export: a run containing failing tests still exits zero, since the command reports results
   /// rather than gating on them.
@@ -37,8 +37,8 @@ extension TestsOTELReporterCommand {
         endpoint: try options.resolvedEndpoint(environment: environment),
         headers: try options.resolvedHeaders(environment: environment),
         isPerSuiteEnabled: options.perSuite,
-        lokiEndpoint: try options.resolvedLokiEndpoint(environment: environment),
-        lokiHeaders: try options.resolvedLokiHeaders(environment: environment),
+        tempoEndpoint: try options.resolvedTempoEndpoint(environment: environment),
+        tempoHeaders: try options.resolvedTempoHeaders(environment: environment),
         serviceName: options.resolvedServiceName(environment: environment),
         timestamp: options.resolvedTimestamp(environment: environment),
         isDryRun: options.dryRun,
@@ -52,14 +52,14 @@ extension TestsOTELReporterCommand {
 
       if options.dryRun {
         print(String(decoding: payload, as: UTF8.self))
-        for logPayload in try testRun.map(reporter.logPayloads(for:)) ?? [] {
-          print(String(decoding: logPayload, as: UTF8.self))
+        for tracePayload in try testRun.map(reporter.tracePayloads(for:)) ?? [] {
+          print(String(decoding: tracePayload, as: UTF8.self))
         }
       }
       else {
         log.info(
           """
-          Exported metrics and logs for \(testRun?.testCases.count ?? 0) test cases \
+          Exported metrics and traces for \(testRun?.testCases.count ?? 0) test cases \
           in \(testRun?.suites.count ?? 0) suites \
           and \(lineCoverage?.targets.count ?? 0) line coverage targets
           """

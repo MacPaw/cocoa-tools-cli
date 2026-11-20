@@ -264,7 +264,7 @@ struct OTLPMetricsBuilder {
   /// Splits a test run into the groups that become data points.
   ///
   /// With the per-suite breakdown there is one group per suite; otherwise the whole run forms a
-  /// single unattributed group. Individual test cases are never a group: their names go to logs,
+  /// single unattributed group. Individual test cases are never a group: their names go to traces,
   /// since a series per test case grows without bound.
   ///
   /// - Parameter testRun: The completed test run.

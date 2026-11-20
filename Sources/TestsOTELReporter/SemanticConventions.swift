@@ -18,12 +18,14 @@ enum SemanticConventions {
     static let testLineCoverageCount: String = "cicd.test.coverage.line.count"
   }
 
-  /// Data point and log record attribute names.
+  /// Data point and span attribute names.
   enum Attribute {
     /// Outcome of a suite or of the whole run — registered as `test.suite.run.status`.
     static let testSuiteRunStatus: String = "test.suite.run.status"
-    /// Execution duration of a test case, in milliseconds — a MacPaw extension, sent on log records.
+    /// Execution duration of a test case, in milliseconds — a MacPaw extension, sent on spans.
     static let testCaseDuration: String = "test.case.duration"
+    /// Why a test case failed, capped in length — a MacPaw extension, sent on spans.
+    static let testCaseFailureMessage: String = "test.case.failure.message"
     /// Outcome of a test case — registered as `test.case.result.status`.
     static let testCaseResultStatus: String = "test.case.result.status"
     /// Name of the suite a test case belongs to — registered as `test.suite.name`.

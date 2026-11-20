@@ -25,50 +25,50 @@ struct ConfigurationTests {
     #expect(sut.metricsURL.absoluteString == "https://collector.example/mycollector/v1/metrics")
   }
 
-  @Test("logsURL defaultsToStandardSignalPathOnTheMetricsEndpoint")
-  func test_logsURL_defaultsToStandardSignalPathOnTheMetricsEndpoint() throws {
-    // GIVEN — no Loki endpoint
+  @Test("tracesURL defaultsToStandardSignalPathOnTheMetricsEndpoint")
+  func test_tracesURL_defaultsToStandardSignalPathOnTheMetricsEndpoint() throws {
+    // GIVEN — no Tempo endpoint
     let sut = TestsOTELReporter.Configuration(endpoint: try #require(URL(string: "https://collector.example:4318")))
 
-    // WHEN / THEN — logs follow the collector, with the standard OTLP path
-    #expect(sut.logsURL.absoluteString == "https://collector.example:4318/v1/logs")
+    // WHEN / THEN — traces follow the collector, with the standard OTLP path
+    #expect(sut.tracesURL.absoluteString == "https://collector.example:4318/v1/traces")
   }
 
-  @Test("logsURL appendsOnlyTheSignalPathToTheLokiEndpoint")
-  func test_logsURL_appendsOnlyTheSignalPathToTheLokiEndpoint() throws {
-    // GIVEN — a Loki base URL that already carries Loki's OTLP prefix
+  @Test("tracesURL appendsOnlyTheSignalPathToTheTempoEndpoint")
+  func test_tracesURL_appendsOnlyTheSignalPathToTheTempoEndpoint() throws {
+    // GIVEN — a Tempo base URL that already carries Tempo's OTLP prefix
     let sut = TestsOTELReporter.Configuration(
       endpoint: try #require(URL(string: "https://collector.example")),
-      lokiEndpoint: try #require(URL(string: "https://loki.example:3100/otlp")),
+      tempoEndpoint: try #require(URL(string: "https://tempo.example:4318/otlp")),
     )
 
     // WHEN / THEN — the signal path is appended exactly as for the OTLP endpoint, and the collector is not involved
-    #expect(sut.logsURL.absoluteString == "https://loki.example:3100/otlp/v1/logs")
+    #expect(sut.tracesURL.absoluteString == "https://tempo.example:4318/otlp/v1/traces")
   }
 
-  @Test("logsHeaders fallsBackToTheMetricsHeaders")
-  func test_logsHeaders_fallsBackToTheMetricsHeaders() throws {
-    // GIVEN — metrics headers and no Loki headers
+  @Test("tracesHeaders fallsBackToTheMetricsHeaders")
+  func test_tracesHeaders_fallsBackToTheMetricsHeaders() throws {
+    // GIVEN — metrics headers and no Tempo headers
     let sut = TestsOTELReporter.Configuration(
       endpoint: try #require(URL(string: "https://collector.example")),
       headers: ["authorization": "metrics"],
     )
 
     // WHEN / THEN
-    #expect(sut.logsHeaders == ["authorization": "metrics"])
+    #expect(sut.tracesHeaders == ["authorization": "metrics"])
   }
 
-  @Test("logsHeaders prefersLokiHeaders")
-  func test_logsHeaders_prefersLokiHeaders() throws {
+  @Test("tracesHeaders prefersTempoHeaders")
+  func test_tracesHeaders_prefersTempoHeaders() throws {
     // GIVEN — both sets of headers
     let sut = TestsOTELReporter.Configuration(
       endpoint: try #require(URL(string: "https://collector.example")),
       headers: ["authorization": "metrics"],
-      lokiHeaders: ["authorization": "loki"],
+      tempoHeaders: ["authorization": "tempo"],
     )
 
-    // WHEN / THEN — Loki's credentials are not mixed with the metrics ones
-    #expect(sut.logsHeaders == ["authorization": "loki"])
+    // WHEN / THEN — Tempo's credentials are not mixed with the metrics ones
+    #expect(sut.tracesHeaders == ["authorization": "tempo"])
   }
 }
 

@@ -9,10 +9,10 @@ extension Options {
     static let endpoint: String = "OTEL_EXPORTER_OTLP_ENDPOINT"
     /// Comma-separated `key=value` headers sent with the export.
     static let headers: String = "OTEL_EXPORTER_OTLP_HEADERS"
-    /// Base URL of a Loki endpoint for logs.
-    static let lokiEndpoint: String = "LOKI_OTLP_ENDPOINT"
-    /// Comma-separated `key=value` headers sent with the logs export.
-    static let lokiHeaders: String = "LOKI_OTLP_HEADERS"
+    /// Base URL of a Tempo endpoint for traces.
+    static let tempoEndpoint: String = "TEMPO_OTLP_ENDPOINT"
+    /// Comma-separated `key=value` headers sent with the traces export.
+    static let tempoHeaders: String = "TEMPO_OTLP_HEADERS"
     /// Value of the `service.name` resource attribute.
     static let serviceName: String = "OTEL_SERVICE_NAME"
     /// Run finish time, reused from the Azure Pipelines CAS metrics for a shared sample instant.
@@ -95,15 +95,15 @@ extension Options {
     return try Self.validatedURL(rawValue, description: "OTLP endpoint")
   }
 
-  /// Resolves the Loki base URL from the flag, falling back to the environment.
+  /// Resolves the Tempo base URL from the flag, falling back to the environment.
   ///
   /// - Parameter environment: Environment variables to fall back to.
-  /// - Returns: The base URL of the Loki endpoint, or `nil` when logs should go to the OTLP endpoint.
+  /// - Returns: The base URL of the Tempo endpoint, or `nil` when traces should go to the OTLP endpoint.
   /// - Throws: `ValidationError` when the configured value is not a valid URL.
-  func resolvedLokiEndpoint(environment: [String: String]) throws -> URL? {
-    let rawValue: String? = lokiOtlpEndpoint ?? Self.nonEmpty(environment[EnvironmentKey.lokiEndpoint])
+  func resolvedTempoEndpoint(environment: [String: String]) throws -> URL? {
+    let rawValue: String? = tempoOtlpEndpoint ?? Self.nonEmpty(environment[EnvironmentKey.tempoEndpoint])
 
-    return try rawValue.map { try Self.validatedURL($0, description: "Loki endpoint") }
+    return try rawValue.map { try Self.validatedURL($0, description: "Tempo endpoint") }
   }
 
   /// Resolves the headers sent with the export.
@@ -122,23 +122,23 @@ extension Options {
     )
   }
 
-  /// Resolves the headers sent with the logs export.
+  /// Resolves the headers sent with the traces export.
   ///
-  /// Merged like ``resolvedHeaders(environment:)``, but from the Loki-specific sources only,
-  /// since Loki often authenticates differently from the metrics backend.
+  /// Merged like ``resolvedHeaders(environment:)``, but from the Tempo-specific sources only,
+  /// since Tempo often authenticates differently from the metrics backend.
   ///
   /// - Parameter environment: Environment variables to read headers from.
   /// - Returns: The headers to send, or `nil` when none are configured and the metrics headers
   ///   should be used.
-  /// - Throws: `ValidationError` when a `--loki-otlp-header` value is not in `key=value` form.
-  func resolvedLokiHeaders(environment: [String: String]) throws -> [String: String]? {
-    let rawEnvironment: String? = Self.nonEmpty(environment[EnvironmentKey.lokiHeaders])
-    guard rawEnvironment != nil || !lokiOtlpHeader.isEmpty else { return .none }
+  /// - Throws: `ValidationError` when a `--tempo-otlp-header` value is not in `key=value` form.
+  func resolvedTempoHeaders(environment: [String: String]) throws -> [String: String]? {
+    let rawEnvironment: String? = Self.nonEmpty(environment[EnvironmentKey.tempoHeaders])
+    guard rawEnvironment != nil || !tempoOtlpHeader.isEmpty else { return .none }
 
     return try Self.mergedHeaders(
       environment: rawEnvironment ?? "",
-      flags: lokiOtlpHeader,
-      option: "--loki-otlp-header",
+      flags: tempoOtlpHeader,
+      option: "--tempo-otlp-header",
     )
   }
 
