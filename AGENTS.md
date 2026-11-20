@@ -59,7 +59,8 @@ Resource attributes come from `CI.current.repository` / `.cicd`, plus `service.n
 `macpaw-test`, shared with the Playwright reporter). There is no `service.instance.id`: Mimir makes it the `instance`
 label, so a per-run value would start new series every run; runs share a series and add one sample each. The filterable ones (repository, pipeline,
 stage, job) are repeated as data-point attributes, since backends do not promote resource attributes to
-metric labels by default; run id / number / URL stay on the resource only (a label per run would explode series).
+metric labels by default; run id / number / URL are on neither the resource nor a label: unique per run, they would start a new Loki stream or Mimir
+`target_info` series each time. They go on each log record as attributes, which Loki keeps as structured metadata.
 `mpct` logs the CI context it attaches before each export.
 
 Test case names are never metric labels (a series per test grows without bound). Each case is one OTLP **log record**

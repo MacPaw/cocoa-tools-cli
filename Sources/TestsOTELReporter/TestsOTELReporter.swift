@@ -166,7 +166,8 @@ public struct TestsOTELReporter {
 }
 
 extension TestsOTELReporter {
-  /// Logs the CI metadata that is attached to the export as resource attributes.
+  /// Logs the CI metadata that is attached to the export: shared values as resource attributes,
+  /// run-unique ones on each log record.
   ///
   /// Attributes the CI cannot report are omitted from the payload, so they are logged as a
   /// warning: the matching dashboard variables stay empty.
