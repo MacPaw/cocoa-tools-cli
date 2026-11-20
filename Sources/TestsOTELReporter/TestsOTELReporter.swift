@@ -128,14 +128,17 @@ public struct TestsOTELReporter {
       return payload
     }
 
-    log.debug("Exporting test metrics to \(configuration.metricsURL)")
-    try await send(payload, to: configuration.metricsURL, headers: configuration.headers)
+    try await send(payload, kind: "metrics", to: configuration.metricsURL, headers: configuration.headers)
 
     if let testRun {
       let tracePayloads = try tracePayloads(for: testRun)
-      log.debug("Exporting test case traces to \(configuration.tracesURL) in \(tracePayloads.count) requests")
-      for tracePayload in tracePayloads {
-        try await send(tracePayload, to: configuration.tracesURL, headers: configuration.tracesHeaders)
+      for (index, tracePayload) in tracePayloads.enumerated() {
+        try await send(
+          tracePayload,
+          kind: "traces (batch \(index + 1)/\(tracePayloads.count))",
+          to: configuration.tracesURL,
+          headers: configuration.tracesHeaders,
+        )
       }
     }
 
@@ -146,22 +149,35 @@ public struct TestsOTELReporter {
   ///
   /// - Parameters:
   ///   - body: The JSON-encoded payload.
+  ///   - kind: What is being sent, for the log line, such as `metrics`.
   ///   - url: The URL to send it to.
   ///   - headers: Headers sent with the request.
   /// - Throws: ``Error`` if the collector rejects the payload, or a `URLSession` error.
-  private func send(_ body: Data, to url: URL, headers: [String: String]) async throws {
+  private func send(_ body: Data, kind: String, to url: URL, headers: [String: String]) async throws {
+    let safeURL = Error.redacted(url)
     var request = URLRequest(url: url)
     request.httpMethod = "POST"
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
     for (name, value) in headers { request.setValue(value, forHTTPHeaderField: name) }
     request.httpBody = body
 
-    let (data, response) = try await urlSession.data(for: request)
-
-    guard let httpResponse = response as? HTTPURLResponse else { throw Error.responseNotHTTP(response) }
-    guard (200..<300).contains(httpResponse.statusCode) else {
-      throw Error.wrongStatusCode(httpResponse.statusCode, body: String(data: data, encoding: .utf8))
+    let data: Data
+    let response: URLResponse
+    do {
+      (data, response) = try await urlSession.data(for: request)
     }
+    catch {
+      log.error("Exporting \(kind) to \(safeURL) failed: \(error)")
+      throw error
+    }
+
+    guard let httpResponse = response as? HTTPURLResponse else {
+      throw Error.responseNotHTTP(response, url: safeURL)
+    }
+    guard (200..<300).contains(httpResponse.statusCode) else {
+      throw Error.wrongStatusCode(httpResponse.statusCode, url: safeURL, body: String(data: data, encoding: .utf8))
+    }
+    log.info("Exported \(kind) to \(safeURL): HTTP \(httpResponse.statusCode), \(body.count) bytes")
   }
 }
 
