@@ -91,8 +91,8 @@ a missing endpoint is a validation error rather than silent data loss.
   command, so append `|| true` where that should not turn a build red
 - Resource attributes (`service.*`, `vcs.*`, `cicd.*`) derived from the detected CI. `service.name` comes from
   `OTEL_SERVICE_NAME` (default `macpaw-test`); there is no `service.instance.id`, so runs share series. The run id, number and URL are not resource attributes (they change every run); they are sent
-  on each log record. In Loki, promote only low-cardinality attributes (`service.name`, repository, pipeline, stage, job)
-  to index labels in `otlp_config`; the rest stays structured metadata. On GitHub Actions,
+  on each log record. In Loki, index only low-cardinality resource attributes (`service.name`, `vcs.repository.name`,
+  `cicd.pipeline.name`) as labels in `otlp_config`; the rest stays structured metadata, which the dashboard filters on. On GitHub Actions,
   set `JOB_NAME` (for example `${{ github.job }}-${{ matrix.os }}`) in matrix jobs, since `GITHUB_JOB` is shared by every leg
 - `--dry-run` prints the payload without sending it; `--no-fail-on-error` keeps a green build green
 
